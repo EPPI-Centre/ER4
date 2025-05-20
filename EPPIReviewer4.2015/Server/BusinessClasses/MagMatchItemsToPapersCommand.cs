@@ -28,7 +28,7 @@ using System.Web.Hosting;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
-    public class MagMatchItemsToPapersCommand : LongLastingFireAndForgetCommand<MagMatchItemsToPapersCommand>
+    public class MagMatchItemsToPapersCommand : LongLastingFireAndForgetCommand
     {
         public MagMatchItemsToPapersCommand() { }
 

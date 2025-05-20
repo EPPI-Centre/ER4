@@ -1,4 +1,15 @@
 <div class="px-0 mx-1 my-0">
+
+  <div class="row px-1 mx-0 my-1 border-bottom ">
+    <div class="col-auto mr-1 px-0">Robot:</div>
+    <select class="col px-0" (change)="RobotChanged($event)">
+      <option value="">Please select</option>
+      <option [ngValue]="r.robotName" *ngFor="let r of RobotsList" [selected]="r.robotName == RobotSettings.robotName" [disabled]="r.isRetired">
+        {{r.robotName}}
+      </option>
+    </select>
+  </div>
+
   <div class="row px-1 mx-0 my-1 border-bottom ">
     <div>Always add coding in the Robot's name</div>
     <input class="m-1" type="checkbox" [(ngModel)]="RobotSettings.onlyCodeInTheRobotName" />

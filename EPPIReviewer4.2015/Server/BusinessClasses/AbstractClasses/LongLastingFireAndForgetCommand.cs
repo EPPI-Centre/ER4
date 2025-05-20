@@ -22,7 +22,7 @@ using Csla.Data;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
-    public abstract class LongLastingFireAndForgetCommand<T> : CommandBase<LongLastingFireAndForgetCommand<T>>
+    public abstract class LongLastingFireAndForgetCommand : CommandBase<LongLastingFireAndForgetCommand>
     {
 #if !SILVERLIGHT
         protected Boolean AppIsShuttingDown

@@ -140,7 +140,7 @@ declare @indexName varchar(255) = ''
 declare @command nvarchar(max) = ''
 select @chk = count(*) from sys.foreign_keys AS fk
 INNER JOIN sys.tables AS ct
-  ON fk.parent_object_id = ct.[object_id] and ct.name = 'TB_ROBOT_API_CALL_LOG'
+  ON fk.parent_object_id = ct.[object_id] and ct.name = 'TB_SOMETABLE'
 --select @chk 
 
 WHile @chk > 0 and @safety < 15

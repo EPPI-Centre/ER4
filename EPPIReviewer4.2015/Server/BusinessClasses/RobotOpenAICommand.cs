@@ -34,14 +34,12 @@ using System.Web;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
-    public class RobotOpenAICommand : LongLastingFireAndForgetCommand<RobotOpenAICommand>
+    public class RobotOpenAICommand : LLMRobotCommand
     {
 
         public RobotOpenAICommand() { }
         private int _reviewSetId;
-        private Int64 _itemDocumentId;
         private Int64 _itemId;
-        private string _message = "";
         private string _UserPrivateOpenAIKey = "";//will be filled in automatically if/when it's present in ReviewInfo
         private string _ExplicitEndpoint = "";
         private string _ExplicitEndpointKey = "";
@@ -57,10 +55,9 @@ namespace BusinessLibrary.BusinessClasses
         private bool _Succeded = false;
         private int errors = 0;
 
-        public string ReturnMessage
-        {
-            get { return _message; }
-        }
+
+        
+
         public bool Succeded
         {
             get { return _Succeded; }
@@ -70,23 +67,23 @@ namespace BusinessLibrary.BusinessClasses
             get { return errors; }
         }
         public int RobotContactId { get { return _robotContactId; } }
-        public RobotOpenAICommand(int reviewSetId, Int64 itemId, Int64 itemDocumentId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true, bool useFullTextDocument = false)
+        public RobotOpenAICommand(RobotCoderReadOnly robot, int reviewSetId, Int64 itemId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true, bool useFullTextDocument = false)
         {
+            RobotCoder = robot;
             _reviewSetId = reviewSetId;
             _itemId = itemId;
-            _itemDocumentId = itemDocumentId;
             _message = "";
             _onlyCodeInTheRobotName = onlyCodeInTheRobotName;
             _lockTheCoding = lockTheCoding;
             _useFullTextDocument = useFullTextDocument;
         }
-        public RobotOpenAICommand(int reviewSetId, Int64 itemId, Int64 itemDocumentId, bool isLastInBatch, int JobId, int robotContactId, int reviewId, 
+        public RobotOpenAICommand(RobotCoderReadOnly robot, int reviewSetId, Int64 itemId, bool isLastInBatch, int JobId, int robotContactId, int reviewId, 
             int JobOwnerId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true, bool useFullTextDocument = false, string docsList = "",
             string ExplicitEndpoint = "", string ExplicitEndpointKey = "")
         {
+            RobotCoder = robot;
             _reviewSetId = reviewSetId;
             _itemId = itemId;
-            _itemDocumentId = itemDocumentId;
             _message = "";
             _isLastInBatch = isLastInBatch;
             _jobId = JobId;
@@ -106,7 +103,6 @@ namespace BusinessLibrary.BusinessClasses
             base.OnGetState(info, mode);
             info.AddValue("_reviewSetId", _reviewSetId);
             info.AddValue("_itemId", _itemId);
-            info.AddValue("_itemDocumentId", _itemDocumentId);
             info.AddValue("_message", _message);
             info.AddValue("_UserPrivateOpenAIKey", _UserPrivateOpenAIKey);
             info.AddValue("_ExplicitEndpoint", _ExplicitEndpoint);
@@ -127,7 +123,6 @@ namespace BusinessLibrary.BusinessClasses
         {
             _reviewSetId = info.GetValue<int>("_reviewSetId");
             _itemId = info.GetValue<Int64>("_itemId");
-            _itemDocumentId = info.GetValue<Int64>("_itemDocumentId");
             _message = info.GetValue<string>("_message");
             _UserPrivateOpenAIKey = info.GetValue<string>("_UserPrivateOpenAIKey");
             _ExplicitEndpoint = info.GetValue<string>("_ExplicitEndpoint");
@@ -198,7 +193,7 @@ namespace BusinessLibrary.BusinessClasses
                         command.Parameters.Add(new SqlParameter("@REVIEW_ID", _reviewId));
                         command.Parameters.Add(new SqlParameter("@CONTACT_ID", _jobOwnerId));
                         command.Parameters.Add(new SqlParameter("@CREDIT_PURCHASE_ID", creditPurchaseId));
-                        command.Parameters.Add(new SqlParameter("@ROBOT_NAME", "OpenAI GPT4"));
+                        command.Parameters.Add(new SqlParameter("@ROBOT_NAME", RobotCoder.RobotName));
                         command.Parameters.Add(new SqlParameter("@CRITERIA", "ItemIds: " + _itemId));
                         command.Parameters.Add(new SqlParameter("@REVIEW_SET_ID", _reviewSetId));
                         command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
@@ -460,7 +455,15 @@ namespace BusinessLibrary.BusinessClasses
 
             // *** Get the codeset, build the list of prompts, and return if no valid prompts are present
             ReviewSet rs = null;
-            rs = ReviewSet.GetReviewSet(_reviewSetId);
+            if (ReviewSetForPrompts != null && ReviewSetForPrompts.ReviewSetId == _reviewSetId)
+            {
+                rs = ReviewSetForPrompts;
+            }
+            else
+            {
+                rs = ReviewSet.GetReviewSet(_reviewSetId);
+                ReviewSetForPrompts = rs;
+            }
             if (rs == null)
             {
                 _message = "Error: could not get code set";
@@ -468,13 +471,21 @@ namespace BusinessLibrary.BusinessClasses
             }
 
             string prompt = "";
-            foreach (AttributeSet subSet in rs.Attributes)
-            { //maybe add code to check if we have 2 codes with the same prompt, which would break the "saving results" phase, somewhat (only the first will be coded)
-                string newPrompt = getPrompts("", subSet, RagPrompts);
-                if (newPrompt != "")
-                {
-                    prompt += newPrompt;
+            if (CachedPrompt == "")
+            {
+                foreach (AttributeSet subSet in rs.Attributes)
+                { //maybe add code to check if we have 2 codes with the same prompt, which would break the "saving results" phase, somewhat (only the first will be coded)
+                    string newPrompt = getPrompts("", subSet, RagPrompts);
+                    if (newPrompt != "")
+                    {
+                        prompt += newPrompt;
+                    }
                 }
+                CachedPrompt = prompt;
+            }
+            else
+            {
+                prompt = CachedPrompt;
             }
 
             if (prompt == "")
@@ -678,15 +689,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             else
             {
-                endpoint = AzureSettings.RobotOpenAIEndpoint;
-                key = AzureSettings.RobotOpenAIKey2;
+                endpoint = RobotCoder.EndPoint;
+                key = AzureSettings.RobotAPIKeyByRobotName(RobotCoder.RobotName);
             }
-
-            // *** additional params (modifiable in web.config)
-            double temperature = Convert.ToDouble(AzureSettings.RobotOpenAITemperature);
-            int frequency_penalty = Convert.ToInt16(AzureSettings.RobotOpenAIFrequencyPenalty);
-            int presence_penalty = Convert.ToInt16(AzureSettings.RobotOpenAIPresencePenalty);
-            double top_p = Convert.ToDouble(AzureSettings.RobotOpenAITopP);
+            
+            double temperature = Convert.ToDouble(RobotCoder.Temperature);
+            int frequency_penalty = Convert.ToInt16(RobotCoder.FrequencyPenalty);
+            int presence_penalty = Convert.ToInt16(RobotCoder.PresencePenalty);
+            double top_p = Convert.ToDouble(RobotCoder.TopP);
 
 
             // *** Create the client and submit the request to the LLM

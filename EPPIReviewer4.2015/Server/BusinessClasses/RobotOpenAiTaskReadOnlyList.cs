@@ -42,7 +42,6 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlCommand command = new SqlCommand("st_RobotApiTopQueuedJobs", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@ROBOT_NAME", "OpenAI GPT4"));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         Child_Fetch(reader, rid, cid, IsSiteAdmin);
@@ -66,7 +65,6 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlCommand command = new SqlCommand("st_RobotApiPastJobs", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@ROBOT_NAME", "OpenAI GPT4"));
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", rid));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", cid));
                     if (ri.IsSiteAdmin)

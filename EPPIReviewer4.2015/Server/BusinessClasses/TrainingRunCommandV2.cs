@@ -48,7 +48,7 @@ namespace BusinessLibrary.BusinessClasses
 {
 
     [Serializable]
-    public class TrainingRunCommandV2 : LongLastingFireAndForgetCommand<TrainingRunCommandV2>
+    public class TrainingRunCommandV2 : LongLastingFireAndForgetCommand
     {
 
     public TrainingRunCommandV2(){}
