@@ -707,9 +707,9 @@ namespace BusinessLibrary.BusinessClasses
                 client.DefaultRequestHeaders.Add("api-key", $"{key}");
                 string type = "json_object";
                 var response_format = new { type };
-                var requestBody = new { response_format, messages, temperature, frequency_penalty, presence_penalty, top_p };
+                //var requestBody = new { response_format, messages, temperature, frequency_penalty, presence_penalty, top_p };
                 //var requestBody = new { messages, temperature, frequency_penalty, presence_penalty, top_p };
-                json = JsonConvert.SerializeObject(requestBody);
+                json = BuildJsonRequestBody(type, messages, temperature, frequency_penalty, presence_penalty, top_p);  //JsonConvert.SerializeObject(requestBody);
             }
             else
             {
@@ -769,6 +769,21 @@ namespace BusinessLibrary.BusinessClasses
             _message = "Completed " + (errors > 0 ? "with" : "without") + " errors. (Tokens: prompt: " + generatedText.usage.prompt_tokens.ToString() + ", total: " + generatedText.usage.total_tokens.ToString() + ")";
 
             return true;
+        }
+        private string BuildJsonRequestBody(string type, List<OpenAIChatClass> messages, double temperature, int frequency_penalty, int presence_penalty, double top_p)
+        {
+            var response_format = new { type };
+            if (temperature + top_p + frequency_penalty + presence_penalty == -4)
+            {
+                var requestBody = new { response_format, messages };
+                return JsonConvert.SerializeObject(requestBody);
+            }
+            else
+            {
+                var requestBody = new { response_format, messages, temperature, frequency_penalty, presence_penalty, top_p };
+                //var requestBody = new { messages, temperature, frequency_penalty, presence_penalty, top_p };
+                return JsonConvert.SerializeObject(requestBody);
+            }
         }
 
         private static readonly Regex BooleanPromptRx = new Regex(@": ?boolean ?\/\/");
