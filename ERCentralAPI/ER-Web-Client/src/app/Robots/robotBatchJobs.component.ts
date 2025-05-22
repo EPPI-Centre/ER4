@@ -146,7 +146,7 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
         + this.RobotSettings.robotName + "</strong></div>"
         + "<div class='my-1 px-1 alert-warning'>The job will submit <strong>full-text documents</strong> to GPT. This means that:"
         + "<ol><li>The PDFs will be parsed for processing, which can take minutes (per document)</li>"
-        + "<li>Cost per item is higher (possibly about <strong>£0.10 per document</strong>)</li>"
+        + "<li>Cost per item is higher (~£0.10 per document for OpenAI GPT4; less for other models)</li>"
         + "<li>Process is much slower, as each item might take more than one minute to process</li></ol>"
         + "Are you <strong>sure</strong> you want to proceed?"
         + "</div>"

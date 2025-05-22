@@ -110,6 +110,10 @@
           <div class="rounded border border-info small px-1 bg-white mb-1">{{CurrentResult.sampleSize}}</div>
         </div>
       </div>
+      <div class="row mx-1 px-1">
+        <div class="font-weight-bold my-auto">Model used:</div>
+        <div class="rounded border border-info small px-1 bg-white col-auto mb-1">{{CurrentResult.robotName}}</div>
+      </div>
       <div class="m-1 p-1 font-weight-bold col-12">Results</div>
       <div class="m-1 p-1 rounded border border-primary bg-white" [innerHTML]="CurrentResult.returnResultText"></div>
     </div>
