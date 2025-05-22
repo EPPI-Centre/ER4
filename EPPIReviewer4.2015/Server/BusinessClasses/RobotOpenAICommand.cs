@@ -770,7 +770,7 @@ namespace BusinessLibrary.BusinessClasses
 
             return true;
         }
-        private string BuildJsonRequestBody(string type, List<OpenAIChatClass> messages, double temperature, int frequency_penalty, int presence_penalty, double top_p)
+        internal static string BuildJsonRequestBody(string type, List<OpenAIChatClass> messages, double temperature, int frequency_penalty, int presence_penalty, double top_p)
         {
             var response_format = new { type };
             if (temperature + top_p + frequency_penalty + presence_penalty == -4)

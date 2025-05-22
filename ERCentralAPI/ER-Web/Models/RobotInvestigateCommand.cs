@@ -375,9 +375,9 @@ namespace BusinessLibrary.BusinessClasses
                 client.DefaultRequestHeaders.Add("api-key", $"{key}");
                 //string type = "json_object"; as in this case, we're not requesting JSON in response and get an error if we do
                 //var response_format = new { type };
-                var requestBody = new { /*response_format, */ messages, temperature, frequency_penalty, presence_penalty, top_p };
-                //var requestBody = new { messages, temperature, frequency_penalty, presence_penalty, top_p };
-                json = JsonConvert.SerializeObject(requestBody);
+                //var requestBody = new { /*response_format, */ messages, temperature, frequency_penalty, presence_penalty, top_p };
+                //json = JsonConvert.SerializeObject(requestBody);
+                json = RobotOpenAICommand.BuildJsonRequestBody("text", messages, temperature, frequency_penalty, presence_penalty, top_p);
             }
             else
             {
