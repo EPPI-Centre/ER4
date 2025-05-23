@@ -37,7 +37,7 @@ using Markdig;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
-    public class RobotInvestigateCommand : LongLastingFireAndForgetCommand
+    public class RobotInvestigateCommand : LongLastingFireAndForgetCommand<RobotInvestigateCommand>
     {
 
         public RobotInvestigateCommand() { }

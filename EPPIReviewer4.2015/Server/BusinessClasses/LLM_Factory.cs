@@ -26,7 +26,7 @@ namespace BusinessLibrary.BusinessClasses
         string ReturnMessage { get; }
     }
     [Serializable]
-    public abstract class LLMRobotCommand: LongLastingFireAndForgetCommand, ILLMRobot
+    public abstract class LLMRobotCommand: LongLastingFireAndForgetCommand<LLMRobotCommand>, ILLMRobot
     {
         public static readonly PropertyInfo<RobotCoderReadOnly> RobotCoderProperty = RegisterProperty<RobotCoderReadOnly>(new PropertyInfo<RobotCoderReadOnly>("RobotCoder", "RobotCoder"));
         public RobotCoderReadOnly RobotCoder
