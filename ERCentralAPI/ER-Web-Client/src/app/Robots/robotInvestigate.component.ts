@@ -124,9 +124,9 @@ export class RobotInvestigate implements OnInit, OnDestroy {
   SaveCurrentResult() {
     if (!this.CurrentResult) return;
     const repHTML = this._robotsService.InvestigateReportHTML(this.CurrentResult);
-    const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(repHTML, this._baseUrl, "Investigate (with GPT) report"));
+    const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(repHTML, this._baseUrl, "Investigate (" + this.CurrentResult.robotName + ") report"));
     //console.log("Savign report:", dataURI)
-    saveAs(dataURI, "Investigate (with GPT) report.html");
+    saveAs(dataURI, "Investigate (" + this.CurrentResult.robotName + ") report.html");
   }
 
   public get nodeSelected(): singleNode | null | undefined {

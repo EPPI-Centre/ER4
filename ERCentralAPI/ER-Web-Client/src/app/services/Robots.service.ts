@@ -216,9 +216,9 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
     else return "N/A";
   }
   public InvestigateReportHTML(InvComm: iRobotInvestigate) :string {
-    let res = "<H2>Investigate (using GPT) Report</H2>";
+    let res = "<H2>Investigate (" + InvComm.robotName + ") Report</H2>";
     res += "\r\n" + "<TABLE class='ItemsTable'><tr><th>Query:</th><td colspan='5'>" + InvComm.queryForRobot + "</td></tr>";
-    res += "\r\n" + "<tr><th>Item IDs used:</th><td colspan='5'>" + InvComm.returnItemIdList + "</td></tr>";
+    res += "\r\n" + "<tr><th>Item IDs used:</th><td colspan='3'>" + InvComm.returnItemIdList + "</td><td colspan='2'><strong>Robot:</strong> " + InvComm.robotName + "</td></tr>";
     if (InvComm.getTextFrom != 'title') {
       res += "\r\n" + "<tr><td colspan='2'><strong>Grab text from: </strong>" + this.TextFromInvestigateTextOption(InvComm.getTextFrom) + "</td>";
       res += "\r\n" + "<td colspan='2'><strong>Using this code: </strong>" + this.TextFromAttributeId(InvComm.textFromThisAttribute) + "</td>";

@@ -66,6 +66,15 @@ namespace BusinessLibrary.BusinessClasses
             set { LoadProperty(RobotCoderProperty, value); }
         }
 
+        public string RobotName
+        {
+            get
+            {
+                if (RobotCoder == null) return "";
+                else return RobotCoder.RobotName;
+            }
+        }
+
         public string ReturnMessage
         {
             get { return _returnMessage; }
