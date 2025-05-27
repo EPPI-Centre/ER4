@@ -1596,23 +1596,26 @@ public partial class SiteLicense : System.Web.UI.Page
         dt.Columns.Add(new DataColumn("CREDIT_PURCHASER", typeof(string)));
         dt.Columns.Add(new DataColumn("REMAINING", typeof(string)));
 
-        bool isAdmDB = true;
-        IDataReader idr = Utils.GetReader(isAdmDB, "st_GetCreditPurchaseIDsForOpenAI",
-            "0", lblSiteLicID.Text);
-        while (idr.Read())
+        if (lblSiteLicID.Text != "N/A")
         {
-            newrow = dt.NewRow();
-            newrow["CREDIT_FOR_ROBOTS_ID"] = idr["tv_credit_for_robots_id"].ToString();
-            newrow["CREDIT_PURCHASE_ID"] = idr["tv_credit_purchase_id"].ToString();
+            bool isAdmDB = true;
+            IDataReader idr = Utils.GetReader(isAdmDB, "st_GetCreditPurchaseIDsForOpenAI",
+                "0", lblSiteLicID.Text);
+            while (idr.Read())
+            {
+                newrow = dt.NewRow();
+                newrow["CREDIT_FOR_ROBOTS_ID"] = idr["tv_credit_for_robots_id"].ToString();
+                newrow["CREDIT_PURCHASE_ID"] = idr["tv_credit_purchase_id"].ToString();
 
-            contact_name = idr["tv_credit_purchaser_contact_name"].ToString();
-            contact_id = idr["tv_credit_purchaser_contact_id"].ToString();
-            newrow["CREDIT_PURCHASER"] = contact_name + " (" + contact_id + ")";
+                contact_name = idr["tv_credit_purchaser_contact_name"].ToString();
+                contact_id = idr["tv_credit_purchaser_contact_id"].ToString();
+                newrow["CREDIT_PURCHASER"] = contact_name + " (" + contact_id + ")";
 
-            newrow["REMAINING"] = "£" + idr["tv_remaining"].ToString();
-            dt.Rows.Add(newrow);
+                newrow["REMAINING"] = "£" + idr["tv_remaining"].ToString();
+                dt.Rows.Add(newrow);
+            }
+            idr.Close();
         }
-        idr.Close();
 
         gvCreditForRobots.DataSource = dt;
         gvCreditForRobots.DataBind();

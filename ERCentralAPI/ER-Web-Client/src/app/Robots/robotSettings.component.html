@@ -1,4 +1,29 @@
 <div class="px-0 mx-1 my-0">
+
+  <div class="row px-1 mx-0 my-1 border-bottom ">
+    <div class="col-auto mr-1 px-0">Robot:</div>
+    <select class="col px-0" (change)="RobotChanged($event)">
+      <option value="">Please select</option>
+      <option [ngValue]="r.robotName" *ngFor="let r of RobotsList" [selected]="r.robotName == RobotSettings.robotName" [disabled]="r.isRetired">
+        {{r.robotName}}
+      </option>
+    </select>
+  </div>
+  <div *ngIf="showRobotDetails && SelectedRobot" class="px-1 mx-0 my-1 border border-info rounded small alert-info">
+    <div class="row mx-0">
+      <!--<div class="mx-1 font-weight-bold col-12">Robot name: {{SelectedRobot.robotName}}</div>-->
+      <div class="col mx-1 px-1">
+        <div class="mx-0">Cost per million input tokens: £{{SelectedRobot.inputTokenCostPerMillion}}</div>
+        <div class="mx-0">Cost per million output tokens: £{{SelectedRobot.outputTokenCostPerMillion}}</div>
+        <div class="mx-0">Current retirement date: {{FormatDate(SelectedRobot.retirementDate)}}</div>
+      </div>
+      <div class="col mx-0 rounded bg-light px-1"><span class="font-weight-bold">Description:</span> {{SelectedRobot.description}}</div>
+    </div>
+    <button class="btn btn-sm btn-outline-dark mr-1 py-0 small" (click)="showRobotDetails = false">Hide Details</button>
+  </div>
+  <div *ngIf="(!showRobotDetails) && SelectedRobot" class="px-1 mx-0 my-1 border-bottom ">
+    <button class="btn btn-sm btn-outline-dark mr-1 py-0 small" (click)="showRobotDetails = true">Show Robot Details</button>
+  </div>
   <div class="row px-1 mx-0 my-1 border-bottom ">
     <div>Always add coding in the Robot's name</div>
     <input class="m-1" type="checkbox" [(ngModel)]="RobotSettings.onlyCodeInTheRobotName" />

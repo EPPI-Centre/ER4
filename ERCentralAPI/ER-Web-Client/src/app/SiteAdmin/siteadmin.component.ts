@@ -9,7 +9,6 @@ import { SortDescriptor, process, CompositeFilterDescriptor, State } from '@prog
 import { Subscription } from 'rxjs';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { SelectEvent, TabStripComponent } from '@progress/kendo-angular-layout';
-import { CKEditor4 } from 'ckeditor4-angular/ckeditor';
 import { ModalService } from '../services/modal.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { SourcesService, iJSONreport4upolad } from '../services/sources.service';
@@ -56,6 +55,15 @@ export class SiteAdminComponent implements OnInit {
     public revId: string = "";
     public LogTypeSelection: number = 0;
 
+  public pasteCleanupSettings = {
+    convertMsLists: true,
+    removeHtmlComments: true,
+    stripTags: ['script'], //or alternatively: stripTags: ['script', 'img'],
+    // removeAttributes: ['lang'],
+    removeMsClasses: true,
+    removeMsStyles: true,
+    removeInvalidHTML: true,
+  };
 
     private _ActivePanel: string = "Help";
     public ActivePanel: string = "Help";
@@ -139,7 +147,7 @@ export class SiteAdminComponent implements OnInit {
 
 /////////////////////////////////////////////////////////////////////////
 
-  public TmpCurrentContextHelp: string = "";
+  
   public TmpCurrentContextName: string = "";
   public OrigCurrentContextHelp: string = "";
   public enableSave: boolean = false;
@@ -196,25 +204,32 @@ export class SiteAdminComponent implements OnInit {
   }
 
 
-  public onDataChange(event: CKEditor4.EventInfo) {
-    var test = event.editor.getData();
-    this.TmpCurrentContextHelp = event.editor.getData();
-    if (this.OrigCurrentContextHelp == event.editor.getData()) {
-      // things are unchanged from origninal...
+  //public onDataChange(event: CKEditor4.EventInfo) {
+  //  var test = event.editor.getData();
+  //  this.TmpCurrentContextHelp = event.editor.getData();
+  //  if (this.OrigCurrentContextHelp == event.editor.getData()) {
+  //    // things are unchanged from origninal...
+  //    this.enableSave = false;
+  //  }
+  //  else {
+  //    // things are different...
+  //    this.enableSave = true;
+  //  }
+  //}
+  public valueChange(value: string) {
+    console.log("editor val changed:", value, this.OrigCurrentContextHelp == value);
+    if (this.OrigCurrentContextHelp == value) {
       this.enableSave = false;
-    }
-    else {
-      // things are different...
+    } else {
       this.enableSave = true;
     }
   }
-
 
   Edit() {
     if (this.showEdit == true) {
       // this is a 'cancel'
       this.showEdit = false;
-      this.TmpCurrentContextHelp = "";
+      //this.TmpCurrentContextHelp = "";
       this.OrigCurrentContextHelp = "";
       this.showEdit = false;
     }
@@ -224,7 +239,7 @@ export class SiteAdminComponent implements OnInit {
       this.showEdit = true;     
       this.OrigCurrentContextHelp = this.CurrentContextHelp;
       this.model.editorData = this.CurrentContextHelp;
-      this.TmpCurrentContextHelp = this.model.editorData;
+      //this.TmpCurrentContextHelp = this.model.editorData;
     }    
   }
 

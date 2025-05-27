@@ -20,7 +20,6 @@ import { DatePickerModule } from '@progress/kendo-angular-dateinputs';
 import { GridModule, GridComponent } from '@progress/kendo-angular-grid';
 
 import { NgChartsModule } from 'ng2-charts';
-import { CKEditorModule } from 'ckeditor4-angular';
 
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
@@ -146,6 +145,8 @@ import { PriorityScreeningSim } from './Search/PriorityScreeningSim.component';
 import { RobotJobsLog } from './Robots/RobotJobsLog.component';
 import { JobsContainer } from './Review/JobsContainer.component';
 import { ReviewJobs } from './Review/reviewJobs.component';
+import { EditorModule } from '@progress/kendo-angular-editor';
+
 
 
 
@@ -323,7 +324,6 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
     NotificationModule,
     DatePickerModule,
     LayoutModule,
-    CKEditorModule,
     RouterModule.forRoot([
       { path: '', redirectTo: 'home', pathMatch: 'full' },
       { path: 'home', component: HomeComponent },
@@ -372,7 +372,8 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
     PDFExportModule,
     ProgressBarModule,
     FontAwesomeModule,
-    IconsModule
+    IconsModule,
+    EditorModule
   ],
   providers: [
     {

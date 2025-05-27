@@ -33,6 +33,7 @@ namespace BusinessLibrary.BusinessClasses
         private bool _useFullTextDocument;
         private string _result = "";
         private int _jobId = 0;
+        private string _RobotName = "";
 
         public Int64 JobId
         {
@@ -44,8 +45,9 @@ namespace BusinessLibrary.BusinessClasses
             get { return _result; }
         }
 
-        public RobotOpenAiQueueBatchJobCommand(string criteria, int creditPurchaseId, int reviewSetId, bool onlyCodeInTheRobotName, bool lockTheCoding, bool useFullTextDocument)
+        public RobotOpenAiQueueBatchJobCommand(string robotName, string criteria, int creditPurchaseId, int reviewSetId, bool onlyCodeInTheRobotName, bool lockTheCoding, bool useFullTextDocument)
         {
+            _RobotName = robotName;
             _criteria = criteria;
             _creditPurchaseId = creditPurchaseId;
             _reviewSetId = reviewSetId;
@@ -65,6 +67,7 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_useFullTextDocument", _useFullTextDocument); 
             info.AddValue("_jobId", _jobId);
             info.AddValue("_result", _result);
+            info.AddValue("_RobotName", _RobotName);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
@@ -76,6 +79,7 @@ namespace BusinessLibrary.BusinessClasses
             _useFullTextDocument = info.GetValue<bool>("_useFullTextDocument"); 
             _jobId = info.GetValue<int>("_jobId");
             _result = info.GetValue<string>("_result");
+            _RobotName = info.GetValue<string>("_RobotName");
         }
 
 
@@ -91,7 +95,7 @@ namespace BusinessLibrary.BusinessClasses
                     ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                    command.Parameters.Add(new SqlParameter("@ROBOT_NAME", "OpenAI GPT4"));
+                    command.Parameters.Add(new SqlParameter("@ROBOT_NAME", _RobotName));
                     command.Parameters.Add(new SqlParameter("@CRITERIA", _criteria));
                     command.Parameters.Add(new SqlParameter("@CREDIT_PURCHASE_ID", _creditPurchaseId));
                     command.Parameters.Add(new SqlParameter("@REVIEW_SET_ID", _reviewSetId));

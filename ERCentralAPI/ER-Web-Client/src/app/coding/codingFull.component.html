@@ -183,7 +183,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-dark" (click)="CloseManualModal()">&nbsp;&nbsp;Cancel&nbsp;&nbsp;</button>
-        <button type="button" class="btn btn-outline-success" (click)="AcceptOptionsAndRunRobot()">&nbsp;OK&nbsp;</button>
+        <button type="button" class="btn btn-outline-success" (click)="AcceptOptionsAndRunRobot()" [disabled]="RobotSetting.robotName == ''">&nbsp;OK&nbsp;</button>
       </div>
     </div>
   </div>
@@ -207,7 +207,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline-dark" (click)="CloseManualModal()">&nbsp;&nbsp;Cancel&nbsp;&nbsp;</button>
-        <button type="button" class="btn btn-outline-success" (click)="AcceptOptionsAndRunRobot()">&nbsp;OK&nbsp;</button>
+        <button type="button" class="btn btn-outline-success" (click)="AcceptOptionsAndRunRobot()" [disabled]="RobotSetting.robotName == ''">&nbsp;OK&nbsp;</button>
       </div>
     </div>
   </div>

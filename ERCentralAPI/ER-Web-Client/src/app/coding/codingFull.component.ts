@@ -97,6 +97,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
       this.subCodingCheckBoxClickedEvent = this.ReviewSetsService.ItemCodingCheckBoxClickedEvent.subscribe((data: CheckBoxClickedEventData) => this.ItemAttributeSave(data));
       this.subGotPDFforViewing = this.ItemDocsService.GotDocument.subscribe(() => this.CheckAndMoveToPDFTab());
 
+      if (this.robotsService.RobotsList.length == 0) this.robotsService.GetRobotsList();
       //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.subscribe((cmdErr: any) => this.HandleItemAttributeSaveCommandError(cmdErr));
       //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.subscribe((cmd: ItemAttributeSaveCommand) => this.HandleItemAttributeSaveCommandDone(cmd));
     }
@@ -167,7 +168,9 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     if (this.ShowOutComes == false) return false;
     else return this._outcomeService.currentOutcomeHasChanges;
   }
-
+  public get RobotSetting() {
+    return this.robotsService.RobotSetting;
+  }
   
   CloseManualModal() {
     this.showManualModalUncompleteWarning = false;
@@ -771,16 +774,21 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     }
     const RSnode = this.ReviewSetsService.selectedNode as ReviewSet;
     if (!RSnode || !RSnode) return;
-
+    //else if (this.robotsService.RobotSetting.robotName == "") {
+    //  this.ShowRobotOptions = true;
+    //  return;
+    //}
     //checks passed, we can try this.
     const itemSet = this.ItemCodingService.FindItemSetByItemSetId(RSnode.ItemSetId);
-    if (RSnode.codingComplete && itemSet != null && itemSet.contactName != "OpenAI GPT4"
-      && this.robotsService.RobotSetting.rememberTheseChoices == false
+    if ((RSnode.codingComplete && itemSet != null && itemSet.contactName != this.RobotSetting.robotName && this.RobotSetting.robotName != ""
+      && this.robotsService.RobotSetting.rememberTheseChoices == false)
     ) {
       this.showManualModalUncompleteWarning = true;
       return;
     }
-    else if (this.robotsService.RobotSetting.rememberTheseChoices == false) {
+    else if (this.robotsService.RobotSetting.rememberTheseChoices == false
+      || this.RobotSetting.robotName == ""//forcing user to look at the options if they haven't selected a robot yet
+    ) {
       this.showManualModalRobotOptions = true;
       return;
     }
@@ -791,11 +799,13 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     this.CloseManualModal();
     const RSnode = this.ReviewSetsService.selectedNode as ReviewSet;
     if (!RSnode || !RSnode) return;
+    if (this.robotsService.RobotSetting.robotName == "") return;
     else this.ActuallyRunRobotOpenAICommand(RSnode);
   }
 
   private async ActuallyRunRobotOpenAICommand(RSnode: ReviewSet) {
     let cmd: iRobotOpenAICommand = {
+      robotName: this.robotsService.RobotSetting.robotName,
       reviewSetId: RSnode.reviewSetId,
       itemDocumentId: 0,
       itemId: this.itemID,

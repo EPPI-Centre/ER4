@@ -61,12 +61,20 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(RobotIdProperty);
             }
         }
-        public static readonly PropertyInfo<string> RobotNameProperty = RegisterProperty<string>(new PropertyInfo<string>("RobotName", "RobotName"));
+        public static readonly PropertyInfo<RobotCoderReadOnly> RobotProperty = RegisterProperty<RobotCoderReadOnly>(new PropertyInfo<RobotCoderReadOnly>("RobotCoder", "RobotCoder"));
+        public RobotCoderReadOnly Robot
+        {
+            get
+            {
+                return GetProperty(RobotProperty);
+            }
+        }
         public string RobotName
         {
             get
             {
-                return GetProperty(RobotNameProperty);
+                if (Robot == null) return "";
+                else return Robot.RobotName;
             }
         }
         public static readonly PropertyInfo<int> JobOwnerIdProperty = RegisterProperty<int>(new PropertyInfo<int>("JobOwnerId", "JobOwnerId"));
@@ -251,10 +259,9 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
                     connection.Open();
-                    using (SqlCommand command = new SqlCommand("st_RobotApiJobFetchNextCreditTasksByRobotName", connection))
+                    using (SqlCommand command = new SqlCommand("st_RobotApiJobFetchNextCreditTasks", connection))
                     {
                         command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@ROBOT_NAME", "OpenAI GPT4"));
                         using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                         {
                             while (reader.Read())
@@ -324,6 +331,7 @@ namespace BusinessLibrary.BusinessClasses
                 else Child_FetchFilteredDetails(reader);
             }
             else Child_FetchAllDetails(reader);
+            LoadProperty<RobotCoderReadOnly>(RobotProperty, DataPortal.Fetch<RobotCoderReadOnly>(new SingleCriteria<RobotCoderReadOnly, string>(reader.GetString("ROBOT_NAME"))));
         }
         private void Child_FetchAllDetails(SafeDataReader reader)
         { 
@@ -347,7 +355,7 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty<int>(JobOwnerIdProperty, reader.GetInt32("CONTACT_ID"));
             LoadProperty<bool>(UseFullTextDocumentProperty, reader.GetBoolean("USE_PDFS"));
             LoadProperty<string>(JobOwnerProperty, reader.GetString("CONTACT_NAME"));
-            LoadProperty<string>(RobotNameProperty, reader.GetString("ROBOT_NAME"));
+            //LoadProperty<string>(RobotNameProperty, reader.GetString("ROBOT_NAME"));
 
             LoadProperty<MobileList<long>>(ItemIDsListProperty, new MobileList<long>());
             if (RawCriteria.StartsWith("ItemIds: "))
@@ -383,7 +391,7 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty<int>(RobotContactIdProperty, reader.GetInt32("ROBOT_CONTACT_ID"));
             LoadProperty<int>(JobOwnerIdProperty, -1);
             LoadProperty<string>(JobOwnerProperty, "N/A");
-            LoadProperty<string>(RobotNameProperty, reader.GetString("ROBOT_NAME"));
+            //LoadProperty<string>(RobotNameProperty, reader.GetString("ROBOT_NAME"));
 
             LoadProperty<MobileList<long>>(ItemIDsListProperty, new MobileList<long>());
             if (RawCriteria.StartsWith("ItemIds: "))

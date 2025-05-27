@@ -14,7 +14,7 @@ import { FileRestrictions, UploadEvent, SelectEvent } from '@progress/kendo-angu
 	providers: []
 })
 
-export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
+export class WebDBsComponent implements OnInit, OnDestroy {
 	constructor(private router: Router,
 		private WebDBService: WebDBService,
 		private ReviewerIdentityService: ReviewerIdentityService,
@@ -32,18 +32,7 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.ReviewSetsService.ReviewSets.length == 0) this.ReviewSetsService.GetReviewSets(false); 
 	}
 
-	async ngAfterViewInit() {
-    //await this.loadScript("https://cdn.ckeditor.com/4.15.1/standard/ckeditor.js");
-	}
 
-	private loadScript(scriptUrl: string) {
-		return new Promise((resolve, reject) => {
-			const scriptElement = document.createElement('script')
-			scriptElement.src = scriptUrl
-			scriptElement.onload = resolve
-			document.body.appendChild(scriptElement)
-		})
-	}
 
 	//@Output() onCloseClick = new EventEmitter();
 	//public isExpanded: boolean = false;
@@ -101,7 +90,18 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 			, '.png'
 		]
 		, maxFileSize: 1024000
-	};
+  };
+
+  public pasteCleanupSettings = {
+    convertMsLists: true,
+    removeHtmlComments: true,
+    stripTags: ['script', 'img'],
+    // removeAttributes: ['lang'],
+    removeMsClasses: true,
+    removeMsStyles: true,
+    removeInvalidHTML: true,
+  };
+
 	public ImageSizeError: string = "";
 	public UploadImageNumber: number = 1;
 	public ShowUpload: boolean = false;

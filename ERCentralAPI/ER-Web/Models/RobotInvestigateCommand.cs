@@ -59,6 +59,22 @@ namespace BusinessLibrary.BusinessClasses
         private int _robotContactId = 0;
         private bool _Succeded = false;
 
+        public static readonly PropertyInfo<RobotCoderReadOnly> RobotCoderProperty = RegisterProperty<RobotCoderReadOnly>(new PropertyInfo<RobotCoderReadOnly>("RobotCoder", "RobotCoder"));
+        public RobotCoderReadOnly RobotCoder
+        {
+            get { return ReadProperty(RobotCoderProperty); }
+            set { LoadProperty(RobotCoderProperty, value); }
+        }
+
+        public string RobotName
+        {
+            get
+            {
+                if (RobotCoder == null) return "";
+                else return RobotCoder.RobotName;
+            }
+        }
+
         public string ReturnMessage
         {
             get { return _returnMessage; }
@@ -94,8 +110,9 @@ namespace BusinessLibrary.BusinessClasses
         }
         
         public int RobotContactId { get { return _robotContactId; } }
-        public RobotInvestigateCommand(string queryForRobot, string getTextFrom, Int64 itemsWithThisAttribute, Int64 textFromThisAttribute, int sampleSize)
+        public RobotInvestigateCommand(RobotCoderReadOnly robot, string queryForRobot, string getTextFrom, Int64 itemsWithThisAttribute, Int64 textFromThisAttribute, int sampleSize)
         {
+            RobotCoder = robot;
             _queryForRobot = queryForRobot;
             _getTextFrom = getTextFrom;
             _itemsWithThisAttribute = itemsWithThisAttribute;
@@ -312,8 +329,8 @@ namespace BusinessLibrary.BusinessClasses
             }
             else
             {
-                endpoint = AzureSettings.RobotOpenAIEndpoint;
-                key = AzureSettings.RobotOpenAIKey2;
+                endpoint = RobotCoder.EndPoint;
+                key = AzureSettings.RobotAPIKeyByRobotName(RobotCoder.RobotName);
             }
 
 
@@ -354,11 +371,10 @@ namespace BusinessLibrary.BusinessClasses
             };
 
             // *** additional params (modifiable in web.config)
-            double temperature = Convert.ToDouble(AzureSettings.RobotOpenAITemperature);
-            int frequency_penalty = Convert.ToInt16(AzureSettings.RobotOpenAIFrequencyPenalty);
-            int presence_penalty = Convert.ToInt16(AzureSettings.RobotOpenAIPresencePenalty);
-            double top_p = Convert.ToDouble(AzureSettings.RobotOpenAITopP);
-
+            double temperature = Convert.ToDouble(RobotCoder.Temperature);
+            int frequency_penalty = Convert.ToInt16(RobotCoder.FrequencyPenalty);
+            int presence_penalty = Convert.ToInt16(RobotCoder.PresencePenalty);
+            double top_p = Convert.ToDouble(RobotCoder.TopP);
 
             // *** Create the client and submit the request to the LLM
             var client = new HttpClient();
@@ -368,9 +384,9 @@ namespace BusinessLibrary.BusinessClasses
                 client.DefaultRequestHeaders.Add("api-key", $"{key}");
                 //string type = "json_object"; as in this case, we're not requesting JSON in response and get an error if we do
                 //var response_format = new { type };
-                var requestBody = new { /*response_format, */ messages, temperature, frequency_penalty, presence_penalty, top_p };
-                //var requestBody = new { messages, temperature, frequency_penalty, presence_penalty, top_p };
-                json = JsonConvert.SerializeObject(requestBody);
+                //var requestBody = new { /*response_format, */ messages, temperature, frequency_penalty, presence_penalty, top_p };
+                //json = JsonConvert.SerializeObject(requestBody);
+                json = RobotOpenAICommand.BuildJsonRequestBody("text", messages, temperature, frequency_penalty, presence_penalty, top_p);
             }
             else
             {

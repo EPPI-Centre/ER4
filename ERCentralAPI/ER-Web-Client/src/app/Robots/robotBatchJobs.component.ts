@@ -45,6 +45,7 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
     this.robotsService.GetCurrentQueue().then(() => {
       if (this.robotsService.CurrentQueue.length > 0) this.ShowQueue = true;
       else this.ShowQueue = false;
+      if (this.robotsService.RobotsList.length == 0) this.robotsService.GetRobotsList();
     });
   }
   HasWriteRights(): boolean {
@@ -72,6 +73,7 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
   public get CanSubmitBatch(): boolean {
     if (!this.HasWriteRights) return false;
     else if (!this.reviewInfoService.ReviewInfo.hasCreditForRobots) return false;
+    else if (this.robotsService.RobotSetting.robotName == "") return false;
     else {
       let node = this.reviewSetsService.selectedNode;
       if (node != null && node.nodeType == 'ReviewSet' && (node.subTypeName == "Standard" || node.subTypeName == "Screening")) {
@@ -139,9 +141,12 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
         + "The coding tool to use is: <br />"
         + "<div class='w-100 p-0 mx-0 my-1 text-center'><strong class='border mx-auto px-1 rounded border-success d-inline-block'>"
         + encoded + "</strong></div>"
+        + "The chosen LLM is: <br />"
+        + "<div class='w-100 p-0 mx-0 my-1 text-center'><strong class='border mx-auto px-1 rounded border-primary d-inline-block'>"
+        + this.RobotSettings.robotName + "</strong></div>"
         + "<div class='my-1 px-1 alert-warning'>The job will submit <strong>full-text documents</strong> to GPT. This means that:"
         + "<ol><li>The PDFs will be parsed for processing, which can take minutes (per document)</li>"
-        + "<li>Cost per item is higher (possibly about <strong>£0.10 per document</strong>)</li>"
+        + "<li>Cost per item is higher (~£0.10 per document for OpenAI GPT4; less for other models)</li>"
         + "<li>Process is much slower, as each item might take more than one minute to process</li></ol>"
         + "Are you <strong>sure</strong> you want to proceed?"
         + "</div>"
@@ -152,6 +157,9 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
         + "The coding tool to use is: <br />"
         + "<div class='w-100 p-0 mx-0 my-1 text-center'><strong class='border mx-auto px-1 rounded border-success d-inline-block'>"
         + encoded + "</strong></div>"
+        + "The chosen LLM is: <br />"
+        + "<div class='w-100 p-0 mx-0 my-1 text-center'><strong class='border mx-auto px-1 rounded border-primary d-inline-block'>"
+        + this.RobotSettings.robotName + "</strong></div>"
         + "<span class='small'>The job will be queued on a 1st-come, 1st-served basis and might take a while to start and/or run.</span>";
     }
     this.confirmationDialogService.confirm("Submit Robot-Coding batch?", msg, false, "", "Submit", "Cancel"
@@ -169,6 +177,7 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
     crit = crit.substring(0, crit.length - 1);
     const node = this.reviewSetsService.selectedNode as ReviewSet;
     let data: iRobotOpenAiQueueBatchJobCommand = {
+      robotName: this.RobotSettings.robotName,
       reviewSetId: node.reviewSetId,
       criteria: crit,
       onlyCodeInTheRobotName: this.RobotSettings.onlyCodeInTheRobotName,

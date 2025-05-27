@@ -394,6 +394,7 @@
     <Compile Include="BusinessClasses\ItemTimepoint.cs" />
     <Compile Include="BusinessClasses\ItemTimepointDeleteWarningCommand.cs" />
     <Compile Include="BusinessClasses\ItemTimepointList.cs" />
+    <Compile Include="BusinessClasses\LLM_Factory.cs" />
     <Compile Include="BusinessClasses\MagAddClassifierScoresCommand.cs" />
     <Compile Include="BusinessClasses\MagAutoUpdate.cs" />
     <Compile Include="BusinessClasses\MagAutoUpdateList.cs" />
@@ -456,6 +457,8 @@
     <Compile Include="BusinessClasses\ReviewStatisticsCodeSetList2.cs" />
     <Compile Include="BusinessClasses\ReviewStatisticsReviewer2.cs" />
     <Compile Include="BusinessClasses\ReviewStatisticsReviewerList2.cs" />
+    <Compile Include="BusinessClasses\RobotCoderReadOnly.cs" />
+    <Compile Include="BusinessClasses\RobotCoderReadOnlyList.cs" />
     <Compile Include="BusinessClasses\RobotHBCPCommand.cs" />
     <Compile Include="BusinessClasses\RobotOpenAICommand.cs" />
     <Compile Include="BusinessClasses\RobotReviewerCommand.cs" />
