@@ -3597,7 +3597,7 @@ namespace EppiReviewer4
             WindowRobots.SelectedTitle = thisItem.Title;
             WindowRobots.SelectedAbstract = thisItem.Abstract;
             WindowRobots.SelectedItemId = thisItem.ItemId;
-            WindowRobots.rbRobotOpenAI.IsEnabled = CanUseOpenAIrobot;
+            //WindowRobots.rbRobotOpenAI.IsEnabled = CanUseOpenAIrobot;
             WindowRobots.ShowDialog();
         }
 
@@ -3608,7 +3608,7 @@ namespace EppiReviewer4
             WindowRobots.SelectedTitle = thisItem.Title;
             WindowRobots.SelectedAbstract = thisItem.Abstract;
             WindowRobots.SelectedItemId = thisItem.ItemId;
-            WindowRobots.rbRobotOpenAI.IsEnabled = CanUseOpenAIrobot;
+            //WindowRobots.rbRobotOpenAI.IsEnabled = CanUseOpenAIrobot;
             WindowRobots.ShowDialog();
         }
 

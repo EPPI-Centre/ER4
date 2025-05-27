@@ -58,7 +58,7 @@ namespace EppiReviewer4
             {
                 if (rbRobotOpenAI.IsChecked == true)
                 {
-                    DoOpenAI(sender, e);
+                    //DoOpenAI(sender, e);
                 }
                 else
                 {
@@ -117,28 +117,28 @@ namespace EppiReviewer4
             ReviewSet rs = dialogRobotsComboSelectCodeSet.SelectedItem as ReviewSet;
             if (rs != null)
             {
-                DataPortal<RobotOpenAICommand> dp2 = new DataPortal<RobotOpenAICommand>();
-                RobotOpenAICommand rr = new RobotOpenAICommand(rs.ReviewSetId, SelectedItemId, -1);
-                dp2.ExecuteCompleted += (o, e2) =>
-                {
-                    busyIndicatorRobots.IsBusy = false;
-                    hlCancel.IsEnabled = true;
-                    hlGo.IsEnabled = true;
-                    if (e2.Error != null)
-                    {
-                        RadWindow.Alert(e2.Error.Message);
-                    }
-                    else
-                    {
-                        RobotOpenAICommand rr2 = e2.Object as RobotOpenAICommand;
-                        this.closeWindowRobots.Invoke(sender, e);
-                        RadWindow.Alert(rr2.ReturnMessage);
-                    }
-                };
-                busyIndicatorRobots.IsBusy = true;
-                hlCancel.IsEnabled = false;
-                hlGo.IsEnabled = false;
-                dp2.BeginExecute(rr);
+                //DataPortal<RobotOpenAICommand> dp2 = new DataPortal<RobotOpenAICommand>();
+                //RobotOpenAICommand rr = new RobotOpenAICommand(rs.ReviewSetId, SelectedItemId, -1);
+                //dp2.ExecuteCompleted += (o, e2) =>
+                //{
+                //    busyIndicatorRobots.IsBusy = false;
+                //    hlCancel.IsEnabled = true;
+                //    hlGo.IsEnabled = true;
+                //    if (e2.Error != null)
+                //    {
+                //        RadWindow.Alert(e2.Error.Message);
+                //    }
+                //    else
+                //    {
+                //        RobotOpenAICommand rr2 = e2.Object as RobotOpenAICommand;
+                //        this.closeWindowRobots.Invoke(sender, e);
+                //        RadWindow.Alert(rr2.ReturnMessage);
+                //    }
+                //};
+                //busyIndicatorRobots.IsBusy = true;
+                //hlCancel.IsEnabled = false;
+                //hlGo.IsEnabled = false;
+                //dp2.BeginExecute(rr);
             }
         }
 
