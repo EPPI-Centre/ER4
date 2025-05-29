@@ -1,7 +1,10 @@
 ﻿using Csla;
+using Csla.Serialization;
+using System;
 
 namespace BusinessLibrary.BusinessClasses
 {
+#if CSLA_NETCORE
     public static class LLM_Factory
     {
         public static LLMRobotCommand GetRobot(RobotCoderReadOnly robot, int reviewSetId, Int64 itemId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true, bool useFullTextDocument = false)
@@ -9,6 +12,7 @@ namespace BusinessLibrary.BusinessClasses
             RobotOpenAICommand res = new RobotOpenAICommand(robot, reviewSetId, itemId, onlyCodeInTheRobotName, lockTheCoding, useFullTextDocument);
             return res;
         }
+
         public static LLMRobotCommand GetRobot(RobotCoderReadOnly robot, int reviewSetId, Int64 itemId, bool isLastInBatch, int JobId, int robotContactId, int reviewId,
             int JobOwnerId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true, bool useFullTextDocument = false, string docsList = "", ReviewSet? reviewSetForPrompts = null, string cachedPrompt = "")
         {
@@ -20,9 +24,10 @@ namespace BusinessLibrary.BusinessClasses
             return res;
         }
     }
+#endif
     public interface ILLMRobot
     {
-        public RobotCoderReadOnly RobotCoder { get; }
+        RobotCoderReadOnly RobotCoder { get; }
         string ReturnMessage { get; }
     }
     [Serializable]

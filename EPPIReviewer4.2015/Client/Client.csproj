@@ -451,6 +451,9 @@
     <Compile Include="..\Server\BusinessClasses\ItemTypeNVLFactory.cs">
       <Link>BusinessClasses\ItemTypeNVLFactory.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\LLM_Factory.cs">
+      <Link>BusinessClasses\LLM_Factory.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\MagAddClassifierScoresCommand.cs">
       <Link>BusinessClasses\MagAddClassifierScoresCommand.cs</Link>
     </Compile>
@@ -792,6 +795,12 @@
     </Compile>
     <Compile Include="..\Server\BusinessClasses\ReviewStatisticsReviewerList.cs">
       <Link>BusinessClasses\ReviewStatisticsReviewerList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\RobotCoderReadOnly.cs">
+      <Link>BusinessClasses\RobotCoderReadOnly.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\RobotCoderReadOnlyList.cs">
+      <Link>BusinessClasses\RobotCoderReadOnlyList.cs</Link>
     </Compile>
     <Compile Include="..\Server\BusinessClasses\RobotHBCPCommand.cs">
       <Link>BusinessClasses\RobotHBCPCommand.cs</Link>
