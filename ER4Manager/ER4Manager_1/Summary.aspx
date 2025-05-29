@@ -206,35 +206,40 @@
                 <asp:Label ID="lblCreditPurchaseID" runat="server" Text="N/A" Font-Bold="True"></asp:Label>
                 &nbsp;&nbsp;
                 <asp:LinkButton ID="lbHideHistory" runat="server" OnClick="lbHideHistory_Click">(hide)</asp:LinkButton>
-                <asp:GridView ID="gvCreditHistory" runat="server" CssClass="grviewFixedWidth"
-                AutoGenerateColumns="False" DataKeyNames="CREDIT_EXTENSION_ID"               
-                Width="800px" EnableModelValidation="True">
-                <Columns>
-                    <asp:BoundField DataField="CREDIT_EXTENSION_ID" HeaderText="ExtensionID" Visible="false">
+                <asp:Label ID="lblRTCError" runat="server" style="padding: 2px; margin:1px; display:inline-block;" Text="There was an error" Font-Bold="True" Visible="false" BackColor="#FFCC99" BorderColor="Red"></asp:Label>
+                &nbsp;<asp:GridView ID="gvCreditHistory" runat="server" AutoGenerateColumns="False" CssClass="grviewFixedWidth" DataKeyNames="CREDIT_EXTENSION_ID" EnableModelValidation="True" onRowDataBound="gvCreditHistory_RowDataBound" Width="800px">
+                    <Columns>
+                        <asp:BoundField DataField="CREDIT_EXTENSION_ID" HeaderText="ExtensionID" Visible="false">
                         <HeaderStyle BackColor="#B6C6D6" />
-                    </asp:BoundField>
-                    <asp:BoundField DataField="TYPE" HeaderText="Type">
+                        </asp:BoundField>
+                        <asp:BoundField DataField="TYPE" HeaderText="Type">
                         <HeaderStyle BackColor="#B6C6D6" />
-                    </asp:BoundField>
-                    <asp:BoundField DataField="ID" HeaderText="ID">
+                        </asp:BoundField>
+                        <asp:BoundField DataField="ID" HeaderText="ID">
                         <HeaderStyle BackColor="#B6C6D6" />
-                    </asp:BoundField>
-                    <asp:BoundField DataField="NAME" HeaderText="Name">
+                        </asp:BoundField>
+                        <asp:BoundField DataField="NAME" HeaderText="Name">
                         <HeaderStyle BackColor="#B6C6D6" />
-                    </asp:BoundField>
-                    <asp:BoundField DataField="DATE_EXTENDED" HeaderText="Date extended">
+                        </asp:BoundField>
+                        <asp:BoundField DataField="DATE_EXTENDED" HeaderText="Date extended">
                         <HeaderStyle BackColor="#B6C6D6" />
-                    </asp:BoundField>
-                    <asp:BoundField DataField="NUMBER_MONTHS" HeaderText="Months">
+                        </asp:BoundField>
+                        <asp:TemplateField HeaderText="Months applied">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                            <ItemTemplate>
+                                <asp:Label ID="lblNumberMonths" runat="server" Visible="true"></asp:Label>
+                                <asp:LinkButton ID="lbReturnToCreditMonths" runat="server" OnClick="lbReturnToCreditMonths_Click" Visible="true"></asp:LinkButton>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:BoundField DataField="COST" HeaderText="Cost (£)">
                         <HeaderStyle BackColor="#B6C6D6" />
-                    </asp:BoundField>
-                    <asp:BoundField DataField="COST" HeaderText="Cost (£)">
+                        </asp:BoundField>
+                        <asp:BoundField DataField="NUMBER_MONTHS" HeaderText="Months" Visible="false">
                         <HeaderStyle BackColor="#B6C6D6" />
-                    </asp:BoundField>
-
-                </Columns>
-            </asp:GridView>
-                
+                        </asp:BoundField>
+                    </Columns>
+                </asp:GridView>
+                You can <b>Return-To-Credit (RTC)</b> unused months for reviews and accounts
                 <br />
             </asp:Panel>
             <br />

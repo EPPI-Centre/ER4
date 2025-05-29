@@ -15,6 +15,11 @@ using System.IO;
 using System.Data.SqlClient;
 using System.Text.RegularExpressions;
 using Telerik.Web.UI.ExportInfrastructure;
+using Telerik.Web.UI.PivotGrid.Core.Fields;
+using Telerik.Web.UI.com.hisoftware.api2;
+using System.Runtime.InteropServices.ComTypes;
+using Telerik.Web.UI;
+using System.Security.Cryptography;
 
 public partial class Summary : System.Web.UI.Page
 {
@@ -46,7 +51,7 @@ public partial class Summary : System.Web.UI.Page
                 }
 
                 buildContactGrid();
-                buildOrganisationGrid();
+                //buildOrganisationGrid();
                 buildCreditPurchaseGrid();
                 if (Utils.GetSessionString("EnableShopDebit") == "True")
                 {
@@ -948,10 +953,14 @@ public partial class Summary : System.Web.UI.Page
             case "HISTORY":
                 pnlHistory.Visible = true;
                 DateTime dateExtended;
+                DateTime dateExtendedPlus2Days;
+                DateTime now = DateTime.Now;
                 lblCreditPurchaseID.Text = creditPurchaseID;
                 string sourceID = "";
                 string destinationID = "";
                 string amount = "";
+                string numberOfMonthsExtended = "";
+                string numberOfMonthsHolder = "";
 
                 DataTable dt = new DataTable();
                 System.Data.DataRow newrow;
@@ -971,7 +980,7 @@ public partial class Summary : System.Web.UI.Page
                 {
                     newrow = dt.NewRow();
                     newrow["CREDIT_EXTENSION_ID"] = idr["tv_credit_extension_id"].ToString();
-                    newrow["ID"] = idr["tv_id_extended"].ToString();
+                    
 
                     if (idr["tv_id_extended"].ToString() == "0")
                     {
@@ -1001,11 +1010,64 @@ public partial class Summary : System.Web.UI.Page
 
 
                     dateExtended = Convert.ToDateTime(idr["tv_date_extended"].ToString());
+                    // a couple days grace...
+                    dateExtendedPlus2Days = dateExtended.AddDays(2);
                     newrow["DATE_EXTENDED"] = dateExtended.ToString("dd MMM yyyy");
-                    //newrow["DATE_EXTENDED"] = idr["tv_date_extended"].ToString();
 
-                    newrow["NUMBER_MONTHS"] = idr["tv_months_extended"].ToString();
-                    
+                    numberOfMonthsExtended = idr["tv_months_extended"].ToString();
+                    if (numberOfMonthsExtended == "")
+                    {
+                        numberOfMonthsExtended = "0";
+                    }
+                    string test = idr["tv_type_extended_name"].ToString();
+                    if ((idr["tv_type_extended_name"].ToString() == "Account") || (idr["tv_type_extended_name"].ToString() == "Review"))
+                    {
+                        if (now <= dateExtendedPlus2Days)
+                        {
+                            // they noticed they issue within 2 days so they can get back all of the credit
+                            numberOfMonthsHolder = numberOfMonthsExtended + "!" + numberOfMonthsExtended;
+                        }
+                        else if (dateExtended.AddMonths(int.Parse(numberOfMonthsExtended)) > now)
+                        {
+                            // we might be able to return some credit so figure out how many months
+                            int months = 0;
+                            for (int i = 1; ; ++i)
+                            {
+                                // using the 2 grace days again so there really is a visual difference
+                                if (now.AddMonths(i).AddDays(-2) <= dateExtended.AddMonths(int.Parse(numberOfMonthsExtended)))
+                                {
+                                    if (int.Parse(numberOfMonthsExtended) == i)
+                                    {
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        months = i;
+                                    }
+                                }
+                                else { break; }
+                            }
+                            if (months > 0)
+                            {
+                                numberOfMonthsHolder = idr["tv_months_extended"].ToString() + "!" + months.ToString();
+                            }
+                            else
+                            {
+                                numberOfMonthsHolder = idr["tv_months_extended"].ToString();
+                            }
+                        }
+                        else
+                        {
+                            numberOfMonthsHolder = idr["tv_months_extended"].ToString();
+                        }
+                    }
+                    else
+                    {
+                        numberOfMonthsHolder = idr["tv_months_extended"].ToString();
+                    }
+
+                    // append numberOfMonthsHolder to another field for later use
+                    newrow["ID"] = idr["tv_id_extended"].ToString() + "-" + numberOfMonthsHolder;
                     dt.Rows.Add(newrow);
 
                 }
@@ -1034,6 +1096,108 @@ public partial class Summary : System.Web.UI.Page
             //LinkButton lb = (LinkButton)(e.Row.Cells[2].Controls[0]);
             //lb.Attributes.Add("onclick", "if (confirm('Are you sure you want to remove yourself from this organisation?') == false) return false;");
         }
+    }
+
+
+    protected void gvCreditHistory_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            Label lblNumberMonths = (Label)e.Row.FindControl("lblNumberMonths");
+            LinkButton lbReturnToCreditMonths = (LinkButton)e.Row.FindControl("lbReturnToCreditMonths");
+
+            // get what is in column 2
+            //lblNumberMonths.Text = e.Row.Cells[2].Text;
+            lblNumberMonths.Text = e.Row.Cells[2].Text.Substring(e.Row.Cells[2].Text.IndexOf("-")+1);
+
+            if (lblNumberMonths.Text.Contains("!"))
+            {
+                // there is some months that can be returned for credit
+                if (lblNumberMonths.Text.Substring(lblNumberMonths.Text.IndexOf("!") + 1) != "0")
+                {
+                    lbReturnToCreditMonths.Text = "RTC " + lblNumberMonths.Text.Substring(lblNumberMonths.Text.IndexOf("!") + 1) + " months";
+                    lblNumberMonths.Text = lblNumberMonths.Text.Remove(lblNumberMonths.Text.IndexOf("!")).Trim();
+
+                    LinkButton lb = (LinkButton)e.Row.FindControl("lbReturnToCreditMonths");
+                    lb.Attributes.Add("onclick", "if (confirm('Are you sure you want to return-to-credit these months?') == false) return false;");
+                }
+                else
+                {
+                    lblNumberMonths.Text = lblNumberMonths.Text.Remove(lblNumberMonths.Text.IndexOf("!")).Trim();
+                    lbReturnToCreditMonths.Visible = false;
+                }
+            }
+            // clean up the ID row
+            e.Row.Cells[2].Text = e.Row.Cells[2].Text.Remove(e.Row.Cells[2].Text.IndexOf("-"));
+        }
+    }
+
+    protected void lbReturnToCreditMonths_Click(object sender, EventArgs e)
+    {
+        lblRTCError.Visible = false;
+        LinkButton btn = (LinkButton)sender;
+        GridViewRow row = (GridViewRow)btn.NamingContainer;
+        int rowNumber = row.RowIndex;
+        string dataKey = gvCreditHistory.DataKeys[row.RowIndex].Value.ToString();
+
+        GridViewRow selectedRow = gvCreditHistory.Rows[rowNumber];
+        TableCell type = selectedRow.Cells[1];     
+        TableCell iD = selectedRow.Cells[2];
+
+        string creditExtensionID = dataKey;
+        string typeToCredit = type.Text.ToString();
+        string contactOrReviewID = iD.Text.ToString();
+
+        // RTC 2 months
+        string monthsToCredit = btn.Text.ToString().Replace("RTC ", "");
+        monthsToCredit = monthsToCredit.Replace("months", "").Trim();
+
+        // makes the changes in the database
+        //bool isAdmDB = true;
+        //Utils.ExecuteSP(isAdmDB, Server, "st_ReturnToCredit", creditExtensionID, typeToCredit, contactOrReviewID, monthsToCredit);
+
+        SqlParameter[] paramList = new SqlParameter[5];
+
+        paramList[0] = new SqlParameter("@CREDIT_EXTENSION_ID", SqlDbType.Int);
+        paramList[0].Direction = ParameterDirection.Input;
+        paramList[0].Value = creditExtensionID;
+
+        paramList[1] = new SqlParameter("@TYPE_TO_CREDIT", SqlDbType.NVarChar);
+        paramList[1].Direction = ParameterDirection.Input;
+        paramList[1].Value = typeToCredit;
+        paramList[1].Size = 10;
+
+        paramList[2] = new SqlParameter("@CONTACT_OR_REVIEW_ID", SqlDbType.Int);
+        paramList[2].Direction = ParameterDirection.Input;
+        paramList[2].Value = contactOrReviewID;
+
+        paramList[3] = new SqlParameter("@MONTHS_TO_CREDIT", SqlDbType.Int);
+        paramList[3].Direction = ParameterDirection.Input;
+        paramList[3].Value = monthsToCredit;
+
+        paramList[4] = new SqlParameter("@RESULT", SqlDbType.NVarChar);
+        paramList[4].Direction = ParameterDirection.Output;
+        paramList[4].Value = "";
+        paramList[4].Size = 100;
+
+
+        bool isAdmDB = true;
+        Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_ReturnToCredit", paramList);
+        string res = paramList[4].Value.ToString();
+
+        if (res == "Success")
+        {
+            // close the history pael and reload the credit table
+            pnlHistory.Visible = false;
+            buildCreditPurchaseGrid();
+        }
+        else
+        {
+            lblRTCError.Visible = true;
+            lblRTCError.Text = res;
+        }
+
+
     }
 
 
@@ -1215,6 +1379,10 @@ public partial class Summary : System.Web.UI.Page
         pnlMoveCredit.Visible = false;
 
     }
+
+
+
+
 
 
 
