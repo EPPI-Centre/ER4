@@ -152,9 +152,11 @@
 
 
         <asp:Panel ID="pnlCreditPurchases" runat="server" Visible="True">
-            <b>Your credit purchases&nbsp;&nbsp;&nbsp; -&nbsp;&nbsp;&nbsp; If needed, you can 
-                <asp:LinkButton ID="lbMoveCredit" runat="server" OnClick="lbMoveCredit_Click">transfer</asp:LinkButton> credit between purchases.</b>
-
+            <b>Your credit purchases</b>
+            <asp:Label ID="lblCreditTransferInstructions1" runat="server" Text="" Visible="False" Font-Bold="true"></asp:Label>
+                <asp:LinkButton ID="lbMoveCredit" runat="server" OnClick="lbMoveCredit_Click" Visible="false">transfer</asp:LinkButton>
+            <asp:Label ID="lblCreditTransferInstructions2" runat="server" Text="" Visible="False"  Font-Bold="true"></asp:Label>
+            
             <asp:Panel ID="pnlMoveCredit" runat="server" BackColor="#E2E9EF" BorderStyle="Solid" BorderWidth="1px" Visible="False">               
                 Enter the amount to transfer, select the source and destination purchase ID and click Transfer.<br />
                 Transfer (£)&nbsp;<asp:TextBox ID="tbAmountToTransfer" runat="server" CssClass="textbox" Width="40px"></asp:TextBox>
@@ -271,7 +273,8 @@
 
 
         <br />
-            <b>Accounts you have purchased</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Activate</b> for a new account&nbsp;&nbsp;&nbsp;or &nbsp; <b>Transfer</b> to an existing account
+            <b>Accounts you have purchased</b>
+        <asp:Label ID="lblActivateInstructions" runat="server" Text="" Visible="False"></asp:Label><br />
         <asp:GridView ID="gvAccountPurchases" runat="server" CssClass="grviewFixedWidth"
             AutoGenerateColumns="False" DataKeyNames="CONTACT_ID"
             OnRowCommand="gvAccountPurchases_RowCommand" OnRowEditing="gvReviewer_RowEditing"

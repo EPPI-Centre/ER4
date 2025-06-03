@@ -227,6 +227,11 @@ public partial class Summary : System.Web.UI.Page
     private void buildCreditPurchaseGrid()
     {
         // adjust fn_CreditRemainingDetails to handle credit transfers
+        lblCreditTransferInstructions1.Visible = false;
+        lblCreditTransferInstructions1.Text = "&nbsp;&nbsp;&nbsp; -&nbsp;&nbsp;&nbsp; If needed, you can";
+        lblCreditTransferInstructions2.Visible = false;
+        lblCreditTransferInstructions2.Text = "credit between purchases.";
+        lbMoveCredit.Visible = false;
 
         DateTime dayPurchased;
         string remaining = "";
@@ -257,6 +262,14 @@ public partial class Summary : System.Web.UI.Page
         idr1.Close();
         gvCreditPurchases.DataSource = dt2;
         gvCreditPurchases.DataBind();
+
+        if (dt2.Rows.Count > 1)
+        {
+            // with 2 or more purchases you can now transfer between purchases
+            lblCreditTransferInstructions1.Visible = true;
+            lblCreditTransferInstructions2.Visible = true;
+            lbMoveCredit.Visible = true;
+        }
 
         if (dt2.Rows.Count == 0)
             lblNoCreditPurchases.Visible = true;
@@ -309,6 +322,8 @@ public partial class Summary : System.Web.UI.Page
 
     private void buildContactPurchasesGrid()
     {
+        lblActivateInstructions.Visible = false;
+        lblActivateInstructions.Text = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Activate</b> for a new account&nbsp;&nbsp;&nbsp;or &nbsp; <b>Transfer</b> to an existing account";
         DateTime dayCreated;
         DateTime dayExpires;
         DateTime lastLogin;
@@ -402,6 +417,13 @@ public partial class Summary : System.Web.UI.Page
 
         gvAccountPurchases.DataSource = dt;
         gvAccountPurchases.DataBind();
+
+        if (dt.Rows.Count > 0)
+        {
+            lblActivateInstructions.Visible = true;
+        }
+        
+
 
         if (dt.Rows.Count == 0)
             lblOtherPurchasedAccounts.Visible = true;
