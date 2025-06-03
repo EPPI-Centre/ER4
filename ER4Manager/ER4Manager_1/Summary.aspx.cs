@@ -313,6 +313,7 @@ public partial class Summary : System.Web.UI.Page
         DateTime dayExpires;
         DateTime lastLogin;
         DateTime today = DateTime.Today;
+        string transferredToId = "";
         DataTable dt = new DataTable();
         System.Data.DataRow newrow;
 
@@ -338,6 +339,9 @@ public partial class Summary : System.Web.UI.Page
                 newrow["CONTACT_NAME"] = "Not set up";
             else
                 newrow["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString();
+
+            if (idr["CONTACT_NAME"].ToString().Contains("Transferred to ID:"))
+                transferredToId = idr["CONTACT_NAME"].ToString().Substring(idr["CONTACT_NAME"].ToString().IndexOf(":"));
 
             if ((idr["EMAIL"].ToString() == null) || (idr["EMAIL"].ToString() == ""))
                 newrow["EMAIL"] = "";
@@ -379,6 +383,11 @@ public partial class Summary : System.Web.UI.Page
             {
                 newrow["EXPIRY_DATE"] = "Not activated: " + idr["MONTHS_CREDIT"].ToString() + " months credit";
             }
+            else if ((idr["EXPIRY_DATE"].ToString() == "") && (int.Parse(idr["MONTHS_CREDIT"].ToString()) < 0)
+                && idr["EMAIL"].ToString() == "")
+            {
+                newrow["EXPIRY_DATE"] = "Transferred " + idr["MONTHS_CREDIT"].ToString().Remove(0,1) + " months";
+            }
             else if (newrow["IS_FULLY_ACTIVE"].ToString() == "False" && newrow["IS_STALE_AGHOST"].ToString() == "False")
             {
                 newrow["EXPIRY_DATE"] = "Invitation sent: " + idr["MONTHS_CREDIT"].ToString() + " months credit";
@@ -412,7 +421,12 @@ public partial class Summary : System.Web.UI.Page
                 {
                     gvAccountPurchases.Rows[i].Cells[5].BackColor = System.Drawing.Color.Yellow;
                 }
-
+                if (gvAccountPurchases.Rows[i].Cells[5].Text.Contains("Transferred"))
+                {
+                    gvAccountPurchases.Rows[i].Cells[5].BackColor = System.Drawing.Color.Aquamarine;
+                    gvAccountPurchases.Rows[i].Cells[6].Enabled = false;
+                    gvAccountPurchases.Rows[i].Cells[7].Enabled = false;
+                }
                 if (gvAccountPurchases.Rows[i].Cells[5].Text.Contains("Invitation sent:"))
                 {
                     gvAccountPurchases.Rows[i].Cells[5].BackColor = System.Drawing.Color.DarkCyan;
@@ -457,14 +471,26 @@ public partial class Summary : System.Web.UI.Page
         pnlActivateGhostForm.Visible = false;
         pnlActivateGhostEmailinUse.Visible = false;
         pnlActivateGhostIsDone.Visible = false;
+        pnlActivateIntoExistingAccount.Visible = false;
         int index = Convert.ToInt32(e.CommandArgument);
         string ContactID = (string)gvAccountPurchases.DataKeys[index].Value;
+        string monthsCredit = gvAccountPurchases.Rows[index].Cells[5].Text;
         switch (e.CommandName)
         {
             case "EDIT":
                 contactData(ContactID, true);
                 pnlActivateGhostForm.Visible = true;
-                pnlContactDetails.Visible = false;
+                pnlContactDetails.Visible = false;              
+                break;
+            case "TRANSFER":
+                //Not activated: 4 months credit
+                monthsCredit = monthsCredit.Remove(0, monthsCredit.IndexOf(':') + 1).Trim();
+                monthsCredit = monthsCredit.Remove(monthsCredit.IndexOf(' ')).Trim();
+                monthsCredit = (int.Parse(monthsCredit) - 1).ToString();
+                lblMonthsCredit.Text = monthsCredit;
+                lblSourceGhostAccountID.Text = ContactID;
+                pnlActivateIntoExistingAccount.Visible = true;
+                //pnlContactDetails.Visible = false;
                 break;
             case "CANCEL1":
                 pnlConfirmRevokeGhostActivation.Visible = true;
@@ -1380,7 +1406,70 @@ public partial class Summary : System.Web.UI.Page
 
     }
 
+    protected void cmdTransferAccountPurchase_Click(object sender, EventArgs e)
+    {
+        lblTransferErrorMsg.Visible = false;
+        bool continueProcess = false;
+        string transferFromId = "";
+        string transferToId = "";
+        string numberOfMonths = "";
 
+        if (tbTransferEmail.Text == tbTransferEmailConfirmation.Text)
+        {
+
+            // check that the email entered exists in the system using st_ContactDetailsEmail
+            bool isAdmDB = true;
+            IDataReader idr = Utils.GetReader(isAdmDB, "st_ContactDetailsEmail",
+                tbTransferEmail.Text);
+            if (idr.Read())
+            {
+                // the account exists grab the account info you need
+                continueProcess = true;
+                transferToId = idr["CONTACT_ID"].ToString();
+            }
+            else
+            {
+                // there is no account with that email address
+                lblTransferErrorMsg.Visible = true;
+                lblTransferErrorMsg.Text = "There is no account with that email address";
+            }
+            idr.Close();
+            if (continueProcess)
+            {
+                // now make the transfer
+
+                // in the original ghost account
+                //   - change the MONTHS_CREDIT to its negative value minus the free month (ex: 4 to -3) 
+                //   - change the CONTACT_NAME to "Transferred to ID:" + the account you are tranferring to
+                //         ex: Transferred to ID:649
+
+                // in the account you are transferring to
+                //   - adjust the EXPIRY_DATE field in TB_CONTACT
+                //   - add a new line to TB_EXPIRY_EDIT_LOG with the correct information
+                //         - do we need a new Extension type?
+
+                object[] paramList = new object[4];
+                paramList[0] = lblSourceGhostAccountID.Text;
+                paramList[1] = transferToId;
+                paramList[2] = lblMonthsCredit.Text;
+                paramList[3] = Utils.GetSessionString("Contact_ID");
+                Utils.ExecuteSP(isAdmDB, Server, "st_TransferCreditFromGhostAccount", paramList);
+
+                // if it all works then...
+                pnlActivateIntoExistingAccount.Visible = false;
+                tbTransferEmailConfirmation.Text = "";
+                tbTransferEmail.Text = "";
+                buildContactPurchasesGrid();
+            }
+
+        }
+        else
+        {
+            lblTransferErrorMsg.Visible = true;
+            lblTransferErrorMsg.Text = "Emails do not match";
+        }
+
+    }
 
 
 

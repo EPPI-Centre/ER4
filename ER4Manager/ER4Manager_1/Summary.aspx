@@ -271,7 +271,7 @@
 
 
         <br />
-            <b>Accounts you have purchased</b>
+            <b>Accounts you have purchased</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Activate</b> for a new account&nbsp;&nbsp;&nbsp;or &nbsp; <b>Transfer</b> to an existing account
         <asp:GridView ID="gvAccountPurchases" runat="server" CssClass="grviewFixedWidth"
             AutoGenerateColumns="False" DataKeyNames="CONTACT_ID"
             OnRowCommand="gvAccountPurchases_RowCommand" OnRowEditing="gvReviewer_RowEditing"
@@ -295,7 +295,10 @@
                 <asp:BoundField DataField="EXPIRY_DATE" HeaderText="Expiry date">
                     <HeaderStyle BackColor="#B6C6D6" />
                 </asp:BoundField>
-                <asp:ButtonField CommandName="EDIT" HeaderText="Edit" Text="Activate">
+                <asp:ButtonField CommandName="EDIT" HeaderText="New" Text="Activate">
+                    <HeaderStyle BackColor="#B6C6D6" />
+                </asp:ButtonField>
+                <asp:ButtonField CommandName="TRANSFER" HeaderText="Existing" Text="Transfer">
                     <HeaderStyle BackColor="#B6C6D6" />
                 </asp:ButtonField>
             </Columns>
@@ -394,6 +397,51 @@
                 The link will remain active for
                 <strong>14 days</strong>, you can generate a new &quot;activate account&quot; email at any 
                 time, before or after the 14 days deadline.
+        </asp:Panel>
+
+        <asp:Panel ID="pnlActivateIntoExistingAccount" runat="server" Visible="False"
+            Style="margin-top: 0px">
+            <table border="1" cellpadding="1" cellspacing="1" width="500" style="background-color: #B6C6E6;">
+                <tr>
+                    <td>
+                        <b>Rather than activating the new account ID:</b>
+                        <asp:Label ID="lblSourceGhostAccountID" runat="server" Font-Bold="True" Text=""></asp:Label>
+                        <b>you can transfer the</b>
+                        <asp:Label ID="lblMonthsCredit" runat="server" Font-Bold="True" Text=""></asp:Label>
+                        <b>month(s) credit to an exsting account.</b>
+                        <br />
+                        Enter the email of the existing account and then click on the "Transfer Credit" button.
+
+                    </td>
+                    <td>
+                        
+
+                    </td>
+                </tr>
+            </table>
+            <table border="1" cellpadding="1" cellspacing="1" width="500" style="background-color: #B6C6E6;">
+                <tr>
+                    <td style="background-color: #B6C6D6; width: 130px">Email</td>
+                    <td style="width: 60%">
+                        <asp:TextBox ID="tbTransferEmail" runat="server" CssClass="textbox"
+                            Width="95%"></asp:TextBox>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="background-color: #B6C6D6; width: 160px">Confirm email</td>
+                    <td style="width: 60%">
+                        <asp:TextBox ID="tbTransferEmailConfirmation" runat="server" CssClass="textbox"
+                            Width="95%"></asp:TextBox>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                    <asp:Button runat="server" ID="cmdTransferAccountPurchase" Text="Transfer Credit" CssClass="button"
+                        OnClick="cmdTransferAccountPurchase_Click" />
+                        <asp:Label ID="lblTransferErrorMsg" runat="server" style="padding: 2px; margin:1px; display:inline-block;" Text="" Font-Bold="True" Visible="false" BackColor="#FFCC99" BorderColor="Red"></asp:Label>                        
+                    </td>                   
+                </tr>
+            </table>
         </asp:Panel>
 
         <asp:Panel ID="pnlTransferFromGhostIsDone" runat="server" Visible="False" EnableViewState="false"
