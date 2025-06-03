@@ -17,6 +17,8 @@ using System.IO;
 using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
 
+
+
 #if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
@@ -584,6 +586,7 @@ namespace BusinessLibrary.BusinessClasses
                 new OpenAIChatClass { role = "system", content = sysprompt}, // {participants: number // total number of participants,\n arm_count: string // number of study arms,\n intervention: string // description of intervention,\n comparison: string // description of comparison }" },
                 new OpenAIChatClass { role = "user", content = userprompt},
             };
+            if (RobotCoder.RobotName.ToLower().Contains("deepseek")) Merge2Prompts(messages);
 
             result = await MyRobotSubmitRequest(messages, false);
 
@@ -667,6 +670,12 @@ namespace BusinessLibrary.BusinessClasses
             return result;
         }
 
+        private static void Merge2Prompts(List<OpenAIChatClass> messages)
+        {
+            messages[1].content = messages[0].content + Environment.NewLine + messages[1].content;
+            messages.Remove(messages[0]);
+        }
+
         private Dictionary<string, string> resultDict;
         private Dictionary<string, string> resultRagDict;
 
@@ -693,23 +702,26 @@ namespace BusinessLibrary.BusinessClasses
                 key = AzureSettings.RobotAPIKeyByRobotName(RobotCoder.RobotName);
             }
             
-            double temperature = Convert.ToDouble(RobotCoder.Temperature);
-            int frequency_penalty = Convert.ToInt16(RobotCoder.FrequencyPenalty);
-            int presence_penalty = Convert.ToInt16(RobotCoder.PresencePenalty);
-            double top_p = Convert.ToDouble(RobotCoder.TopP);
-
 
             // *** Create the client and submit the request to the LLM
             var client = new HttpClient();
+
             string json;
             if (_UserPrivateOpenAIKey == "")
             {
-                client.DefaultRequestHeaders.Add("api-key", $"{key}");
+                if (RobotCoder.RobotName.ToLower().Contains("deepseek"))
+                {
+                    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {key}");
+                }
+                else
+                {
+                    client.DefaultRequestHeaders.Add("api-key", $"{key}");
+                }
                 string type = "json_object";
                 var response_format = new { type };
                 //var requestBody = new { response_format, messages, temperature, frequency_penalty, presence_penalty, top_p };
                 //var requestBody = new { messages, temperature, frequency_penalty, presence_penalty, top_p };
-                json = BuildJsonRequestBody(type, messages, temperature, frequency_penalty, presence_penalty, top_p);  //JsonConvert.SerializeObject(requestBody);
+                json = BuildJsonRequestBody(RobotCoder, messages);  //JsonConvert.SerializeObject(requestBody);
             }
             else
             {
@@ -719,7 +731,8 @@ namespace BusinessLibrary.BusinessClasses
                 //string type = "json_object";
                 //var response_format = new { type };
                 //var requestBody = new { model, response_format, messages, temperature, frequency_penalty, presence_penalty, top_p };
-                var requestBody = new { model, messages, temperature, frequency_penalty, presence_penalty, top_p };
+                //var requestBody = new { model, messages, temperature, frequency_penalty, presence_penalty, top_p };
+                var requestBody = new { model, messages };
                 json = JsonConvert.SerializeObject(requestBody);
             }
             var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -743,6 +756,9 @@ namespace BusinessLibrary.BusinessClasses
             if (response.IsSuccessStatusCode == false)
             {
                 _message = "Error: " + response.ReasonPhrase;
+                ErrorLogSink("LLM Robot Error."
+                        + Environment.NewLine + _message
+                        + Environment.NewLine + await response.Content.ReadAsStringAsync());
                 return false;
             }
 
@@ -757,18 +773,36 @@ namespace BusinessLibrary.BusinessClasses
             _inputTokens += generatedText.usage.prompt_tokens;
             _outputTokens += generatedText.usage.total_tokens - generatedText.usage.prompt_tokens;
             var responses = generatedText.choices[0].message.content;
+
+            if (RobotCoder.RobotName.ToLower().Contains("deepseek"))
+            {
+                responses = StripThinkTagAndJsonMarkdown(responses);
+            }
+
             if (isRag)
             {
                 resultRagDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
             }
             else
             {
+                
                 resultDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
+                //"<think>(.*?)</think>(.*)"
             }
             // seems a bit odd setting the _message to 'completed' here when it's not finished, but there are no points between here and returning that we're not returning true
             _message = "Completed " + (errors > 0 ? "with" : "without") + " errors. (Tokens: prompt: " + generatedText.usage.prompt_tokens.ToString() + ", total: " + generatedText.usage.total_tokens.ToString() + ")";
 
             return true;
+        }
+        internal static string StripThinkTagAndJsonMarkdown(string responses)
+        {
+            Regex rx = new Regex("<think>(.*?)</think>", RegexOptions.Singleline);
+
+            responses = rx.Replace(responses, "");
+            responses = responses.Replace("```json", "");
+            responses = responses.Replace("```", "");
+
+            return responses;
         }
         internal static string BuildJsonRequestBody(string type, List<OpenAIChatClass> messages, double temperature, int frequency_penalty, int presence_penalty, double top_p)
         {
@@ -784,6 +818,59 @@ namespace BusinessLibrary.BusinessClasses
                 //var requestBody = new { messages, temperature, frequency_penalty, presence_penalty, top_p };
                 return JsonConvert.SerializeObject(requestBody);
             }
+        }
+
+        internal static string BuildJsonRequestBody(RobotCoderReadOnly Robot, List<OpenAIChatClass> messages)
+        {
+            JObject res = new JObject();
+            var jMessages = JArray.FromObject(messages);
+            foreach (RobotCoderSetting pair in Robot.RobotSettings)
+            {
+                if (!pair.SettingName.Contains('.'))
+                {
+                    int IntVal;
+                    decimal DecVal;
+                    if (int.TryParse(pair.SettingValue, out IntVal)) {
+                        res.Add(pair.SettingName, IntVal);
+                    }
+                    else if (decimal.TryParse(pair.SettingValue, out DecVal))
+                    {
+                        res.Add(pair.SettingName, DecVal);
+                    }
+                    else res.Add(pair.SettingName, pair.SettingValue);
+                }
+                else
+                {
+                    string[] splitted = pair.SettingName.Split('.', StringSplitOptions.RemoveEmptyEntries);
+                    JObject tempToAdd = new JObject();
+                    for (int i = splitted.Length - 1; i >= 0; i--)
+                    {
+                        if (i == splitted.Length - 1)
+                        {//last element, we always add it
+
+                            int IntVal;
+                            decimal DecVal;
+                            if (int.TryParse(pair.SettingValue, out IntVal))
+                            {
+                                tempToAdd.Add(splitted[i], IntVal);
+                            }
+                            else if (decimal.TryParse(pair.SettingValue, out DecVal))
+                            {
+                                tempToAdd.Add(splitted[i], DecVal);
+                            }
+                            else tempToAdd.Add(splitted[i], pair.SettingValue);
+                        }
+                        else
+                        {
+                            tempToAdd = new JObject(new JProperty(splitted[i], tempToAdd));
+                        }
+                    }
+                    res.Merge(tempToAdd);
+                }
+            }
+            res.Add("messages", jMessages);
+            //res.Merge(jMessages);
+            return JsonConvert.SerializeObject(res);
         }
 
         private static readonly Regex BooleanPromptRx = new Regex(@": ?boolean ?\/\/");
