@@ -11,7 +11,6 @@ using Csla;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using EPPIDataServices.Helpers;
-using System.Numerics;
 
 namespace ERxWebClient2.Controllers
 {
@@ -67,6 +66,7 @@ namespace ERxWebClient2.Controllers
                 if (!SetCSLAUser()) return Unauthorized();
                 RobotOpenAiTaskCriteria crit = RobotOpenAiTaskCriteria.NewPastJobsCriteria();
                 RobotOpenAiTaskReadOnlyList res = DataPortal.Fetch<RobotOpenAiTaskReadOnlyList>(crit);
+                //TestCode();
                 return Ok(res);
             }
             catch (Exception e)
@@ -76,6 +76,23 @@ namespace ERxWebClient2.Controllers
             }
 
         }
+        //private void TestCode()
+        //{
+        //    Dictionary<string, string> names = new Dictionary<string, string>();
+        //    names.Add("Topolino", "1");
+        //    names.Add("Pippo", "2");
+        //    names.Add("Paperi.Paperone", "3");
+        //    names.Add("Paperi.Qui", "4");
+        //    names.Add("Paperi.Quo", "5");
+        //    names.Add("Paperi.Qua", "6");
+        //    names.Add("Fattoria.LupoAlberto", "7");
+        //    names.Add("Fattoria.Marta", "8");
+        //    names.Add("Fattoria.Talpe.Enrico", "9");
+        //    names.Add("Fattoria.Talpe.Cesira", "10");
+        //    JObject res = new JObject();
+            
+        //}
+
         [HttpPost("[action]")]
         public IActionResult RunRobotOpenAICommand([FromBody] RobotOpenAICommandJson data)
         {

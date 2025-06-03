@@ -71,38 +71,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(IsPublicProperty);
             }
         }
-        public static readonly PropertyInfo<decimal> TopPProperty = RegisterProperty<decimal>(new PropertyInfo<decimal>("TopP", "TopP"));
-        public decimal TopP
-        {
-            get
-            {
-                return GetProperty(TopPProperty);
-            }
-        }
-        public static readonly PropertyInfo<decimal> TemperatureProperty = RegisterProperty<decimal>(new PropertyInfo<decimal>("Temperature", "Temperature"));
-        public decimal Temperature
-        {
-            get
-            {
-                return GetProperty(TemperatureProperty);
-            }
-        }
-        public static readonly PropertyInfo<decimal> FrequencyPenaltyProperty = RegisterProperty<decimal>(new PropertyInfo<decimal>("FrequencyPenalty", "FrequencyPenalty"));
-        public decimal FrequencyPenalty
-        {
-            get
-            {
-                return GetProperty(FrequencyPenaltyProperty);
-            }
-        }
-        public static readonly PropertyInfo<decimal> PresencePenaltyProperty = RegisterProperty<decimal>(new PropertyInfo<decimal>("PresencePenalty", "PresencePenalty"));
-        public decimal PresencePenalty
-        {
-            get
-            {
-                return GetProperty(PresencePenaltyProperty);
-            }
-        }
+        
         public static readonly PropertyInfo<string> DescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("Description", "Description"));
         public string Description
         {
@@ -147,6 +116,15 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<MobileList<RobotCoderSetting>> RobotSettingsProperty = RegisterProperty<MobileList<RobotCoderSetting>>(new PropertyInfo<MobileList<RobotCoderSetting>>("RobotSettings", "RobotSettings"));
+        public MobileList<RobotCoderSetting> RobotSettings
+        {
+            get
+            {
+                return GetProperty(RobotSettingsProperty);
+            }
+        }
+
 
         //protected override void AddAuthorizationRules()
         //{
@@ -183,20 +161,16 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty<string>(RobotNameProperty, reader.GetString("CONTACT_NAME"));
             LoadProperty<string>(EndPointProperty, reader.GetString("ENDPOINT"));
             LoadProperty<bool>(IsPublicProperty, reader.GetBoolean("IS_PUBLIC"));
-            LoadProperty<decimal>(TopPProperty, reader.GetDecimal("TOP_P"));
-            LoadProperty<decimal>(TemperatureProperty, reader.GetDecimal("TEMPERATURE"));
-            LoadProperty<decimal>(FrequencyPenaltyProperty, reader.GetDecimal("FREQUENCY_PENALTY"));
-            LoadProperty<decimal>(PresencePenaltyProperty, reader.GetDecimal("PRESENCE_PENALTY"));
             LoadProperty<string>(DescriptionProperty, reader.GetString("PUBLIC_DESCRIPTION"));
             LoadProperty<DateTime>(RetirementDateProperty, reader.GetDateTime("RETIREMENT_DATE"));
-
+            LoadProperty(RobotSettingsProperty, new MobileList<RobotCoderSetting>());
             string tmp = reader.GetString("FOR_SALE_IDs");
             string[] IdsStr = tmp.Split(',');
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
 
-                using (SqlCommand command = new SqlCommand("st_RobotCoderForSale", connection))
+                using (SqlCommand command = new SqlCommand("st_RobotCoderForSaleAndSettings", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@RobotId", RobotId));
@@ -210,10 +184,49 @@ namespace BusinessLibrary.BusinessClasses
                         {//2nd line: output tokens
                             LoadProperty<int>(OutputTokenCostPmProperty, reader2.GetInt32("PRICE_PER_MONTH"));
                         }
+                        reader2.NextResult();
+                        while (reader2.Read())
+                        {
+                            RobotSettings.Add(new RobotCoderSetting(reader2.GetString("SETTING_NAME"), reader2.GetString("SETTING_VALUE")));
+                        }
                     }
                 }
             }
         }
 #endif
+    }
+
+    [Serializable]
+    public class RobotCoderSetting: BusinessBase<RobotCoderSetting>
+    {
+        public RobotCoderSetting() { }
+        internal RobotCoderSetting(string Name, string Value) {
+            SettingName = Name;
+            SettingValue = Value;
+        }
+        public static readonly PropertyInfo<string> SettingNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SettingName", "SettingName"));
+        public string SettingName
+        {
+            get
+            {
+                return GetProperty(SettingNameProperty);
+            }
+            set
+            {
+                SetProperty(SettingNameProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<string> SettingValueProperty = RegisterProperty<string>(new PropertyInfo<string>("SettingValue", "SettingValue"));
+        public string SettingValue
+        {
+            get
+            {
+                return GetProperty(SettingValueProperty);
+            }
+            set
+            {
+                SetProperty(SettingValueProperty, value);
+            }
+        }
     }
 }

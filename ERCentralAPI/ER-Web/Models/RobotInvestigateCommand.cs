@@ -370,23 +370,23 @@ namespace BusinessLibrary.BusinessClasses
                 new RobotOpenAICommand.OpenAIChatClass { role = "user", content = userprompt},
             };
 
-            // *** additional params (modifiable in web.config)
-            double temperature = Convert.ToDouble(RobotCoder.Temperature);
-            int frequency_penalty = Convert.ToInt16(RobotCoder.FrequencyPenalty);
-            int presence_penalty = Convert.ToInt16(RobotCoder.PresencePenalty);
-            double top_p = Convert.ToDouble(RobotCoder.TopP);
+            
 
             // *** Create the client and submit the request to the LLM
             var client = new HttpClient();
             string json;
             if (_UserPrivateOpenAIKey == "")
             {
-                client.DefaultRequestHeaders.Add("api-key", $"{key}");
+                if (RobotCoder.RobotName.ToLower().Contains("deepseek"))
+                {
+                    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {key}");
+                }
+                else client.DefaultRequestHeaders.Add("api-key", $"{key}");
                 //string type = "json_object"; as in this case, we're not requesting JSON in response and get an error if we do
                 //var response_format = new { type };
                 //var requestBody = new { /*response_format, */ messages, temperature, frequency_penalty, presence_penalty, top_p };
                 //json = JsonConvert.SerializeObject(requestBody);
-                json = RobotOpenAICommand.BuildJsonRequestBody("text", messages, temperature, frequency_penalty, presence_penalty, top_p);
+                json = RobotOpenAICommand.BuildJsonRequestBody(RobotCoder, messages);
             }
             else
             {
@@ -396,7 +396,8 @@ namespace BusinessLibrary.BusinessClasses
                 //string type = "json_object";
                 //var response_format = new { type };
                 //var requestBody = new { model, response_format, messages, temperature, frequency_penalty, presence_penalty, top_p };
-                var requestBody = new { model, messages, temperature, frequency_penalty, presence_penalty, top_p };
+                //var requestBody = new { model, messages, temperature, frequency_penalty, presence_penalty, top_p };
+                var requestBody = new { model, messages};
                 json = JsonConvert.SerializeObject(requestBody);
             }
             var content = new StringContent(json, Encoding.UTF8, "application/json");
