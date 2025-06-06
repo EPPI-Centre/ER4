@@ -407,11 +407,12 @@
             <table border="1" cellpadding="1" cellspacing="1" width="500" style="background-color: #B6C6E6;">
                 <tr>
                     <td>
-                        <b>Rather than activating the new account ID:</b>
-                        <asp:Label ID="lblSourceGhostAccountID" runat="server" Font-Bold="True" Text=""></asp:Label>
-                        <b>you can transfer the</b>
+                        <b>Rather than activating the new account (ID:</b>
+                        <asp:Label ID="lblSourceGhostAccountID" runat="server" Font-Bold="True" Text=""></asp:Label><b>)
+                        you can transfer</b>
                         <asp:Label ID="lblMonthsCredit" runat="server" Font-Bold="True" Text=""></asp:Label>
-                        <b>month(s) credit to an exsting account.</b>
+                        <b>month(s) credit to an exsting account </b>(1 month of credit is free, so  
+                        <asp:Label ID="lblMonthsCredit2" runat="server" Text=""></asp:Label> month(s) were paid for).
                         <br />
                         Enter the email of the existing account and then click on the "Transfer Credit" button.
 

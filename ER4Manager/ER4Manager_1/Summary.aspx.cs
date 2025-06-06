@@ -482,6 +482,7 @@ public partial class Summary : System.Web.UI.Page
                     if (dt.Rows[i].ItemArray[6].ToString() == "True")
                     {
                         gvAccountPurchases.Rows[i].Cells[6].Enabled = false;
+                        gvAccountPurchases.Rows[i].Cells[7].Enabled = false;
                     }
                 }
 
@@ -510,6 +511,7 @@ public partial class Summary : System.Web.UI.Page
                 monthsCredit = monthsCredit.Remove(monthsCredit.IndexOf(' ')).Trim();
                 monthsCredit = (int.Parse(monthsCredit) - 1).ToString();
                 lblMonthsCredit.Text = monthsCredit;
+                lblMonthsCredit2.Text = monthsCredit;
                 lblSourceGhostAccountID.Text = ContactID;
                 pnlActivateIntoExistingAccount.Visible = true;
                 //pnlContactDetails.Visible = false;
