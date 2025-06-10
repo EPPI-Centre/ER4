@@ -401,7 +401,7 @@ public partial class Summary : System.Web.UI.Page
             else if ((idr["EXPIRY_DATE"].ToString() == "") && (int.Parse(idr["MONTHS_CREDIT"].ToString()) < 0)
                 && idr["EMAIL"].ToString() == "")
             {
-                newrow["EXPIRY_DATE"] = "Transferred " + idr["MONTHS_CREDIT"].ToString().Remove(0,1) + " months";
+                newrow["EXPIRY_DATE"] = "Transferred " + idr["MONTHS_CREDIT"].ToString().Remove(0, 1) + " months";
             }
             else if (newrow["IS_FULLY_ACTIVE"].ToString() == "False" && newrow["IS_STALE_AGHOST"].ToString() == "False")
             {
@@ -422,7 +422,7 @@ public partial class Summary : System.Web.UI.Page
         {
             lblActivateInstructions.Visible = true;
         }
-        
+
 
 
         if (dt.Rows.Count == 0)
@@ -503,7 +503,7 @@ public partial class Summary : System.Web.UI.Page
             case "EDIT":
                 contactData(ContactID, true);
                 pnlActivateGhostForm.Visible = true;
-                pnlContactDetails.Visible = false;              
+                pnlContactDetails.Visible = false;
                 break;
             case "TRANSFER":
                 //Not activated: 4 months credit
@@ -1011,6 +1011,11 @@ public partial class Summary : System.Web.UI.Page
                 string amount = "";
                 string numberOfMonthsExtended = "";
                 string numberOfMonthsHolder = "";
+                string nameSeenLastTime = "";
+                string nameSeenThisTime = "";
+
+                DateTime trueExpiryDate;
+                DateTime loggedExpiryDate;
 
                 DataTable dt = new DataTable();
                 System.Data.DataRow newrow;
@@ -1023,6 +1028,9 @@ public partial class Summary : System.Web.UI.Page
                 dt.Columns.Add(new DataColumn("NUMBER_MONTHS", typeof(string)));
                 dt.Columns.Add(new DataColumn("COST", typeof(string)));
 
+                dt.Columns.Add(new DataColumn("tv_tb_contact_or_tb_review_expiry_date", typeof(string)));
+                dt.Columns.Add(new DataColumn("tv_new_date", typeof(string)));
+
                 bool isAdmDB = true;
                 IDataReader idr = Utils.GetReader(isAdmDB, "st_CreditHistoryByPurchase",
                     creditPurchaseID);
@@ -1030,7 +1038,7 @@ public partial class Summary : System.Web.UI.Page
                 {
                     newrow = dt.NewRow();
                     newrow["CREDIT_EXTENSION_ID"] = idr["tv_credit_extension_id"].ToString();
-                    
+
 
                     if (idr["tv_id_extended"].ToString() == "0")
                     {
@@ -1051,9 +1059,41 @@ public partial class Summary : System.Web.UI.Page
                         }
                     }
                     else
-                    {    
+                    {
+                        // an account or review
+
+                        // not for table display but for later calculations
+                        newrow["tv_tb_contact_or_tb_review_expiry_date"] = idr["tv_tb_contact_or_tb_review_expiry_date"].ToString();
+                        newrow["tv_new_date"] = idr["tv_new_date"].ToString();
+
+                        if (nameSeenThisTime == "")
+                        {
+                            nameSeenThisTime = idr["tv_name"].ToString();
+                            nameSeenLastTime = idr["tv_name"].ToString();
+                        }
+                        nameSeenThisTime = idr["tv_name"].ToString();
+                        if (nameSeenThisTime != nameSeenLastTime)
+                        {
+                            // name has changed so see if we need to mark the previous row as enabled. 
+                            if (dt.Rows[dt.Rows.Count - 1]["ID"].ToString().Contains("!"))
+                            {
+                                // but before enabling we need to check if previous row extension is the "controlling" (i.e. most recent) extension
+                                trueExpiryDate = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["tv_tb_contact_or_tb_review_expiry_date"].ToString());
+                                loggedExpiryDate = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["tv_new_date"].ToString());
+                                if (trueExpiryDate <= loggedExpiryDate)
+                                {
+                                    // this extension is the most recond
+                                    dt.Rows[dt.Rows.Count - 1]["ID"] = dt.Rows[dt.Rows.Count - 1]["ID"].ToString() + "E";
+                                }
+                            }
+                            nameSeenLastTime = nameSeenThisTime;
+
+                        }
+
+
                         newrow["NAME"] = idr["tv_name"].ToString();
                         newrow["COST"] = idr["tv_cost"].ToString();
+
                     }
                     newrow["TYPE"] = idr["tv_type_extended_name"].ToString();
 
@@ -1070,11 +1110,14 @@ public partial class Summary : System.Web.UI.Page
                         numberOfMonthsExtended = "0";
                     }
                     string test = idr["tv_type_extended_name"].ToString();
+
+
                     if ((idr["tv_type_extended_name"].ToString() == "Account") || (idr["tv_type_extended_name"].ToString() == "Review"))
                     {
                         if (now <= dateExtendedPlus2Days)
                         {
-                            // they noticed they issue within 2 days so they can get back all of the credit
+                            // they noticed the issue within 2 days so they can get back all of the credit
+                            // the number following the ! separator indicates how many months can be pulled back
                             numberOfMonthsHolder = numberOfMonthsExtended + "!" + numberOfMonthsExtended;
                         }
                         else if (dateExtended.AddMonths(int.Parse(numberOfMonthsExtended)) > now)
@@ -1099,6 +1142,7 @@ public partial class Summary : System.Web.UI.Page
                             }
                             if (months > 0)
                             {
+                                // the number following the ! separator indicates how many months can be pulled back
                                 numberOfMonthsHolder = idr["tv_months_extended"].ToString() + "!" + months.ToString();
                             }
                             else
@@ -1111,6 +1155,8 @@ public partial class Summary : System.Web.UI.Page
                             numberOfMonthsHolder = idr["tv_months_extended"].ToString();
                         }
                     }
+
+
                     else
                     {
                         numberOfMonthsHolder = idr["tv_months_extended"].ToString();
@@ -1118,15 +1164,31 @@ public partial class Summary : System.Web.UI.Page
 
                     // append numberOfMonthsHolder to another field for later use
                     newrow["ID"] = idr["tv_id_extended"].ToString() + "-" + numberOfMonthsHolder;
+
                     dt.Rows.Add(newrow);
 
                 }
                 idr.Close();
 
+
+                // we are done reading data. check if the last row should be enabled.
+                if (dt.Rows[dt.Rows.Count - 1]["ID"].ToString().Contains("!"))
+                {
+                    // but before enabling we need to check if previous row extension is the "controlling" (i.e. most recent) extension
+                    trueExpiryDate = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["tv_tb_contact_or_tb_review_expiry_date"].ToString());
+                    loggedExpiryDate = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["tv_new_date"].ToString());
+                    if (trueExpiryDate <= loggedExpiryDate)
+                    {
+                        // this extension is the most recond
+                        dt.Rows[dt.Rows.Count - 1]["ID"] = dt.Rows[dt.Rows.Count - 1]["ID"].ToString() + "E";
+                    }
+                }
+
                 gvCreditHistory.DataSource = dt;
                 gvCreditHistory.DataBind();
 
                 break;
+
             default:
                 break;
         }
@@ -1158,7 +1220,7 @@ public partial class Summary : System.Web.UI.Page
 
             // get what is in column 2
             //lblNumberMonths.Text = e.Row.Cells[2].Text;
-            lblNumberMonths.Text = e.Row.Cells[2].Text.Substring(e.Row.Cells[2].Text.IndexOf("-")+1);
+            lblNumberMonths.Text = e.Row.Cells[2].Text.Substring(e.Row.Cells[2].Text.IndexOf("-") + 1);
 
             if (lblNumberMonths.Text.Contains("!"))
             {
@@ -1166,10 +1228,22 @@ public partial class Summary : System.Web.UI.Page
                 if (lblNumberMonths.Text.Substring(lblNumberMonths.Text.IndexOf("!") + 1) != "0")
                 {
                     lbReturnToCreditMonths.Text = "RTC " + lblNumberMonths.Text.Substring(lblNumberMonths.Text.IndexOf("!") + 1) + " months";
+                    if (lbReturnToCreditMonths.Text.Contains("E"))
+                    {
+                        lbReturnToCreditMonths.Enabled = true;
+                        lbReturnToCreditMonths.Text = lbReturnToCreditMonths.Text.Replace("E", "");
+                        lbReturnToCreditMonths.Attributes.Add("onclick", "if (confirm('Are you sure you want to return-to-credit these months?') == false) return false;");
+                    }
+                    else
+                    {
+                        // we are now only allowing the user to RTC the last extension for an account or user so 
+                        // hide the other RTC links
+                        lbReturnToCreditMonths.Enabled = false;
+                        lbReturnToCreditMonths.Visible = false;
+                    }
                     lblNumberMonths.Text = lblNumberMonths.Text.Remove(lblNumberMonths.Text.IndexOf("!")).Trim();
 
-                    LinkButton lb = (LinkButton)e.Row.FindControl("lbReturnToCreditMonths");
-                    lb.Attributes.Add("onclick", "if (confirm('Are you sure you want to return-to-credit these months?') == false) return false;");
+
                 }
                 else
                 {
@@ -1177,7 +1251,17 @@ public partial class Summary : System.Web.UI.Page
                     lbReturnToCreditMonths.Visible = false;
                 }
             }
+
+            if ((lblNumberMonths.Text == "0") &&
+                    ((e.Row.Cells[1].Text == "Account") || (e.Row.Cells[1].Text == "Review")))
+            {
+                // this is a null transaction (i.e everything applied was taken away) so I will hide it from the user
+                // it will still be visable to eppi admins in the contact details or review details page
+                e.Row.Visible = false;
+            }
+
             // clean up the ID row
+            // commenting out the next line will help debug this function
             e.Row.Cells[2].Text = e.Row.Cells[2].Text.Remove(e.Row.Cells[2].Text.IndexOf("-"));
         }
     }
@@ -1191,7 +1275,7 @@ public partial class Summary : System.Web.UI.Page
         string dataKey = gvCreditHistory.DataKeys[row.RowIndex].Value.ToString();
 
         GridViewRow selectedRow = gvCreditHistory.Rows[rowNumber];
-        TableCell type = selectedRow.Cells[1];     
+        TableCell type = selectedRow.Cells[1];
         TableCell iD = selectedRow.Cells[2];
 
         string creditExtensionID = dataKey;
@@ -1206,7 +1290,7 @@ public partial class Summary : System.Web.UI.Page
         //bool isAdmDB = true;
         //Utils.ExecuteSP(isAdmDB, Server, "st_ReturnToCredit", creditExtensionID, typeToCredit, contactOrReviewID, monthsToCredit);
 
-        SqlParameter[] paramList = new SqlParameter[5];
+        SqlParameter[] paramList = new SqlParameter[6];
 
         paramList[0] = new SqlParameter("@CREDIT_EXTENSION_ID", SqlDbType.Int);
         paramList[0].Direction = ParameterDirection.Input;
@@ -1225,15 +1309,19 @@ public partial class Summary : System.Web.UI.Page
         paramList[3].Direction = ParameterDirection.Input;
         paramList[3].Value = monthsToCredit;
 
-        paramList[4] = new SqlParameter("@RESULT", SqlDbType.NVarChar);
-        paramList[4].Direction = ParameterDirection.Output;
-        paramList[4].Value = "";
-        paramList[4].Size = 100;
+        paramList[4] = new SqlParameter("@CREDIT_PURCHASE_ID", SqlDbType.Int);
+        paramList[4].Direction = ParameterDirection.Input;
+        paramList[4].Value = lblCreditPurchaseID.Text;
+
+        paramList[5] = new SqlParameter("@RESULT", SqlDbType.NVarChar);
+        paramList[5].Direction = ParameterDirection.Output;
+        paramList[5].Value = "";
+        paramList[5].Size = 100;
 
 
         bool isAdmDB = true;
         Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_ReturnToCredit", paramList);
-        string res = paramList[4].Value.ToString();
+        string res = paramList[5].Value.ToString();
 
         if (res == "Success")
         {
@@ -1364,7 +1452,7 @@ public partial class Summary : System.Web.UI.Page
             }
             // if the amount > 0
             if (toTransfer > 0)
-            {           
+            {
                 // something is selected in each control
                 if (ddlSourcePurchaseID.SelectedIndex != ddlDestinationPurchaseID.SelectedIndex)
                 {
