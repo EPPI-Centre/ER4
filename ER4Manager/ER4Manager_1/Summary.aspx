@@ -230,7 +230,8 @@
                             <HeaderStyle BackColor="#B6C6D6" />
                             <ItemTemplate>
                                 <asp:Label ID="lblNumberMonths" runat="server" Visible="true"></asp:Label>
-                                <asp:LinkButton ID="lbReturnToCreditMonths" runat="server" OnClick="lbReturnToCreditMonths_Click" Visible="true"></asp:LinkButton>
+                                <asp:LinkButton ID="lbReturnToCreditMonths" runat="server" OnClick="lbReturnToCreditMonths_Click" Visible="true"
+                                    Enabled="false"></asp:LinkButton>
                             </ItemTemplate>
                         </asp:TemplateField>
                         <asp:BoundField DataField="COST" HeaderText="Cost (£)">
@@ -241,7 +242,8 @@
                         </asp:BoundField>
                     </Columns>
                 </asp:GridView>
-                You can <b>Return-To-Credit (RTC)</b> unused months for reviews and accounts
+                You can <b>Return-To-Credit (RTC)</b> unused months for the "last" extension of a review or account.<br />
+                <b>Note:</b> The "last" extension for a review or account could have been made using a credit purchase other than your own.
                 <br />
             </asp:Panel>
             <br />
@@ -408,10 +410,10 @@
                 <tr>
                     <td>
                         <b>Rather than activating the new account (ID:</b>
-                        <asp:Label ID="lblSourceGhostAccountID" runat="server" Font-Bold="True" Text=""></asp:Label><b>)
-                        you can transfer</b>
+                        <asp:Label ID="lblSourceGhostAccountID" runat="server" Font-Bold="True" Text=""></asp:Label><b>) 
+                        you can transfer the</b>
                         <asp:Label ID="lblMonthsCredit" runat="server" Font-Bold="True" Text=""></asp:Label>
-                        <b>month(s) credit to an exsting account </b>(1 month of credit is free, so  
+                        <b>month(s) credit to an exsting account</b> (1 month of credit is free, so
                         <asp:Label ID="lblMonthsCredit2" runat="server" Text=""></asp:Label> month(s) were paid for).
                         <br />
                         Enter the email of the existing account and then click on the "Transfer Credit" button.
