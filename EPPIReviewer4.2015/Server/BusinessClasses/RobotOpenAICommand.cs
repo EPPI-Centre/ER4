@@ -796,7 +796,10 @@ namespace BusinessLibrary.BusinessClasses
             if (response.IsSuccessStatusCode == false)
             {
                 _message = "Error: " + response.ReasonPhrase;
-                ErrorLogSinkDetails(response.ReasonPhrase == null ? "Unspecified Error" : response.ReasonPhrase, await response.Content.ReadAsStringAsync());
+                if (_message != "Error: Too Many Requests")//this is and should be handled in the batch-control side: RobotOpenAiHostedService
+                {
+                    ErrorLogSinkDetails(response.ReasonPhrase == null ? "Unspecified Error" : response.ReasonPhrase, await response.Content.ReadAsStringAsync());
+                }
                 return false;
             }
 

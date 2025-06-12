@@ -380,7 +380,7 @@ namespace BusinessLibrary.BusinessClasses
             string json;
             if (_UserPrivateOpenAIKey == "")
             {
-                if (RobotCoder.RobotName.ToLower().Contains("deepseek"))
+                if (RobotOpenAICommand.IsDeepSeekLike(RobotCoder)) 
                 {
                     client.DefaultRequestHeaders.Add("Authorization", $"Bearer {key}");
                 }
