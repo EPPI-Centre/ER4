@@ -481,7 +481,7 @@ namespace BusinessLibrary.BusinessClasses
                                 RT.RobotApiCallId, RT.RobotContactId, RT.ReviewId, RT.JobOwnerId,
                                 RT.OnlyCodeInTheRobotName, RT.LockTheCoding, RT.UseFullTextDocument, doclist, cmd.ReviewSetForPrompts, cmd.CachedPrompt);
                     }
-                        LogInfo("Submitting ItemId: " + RT.ItemIDsList[done].ToString());
+                    LogInfo("Submitting ItemId: " + RT.ItemIDsList[done].ToString());
                     start = DateTime.Now;
                     cmd = DataPortal.Execute<LLMRobotCommand>(cmd);
                     ApiLatency = (int)((DateTime.Now.Ticks - start.Ticks) / 10000) - 50; //how long the cmd execution took, in Ms, minus 50ms to stay safe...

@@ -369,7 +369,10 @@ namespace BusinessLibrary.BusinessClasses
                 new RobotOpenAICommand.OpenAIChatClass { role = "system", content = sysprompt}, // {participants: number // total number of participants,\n arm_count: string // number of study arms,\n intervention: string // description of intervention,\n comparison: string // description of comparison }" },
                 new RobotOpenAICommand.OpenAIChatClass { role = "user", content = userprompt},
             };
-
+            if (RobotOpenAICommand.IsDeepSeekLike(RobotCoder))
+            {
+                RobotOpenAICommand.Merge2Prompts(messages);
+            }
             
 
             // *** Create the client and submit the request to the LLM

@@ -19,6 +19,7 @@ using System.Text.RegularExpressions;
 
 
 
+
 #if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
@@ -149,7 +150,46 @@ namespace BusinessLibrary.BusinessClasses
         private int _outputTokens = 0;
         private Int64 _Item_set_id = 0;
         private bool hasSavedSomeCodes = false;
-
+        private void ErrorLogSinkDetails(string Message, string Details, bool IsFatal = false)
+        {
+            if (_jobId != 0)
+            {
+                try
+                {
+                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                    {
+                        string SavedMsg = Message;
+                        if (SavedMsg.Length > 200) SavedMsg = SavedMsg.Substring(0, 200);
+                        connection.Open();
+                        using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
+                        {//this is to update the token numbers, and thus the cost, if we can
+                            command.CommandType = System.Data.CommandType.StoredProcedure;
+                            command.Parameters.Add(new SqlParameter("@REVIEW_ID ", _reviewId));
+                            command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", _jobId));
+                            command.Parameters.Add(new SqlParameter("@STATUS", IsFatal ? "Failed" : "Running"));
+                            command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", System.Data.SqlDbType.BigInt));
+                            command.Parameters["@CURRENT_ITEM_ID"].Value = _itemId;
+                            command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", 0));
+                            command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", 0));
+                            command.Parameters.Add(new SqlParameter("@ERROR_MESSAGE", SavedMsg));
+                            command.Parameters.Add(new SqlParameter("@STACK_TRACE", Details));
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ErrorLogSink("RobotOpenAICommand Error: failed to save error details");
+                    ErrorLogSink(Message);
+                    ErrorLogSink(Details + Environment.NewLine);
+                    ErrorLogSink("Exception: " + ex.Message);
+                    if (ex.StackTrace != null) ErrorLogSink(ex.StackTrace + Environment.NewLine);
+                    else ErrorLogSink(Environment.NewLine);
+                }
+            }
+            ErrorLogSink("RobotOpenAICommand Error: " + Message);
+            ErrorLogSink(Details + Environment.NewLine);
+        }
         protected override void DataPortal_Execute()
         {
             ReviewInfo rInfo;
@@ -586,7 +626,7 @@ namespace BusinessLibrary.BusinessClasses
                 new OpenAIChatClass { role = "system", content = sysprompt}, // {participants: number // total number of participants,\n arm_count: string // number of study arms,\n intervention: string // description of intervention,\n comparison: string // description of comparison }" },
                 new OpenAIChatClass { role = "user", content = userprompt},
             };
-            if (RobotCoder.RobotName.ToLower().Contains("deepseek")) Merge2Prompts(messages);
+            if (IsDeepSeekLike(RobotCoder)) Merge2Prompts(messages);
 
             result = await MyRobotSubmitRequest(messages, false);
 
@@ -670,7 +710,7 @@ namespace BusinessLibrary.BusinessClasses
             return result;
         }
 
-        private static void Merge2Prompts(List<OpenAIChatClass> messages)
+        internal static void Merge2Prompts(List<OpenAIChatClass> messages)
         {
             messages[1].content = messages[0].content + Environment.NewLine + messages[1].content;
             messages.Remove(messages[0]);
@@ -709,7 +749,7 @@ namespace BusinessLibrary.BusinessClasses
             string json;
             if (_UserPrivateOpenAIKey == "")
             {
-                if (RobotCoder.RobotName.ToLower().Contains("deepseek"))
+                if (IsDeepSeekLike(RobotCoder))
                 {
                     client.DefaultRequestHeaders.Add("Authorization", $"Bearer {key}");
                 }
@@ -756,9 +796,7 @@ namespace BusinessLibrary.BusinessClasses
             if (response.IsSuccessStatusCode == false)
             {
                 _message = "Error: " + response.ReasonPhrase;
-                ErrorLogSink("LLM Robot Error."
-                        + Environment.NewLine + _message
-                        + Environment.NewLine + await response.Content.ReadAsStringAsync());
+                ErrorLogSinkDetails(response.ReasonPhrase == null ? "Unspecified Error" : response.ReasonPhrase, await response.Content.ReadAsStringAsync());
                 return false;
             }
 
@@ -774,7 +812,7 @@ namespace BusinessLibrary.BusinessClasses
             _outputTokens += generatedText.usage.total_tokens - generatedText.usage.prompt_tokens;
             var responses = generatedText.choices[0].message.content;
 
-            if (RobotCoder.RobotName.ToLower().Contains("deepseek"))
+            if (IsDeepSeekLike(RobotCoder))
             {
                 responses = StripThinkTagAndJsonMarkdown(responses);
             }
@@ -804,20 +842,25 @@ namespace BusinessLibrary.BusinessClasses
 
             return responses;
         }
-        internal static string BuildJsonRequestBody(string type, List<OpenAIChatClass> messages, double temperature, int frequency_penalty, int presence_penalty, double top_p)
-        {
-            var response_format = new { type };
-            if (temperature + top_p + frequency_penalty + presence_penalty == -4)
-            {
-                var requestBody = new { response_format, messages };
-                return JsonConvert.SerializeObject(requestBody);
-            }
-            else
-            {
-                var requestBody = new { response_format, messages, temperature, frequency_penalty, presence_penalty, top_p };
-                //var requestBody = new { messages, temperature, frequency_penalty, presence_penalty, top_p };
-                return JsonConvert.SerializeObject(requestBody);
-            }
+        //internal static string BuildJsonRequestBody(string type, List<OpenAIChatClass> messages, double temperature, int frequency_penalty, int presence_penalty, double top_p)
+        //{
+        //    var response_format = new { type };
+        //    if (temperature + top_p + frequency_penalty + presence_penalty == -4)
+        //    {
+        //        var requestBody = new { response_format, messages };
+        //        return JsonConvert.SerializeObject(requestBody);
+        //    }
+        //    else
+        //    {
+        //        var requestBody = new { response_format, messages, temperature, frequency_penalty, presence_penalty, top_p };
+        //        //var requestBody = new { messages, temperature, frequency_penalty, presence_penalty, top_p };
+        //        return JsonConvert.SerializeObject(requestBody);
+        //    }
+        //}
+
+        internal static bool IsDeepSeekLike(RobotCoderReadOnly robot)
+        {//simple logic, for now!!
+            return robot.RobotName.ToLower().Contains("deepseek");            
         }
 
         internal static string BuildJsonRequestBody(RobotCoderReadOnly Robot, List<OpenAIChatClass> messages)
@@ -1012,6 +1055,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
         }
+
 
         public class OpenAIResult
         {
