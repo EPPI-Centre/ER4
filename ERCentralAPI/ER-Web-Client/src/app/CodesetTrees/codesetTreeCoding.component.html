@@ -33,12 +33,15 @@
                     class="text-wrap text-break BlueTreeViewSelectable"
                     textField="name"
                     (selectionChange)="NodeSelected($event)"
-                    kendoTreeViewExpandable
                     kendoTreeViewHierarchyBinding
                     childrenField="attributes"
                     kendoTreeViewSelectable
                     [selectedKeys]="selectedKeys"
-                    selectBy="id">
+                    selectBy="id"
+                    expandBy="id"
+                    [isExpanded]="isExpanded"
+                    (collapse)="handleCollapse($event)"
+                    (expand)="handleExpand($event)">
       <ng-template kendoTreeViewNodeTemplate let-data>
         <span *ngIf="data.nodeType == 'ReviewSet'" class="ml-0 mr-1">
           <img *ngIf="data.codingIsFinal" title="Normal Mode: single data entry for all users" src="assets/person.png" class="mr-1" />
@@ -58,29 +61,35 @@
 
 
 
-          <span [ngClass]="{'ScreeningSet' : data.subTypeName == 'Screening',
+        <span [ngClass]="{'ScreeningSet' : data.subTypeName == 'Screening',
                               'AdminSet' : data.subTypeName == 'Administration',
                               'ExcludeCode' : data.subTypeName == 'Exclude' }">
-                              <span *ngIf="HotKeysOn"
-                              [ngClass]="{'disabled-Hotkey' : data.showCheckBox == false, 'font-weight-bold text-primary' : data.showCheckBox == true}">{{HotKeysText(data)}}</span>
-                              {{data.name}}</span>
+          <span *ngIf="HotKeysOn"
+                [ngClass]="{'disabled-Hotkey' : data.showCheckBox == false, 'font-weight-bold text-primary' : data.showCheckBox == true}">{{HotKeysText(data)}}</span>
+          {{data.name}}
+        </span>
+        <button *ngIf="data.showCheckBox" class="btn btn-outline-primary bt-infoBox ml-2" (click)="openInfoBox(data)">Info</button>
 
-          <button *ngIf="data.showCheckBox" class="btn btn-outline-primary bt-infoBox ml-2" (click)="openInfoBox(data)">Info</button>
-
-          <button *ngIf="checkOutComes(data)" class="btn btn-outline-dark bt-infoBox ml-2"
-                  (click)="openOutcomePanel(data)">
-            Outcomes
-          </button>
-          <div *ngIf="data.nodeType == 'ReviewSet' && data.set_id == ShowCompleteUncompletePanelForSetId" class="bg-light border p-1 border-success">
-            Coding is Complete: <input class="m-1" type="checkbox" [(ngModel)]="this.ItemSetProxy.IsCompleted"
-                                       [disabled]="IsCodingOnly || !CanWriteCoding(data) || !ItemSetProxy.CanChangeCompletion" /><br />
-            Coding is Locked: <input class="m-1" type="checkbox" [(ngModel)]="this.ItemSetProxy.IsLocked"
-                                     [disabled]="IsCodingOnly || !CanWriteCoding(data)" /><br />
-            <span class="small">Coded by: <b>{{this.ItemSetProxy.CodedBy}}</b></span><br />
-            <button class="btn btn-outline-info bt-infoBox ml-1" (click)="CancelCompleteUncomplete()">Cancel</button>
-            <button class="btn btn-outline-danger bt-infoBox ml-2" [disabled]="!CanSaveItemSet" (click)="ApplyCompleteUncomplete(data)">Apply</button>
-          </div>
-        </ng-template>
+        <button *ngIf="checkOutComes(data)" class="btn btn-outline-dark bt-infoBox ml-2"
+                (click)="openOutcomePanel(data)">
+          Outcomes
+        </button>
+        <div *ngIf="data.nodeType == 'ReviewSet' && data.set_id == ShowCompleteUncompletePanelForSetId" class="bg-light border p-1 border-success">
+          Coding is Complete: <input class="m-1" type="checkbox" [(ngModel)]="this.ItemSetProxy.IsCompleted"
+                                     [disabled]="IsCodingOnly || !CanWriteCoding(data) || !ItemSetProxy.CanChangeCompletion" /><br />
+          Coding is Locked: <input class="m-1" type="checkbox" [(ngModel)]="this.ItemSetProxy.IsLocked"
+                                   [disabled]="IsCodingOnly || !CanWriteCoding(data)" /><br />
+          <span class="small">Coded by: <b>{{this.ItemSetProxy.CodedBy}}</b></span><br />
+          <button class="btn btn-outline-info bt-infoBox ml-1" (click)="CancelCompleteUncomplete()">Cancel</button>
+          <button class="btn btn-outline-danger bt-infoBox ml-2" [disabled]="!CanSaveItemSet" (click)="ApplyCompleteUncomplete(data)">Apply</button>
+        </div>
+        <span *ngIf="selectedKeys[0] && selectedKeys[0] == data.id && data.attributes && data.attributes.length > 0" style="cursor: pointer">
+          <span *ngIf="IsCollapsed(data); else collapseAll" class="k-icon k-font-icon k-i-kpi text-primary" (click)="ExpandAllFromHere(data)" title="Expand this and all children"></span>
+          <ng-template #collapseAll>
+            <span class="k-icon k-font-icon k-i-arrow-parent text-primary " (click)="CollapseAllFromHere(data)" title="Collapse this and all children"></span>
+          </ng-template>
+        </span>
+      </ng-template>
 </kendo-treeview>
   </div>
 </div>

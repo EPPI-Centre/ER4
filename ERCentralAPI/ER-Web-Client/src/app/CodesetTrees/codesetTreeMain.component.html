@@ -8,11 +8,14 @@
                   class="text-wrap text-break BlueTreeViewSelectable"
                   textField="name"
                   (selectionChange)="onSelectionChange($event)"
-                  kendoTreeViewExpandable
                   kendoTreeViewHierarchyBinding
-                    kendoTreeViewSelectable
-                    [selectedKeys]="selectedKeys"
-                    selectBy="id"
+                  kendoTreeViewSelectable
+                  [selectedKeys]="selectedKeys"
+                  selectBy="id"
+                  expandBy="id"
+                  [isExpanded]="isExpanded"
+                  (collapse)="handleCollapse($event)"
+                  (expand)="handleExpand($event)"
                   childrenField="attributes">
     <ng-template kendoTreeViewNodeTemplate let-data>
       <span *ngIf="data.nodeType == 'ReviewSet'" class="ml-0 mr-1">
@@ -24,7 +27,14 @@
                             'AdminSet' : data.subTypeName == 'Administration',
                             'ExcludeCode' : data.subTypeName == 'Exclude'
                             }" class="mx-1">{{data.name}}</span>
+      <span *ngIf="selectedKeys[0] && selectedKeys[0] == data.id && data.attributes && data.attributes.length > 0"  style="cursor: pointer">
+        <span *ngIf="IsCollapsed(data); else collapseAll" class="k-icon k-font-icon k-i-kpi text-primary" (click)="ExpandAllFromHere(data)" title="Expand this and all children"></span>
+        <ng-template #collapseAll>
+          <span class="k-icon k-font-icon k-i-arrow-parent text-primary " (click)="CollapseAllFromHere(data)"  title="Collapse this and all children"></span>
+        </ng-template>
+      </span>
     </ng-template>
+    
   </kendo-treeview>
 </div>
 

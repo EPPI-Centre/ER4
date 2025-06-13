@@ -8,8 +8,8 @@ import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service'
 import { TreeItem, TreeViewComponent } from "@progress/kendo-angular-treeview";
 
 @Component({
-    selector: 'codesetTreeMain',
-    styles: [`.bt-infoBox {    
+  selector: 'codesetTreeMain',
+  styles: [`.bt-infoBox {    
                     padding: .08rem .12rem .12rem .12rem;
                     margin-bottom: .12rem;
                     font-size: .875rem;
@@ -21,16 +21,16 @@ import { TreeItem, TreeViewComponent } from "@progress/kendo-angular-treeview";
 				cursor:not-allowed; /*makes it even more obvious*/
 				}
         `],
-    templateUrl: './codesetTreeMain.component.html'
+  templateUrl: './codesetTreeMain.component.html'
 })
 
 export class CodesetTreeMainComponent implements OnInit, OnDestroy {
-   constructor(private router: Router,
-        @Inject('BASE_URL') private _baseUrl: string,
-        private ReviewerIdentityServ: ReviewerIdentityService,
-       private ReviewSetsService: ReviewSetsService,
-       private ReviewSetsEditingService: ReviewSetsEditingService
-	) { }
+  constructor(private router: Router,
+    @Inject('BASE_URL') private _baseUrl: string,
+    private ReviewerIdentityServ: ReviewerIdentityService,
+    private ReviewSetsService: ReviewSetsService,
+    private ReviewSetsEditingService: ReviewSetsEditingService
+  ) { }
   ngOnInit() {
     if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0 || this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
       this.router.navigate(['home']);
@@ -77,7 +77,7 @@ export class CodesetTreeMainComponent implements OnInit, OnDestroy {
     }
   }
   public get SelectedCodeDescription(): string {
-        return this.ReviewSetsService.SelectedCodeDescription;
+    return this.ReviewSetsService.SelectedCodeDescription;
   }
   NodeSelected(node: singleNode) {
     this.ReviewSetsService.selectedNode = node;
@@ -92,14 +92,43 @@ export class CodesetTreeMainComponent implements OnInit, OnDestroy {
     let node: singleNode = event.dataItem;
     this.ReviewSetsService.selectedNode = node;
   }
-    ngOnDestroy() {
-        //this.ReviewerIdentityServ.reviewerIdentity = new ReviewerIdentity();
-		if (this.subRedrawTree) this.subRedrawTree.unsubscribe();
-        //console.log('killing reviewSets comp');
-    }
+  ngOnDestroy() {
+    //this.ReviewerIdentityServ.reviewerIdentity = new ReviewerIdentity();
+    if (this.subRedrawTree) this.subRedrawTree.unsubscribe();
+    //console.log('killing reviewSets comp');
+  }
+
+  /*REGION: retain isExpanded data across all trees...*/
+  public get ExpandedNodeKeys(): string[] {
+    return this.ReviewSetsService.ExpandedNodeKeys;
+  }
+  public isExpanded = (dataItem: any, index: string) => {
+    //console.log("IsExpanded", dataItem, index);
+    const sn = dataItem as singleNode;
+    return this.ReviewSetsService.isExpanded(dataItem as singleNode, sn.id);
+  };
+  public handleCollapse(node: any) {
+    //console.log("hCollapse", node);
+    const sn = node.dataItem as singleNode;
+    this.ReviewSetsService.handleCollapse(sn);
+  }
+  public handleExpand(node: any) {
+    //console.log("hExpand", node);
+    const sn = node.dataItem as singleNode;
+    //console.log("hExpand2", sn);
+    this.ReviewSetsService.handleExpand(sn);
+  }
+  public IsCollapsed(data: singleNode): boolean {
+    return this.ReviewSetsService.ExpandedNodeKeys.findIndex(f => f == data.id) == -1;
+  }
+  public ExpandAllFromHere(data: singleNode) {
+    //console.log("EAFH", data);
+    this.ReviewSetsService.ExpandAllFromHere(data);
+  }
+  public CollapseAllFromHere(data: singleNode) {
+    //console.log("EAFH", data);
+    this.ReviewSetsService.CollapseAllFromHere(data);
+  }
+  /*END REGION: retain isExpanded data across all trees...*/
 }
-
-
-
-
 
