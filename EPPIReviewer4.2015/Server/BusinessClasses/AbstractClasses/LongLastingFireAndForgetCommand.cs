@@ -52,7 +52,7 @@ namespace BusinessLibrary.BusinessClasses
 #endif
             }
         }
-        protected void ErrorLogSink(string Message)
+        protected virtual void ErrorLogSink(string Message)
         {
 #if CSLA_NETCORE
             try

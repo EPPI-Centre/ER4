@@ -761,7 +761,7 @@ namespace BusinessLibrary.BusinessClasses
                 var response_format = new { type };
                 //var requestBody = new { response_format, messages, temperature, frequency_penalty, presence_penalty, top_p };
                 //var requestBody = new { messages, temperature, frequency_penalty, presence_penalty, top_p };
-                json = BuildJsonRequestBody(RobotCoder, messages);  //JsonConvert.SerializeObject(requestBody);
+                json = BuildJsonRequestBody(RobotCoder, messages, new List<string>());  //JsonConvert.SerializeObject(requestBody);
             }
             else
             {
@@ -866,12 +866,13 @@ namespace BusinessLibrary.BusinessClasses
             return robot.RobotName.ToLower().Contains("deepseek");            
         }
 
-        internal static string BuildJsonRequestBody(RobotCoderReadOnly Robot, List<OpenAIChatClass> messages)
+        internal static string BuildJsonRequestBody(RobotCoderReadOnly Robot, List<OpenAIChatClass> messages, List<string> SettingNamesToIgnore)
         {
             JObject res = new JObject();
             var jMessages = JArray.FromObject(messages);
             foreach (RobotCoderSetting pair in Robot.RobotSettings)
             {
+                if (SettingNamesToIgnore.Contains(pair.SettingName)) continue;
                 if (!pair.SettingName.Contains('.'))
                 {
                     int IntVal;

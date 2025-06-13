@@ -389,7 +389,9 @@ namespace BusinessLibrary.BusinessClasses
                 //var response_format = new { type };
                 //var requestBody = new { /*response_format, */ messages, temperature, frequency_penalty, presence_penalty, top_p };
                 //json = JsonConvert.SerializeObject(requestBody);
-                json = RobotOpenAICommand.BuildJsonRequestBody(RobotCoder, messages);
+                List<string> toIgnore = new List<string>();
+                toIgnore.Add("response_format.type");
+                json = RobotOpenAICommand.BuildJsonRequestBody(RobotCoder, messages, toIgnore);
             }
             else
             {
