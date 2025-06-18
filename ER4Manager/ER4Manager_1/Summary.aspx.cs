@@ -1016,6 +1016,7 @@ public partial class Summary : System.Web.UI.Page
 
                 DateTime trueExpiryDate;
                 DateTime loggedExpiryDate;
+                DateTime startingPoint;
 
                 DataTable dt = new DataTable();
                 System.Data.DataRow newrow;
@@ -1025,11 +1026,12 @@ public partial class Summary : System.Web.UI.Page
                 dt.Columns.Add(new DataColumn("ID", typeof(string)));
                 dt.Columns.Add(new DataColumn("NAME", typeof(string)));
                 dt.Columns.Add(new DataColumn("DATE_EXTENDED", typeof(string)));
-                dt.Columns.Add(new DataColumn("NUMBER_MONTHS", typeof(string)));
+                dt.Columns.Add(new DataColumn("NUMBER_MONTHS", typeof(string))); // this is a tmp data holder that is not visible in the table
                 dt.Columns.Add(new DataColumn("COST", typeof(string)));
 
-                dt.Columns.Add(new DataColumn("tv_tb_contact_or_tb_review_expiry_date", typeof(string)));
-                dt.Columns.Add(new DataColumn("tv_new_date", typeof(string)));
+                dt.Columns.Add(new DataColumn("tv_tb_contact_or_tb_review_expiry_date", typeof(string))); // this is a tmp data holder that is not visible in the table
+                dt.Columns.Add(new DataColumn("tv_new_date", typeof(string))); // this is a tmp data holder that is not visible in the table
+                dt.Columns.Add(new DataColumn("tv_months_extended", typeof(string))); // this is a tmp data holder that is not visible in the table
 
                 bool isAdmDB = true;
                 IDataReader idr = Utils.GetReader(isAdmDB, "st_CreditHistoryByPurchase",
@@ -1042,7 +1044,7 @@ public partial class Summary : System.Web.UI.Page
 
                     if (idr["tv_id_extended"].ToString() == "0")
                     {
-                        // 000000130000001400000010
+                        // 000000130000001400000010  (credit transfer)
                         sourceID = idr["tv_log_notes"].ToString().Substring(0, 8).TrimStart('0');
                         destinationID = idr["tv_log_notes"].ToString().Substring(8, 8).TrimStart('0');
                         amount = idr["tv_log_notes"].ToString().Substring(16, 8).TrimStart('0');
@@ -1058,14 +1060,34 @@ public partial class Summary : System.Web.UI.Page
                             newrow["COST"] = amount;
                         }
                     }
+                    else if (idr["tv_type_extended_id"].ToString() == "-1")
+                    {
+                        // this a robot using credit
+                        newrow["NAME"] = idr["tv_name"].ToString();
+                        newrow["COST"] = idr["tv_cost"].ToString();
+
+                    }
                     else
                     {
                         // an account or review
+                        // we will go through the table and any "last" row in a group that could be eligible for an RTC will be marked as such
 
                         // not for table display but for later calculations
                         newrow["tv_tb_contact_or_tb_review_expiry_date"] = idr["tv_tb_contact_or_tb_review_expiry_date"].ToString();
                         newrow["tv_new_date"] = idr["tv_new_date"].ToString();
+                        newrow["tv_months_extended"] = idr["tv_months_extended"].ToString();
 
+
+                        newrow["NUMBER_MONTHS"] = idr["tv_months_extended"].ToString();
+
+
+                        // reviews and accounts are loaded in groups so we are looking for the last iteration in a group
+                        // Cases to consider
+                        // 1 - the name changes so we want to know if it is last iteration in the group
+                        // 2 - we are on the last name or there is only one name in the entire table
+                        //     - we won't know this case until we have finished loading the table
+
+                        // Case 1
                         if (nameSeenThisTime == "")
                         {
                             nameSeenThisTime = idr["tv_name"].ToString();
@@ -1074,22 +1096,63 @@ public partial class Summary : System.Web.UI.Page
                         nameSeenThisTime = idr["tv_name"].ToString();
                         if (nameSeenThisTime != nameSeenLastTime)
                         {
-                            // name has changed so see if we need to mark the previous row as enabled. 
-                            if (dt.Rows[dt.Rows.Count - 1]["ID"].ToString().Contains("!"))
+                            // name has changed so we need to look at the previous row. 
+                            // - first, we need to see if it was the most recent extension for that review or account
+                            trueExpiryDate = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["tv_tb_contact_or_tb_review_expiry_date"].ToString());
+                            loggedExpiryDate = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["tv_new_date"].ToString());
+                            if (loggedExpiryDate > trueExpiryDate)
                             {
-                                // but before enabling we need to check if previous row extension is the "controlling" (i.e. most recent) extension
-                                trueExpiryDate = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["tv_tb_contact_or_tb_review_expiry_date"].ToString());
-                                loggedExpiryDate = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["tv_new_date"].ToString());
-                                if (trueExpiryDate <= loggedExpiryDate)
+                                // something is messed up in the expiry log
+                                // the true loggedExpiryDate should never be further into the future than the trueExpiryDate
+                            }
+                            else if (loggedExpiryDate == trueExpiryDate)
+                            {
+                                // this extension is the most recent so see if there any months to give back
+
+                                // there are a couple of scenarios to consider
+                                // 1 - it has only been 2 days since applying the credit, so they can get back all of the credit
+                                dateExtended = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["DATE_EXTENDED"].ToString());
+                                dateExtendedPlus2Days = dateExtended.AddDays(2);
+                                if (now <= dateExtendedPlus2Days)
                                 {
-                                    // this extension is the most recond
-                                    dt.Rows[dt.Rows.Count - 1]["ID"] = dt.Rows[dt.Rows.Count - 1]["ID"].ToString() + "E";
+                                    if (dt.Rows[dt.Rows.Count - 1]["tv_months_extended"].ToString() != "0")
+                                    {
+                                        // we can pull it all back. Put the number of months in the hidden column
+                                        dt.Rows[dt.Rows.Count - 1]["NUMBER_MONTHS"] = dt.Rows[dt.Rows.Count - 1]["NUMBER_MONTHS"] +
+                                            "RTC" + dt.Rows[dt.Rows.Count - 1]["tv_months_extended"].ToString();
+                                    }
+                                }
+                                // 2 - check if there are "some" unused months
+                                else if (trueExpiryDate > now)
+                                {
+                                    // it hasn't expired yet so figure out how many months we can get back
+                                    numberOfMonthsExtended = dt.Rows[dt.Rows.Count - 1]["tv_months_extended"].ToString();
+                                    startingPoint = trueExpiryDate.AddMonths(-int.Parse(numberOfMonthsExtended));
+                                    int months = 0;
+                                    for (int i = 1; ; ++i)
+                                    {
+                                        // using the 2 grace days again so there really is a visual difference
+                                        // the "starting point" is the expiry date - the number of months applied
+                                        if (startingPoint.AddMonths(i).AddDays(-2) <= trueExpiryDate)
+                                        {
+                                            months = i;
+                                            dt.Rows[dt.Rows.Count - 1]["NUMBER_MONTHS"] = dt.Rows[dt.Rows.Count - 1]["NUMBER_MONTHS"] +
+                                                "RTC" + months.ToString();
+                                            if (int.Parse(numberOfMonthsExtended) == i)
+                                            {
+                                                break;
+                                            }
+                                        }
+                                        else { break; }
+                                    }
+
                                 }
                             }
-                            nameSeenLastTime = nameSeenThisTime;
-
+                            else
+                            {
+                                // there must be an extension from a different credit purchase that is controlling the trueExpiryDate
+                            }
                         }
-
 
                         newrow["NAME"] = idr["tv_name"].ToString();
                         newrow["COST"] = idr["tv_cost"].ToString();
@@ -1097,11 +1160,7 @@ public partial class Summary : System.Web.UI.Page
                     }
                     newrow["TYPE"] = idr["tv_type_extended_name"].ToString();
 
-
-
                     dateExtended = Convert.ToDateTime(idr["tv_date_extended"].ToString());
-                    // a couple days grace...
-                    dateExtendedPlus2Days = dateExtended.AddDays(2);
                     newrow["DATE_EXTENDED"] = dateExtended.ToString("dd MMM yyyy");
 
                     numberOfMonthsExtended = idr["tv_months_extended"].ToString();
@@ -1109,79 +1168,70 @@ public partial class Summary : System.Web.UI.Page
                     {
                         numberOfMonthsExtended = "0";
                     }
-                    string test = idr["tv_type_extended_name"].ToString();
+                    newrow["ID"] = idr["tv_id_extended"].ToString();
+                    dt.Rows.Add(newrow);
+                }
+                idr.Close();
 
-
-                    if ((idr["tv_type_extended_name"].ToString() == "Account") || (idr["tv_type_extended_name"].ToString() == "Review"))
+                // we are done reading data. check if the last row should have the RTC link (it needs to be a Review or Account)
+                if ((dt.Rows[dt.Rows.Count - 1]["NAME"].ToString() == "Account") || 
+                    (dt.Rows[dt.Rows.Count - 1]["NAME"].ToString() == "Review"))
+                {                   
+                    trueExpiryDate = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["tv_tb_contact_or_tb_review_expiry_date"].ToString());
+                    loggedExpiryDate = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["tv_new_date"].ToString());
+                    if (loggedExpiryDate > trueExpiryDate)
                     {
+                        // Something is messed up in the expiry log.
+                        // The true loggedExpiryDate should never be further into the future than the trueExpiryDate.
+                        // This check is just for debugging
+                    }
+                    else if (loggedExpiryDate == trueExpiryDate)
+                    {
+                        // this extension is the most recent so see if there any months to give back
+
+                        // there are a couple of scenarios to consider
+                        // 1 - it has only been 2 days since applying the credit, so they can get back all of the credit
+                        dateExtended = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["DATE_EXTENDED"].ToString());
+                        dateExtendedPlus2Days = dateExtended.AddDays(2);
                         if (now <= dateExtendedPlus2Days)
                         {
-                            // they noticed the issue within 2 days so they can get back all of the credit
-                            // the number following the ! separator indicates how many months can be pulled back
-                            numberOfMonthsHolder = numberOfMonthsExtended + "!" + numberOfMonthsExtended;
+                            if (dt.Rows[dt.Rows.Count - 1]["tv_months_extended"].ToString() != "0")
+                            {
+                                // we can pull it all back. Put the number of months in the hidden column
+                                dt.Rows[dt.Rows.Count - 1]["NUMBER_MONTHS"] = dt.Rows[dt.Rows.Count - 1]["NUMBER_MONTHS"] +
+                                "RTC" + dt.Rows[dt.Rows.Count - 1]["tv_months_extended"].ToString();
+                            }
                         }
-                        else if (dateExtended.AddMonths(int.Parse(numberOfMonthsExtended)) > now)
+                        // 2 - check if there are "some" unused months
+                        else if (trueExpiryDate > now)
                         {
-                            // we might be able to return some credit so figure out how many months
+                            // it hasn't expired yet so figure out how many months we can get back
+                            numberOfMonthsExtended = dt.Rows[dt.Rows.Count - 1]["tv_months_extended"].ToString();
+                            startingPoint = trueExpiryDate.AddMonths(-int.Parse(numberOfMonthsExtended));
                             int months = 0;
                             for (int i = 1; ; ++i)
                             {
                                 // using the 2 grace days again so there really is a visual difference
-                                if (now.AddMonths(i).AddDays(-2) <= dateExtended.AddMonths(int.Parse(numberOfMonthsExtended)))
+                                // the "starting point" is the expiry date minus the number of months applied
+                                if (startingPoint.AddMonths(i).AddDays(-2) <= trueExpiryDate)
                                 {
+                                    months = i;
+                                    dt.Rows[dt.Rows.Count - 1]["NUMBER_MONTHS"] = dt.Rows[dt.Rows.Count - 1]["NUMBER_MONTHS"] +
+                                        "RTC" + months.ToString();
                                     if (int.Parse(numberOfMonthsExtended) == i)
                                     {
                                         break;
                                     }
-                                    else
-                                    {
-                                        months = i;
-                                    }
                                 }
                                 else { break; }
-                            }
-                            if (months > 0)
-                            {
-                                // the number following the ! separator indicates how many months can be pulled back
-                                numberOfMonthsHolder = idr["tv_months_extended"].ToString() + "!" + months.ToString();
-                            }
-                            else
-                            {
-                                numberOfMonthsHolder = idr["tv_months_extended"].ToString();
                             }
                         }
                         else
                         {
-                            numberOfMonthsHolder = idr["tv_months_extended"].ToString();
+                            // there must be an extension from a different credit purchase that is controlling the trueExpiryDate
                         }
                     }
 
-
-                    else
-                    {
-                        numberOfMonthsHolder = idr["tv_months_extended"].ToString();
-                    }
-
-                    // append numberOfMonthsHolder to another field for later use
-                    newrow["ID"] = idr["tv_id_extended"].ToString() + "-" + numberOfMonthsHolder;
-
-                    dt.Rows.Add(newrow);
-
-                }
-                idr.Close();
-
-
-                // we are done reading data. check if the last row should be enabled.
-                if (dt.Rows[dt.Rows.Count - 1]["ID"].ToString().Contains("!"))
-                {
-                    // but before enabling we need to check if previous row extension is the "controlling" (i.e. most recent) extension
-                    trueExpiryDate = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["tv_tb_contact_or_tb_review_expiry_date"].ToString());
-                    loggedExpiryDate = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["tv_new_date"].ToString());
-                    if (trueExpiryDate <= loggedExpiryDate)
-                    {
-                        // this extension is the most recond
-                        dt.Rows[dt.Rows.Count - 1]["ID"] = dt.Rows[dt.Rows.Count - 1]["ID"].ToString() + "E";
-                    }
                 }
 
                 gvCreditHistory.DataSource = dt;
@@ -1217,39 +1267,24 @@ public partial class Summary : System.Web.UI.Page
         {
             Label lblNumberMonths = (Label)e.Row.FindControl("lblNumberMonths");
             LinkButton lbReturnToCreditMonths = (LinkButton)e.Row.FindControl("lbReturnToCreditMonths");
+            string monthsColumn = "";
 
-            // get what is in column 2
-            //lblNumberMonths.Text = e.Row.Cells[2].Text;
-            lblNumberMonths.Text = e.Row.Cells[2].Text.Substring(e.Row.Cells[2].Text.IndexOf("-") + 1);
+            // get what is in column 7
+            monthsColumn = e.Row.Cells[7].Text;
 
-            if (lblNumberMonths.Text.Contains("!"))
+            if (monthsColumn.Contains("RTC"))
             {
+                lblNumberMonths.Text = monthsColumn.Remove(monthsColumn.IndexOf("R"));
                 // there is some months that can be returned for credit
-                if (lblNumberMonths.Text.Substring(lblNumberMonths.Text.IndexOf("!") + 1) != "0")
-                {
-                    lbReturnToCreditMonths.Text = "RTC " + lblNumberMonths.Text.Substring(lblNumberMonths.Text.IndexOf("!") + 1) + " months";
-                    if (lbReturnToCreditMonths.Text.Contains("E"))
-                    {
-                        lbReturnToCreditMonths.Enabled = true;
-                        lbReturnToCreditMonths.Text = lbReturnToCreditMonths.Text.Replace("E", "");
-                        lbReturnToCreditMonths.Attributes.Add("onclick", "if (confirm('Are you sure you want to return-to-credit these months?') == false) return false;");
-                    }
-                    else
-                    {
-                        // we are now only allowing the user to RTC the last extension for an account or user so 
-                        // hide the other RTC links
-                        lbReturnToCreditMonths.Enabled = false;
-                        lbReturnToCreditMonths.Visible = false;
-                    }
-                    lblNumberMonths.Text = lblNumberMonths.Text.Remove(lblNumberMonths.Text.IndexOf("!")).Trim();
-
-
-                }
-                else
-                {
-                    lblNumberMonths.Text = lblNumberMonths.Text.Remove(lblNumberMonths.Text.IndexOf("!")).Trim();
-                    lbReturnToCreditMonths.Visible = false;
-                }
+                lbReturnToCreditMonths.Text = "RTC " + monthsColumn.Remove(0, monthsColumn.IndexOf("C")+1) + " months";
+                lbReturnToCreditMonths.Visible = true;
+                lbReturnToCreditMonths.Enabled = true;
+            }
+            else
+            {
+                lblNumberMonths.Text = monthsColumn;
+                lbReturnToCreditMonths.Enabled = true;
+                lbReturnToCreditMonths.Visible = false;
             }
 
             if ((lblNumberMonths.Text == "0") &&
@@ -1260,9 +1295,15 @@ public partial class Summary : System.Web.UI.Page
                 e.Row.Visible = false;
             }
 
-            // clean up the ID row
-            // commenting out the next line will help debug this function
-            e.Row.Cells[2].Text = e.Row.Cells[2].Text.Remove(e.Row.Cells[2].Text.IndexOf("-"));
+            
+            e.Row.Cells[7].Visible = false;            
+            gvCreditHistory.Columns[7].HeaderStyle.Width = 0;
+            gvCreditHistory.Columns[7].HeaderStyle.BorderColor = System.Drawing.ColorTranslator.FromHtml("#e2e9ef");
+            gvCreditHistory.Columns[7].ItemStyle.Width = 0;
+            gvCreditHistory.Columns[7].ItemStyle.BorderColor = System.Drawing.ColorTranslator.FromHtml("#e2e9ef");
+            gvCreditHistory.Columns[7].FooterStyle.Width = 0;
+            gvCreditHistory.Columns[7].FooterStyle.BorderColor = System.Drawing.ColorTranslator.FromHtml("#e2e9ef");
+            
         }
     }
 

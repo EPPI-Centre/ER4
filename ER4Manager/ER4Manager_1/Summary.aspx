@@ -209,7 +209,9 @@
                 &nbsp;&nbsp;
                 <asp:LinkButton ID="lbHideHistory" runat="server" OnClick="lbHideHistory_Click">(hide)</asp:LinkButton>
                 <asp:Label ID="lblRTCError" runat="server" style="padding: 2px; margin:1px; display:inline-block;" Text="There was an error" Font-Bold="True" Visible="false" BackColor="#FFCC99" BorderColor="Red"></asp:Label>
-                &nbsp;<asp:GridView ID="gvCreditHistory" runat="server" AutoGenerateColumns="False" CssClass="grviewFixedWidth" DataKeyNames="CREDIT_EXTENSION_ID" EnableModelValidation="True" onRowDataBound="gvCreditHistory_RowDataBound" Width="800px">
+                &nbsp;<asp:GridView ID="gvCreditHistory" runat="server" AutoGenerateColumns="False" CssClass="grviewFixedWidth" 
+                    DataKeyNames="CREDIT_EXTENSION_ID" EnableModelValidation="True" 
+                    onRowDataBound="gvCreditHistory_RowDataBound" Width="800px" FooterStyle-BorderStyle="None">
                     <Columns>
                         <asp:BoundField DataField="CREDIT_EXTENSION_ID" HeaderText="ExtensionID" Visible="false">
                         <HeaderStyle BackColor="#B6C6D6" />
@@ -237,8 +239,7 @@
                         <asp:BoundField DataField="COST" HeaderText="Cost (£)">
                         <HeaderStyle BackColor="#B6C6D6" />
                         </asp:BoundField>
-                        <asp:BoundField DataField="NUMBER_MONTHS" HeaderText="Months" Visible="false">
-                        <HeaderStyle BackColor="#B6C6D6" />
+                        <asp:BoundField DataField="NUMBER_MONTHS" Visible="true">
                         </asp:BoundField>
                     </Columns>
                 </asp:GridView>
