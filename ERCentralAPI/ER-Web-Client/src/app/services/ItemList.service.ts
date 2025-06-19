@@ -130,19 +130,22 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
     }
 
     this.ListDescription = listDescription;
-    this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit)
-      .subscribe(
+    lastValueFrom(this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', crit))
+      .then(
         list => {
           this._Criteria.totalItems = this.ItemList.totalItemCount;
           console.log();
           this.SaveItems(list, this._Criteria);
           this.ReconcileListChanged.emit();
+          this.RemoveBusy("FetchWithCritReconcile");
         }, error => {
           this.ModalService.GenericError(error);
           this.RemoveBusy("FetchWithCritReconcile");
         }
-        , () => { this.RemoveBusy("FetchWithCritReconcile"); }
-      );
+    ).catch(caught => {
+      this.ModalService.GenericError(caught);
+      this.RemoveBusy("FetchWithCritReconcile");
+    });
   }
   public Refresh() {
     if (this._Criteria && this._Criteria.listType && this._Criteria.listType != "") {
@@ -152,8 +155,8 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
   }
   public FetchItemTypes() {
     this._BusyMethods.push("FetchItemTypes");
-    this._httpC.get<StringKeyValue[]>(this._baseUrl + 'api/ItemList/ItemTypes')
-      .subscribe(
+    lastValueFrom( this._httpC.get<StringKeyValue[]>(this._baseUrl + 'api/ItemList/ItemTypes')
+    ).then(
         (res) => {
           this.RemoveBusy("FetchItemTypes");
           //putting the "journal" type close to the top...
@@ -169,7 +172,10 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
           this.RemoveBusy("FetchItemTypes");
           this.ModalService.GenericError(err);
         }
-      );
+    ).catch(caught => {
+      this.RemoveBusy("FetchItemTypes");
+      this.ModalService.GenericError(caught);
+    });
   }
 
 
@@ -177,10 +183,10 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
 
 
 
-  public UpdateItem(item: Item) {
+  public UpdateItem(item: Item): Promise<boolean> {
     this._BusyMethods.push("UpdateItem");
-    this._httpC.post<Item>(this._baseUrl + 'api/ItemList/UpdateItem', item)
-      .subscribe(
+    return lastValueFrom(this._httpC.post<Item>(this._baseUrl + 'api/ItemList/UpdateItem', item)
+    ).then(
         result => {
           //if we get an item back, put it in the list substituting it via itemID
           if (item.itemId == 0) {
@@ -189,24 +195,28 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
             this.ItemList.items.push(result);
           }
           else {
-            //try to replace item in current list. We use the client side object 'cause the typename might otherwise be wrong.
             let i = this.ItemList.items.findIndex(found => found.itemId == item.itemId);
             if (i !== -1) {
-              //console.log("replacing updated item.", this.ItemList.items[i]);
-              this.ItemList.items[i] = item;
+              //console.log("replacing updated item.", this.ItemList.items[i], result);
+              this.ItemList.items[i] = result;
               console.log("replaced updated item.");//, this.ItemList.items[i]);
             }
             else {
               console.log("updated item not replaced: could not find it...");
             }
           }
-          this.RemoveBusy("UpdateItem");
+        this.RemoveBusy("UpdateItem");
+        return true;
         }, error => {
           this.ModalService.GenericError(error);
-          this.RemoveBusy("UpdateItem");
-        }
-        , () => { this.RemoveBusy("UpdateItem"); }
-      );
+        this.RemoveBusy("UpdateItem");
+        return false;
+        }        
+    ).catch(caught => {
+      this.ModalService.GenericError(caught);
+      this.RemoveBusy("UpdateItem");
+      return false;
+    });
 
   }
   public AssignDocumentsToIncOrExc(include: string, itemids: string,
@@ -1125,11 +1135,9 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
 
     //let body = JSON.stringify({ ItemIds: strItemIds });
 
-    this._httpC.post<any>(this._baseUrl + 'api/ItemList/DeleteSelectedItems',
-      Ids)
-      .subscribe(
+    lastValueFrom(this._httpC.post<any>(this._baseUrl + 'api/ItemList/DeleteSelectedItems', Ids)
+    ).then(
         list => {
-
           //var ItemIdStr = list.toString().split(",");
           //var wholListItemIdStr = this.ItemList.items.map(x => x.itemId);
           //for (var i = 0; i < ItemIdStr.length; i++) {
@@ -1142,14 +1150,15 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
           //this.ListChanged.emit();
           this.Refresh();
           //this.FetchWithCrit(this._Criteria, "StandardItemList");
-
-
+        this.RemoveBusy("DeleteSelectedItems");
         }, error => {
           this.ModalService.GenericError(error);
           this.RemoveBusy("DeleteSelectedItems");
         }
-        , () => { this.RemoveBusy("DeleteSelectedItems"); }
-      );
+    ).catch(caught => {
+      this.ModalService.GenericError(caught);
+      this.RemoveBusy("DeleteSelectedItems");
+    });
   }
 
   public FetchSingleItem(ItemId: number): Promise<Item | null> {
