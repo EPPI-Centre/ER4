@@ -1018,6 +1018,8 @@ public partial class Summary : System.Web.UI.Page
                 DateTime loggedExpiryDate;
                 DateTime startingPoint;
 
+                int LastAccountReviewRow = 0;
+
                 DataTable dt = new DataTable();
                 System.Data.DataRow newrow;
 
@@ -1072,6 +1074,8 @@ public partial class Summary : System.Web.UI.Page
                         // an account or review
                         // we will go through the table and any "last" row in a group that could be eligible for an RTC will be marked as such
 
+                        
+
                         // not for table display but for later calculations
                         newrow["tv_tb_contact_or_tb_review_expiry_date"] = idr["tv_tb_contact_or_tb_review_expiry_date"].ToString();
                         newrow["tv_new_date"] = idr["tv_new_date"].ToString();
@@ -1095,11 +1099,12 @@ public partial class Summary : System.Web.UI.Page
                         }
                         nameSeenThisTime = idr["tv_name"].ToString();
                         if (nameSeenThisTime != nameSeenLastTime)
-                        {
+                        {                       
                             // name has changed so we need to look at the previous row. 
                             // - first, we need to see if it was the most recent extension for that review or account
-                            trueExpiryDate = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["tv_tb_contact_or_tb_review_expiry_date"].ToString());
-                            loggedExpiryDate = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["tv_new_date"].ToString());
+                            trueExpiryDate = Convert.ToDateTime(dt.Rows[LastAccountReviewRow]["tv_tb_contact_or_tb_review_expiry_date"].ToString());
+                            loggedExpiryDate = Convert.ToDateTime(dt.Rows[LastAccountReviewRow]["tv_new_date"].ToString());
+                            nameSeenLastTime = nameSeenThisTime;
                             if (loggedExpiryDate > trueExpiryDate)
                             {
                                 // something is messed up in the expiry log
@@ -1111,22 +1116,22 @@ public partial class Summary : System.Web.UI.Page
 
                                 // there are a couple of scenarios to consider
                                 // 1 - it has only been 2 days since applying the credit, so they can get back all of the credit
-                                dateExtended = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["DATE_EXTENDED"].ToString());
+                                dateExtended = Convert.ToDateTime(dt.Rows[LastAccountReviewRow]["DATE_EXTENDED"].ToString());
                                 dateExtendedPlus2Days = dateExtended.AddDays(2);
                                 if (now <= dateExtendedPlus2Days)
                                 {
-                                    if (dt.Rows[dt.Rows.Count - 1]["tv_months_extended"].ToString() != "0")
+                                    if (dt.Rows[LastAccountReviewRow]["tv_months_extended"].ToString() != "0")
                                     {
                                         // we can pull it all back. Put the number of months in the hidden column
-                                        dt.Rows[dt.Rows.Count - 1]["NUMBER_MONTHS"] = dt.Rows[dt.Rows.Count - 1]["NUMBER_MONTHS"] +
-                                            "RTC" + dt.Rows[dt.Rows.Count - 1]["tv_months_extended"].ToString();
+                                        dt.Rows[LastAccountReviewRow]["NUMBER_MONTHS"] = dt.Rows[LastAccountReviewRow]["NUMBER_MONTHS"] +
+                                            "RTC" + dt.Rows[LastAccountReviewRow]["tv_months_extended"].ToString();
                                     }
                                 }
                                 // 2 - check if there are "some" unused months
                                 else if (trueExpiryDate > now)
                                 {
                                     // it hasn't expired yet so figure out how many months we can get back
-                                    numberOfMonthsExtended = dt.Rows[dt.Rows.Count - 1]["tv_months_extended"].ToString();
+                                    numberOfMonthsExtended = dt.Rows[LastAccountReviewRow]["tv_months_extended"].ToString();
                                     startingPoint = trueExpiryDate.AddMonths(-int.Parse(numberOfMonthsExtended));
                                     int months = 0;
                                     for (int i = 1; ; ++i)
@@ -1136,7 +1141,7 @@ public partial class Summary : System.Web.UI.Page
                                         if (startingPoint.AddMonths(i).AddDays(-2) <= trueExpiryDate)
                                         {
                                             months = i;
-                                            dt.Rows[dt.Rows.Count - 1]["NUMBER_MONTHS"] = dt.Rows[dt.Rows.Count - 1]["NUMBER_MONTHS"] +
+                                            dt.Rows[LastAccountReviewRow]["NUMBER_MONTHS"] = dt.Rows[LastAccountReviewRow]["NUMBER_MONTHS"] +
                                                 "RTC" + months.ToString();
                                             if (int.Parse(numberOfMonthsExtended) == i)
                                             {
@@ -1157,6 +1162,8 @@ public partial class Summary : System.Web.UI.Page
                         newrow["NAME"] = idr["tv_name"].ToString();
                         newrow["COST"] = idr["tv_cost"].ToString();
 
+                        LastAccountReviewRow = dt.Rows.Count;
+
                     }
                     newrow["TYPE"] = idr["tv_type_extended_name"].ToString();
 
@@ -1174,8 +1181,8 @@ public partial class Summary : System.Web.UI.Page
                 idr.Close();
 
                 // we are done reading data. check if the last row should have the RTC link (it needs to be a Review or Account)
-                if ((dt.Rows[dt.Rows.Count - 1]["NAME"].ToString() == "Account") || 
-                    (dt.Rows[dt.Rows.Count - 1]["NAME"].ToString() == "Review"))
+                if ((dt.Rows[dt.Rows.Count - 1]["TYPE"].ToString() == "Account") || 
+                    (dt.Rows[dt.Rows.Count - 1]["TYPE"].ToString() == "Review"))
                 {                   
                     trueExpiryDate = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["tv_tb_contact_or_tb_review_expiry_date"].ToString());
                     loggedExpiryDate = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["tv_new_date"].ToString());
