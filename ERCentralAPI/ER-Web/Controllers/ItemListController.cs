@@ -125,7 +125,7 @@ namespace ERxWebClient2.Controllers
                     Item CSLAItem = item.itemId == 0 ? new Item() : Item.GetItemById(item.itemId, ri.ReviewId);
                     UpdateItemData(item, CSLAItem, ri);
                     CSLAItem = CSLAItem.Save();
-                    CSLAItem = Item.GetItemById(item.itemId, ri.ReviewId);//to be 100% sure - get the saved item from the DB
+                    CSLAItem = Item.GetItemById(CSLAItem.ItemId, ri.ReviewId);//to be 100% sure - get the saved item from the DB
                     return Ok(CSLAItem);
                 }
                 else
