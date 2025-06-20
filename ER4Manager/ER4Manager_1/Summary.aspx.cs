@@ -1028,6 +1028,7 @@ public partial class Summary : System.Web.UI.Page
                 dt.Columns.Add(new DataColumn("ID", typeof(string)));
                 dt.Columns.Add(new DataColumn("NAME", typeof(string)));
                 dt.Columns.Add(new DataColumn("DATE_EXTENDED", typeof(string)));
+                dt.Columns.Add(new DataColumn("DATE_EXTENDED_ASDATE", typeof(DateTime)));
                 dt.Columns.Add(new DataColumn("NUMBER_MONTHS", typeof(string))); // this is a tmp data holder that is not visible in the table
                 dt.Columns.Add(new DataColumn("COST", typeof(string)));
 
@@ -1169,6 +1170,7 @@ public partial class Summary : System.Web.UI.Page
 
                     dateExtended = Convert.ToDateTime(idr["tv_date_extended"].ToString());
                     newrow["DATE_EXTENDED"] = dateExtended.ToString("dd MMM yyyy");
+                    newrow["DATE_EXTENDED_ASDATE"] = dateExtended;
 
                     numberOfMonthsExtended = idr["tv_months_extended"].ToString();
                     if (numberOfMonthsExtended == "")
@@ -1181,8 +1183,13 @@ public partial class Summary : System.Web.UI.Page
                 idr.Close();
 
                 // we are done reading data. check if the last row should have the RTC link (it needs to be a Review or Account)
-                if ((dt.Rows[dt.Rows.Count - 1]["TYPE"].ToString() == "Account") || 
-                    (dt.Rows[dt.Rows.Count - 1]["TYPE"].ToString() == "Review"))
+                if (
+                    dt.Rows.Count > 0 
+                    && ( 
+                        (dt.Rows[dt.Rows.Count - 1]["TYPE"].ToString() == "Account") || 
+                        (dt.Rows[dt.Rows.Count - 1]["TYPE"].ToString() == "Review")
+                        )
+                    )
                 {                   
                     trueExpiryDate = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["tv_tb_contact_or_tb_review_expiry_date"].ToString());
                     loggedExpiryDate = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["tv_new_date"].ToString());
@@ -1240,7 +1247,7 @@ public partial class Summary : System.Web.UI.Page
                     }
 
                 }
-
+                dt.DefaultView.Sort = "DATE_EXTENDED_ASDATE ASC";
                 gvCreditHistory.DataSource = dt;
                 gvCreditHistory.DataBind();
 
