@@ -439,9 +439,35 @@ namespace ERxWebClient2.Controllers
 				return StatusCode(400, e.Message);
 			}
 		}
+        [HttpPost("[action]")]
+        public IActionResult SearchFromCurrentPriorityScreeningList([FromBody] CodeCommand cmdIn)
+        {
 
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
 
-		[HttpPost("[action]")]
+                    SearchFromCurrentPSListCommand cmd = new SearchFromCurrentPSListCommand(cmdIn._title);
+                    DataPortal<SearchFromCurrentPSListCommand> dp = new DataPortal<SearchFromCurrentPSListCommand>();
+                    cmd = dp.Execute(cmd);
+
+                    return Ok(cmd.SearchId);
+                }
+                else
+                {
+                    return Forbid();
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "SearchFromCurrentPriorityScreeningList has failed");
+                return StatusCode(500, e.Message);
+            }
+
+        }
+
+        [HttpPost("[action]")]
 		public IActionResult DeleteSearch([FromBody] SingleStringCriteria _searches)
 		{
 

@@ -180,7 +180,7 @@ export class SearchComp implements OnInit, OnDestroy {
     };
   }
   public get SearchVisualiseData() {
-    return this._reviewSetsEditingServ.SearchVisualiseData;
+    return this._searchService.SearchVisualiseData;
   }
 
 
@@ -195,8 +195,17 @@ export class SearchComp implements OnInit, OnDestroy {
     });
 
   }
-  public FindItemsScoring(): void {
 
+  public get MaxValForFindItemsScoring(): number {
+    if (this.SearchVisualiseData && this.SearchVisualiseData.length == 10 && this.SearchVisualiseData[9].range == "900-999") return 1000;
+    return 100;
+  }
+
+  public get HasScreeningList(): boolean {
+    return this._reviewInfoService.ReviewInfo.screeningListIsGood;
+  }
+
+  public FindItemsScoring(): void {
     if (this.CanWrite()) {
 
       this._searchService.cmdSearches._scoreOne = this.LowerScoreThreshold;
@@ -474,6 +483,8 @@ export class SearchComp implements OnInit, OnDestroy {
       return true;
     } else if (this.selectedSearchDropDown == 'With duplicate references') {
       return true;
+    } else if (this.selectedSearchDropDown == 'From Current Priority Screening List') {
+      return true;
     }
     // Codes in set options next: ''
     else if (this.selectedSearchDropDown == 'That have at least one code from this Coding Tool'
@@ -506,6 +517,7 @@ export class SearchComp implements OnInit, OnDestroy {
       this._searchService.selectedSourceDropDown.length > 0) {
       return true;
     }
+    
 
     return false;
     // 
@@ -1024,7 +1036,7 @@ export class SearchComp implements OnInit, OnDestroy {
         }
       }
 
-      if (selectedSearchDropDown == 'With these internal IDs (comma separated)') {
+      else if (selectedSearchDropDown == 'With these internal IDs (comma separated)') {
 
         this._searchService.cmdSearches._IDs = this.commaIDs;
         this._searchService.cmdSearches._title = this.commaIDs;
@@ -1032,7 +1044,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
 
       }
-      if (selectedSearchDropDown == 'With these imported IDs (comma separated)') {
+      else if (selectedSearchDropDown == 'With these imported IDs (comma separated)') {
 
         this._searchService.cmdSearches._IDs = this.commaIDs;
         this._searchService.cmdSearches._title = this.commaIDs;
@@ -1041,7 +1053,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
 
       }
-      if (selectedSearchDropDown == 'Containing this text') {
+      else if (selectedSearchDropDown == 'Containing this text') {
 
         let tmpStr: string = '';
 
@@ -1066,7 +1078,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
         this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchText');
       }
-      if (selectedSearchDropDown == 'That have at least one code from this Coding Tool') {
+      else if (selectedSearchDropDown == 'That have at least one code from this Coding Tool') {
 
         this._searchService.cmdSearches._withCodes = 'true';
         this._searchService.cmdSearches._title = this.selectedSearchCodeSetDropDown;
@@ -1081,14 +1093,14 @@ export class SearchComp implements OnInit, OnDestroy {
         this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeSetCheck');
 
       }
-      if (selectedSearchDropDown == "That don't have any codes from this Coding Tool") {
+      else if (selectedSearchDropDown == "That don't have any codes from this Coding Tool") {
 
         this._searchService.cmdSearches._withCodes = 'false';
         this._searchService.cmdSearches._title = this.selectedSearchCodeSetDropDown;
         this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeSetCheck');
 
       }
-      if (selectedSearchDropDown == 'Without an abstract') {
+      else if (selectedSearchDropDown == 'Without an abstract') {
 
         //alert(selectedSearchDropDown);
         this._searchService.cmdSearches._title = searchTitle;
@@ -1096,8 +1108,7 @@ export class SearchComp implements OnInit, OnDestroy {
         this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchNoAbstract');
 
       }
-
-      if (selectedSearchDropDown == 'Without any documents uploaded') {
+      else if (selectedSearchDropDown == 'Without any documents uploaded') {
 
         //alert(selectedSearchDropDown);
         this._searchService.cmdSearches._title = 'Without any documents uploaded';
@@ -1105,24 +1116,27 @@ export class SearchComp implements OnInit, OnDestroy {
         this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchNoFiles');
 
       }
-      if (selectedSearchDropDown == 'With at least one document uploaded') {
+      else if (selectedSearchDropDown == 'With at least one document uploaded') {
 
         this._searchService.cmdSearches._title = 'With at least one document uploaded.';
         this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchOneFile');
 
       }
-      if (selectedSearchDropDown == 'From source(s)') {
+      else if (selectedSearchDropDown == 'From source(s)') {
         if (this.MakeSearchBySourceName()) this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchSources');
       }
-      if (selectedSearchDropDown == 'With linked references') {
+      else if (selectedSearchDropDown == 'With linked references') {
         this._searchService.cmdSearches._title = 'With linked references';
         this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchWithLinkedReferences');
       }
-      if (selectedSearchDropDown == 'With duplicate references') {
+      else if (selectedSearchDropDown == 'With duplicate references') {
         this._searchService.cmdSearches._title = 'With duplicate references';
         this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchWithDuplicateReferences');
       }
-
+      else if (selectedSearchDropDown == 'From Current Priority Screening List') {
+        this._searchService.cmdSearches._title = 'From Priority List as of ' + (new Date()).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+        this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchFromCurrentPriorityScreeningList');
+      }
     }
   }
   MakeSearchBySourceName(): boolean {
@@ -1309,7 +1323,7 @@ export class SearchComp implements OnInit, OnDestroy {
     this.CheckScreeningSection = false;
     //this.PriorityScreeningSection = false;
     //console.log(JSON.stringify(search));
-    this._reviewSetsEditingServ.CreateVisualiseData(search.searchId);
+    this._searchService.CreateVisualiseData(search.searchId);
     this.PleaseOpenTheCodes.emit();
     //alert('in here' + JSON.stringify(this.SearchVisualiseData));
     // for now just show the graph area unhidden
