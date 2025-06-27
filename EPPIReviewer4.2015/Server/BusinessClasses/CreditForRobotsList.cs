@@ -30,7 +30,7 @@ namespace BusinessLibrary.BusinessClasses
             {
                 foreach (CreditForRobots cfr in this)
                 {
-                    if (cfr.AmountRemaining > 0) return true;
+                    if (cfr.AmountRemaining > 0.01) return true;
                 }
                 return false;
             }

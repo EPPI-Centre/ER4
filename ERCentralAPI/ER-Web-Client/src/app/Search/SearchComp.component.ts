@@ -197,8 +197,8 @@ export class SearchComp implements OnInit, OnDestroy {
   }
 
   public get MaxValForFindItemsScoring(): number {
-    if (this.SearchVisualiseData && this.SearchVisualiseData.length == 10 && this.SearchVisualiseData[9].range == "900-999") return 1000;
-    return 100;
+    if (this.SearchVisualiseData && this.SearchVisualiseData.length == 10 && this.SearchVisualiseData[9].range == "900-999") return 999;
+    return 99;
   }
 
   public get HasScreeningList(): boolean {
@@ -1323,7 +1323,7 @@ export class SearchComp implements OnInit, OnDestroy {
     this.CheckScreeningSection = false;
     //this.PriorityScreeningSection = false;
     //console.log(JSON.stringify(search));
-    this._searchService.CreateVisualiseData(search.searchId);
+    this._searchService.FetchVisualiseData(search.searchId);
     this.PleaseOpenTheCodes.emit();
     //alert('in here' + JSON.stringify(this.SearchVisualiseData));
     // for now just show the graph area unhidden

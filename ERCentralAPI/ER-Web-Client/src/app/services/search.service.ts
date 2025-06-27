@@ -213,27 +213,24 @@ export class searchService extends BusyAwareService implements OnDestroy {
     });
   }
 
-  public CreateVisualiseData(searchId: number): any[] {
+  public FetchVisualiseData(searchId: number): Promise<boolean> {
 
     this._BusyMethods.push("CreateVisualiseData");
     let body = JSON.stringify({ searchId: searchId });
 
-    this._httpC.post<any[]>(this._baseUrl + 'api/SearchList/CreateVisualiseData', body)
-      .subscribe(result => {
-
+    return lastValueFrom(this._httpC.post<any[]>(this._baseUrl + 'api/SearchList/CreateVisualiseData', body)).then
+      (result => {
         this.SearchVisualiseData = result;
         this.RemoveBusy("CreateVisualiseData");
-        return result;
+        return true;
 
       },
         error => {
           this.RemoveBusy("CreateVisualiseData");
           this.modalService.GenericError(error);
-          return [];
+          return false;
         }
       );
-
-    return this.SearchVisualiseData;
   }
 
 }
