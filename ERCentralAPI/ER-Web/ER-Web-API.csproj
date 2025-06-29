@@ -252,6 +252,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchDeleteCommand.cs" Link="Models\SearchDeleteCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchForUploadedFilesCommand.cs" Link="Models\SearchForUploadedFilesCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchFreeTextCommand.cs" Link="Models\SearchFreeTextCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchFromCurrentPSListCommand.cs" Link="Models\SearchFromCurrentPSListCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchIDsCommand.cs" Link="Models\SearchIDsCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchImportedIDsCommand.cs" Link="Models\SearchImportedIDsCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\SearchList.cs" Link="Models\SearchList.cs" />

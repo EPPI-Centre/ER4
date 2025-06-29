@@ -101,7 +101,14 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
           if (save) {
             this.SaveItems(list, this._Criteria);
             if (this._itemListOptions.showInfo == false && this._Criteria.showInfoColumn == true) this._itemListOptions.showInfo = true;
-            if (this._itemListOptions.showScore == false && this._Criteria.showScoreColumn == true) this._itemListOptions.showScore = true;
+            if (this._itemListOptions.showScore == false && this._Criteria.showScoreColumn == true) {
+              this._itemListOptions.showScore = true;
+              this.sortChange(
+                [{
+                field: 'rank',
+                  dir: 'desc'
+                }]);
+            }
             this.ListChanged.emit();
           }
           this.RemoveBusy("FetchWithCrit");

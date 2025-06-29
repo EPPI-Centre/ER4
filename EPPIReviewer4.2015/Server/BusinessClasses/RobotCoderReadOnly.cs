@@ -124,6 +124,14 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(RobotSettingsProperty);
             }
         }
+        public static readonly PropertyInfo<int> RequestsPerMinuteProperty = RegisterProperty<int>(new PropertyInfo<int>("RequestsPerMinute", "RequestsPerMinute"));
+        public int RequestsPerMinute
+        {
+            get
+            {
+                return GetProperty(RequestsPerMinuteProperty);
+            }
+        }
 
 
         //protected override void AddAuthorizationRules()
@@ -163,6 +171,7 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty<bool>(IsPublicProperty, reader.GetBoolean("IS_PUBLIC"));
             LoadProperty<string>(DescriptionProperty, reader.GetString("PUBLIC_DESCRIPTION"));
             LoadProperty<DateTime>(RetirementDateProperty, reader.GetDateTime("RETIREMENT_DATE"));
+            LoadProperty<int>(RequestsPerMinuteProperty, (int)reader.GetInt16("REQUESTS_PER_MINUTE"));
             LoadProperty(RobotSettingsProperty, new MobileList<RobotCoderSetting>());
             string tmp = reader.GetString("FOR_SALE_IDs");
             string[] IdsStr = tmp.Split(',');

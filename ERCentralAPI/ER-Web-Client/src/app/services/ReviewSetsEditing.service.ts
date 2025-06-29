@@ -26,13 +26,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
     //if an editing API call returns a promise, then what called has the responsibility of making sure changes are propagated.
     //frequently this is done by calling a larger refresh in ReviewSets service.
 
-  private _SearchVisualiseData: any[] = [];
-  public get SearchVisualiseData(): any[] {
-		return this._SearchVisualiseData;
-	}
-  public set SearchVisualiseData(searches: any[]) {
-		this._SearchVisualiseData = searches;
-	}
+
     private _SetTypes: iSetType[] = [];
     public get SetTypes(): iSetType[]
     {
@@ -1268,28 +1262,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
 
 	}
 
-	public CreateVisualiseData(searchId: number): any[] {
 
-		this._BusyMethods.push("CreateVisualiseData");
-		let body = JSON.stringify({ searchId: searchId });
-
-		this._httpC.post<any[]>(this._baseUrl + 'api/SearchList/CreateVisualiseData', body)
-			.subscribe(result => {
-
-				this.SearchVisualiseData = result;
-				this.RemoveBusy("CreateVisualiseData");
-				return result;
-
-			},
-				error => {
-					this.RemoveBusy("CreateVisualiseData");
-					this.modalService.GenericError(error);
-					return [];
-				}
-		);
-
-		return this.SearchVisualiseData;
-	}
 
     public SetAttributeDelete(Att: SetAttribute): Promise<AttributeDeleteCommand> {
         this._BusyMethods.push("SetAttributeDelete");

@@ -70,7 +70,8 @@ namespace BusinessLibrary.BusinessClasses
             get { return errors; }
         }
         public int RobotContactId { get { return _robotContactId; } }
-        public RobotOpenAICommand(RobotCoderReadOnly robot, int reviewSetId, Int64 itemId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true, bool useFullTextDocument = false)
+        public RobotOpenAICommand(RobotCoderReadOnly robot, int reviewSetId, Int64 itemId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true
+            , bool useFullTextDocument = false, int creditId = 0)
         {
             RobotCoder = robot;
             _reviewSetId = reviewSetId;
@@ -79,10 +80,11 @@ namespace BusinessLibrary.BusinessClasses
             _onlyCodeInTheRobotName = onlyCodeInTheRobotName;
             _lockTheCoding = lockTheCoding;
             _useFullTextDocument = useFullTextDocument;
+            CreditId = creditId;
         }
         public RobotOpenAICommand(RobotCoderReadOnly robot, int reviewSetId, Int64 itemId, bool isLastInBatch, int JobId, int robotContactId, int reviewId, 
             int JobOwnerId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true, bool useFullTextDocument = false, string docsList = "",
-            string ExplicitEndpoint = "", string ExplicitEndpointKey = "")
+            string ExplicitEndpoint = "", string ExplicitEndpointKey = "", int creditId = 0)
         {
             RobotCoder = robot;
             _reviewSetId = reviewSetId;
@@ -99,6 +101,7 @@ namespace BusinessLibrary.BusinessClasses
             _ExplicitEndpointKey = ExplicitEndpointKey;
             _useFullTextDocument = useFullTextDocument;
             _DocsList = docsList;
+            CreditId = creditId;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
@@ -208,9 +211,18 @@ namespace BusinessLibrary.BusinessClasses
             {
                 throw new System.Security.Authentication.AuthenticationException("RobotOpenAICommand attempted to execute for unknown Review and/or user.");
             }
-            if (!rInfo.CanUseRobots)
+            if (CreditId > 0 )
             {
-                _message = "Error: GPT4 is disabled or there is no credit.";
+                CreditForRobots? found = rInfo.CreditForRobotsList.FirstOrDefault(f => f.CreditPurchaseId == CreditId && f.AmountRemaining > 0.01);
+                if (found == null)
+                {
+                    _message = "There is no credit (left) to use.";
+                    return;
+                }
+            }
+            else if (_jobId != 0)//if it's 0, it's a per-item request, see case below
+            {
+                _message = "There is no credit (left) to use.";
                 return;
             }
             if (_jobId == 0)
@@ -716,8 +728,8 @@ namespace BusinessLibrary.BusinessClasses
             messages.Remove(messages[0]);
         }
 
-        private Dictionary<string, string> resultDict;
-        private Dictionary<string, string> resultRagDict;
+        private Dictionary<string, string> resultDict = new Dictionary<string, string>();
+        private Dictionary<string, string> resultRagDict = new Dictionary<string, string>();
 
         // This is just copied and pasted out of the above. It can be the starting point for putting this in a new object and having different options for the robot
         private async Task<bool> MyRobotSubmitRequest(List<OpenAIChatClass> messages, bool isRag)

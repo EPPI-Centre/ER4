@@ -144,9 +144,14 @@ namespace ERxWebClient2.Controllers
                         return Ok(data);
                     }
                     int CreditId = 0;
-                    if (rinfo.CreditForRobotsList.Count > 0)
+                    foreach(CreditForRobots cfb in rinfo.CreditForRobotsList)
                     {
-                        CreditId = rinfo.CreditForRobotsList[0].CreditPurchaseId;
+                        if (cfb.AmountRemaining > 0.01) CreditId = cfb.CreditPurchaseId;
+                    }
+                    if (CreditId == 0)//added for safety
+                    {
+                        data.returnMessage = "Error. Could not find credit available to spend on the OpenAI Robot.";
+                        return Ok(data);
                     }
                     RobotOpenAiQueueBatchJobCommand res = new RobotOpenAiQueueBatchJobCommand(data.robotName, data.criteria, CreditId, data.reviewSetId, data.onlyCodeInTheRobotName, data.lockTheCoding, data.useFullTextDocument);
                     res = DataPortal.Execute(res);
