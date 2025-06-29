@@ -20,6 +20,8 @@ using Telerik.Web.UI.com.hisoftware.api2;
 using System.Runtime.InteropServices.ComTypes;
 using Telerik.Web.UI;
 using System.Security.Cryptography;
+using System.Security.Principal;
+using Telerik.Web.UI.ImageEditor;
 
 public partial class Summary : System.Web.UI.Page
 {
@@ -1004,7 +1006,7 @@ public partial class Summary : System.Web.UI.Page
                 pnlHistory.Visible = true;
                 DateTime dateExtended;
                 DateTime dateExtendedPlus2Days;
-                DateTime now = DateTime.Now;
+                DateTime now = DateTime.Today;
                 lblCreditPurchaseID.Text = creditPurchaseID;
                 string sourceID = "";
                 string destinationID = "";
@@ -1013,6 +1015,9 @@ public partial class Summary : System.Web.UI.Page
                 string numberOfMonthsHolder = "";
                 string nameSeenLastTime = "";
                 string nameSeenThisTime = "";
+
+                lblReturnToCreditMsg.Text = "You can <b>Return-To-Credit (RTC)</b> unused months for the 'last' extension of a review or account.<br/>" +
+                    "<b>Note:</b> The 'last' extension for a review or account could have been made using a credit purchase other than your own so it may not be visible here.<br/>";
 
                 DateTime trueExpiryDate;
                 DateTime loggedExpiryDate;
@@ -1101,6 +1106,7 @@ public partial class Summary : System.Web.UI.Page
                         nameSeenThisTime = idr["tv_name"].ToString();
                         if (nameSeenThisTime != nameSeenLastTime)
                         {                       
+                            
                             // name has changed so we need to look at the previous row. 
                             // - first, we need to see if it was the most recent extension for that review or account
                             trueExpiryDate = Convert.ToDateTime(dt.Rows[LastAccountReviewRow]["tv_tb_contact_or_tb_review_expiry_date"].ToString());
@@ -1115,43 +1121,56 @@ public partial class Summary : System.Web.UI.Page
                             {
                                 // this extension is the most recent so see if there any months to give back
 
-                                // there are a couple of scenarios to consider
-                                // 1 - it has only been 2 days since applying the credit, so they can get back all of the credit
-                                dateExtended = Convert.ToDateTime(dt.Rows[LastAccountReviewRow]["DATE_EXTENDED"].ToString());
-                                dateExtendedPlus2Days = dateExtended.AddDays(2);
-                                if (now <= dateExtendedPlus2Days)
+                                // first make sure this wasn't a previous RTC (i.e. doesn't have a negative months extended
+                                if (!dt.Rows[LastAccountReviewRow]["tv_months_extended"].ToString().Contains("-"))
                                 {
-                                    if (dt.Rows[LastAccountReviewRow]["tv_months_extended"].ToString() != "0")
+                                    // there are a couple of scenarios to consider
+                                    // 1 - it has only been 2 days since applying the credit, so they can get back all of the credit
+                                    dateExtended = Convert.ToDateTime(dt.Rows[LastAccountReviewRow]["DATE_EXTENDED"].ToString());
+                                    dateExtendedPlus2Days = dateExtended.AddDays(2);
+                                    if (now <= dateExtendedPlus2Days)
                                     {
-                                        // we can pull it all back. Put the number of months in the hidden column
-                                        dt.Rows[LastAccountReviewRow]["NUMBER_MONTHS"] = dt.Rows[LastAccountReviewRow]["NUMBER_MONTHS"] +
-                                            "RTC" + dt.Rows[LastAccountReviewRow]["tv_months_extended"].ToString();
-                                    }
-                                }
-                                // 2 - check if there are "some" unused months
-                                else if (trueExpiryDate > now)
-                                {
-                                    // it hasn't expired yet so figure out how many months we can get back
-                                    numberOfMonthsExtended = dt.Rows[LastAccountReviewRow]["tv_months_extended"].ToString();
-                                    startingPoint = trueExpiryDate.AddMonths(-int.Parse(numberOfMonthsExtended));
-                                    int months = 0;
-                                    for (int i = 1; ; ++i)
-                                    {
-                                        // using the 2 grace days again so there really is a visual difference
-                                        // the "starting point" is the expiry date - the number of months applied
-                                        if (startingPoint.AddMonths(i).AddDays(-2) <= trueExpiryDate)
+                                        if (dt.Rows[LastAccountReviewRow]["tv_months_extended"].ToString() != "0")
                                         {
-                                            months = i;
+                                            // we can pull it all back. Put the number of months in the hidden column
                                             dt.Rows[LastAccountReviewRow]["NUMBER_MONTHS"] = dt.Rows[LastAccountReviewRow]["NUMBER_MONTHS"] +
-                                                "RTC" + months.ToString();
-                                            if (int.Parse(numberOfMonthsExtended) == i)
+                                                "RTC" + dt.Rows[LastAccountReviewRow]["tv_months_extended"].ToString();
+                                        }
+                                    }
+                                    // 2 - check if there are "some" unused months
+                                    else if (trueExpiryDate > now)
+                                    {
+                                        // it hasn't expired yet so figure out how many months we can get back
+                                        numberOfMonthsExtended = dt.Rows[LastAccountReviewRow]["tv_months_extended"].ToString();
+                                        startingPoint = trueExpiryDate.AddMonths(-int.Parse(numberOfMonthsExtended));
+                                        int months = 0;
+
+                                        if (now > startingPoint.AddDays(-2))
+                                        {
+                                            // calulated starting point was before 'now' so we want to 'now' to be the starting 
+                                            startingPoint = now;
+                                        }
+
+                                        for (int i = 1; ; ++i)
+                                        {
+                                            // using the 2 grace days again so there really is a visual difference
+                                            // the "starting point" is the expiry date - the number of months applied
+                                            if (startingPoint.AddMonths(i).AddDays(-2) <= trueExpiryDate)
+                                            {
+                                                months = i;
+                                                dt.Rows[LastAccountReviewRow]["NUMBER_MONTHS"] = numberOfMonthsExtended +
+                                                    "RTC" + months.ToString();
+                                                if (int.Parse(numberOfMonthsExtended) == i)
+                                                {
+                                                    break;
+                                                }
+                                            }
+                                            else
                                             {
                                                 break;
                                             }
                                         }
-                                        else { break; }
                                     }
-
                                 }
                             }
                             else
@@ -1201,48 +1220,59 @@ public partial class Summary : System.Web.UI.Page
                     }
                     else if (loggedExpiryDate == trueExpiryDate)
                     {
-                        // this extension is the most recent so see if there any months to give back
+                        // first make sure this wasn't a previous RTC (i.e. doesn't have a negative months extended
+                        if (!dt.Rows[dt.Rows.Count - 1]["tv_months_extended"].ToString().Contains("-"))
+                        { 
+                            // this extension is the most recent so see if there any months to give back
 
-                        // there are a couple of scenarios to consider
-                        // 1 - it has only been 2 days since applying the credit, so they can get back all of the credit
-                        dateExtended = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["DATE_EXTENDED"].ToString());
-                        dateExtendedPlus2Days = dateExtended.AddDays(2);
-                        if (now <= dateExtendedPlus2Days)
-                        {
-                            if (dt.Rows[dt.Rows.Count - 1]["tv_months_extended"].ToString() != "0")
+                            // there are a couple of scenarios to consider
+                            // 1 - it has only been 2 days since applying the credit, so they can get back all of the credit
+                            dateExtended = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["DATE_EXTENDED"].ToString());
+                            dateExtendedPlus2Days = dateExtended.AddDays(2);
+                            if (now <= dateExtendedPlus2Days)
                             {
-                                // we can pull it all back. Put the number of months in the hidden column
-                                dt.Rows[dt.Rows.Count - 1]["NUMBER_MONTHS"] = dt.Rows[dt.Rows.Count - 1]["NUMBER_MONTHS"] +
-                                "RTC" + dt.Rows[dt.Rows.Count - 1]["tv_months_extended"].ToString();
-                            }
-                        }
-                        // 2 - check if there are "some" unused months
-                        else if (trueExpiryDate > now)
-                        {
-                            // it hasn't expired yet so figure out how many months we can get back
-                            numberOfMonthsExtended = dt.Rows[dt.Rows.Count - 1]["tv_months_extended"].ToString();
-                            startingPoint = trueExpiryDate.AddMonths(-int.Parse(numberOfMonthsExtended));
-                            int months = 0;
-                            for (int i = 1; ; ++i)
-                            {
-                                // using the 2 grace days again so there really is a visual difference
-                                // the "starting point" is the expiry date minus the number of months applied
-                                if (startingPoint.AddMonths(i).AddDays(-2) <= trueExpiryDate)
+                                if (dt.Rows[dt.Rows.Count - 1]["tv_months_extended"].ToString() != "0")
                                 {
-                                    months = i;
+                                    // we can pull it all back. Put the number of months in the hidden column
                                     dt.Rows[dt.Rows.Count - 1]["NUMBER_MONTHS"] = dt.Rows[dt.Rows.Count - 1]["NUMBER_MONTHS"] +
-                                        "RTC" + months.ToString();
-                                    if (int.Parse(numberOfMonthsExtended) == i)
-                                    {
-                                        break;
-                                    }
+                                    "RTC" + dt.Rows[dt.Rows.Count - 1]["tv_months_extended"].ToString();
                                 }
-                                else { break; }
                             }
-                        }
-                        else
-                        {
-                            // there must be an extension from a different credit purchase that is controlling the trueExpiryDate
+                            // 2 - check if there are "some" unused months
+                            else if (trueExpiryDate > now)
+                            {
+                                // it hasn't expired yet so figure out how many months we can get back
+                                numberOfMonthsExtended = dt.Rows[dt.Rows.Count - 1]["tv_months_extended"].ToString();
+                                startingPoint = trueExpiryDate.AddMonths(-int.Parse(numberOfMonthsExtended));
+                                int months = 0;
+
+                                if (now > startingPoint.AddDays(-2))
+                                {
+                                    // calulated starting point was before 'now' so we want to 'now' to be the starting 
+                                    startingPoint = now;
+                                }
+
+                                for (int i = 1; ; ++i)
+                                {
+                                    // using the 2 grace days again so there really is a visual difference
+                                    // the "starting point" is the expiry date minus the number of months applied
+                                    if (startingPoint.AddMonths(i).AddDays(-2) <= trueExpiryDate)
+                                    {
+                                        months = i;
+                                        dt.Rows[dt.Rows.Count - 1]["NUMBER_MONTHS"] = numberOfMonthsExtended +
+                                            "RTC" + months.ToString();
+                                        if (int.Parse(numberOfMonthsExtended) == i)
+                                        {
+                                            break;
+                                        }
+                                    }
+                                    else { break; }
+                                }
+                            }
+                            else
+                            {
+                                // there must be an extension from a different credit purchase that is controlling the trueExpiryDate
+                            }
                         }
                     }
 
@@ -1251,7 +1281,16 @@ public partial class Summary : System.Web.UI.Page
                 gvCreditHistory.DataSource = dt;
                 gvCreditHistory.DataBind();
 
-                break;
+                if (gvCreditHistory.Rows.Count > 0)
+                {                                     
+                    lblReturnToCreditMsg.Visible = true;
+                }
+                else
+                {
+                    lblReturnToCreditMsg.Visible = false;
+                }
+
+                    break;
 
             default:
                 break;
@@ -1290,9 +1329,11 @@ public partial class Summary : System.Web.UI.Page
             {
                 lblNumberMonths.Text = monthsColumn.Remove(monthsColumn.IndexOf("R"));
                 // there is some months that can be returned for credit
+                string numberMonths = monthsColumn.Remove(0, monthsColumn.IndexOf("C") + 1);
                 lbReturnToCreditMonths.Text = "RTC " + monthsColumn.Remove(0, monthsColumn.IndexOf("C")+1) + " months";
                 lbReturnToCreditMonths.Visible = true;
                 lbReturnToCreditMonths.Enabled = true;
+                lbReturnToCreditMonths.Attributes.Add("onclick", "if (confirm('Are you sure you want to return " + numberMonths + " month(s) to your credit purchae?') == false) return false;");
             }
             else
             {

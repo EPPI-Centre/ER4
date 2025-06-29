@@ -108,6 +108,7 @@ public partial class Login : System.Web.UI.Page
             if (Utils.GetSessionString("AccountCreationEnabled") == "True")
             {
                 cmdNewAccountScreen0.Enabled = true;
+                cmdNewAccountScreen0New.Enabled = true;
             }
             if (Utils.GetSessionString("SendPasswordEnabled") == "True")
             {
@@ -153,6 +154,7 @@ public partial class Login : System.Web.UI.Page
                 (Utils.GetSessionString("AccountCreationEnabled") == "False"))
             {
                 cmdNewAccountScreen0.Enabled = true;
+                cmdNewAccountScreen0New.Enabled = true;
                 cmdRetrieve.Enabled = true;
                 ShowJustThisPanel(pnlChoose);
                 //pnlChoose.Visible = true;
@@ -193,6 +195,7 @@ public partial class Login : System.Web.UI.Page
     protected void cmdNewAccountScreen_Click(object sender, EventArgs e)
     {
         ShowJustThisPanel(pnlNewAccount);
+        ddlAreaOfResearch.SelectedIndex = 0;
         //pnlChoose.Visible = false;
         //pnlNewAccount.Visible = true;
     }
@@ -207,6 +210,7 @@ public partial class Login : System.Web.UI.Page
     protected void lbNewAccountScreen_Click(object sender, EventArgs e)
     {
         ShowJustThisPanel(pnlNewAccount);
+        ddlAreaOfResearch.SelectedIndex = 0;
         //pnlChoose.Visible = false;
         //pnlNewAccount.Visible = true;
         //pnlLogin.Visible = false;
@@ -251,7 +255,7 @@ public partial class Login : System.Web.UI.Page
         if (tbFirstName.Text == "" || tbLastName.Text == "" || tbNewUserName.Text == "" || tbNewUserName.Text.Contains("'") ||
             tbDescription.Text == "" || tbNewEmail.Text == "" || 
             tbNewEmailConfirm.Text == "" || 
-            ddlAreaOfResearch.SelectedIndex == 0 || ddlHearAboutUs.SelectedIndex == 0 || ddlProfession.SelectedIndex == 0)
+            ddlAreaOfResearch.SelectedIndex == 0) //|| ddlHearAboutUs.SelectedIndex == 0 || ddlProfession.SelectedIndex == 0)
             {
             lblMissingFields.Text = "Please fill in all of the fields and drop down lists. Apostrophes (') are not allowed in Usernames and Passwords.";
             lblMissingFields.Visible = true;
@@ -361,9 +365,10 @@ public partial class Login : System.Web.UI.Page
             string adminMsg = "ACCOUNT CREATED DETAILS:<BR> CONTACT_ID = " + CID.ToString()
                                 + "<BR> USERNAME = " + tbNewUserName.Text.Trim()
                                 + "<BR> EMAIL = " + tbNewEmail.Text.Trim()
-                                + "<BR> DESCRIPTION = " + tbDescription.Text + "  Profession: " + ddlProfession.SelectedValue 
+                                + "<BR> DESCRIPTION = " + tbDescription.Text 
+                                + "  Profession: " + "N/A" 
                                 + "  Area of Reasearch: " + ddlAreaOfResearch.SelectedValue 
-                                + "  Hear about us: " + ddlHearAboutUs.SelectedValue;
+                                + "  Hear about us: " + "N/A";
             Utils.VerifyAccountEmail("EPPISupport@ucl.ac.uk", contactName, tbNewUserName.Text.Trim(), LinkUI, CID.ToString(), BaseUrl, adminMsg);
         }
         else
@@ -681,7 +686,7 @@ public partial class Login : System.Web.UI.Page
         btForgottenPwLinkCreate.Visible = false;
         btForgottenUnameEmailCreate.Visible = false;
         btForgottenToActivateLinkCreate.Visible = true;
-        lblInstructionsLinkCreate.Text = "Please fill in either the Username, Email, or both fields to generate a new 'Validate Account' Email message. This is necessary to ensure that your email address is valid. This function will send the message only if the details provided are correct and your account wasn't validated already.";
+        lblInstructionsLinkCreate.Text = "If you did not receive or cannot find your account activation email, you can request another. Please fill in either the Username, Email, or both fields to receive a new account activation link. The email will be sent if the details you provide are correct and your account wasn't validated already.";
         lblInstructionsLinkCreate.Visible = true;
         lblResultLinkCreate.Visible = false;
         //2. check with some SP if they are OK, if they are

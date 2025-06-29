@@ -4,6 +4,11 @@
 <%@ Register Assembly="Telerik.Web.UI" Namespace="Telerik.Web.UI" TagPrefix="Telerik" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
 
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
     <script type="text/javascript">
 
 
@@ -61,7 +66,7 @@
             AutoGenerateColumns="False" Width="800px" OnRowCommand="gvReview_RowCommand" 
             DataKeyNames="REVIEW_ID" OnPageIndexChanging="gvReview_PageIndexChanging" PageSize="15" AllowPaging="True" OnRowDataBound="gvReview_RowDataBound">
             <Columns>
-                <asp:BoundField DataField="REVIEW_ID" HeaderText="ReviewID">
+                <asp:BoundField DataField="REVIEW_ID" HeaderText="ID">
                     <HeaderStyle BackColor="#B6C6D6" />
                 </asp:BoundField>
                 <asp:BoundField DataField="REVIEW_NAME" HeaderText="Name of review">
@@ -202,7 +207,7 @@
                     OnRowDataBound="gvMembersOfReview_RowDataBound"
                     EnableModelValidation="True">
                     <Columns>
-                        <asp:BoundField DataField="CONTACT_ID" HeaderText="Contact ID">
+                        <asp:BoundField DataField="CONTACT_ID" HeaderText="ID">
                             <HeaderStyle BackColor="#B6C6D6" />
                         </asp:BoundField>
                         <asp:BoundField DataField="CONTACT_NAME" HeaderText="Reviewer (expiry date)">
@@ -323,7 +328,7 @@
             OnRowCommand="gvReviewNonShareable_RowCommand"
             OnRowEditing="gvReviewNonShareable_RowEditing" DataKeyNames="REVIEW_ID" PageSize="15" AllowPaging="True" OnPageIndexChanging="gvReviewNonShareable_PageIndexChanging">
             <Columns>
-                <asp:BoundField DataField="REVIEW_ID" HeaderText="ReviewID">
+                <asp:BoundField DataField="REVIEW_ID" HeaderText="ID">
                     <HeaderStyle BackColor="#B6C6D6" CssClass="gvReviewNonShareableCol1" />
                 </asp:BoundField>
                 <asp:BoundField DataField="REVIEW_NAME" HeaderText="Name of review">
@@ -531,7 +536,7 @@
             DataKeyNames="REVIEW_ID" CssClass="grviewFixedWidth"
             OnRowDataBound="gvReviewShareableMember_RowDataBound" PageSize="5" AllowPaging="True" OnPageIndexChanging="gvReviewShareableMember_PageIndexChanging1">
             <Columns>
-                <asp:BoundField DataField="REVIEW_ID" HeaderText="ReviewID">
+                <asp:BoundField DataField="REVIEW_ID" HeaderText="ID">
                     <HeaderStyle BackColor="#B6C6D6" />
                 </asp:BoundField>
                 <asp:BoundField DataField="REVIEW_NAME" HeaderText="Name of review">

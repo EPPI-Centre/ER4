@@ -5,8 +5,10 @@
         <telerik:RadWindowManager ID="RadWindowManager1" runat="server" EnableShadow="true">
         </telerik:RadWindowManager>
 
-
-
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
         <b>Your account summary&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </b>
         Please note that all dates are dd/mm/yyyy
@@ -17,7 +19,7 @@
             EnableModelValidation="True">
             <Columns>
                 <asp:BoundField DataField="CONTACT_ID"
-                    HeaderText="ContactID">
+                    HeaderText="ID">
                     <HeaderStyle BackColor="#B6C6D6" />
                 </asp:BoundField>
                 <asp:BoundField HeaderText="Name" DataField="CONTACT_NAME">
@@ -243,9 +245,8 @@
                         </asp:BoundField>
                     </Columns>
                 </asp:GridView>
-                You can <b>Return-To-Credit (RTC)</b> unused months for the "last" extension of a review or account.<br />
-                <b>Note:</b> The "last" extension for a review or account could have been made using a credit purchase other than your own.
-                <br />
+                <asp:Label ID="lblReturnToCreditMsg" runat="server" Visible="false"></asp:Label>
+                
             </asp:Panel>
             <br />
         </asp:Panel>
@@ -283,7 +284,7 @@
             OnRowCommand="gvAccountPurchases_RowCommand" OnRowEditing="gvReviewer_RowEditing"
             Width="800px" EnableModelValidation="True">
             <Columns>
-                <asp:BoundField DataField="CONTACT_ID" HeaderText="ContactID">
+                <asp:BoundField DataField="CONTACT_ID" HeaderText="ID">
                     <HeaderStyle BackColor="#B6C6D6" />
                 </asp:BoundField>
                 <asp:BoundField DataField="CONTACT_NAME" HeaderText="Name">

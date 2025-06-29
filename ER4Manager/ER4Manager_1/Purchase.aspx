@@ -6,6 +6,12 @@
 <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
     <div>
 
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+
    <asp:Panel ID="pnlProceedToWPM" runat="server" Visible="False" >
                 
                  
@@ -63,11 +69,11 @@
                 <tr>
                     <td style="background-color: #B6C6D6; width: 16%">
                         Name</td>
-                    <td style="width: 66%">
+                    <td style="width: 56%">
                         &nbsp;
                         <asp:Label ID="lblName" runat="server" Text="Name"></asp:Label>
                     </td>
-                    <td class="gvReviewNonShareableCol4" rowspan="5" style="width: 13%">
+                    <td class="gvReviewNonShareableCol4" rowspan="5" style="width: 23%">
                         Please enter your <strong>full billing address</strong>. We need this 
                         information in order to prepare your bill.<br />
                         <br />
@@ -79,14 +85,14 @@
                 <tr>
                     <td style="background-color: #B6C6D6; width: 16%">
                         Organization (optional)</td>
-                    <td style="width: 66%">
+                    <td style="width: 56%">
                         <asp:TextBox ID="tbOrganization" runat="server" CssClass="textbox" Width="95%"></asp:TextBox>
                     </td>
                 </tr>
                 <tr>
                     <td style="background-color: #B6C6D6; width: 16%">
                         Full Postal address</td>
-                    <td style="width: 66%">
+                    <td style="width: 56%">
                         <asp:TextBox ID="tbPostalAddress" runat="server" CssClass="textbox" 
                             Width="95%" Rows="5" TextMode="MultiLine" Wrap="False"></asp:TextBox>
                     </td>
@@ -94,7 +100,7 @@
                 <tr>
                     <td style="background-color: #B6C6D6; width: 16%">
                         Country</td>
-                    <td style="width: 66%">
+                    <td style="width: 56%">
                         <asp:DropDownList ID="ddlCountries" runat="server" 
                             DataTextField="COUNTRY_NAME" DataValueField="COUNTRY_ID">
                         </asp:DropDownList>
@@ -110,7 +116,7 @@
                 <tr>
                     <td style="background-color: #B6C6D6; width: 16%">
                         Email address</td>
-                    <td style="width: 66%">
+                    <td style="width: 56%">
                         &nbsp;
                         <asp:Label ID="lblEmailAddress" runat="server" Text="email"></asp:Label>
                     </td>
@@ -199,8 +205,8 @@
                 Existing purchased accounts&nbsp;&nbsp;&nbsp; </b>
                 <asp:LinkButton ID="lbNewAccount" runat="server" onclick="lbNewAccount_Click">Add new account</asp:LinkButton>
                 &nbsp;&nbsp; Please note that all dates are dd/mm/yyyy
-                <asp:GridView ID="gvPurchasedAccounts" runat="server" 
-                    AutoGenerateColumns="False" DataKeyNames="CONTACT_ID">
+                <asp:GridView ID="gvPurchasedAccounts" runat="server" CssClass="grviewFixedWidth"
+                    AutoGenerateColumns="False" DataKeyNames="CONTACT_ID" >
                     <Columns>
                         <asp:BoundField DataField="CONTACT_ID" HeaderText="Contact ID">
                         <HeaderStyle BackColor="#B6C6D6" />
