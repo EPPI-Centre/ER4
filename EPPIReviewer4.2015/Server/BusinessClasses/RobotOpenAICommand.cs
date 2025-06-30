@@ -214,7 +214,7 @@ namespace BusinessLibrary.BusinessClasses
             if (CreditId > 0 )
             {
                 CreditForRobots? found = rInfo.CreditForRobotsList.FirstOrDefault(f => f.CreditPurchaseId == CreditId && f.AmountRemaining > 0.01);
-                if (found == null || found.AmountRemaining <= 0.01)
+                if (found == null)
                 {
                     _message = "Error: There is no credit (left) to use.";
                     return;
