@@ -214,15 +214,15 @@ namespace BusinessLibrary.BusinessClasses
             if (CreditId > 0 )
             {
                 CreditForRobots? found = rInfo.CreditForRobotsList.FirstOrDefault(f => f.CreditPurchaseId == CreditId && f.AmountRemaining > 0.01);
-                if (found == null)
+                if (found == null || found.AmountRemaining <= 0.01)
                 {
-                    _message = "There is no credit (left) to use.";
+                    _message = "Error: There is no credit (left) to use.";
                     return;
                 }
             }
             else if (_jobId != 0)//if it's 0, it's a per-item request, see case below
             {
-                _message = "There is no credit (left) to use.";
+                _message = "Error: There is no credit (left) to use.";
                 return;
             }
             if (_jobId == 0)

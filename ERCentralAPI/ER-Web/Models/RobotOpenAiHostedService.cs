@@ -493,7 +493,7 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         cmd = LLM_Factory.GetRobot(RT.Robot, RT.ReviewSetId, RT.ItemIDsList[done], RT.ItemIDsList.Count == done + 1 ? true : false,
                                 RT.RobotApiCallId, RT.RobotContactId, RT.ReviewId, RT.JobOwnerId,
-                                RT.OnlyCodeInTheRobotName, RT.LockTheCoding, RT.UseFullTextDocument, doclist, cmd.ReviewSetForPrompts, cmd.CachedPrompt);
+                                RT.OnlyCodeInTheRobotName, RT.LockTheCoding, RT.UseFullTextDocument, doclist, cmd.ReviewSetForPrompts, cmd.CachedPrompt, RT.CreditPurchaseId);
                     }
                     LogInfo("Submitting ItemId: " + RT.ItemIDsList[done].ToString());
                     start = DateTime.Now;
