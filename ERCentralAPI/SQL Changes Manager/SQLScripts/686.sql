@@ -162,7 +162,7 @@ BEGIN
 	declare @newExpiryDate date
 	declare @newExpiryEditId int
 	declare @extendedByID int
-
+	declare @ExtensionTypeId int = (Select EXTENSION_TYPE_ID from TB_EXTENSION_TYPES where EXTENSION_TYPE = 'Returning unused assigned credit')
 	--set @expiryEditId = (select EXPIRY_EDIT_ID from TB_CREDIT_EXTENSIONS
 	--	where CREDIT_EXTENSION_ID = @CREDIT_EXTENSION_ID)
 	--set @creditPurchaseId = (select CREDIT_PURCHASE_ID from TB_CREDIT_EXTENSIONS
@@ -185,7 +185,7 @@ BEGIN
 		insert into TB_EXPIRY_EDIT_LOG (DATE_OF_EDIT, TYPE_EXTENDED, ID_EXTENDED, OLD_EXPIRY_DATE, 
 			NEW_EXPIRY_DATE, EXTENDED_BY_ID, EXTENSION_TYPE_ID, EXTENSION_NOTES)
 		values (getdate(), 1, @CONTACT_OR_REVIEW_ID, @expiryDateFromTbContact, 
-			@newExpiryDate, @extendedByID, 24, 'Returning unused assigned credit')
+			@newExpiryDate, @extendedByID, @ExtensionTypeId, 'Returning unused assigned credit')
 		set @newExpiryEditId = @@IDENTITY
 
 		insert into TB_CREDIT_EXTENSIONS (CREDIT_PURCHASE_ID, EXPIRY_EDIT_ID)
@@ -222,7 +222,7 @@ BEGIN
 		insert into TB_EXPIRY_EDIT_LOG (DATE_OF_EDIT, TYPE_EXTENDED, ID_EXTENDED, OLD_EXPIRY_DATE, 
 			NEW_EXPIRY_DATE, EXTENDED_BY_ID, EXTENSION_TYPE_ID, EXTENSION_NOTES)
 		values (getdate(), 0, @CONTACT_OR_REVIEW_ID, @expiryDateFromTbReview, 
-			@newExpiryDate, @extendedByID, 24, 'Returning unused assigned credit')
+			@newExpiryDate, @extendedByID, @ExtensionTypeId, 'Returning unused assigned credit')
 		set @newExpiryEditId = @@IDENTITY
 
 		insert into TB_CREDIT_EXTENSIONS (CREDIT_PURCHASE_ID, EXPIRY_EDIT_ID)

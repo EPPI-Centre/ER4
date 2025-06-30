@@ -41,7 +41,7 @@ public partial class AssignCredit : System.Web.UI.Page
                 buildReviewGrid();
             }
             //Utils.SetSessionString("Credit_Purchase_ID", "");
-            cmdComplete.Attributes.Add("onclick", "if (confirm('Are you sure you wish to make these extensions. They cannot be undone unless you contact EPPI-Support.') == false) return false;");
+            cmdComplete.Attributes.Add("onclick", "if (confirm('Are you sure you wish to make these extensions. You may be unable to undo them without contacting EPPI-Support.') == false) return false;");
         }
         else
         {
