@@ -125,3 +125,134 @@ begin
 end
 
 -----------------------------------------------------
+
+
+USE [ReviewerAdmin]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ReturnToCredit]    Script Date: 30/06/2025 09:37:21 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+CREATE OR ALTER       PROCEDURE [dbo].[st_ReturnToCredit] 
+	-- Add the parameters for the stored procedure here
+	@CREDIT_EXTENSION_ID int,
+	@TYPE_TO_CREDIT nvarchar(10),
+	@CONTACT_OR_REVIEW_ID int,
+	@MONTHS_TO_CREDIT int,
+	@CREDIT_PURCHASE_ID int,
+	@RESULT nvarchar(100) output
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	-- we need to edit TB_EXPIRY_EDIT_LOG and sTB_CONTACT with new expiry dates
+	declare @expiryEditId int
+	--declare @creditPurchaseId int
+	declare @expiryDateFromTbContact date
+	declare @expiryDateFromTbReview date
+	declare @expiryDateFromTbExpiryEditLog date
+	declare @newExpiryDate date
+	declare @newExpiryEditId int
+	declare @extendedByID int
+
+	--set @expiryEditId = (select EXPIRY_EDIT_ID from TB_CREDIT_EXTENSIONS
+	--	where CREDIT_EXTENSION_ID = @CREDIT_EXTENSION_ID)
+	--set @creditPurchaseId = (select CREDIT_PURCHASE_ID from TB_CREDIT_EXTENSIONS
+	--	where CREDIT_EXTENSION_ID = @CREDIT_EXTENSION_ID)
+	set @extendedByID = (select PURCHASER_CONTACT_ID from TB_CREDIT_PURCHASE
+		where CREDIT_PURCHASE_ID = @CREDIT_PURCHASE_ID)
+
+
+	if @TYPE_TO_CREDIT = 'Account'
+	begin
+		set @expiryDateFromTbContact = (select EXPIRY_DATE from sTB_CONTACT
+			where CONTACT_ID = @CONTACT_OR_REVIEW_ID)
+		set @expiryDateFromTbExpiryEditLog = (select NEW_EXPIRY_DATE from TB_EXPIRY_EDIT_LOG
+			where EXPIRY_EDIT_ID = @expiryEditId)
+
+		set @newExpiryDate = (SELECT DATEADD (month,-@MONTHS_TO_CREDIT,@expiryDateFromTbContact))
+		
+		
+		-- add a line to TB_EXPIRY_EDIT_LOG and TB_CREDIT_EXTENSIONS
+		insert into TB_EXPIRY_EDIT_LOG (DATE_OF_EDIT, TYPE_EXTENDED, ID_EXTENDED, OLD_EXPIRY_DATE, 
+			NEW_EXPIRY_DATE, EXTENDED_BY_ID, EXTENSION_TYPE_ID, EXTENSION_NOTES)
+		values (getdate(), 1, @CONTACT_OR_REVIEW_ID, @expiryDateFromTbContact, 
+			@newExpiryDate, @extendedByID, 24, 'Returning unused assigned credit')
+		set @newExpiryEditId = @@IDENTITY
+
+		insert into TB_CREDIT_EXTENSIONS (CREDIT_PURCHASE_ID, EXPIRY_EDIT_ID)
+		values (@CREDIT_PURCHASE_ID, @newExpiryEditId)
+
+
+		/*
+		-- edit TB_EXPIRY_EDIT_LOG			
+		update TB_EXPIRY_EDIT_LOG
+		set NEW_EXPIRY_DATE = @newExpiryDate
+		where EXPIRY_EDIT_ID = @expiryEditId
+		*/
+
+		-- edit TB_CONTACT
+		update sTB_CONTACT
+		set EXPIRY_DATE = @newExpiryDate
+		where CONTACT_ID = @CONTACT_OR_REVIEW_ID
+		
+
+		set @RESULT = 'Success'
+
+	end
+	else
+	begin
+		-- it's a review
+		set @expiryDateFromTbReview = (select EXPIRY_DATE from sTB_REVIEW
+			where REVIEW_ID = @CONTACT_OR_REVIEW_ID)
+		set @expiryDateFromTbExpiryEditLog = (select NEW_EXPIRY_DATE from TB_EXPIRY_EDIT_LOG
+			where EXPIRY_EDIT_ID = @expiryEditId)
+
+		set @newExpiryDate = (SELECT DATEADD (month,-@MONTHS_TO_CREDIT,@expiryDateFromTbReview))
+
+		-- add a line to TB_EXPIRY_EDIT_LOG and TB_CREDIT_EXTENSIONS
+		insert into TB_EXPIRY_EDIT_LOG (DATE_OF_EDIT, TYPE_EXTENDED, ID_EXTENDED, OLD_EXPIRY_DATE, 
+			NEW_EXPIRY_DATE, EXTENDED_BY_ID, EXTENSION_TYPE_ID, EXTENSION_NOTES)
+		values (getdate(), 0, @CONTACT_OR_REVIEW_ID, @expiryDateFromTbReview, 
+			@newExpiryDate, @extendedByID, 24, 'Returning unused assigned credit')
+		set @newExpiryEditId = @@IDENTITY
+
+		insert into TB_CREDIT_EXTENSIONS (CREDIT_PURCHASE_ID, EXPIRY_EDIT_ID)
+		values (@CREDIT_PURCHASE_ID, @newExpiryEditId)
+		
+		/*
+		-- edit TB_EXPIRY_EDIT_LOG			
+		update TB_EXPIRY_EDIT_LOG
+		set NEW_EXPIRY_DATE = @newExpiryDate
+		where EXPIRY_EDIT_ID = @expiryEditId
+		*/
+
+		-- edit TB_REVIEW
+		update sTB_REVIEW
+		set EXPIRY_DATE = @newExpiryDate
+		where REVIEW_ID = @CONTACT_OR_REVIEW_ID
+		
+
+		set @RESULT = 'Success'
+		
+
+	end
+
+
+END
+
+GO
+
+-----------------------------------------------
+
+
+
+
