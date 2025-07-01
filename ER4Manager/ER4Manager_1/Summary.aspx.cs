@@ -1110,7 +1110,9 @@ public partial class Summary : System.Web.UI.Page
                             // name has changed so we need to look at the previous row. 
                             // - first, we need to see if it was the most recent extension for that review or account
                             trueExpiryDate = Convert.ToDateTime(dt.Rows[LastAccountReviewRow]["tv_tb_contact_or_tb_review_expiry_date"].ToString());
-                            loggedExpiryDate = Convert.ToDateTime(dt.Rows[LastAccountReviewRow]["tv_new_date"].ToString());
+                            //new date can be empty (null in the DB) for un-activated accounts/reviews with their own "months credit".
+                            if (dt.Rows[LastAccountReviewRow]["tv_new_date"].ToString() == "") loggedExpiryDate = DateTime.MinValue;
+                            else loggedExpiryDate = Convert.ToDateTime(dt.Rows[LastAccountReviewRow]["tv_new_date"].ToString());
                             nameSeenLastTime = nameSeenThisTime;
                             if (loggedExpiryDate > trueExpiryDate)
                             {
@@ -1211,7 +1213,10 @@ public partial class Summary : System.Web.UI.Page
                     )
                 {                   
                     trueExpiryDate = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["tv_tb_contact_or_tb_review_expiry_date"].ToString());
-                    loggedExpiryDate = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["tv_new_date"].ToString());
+
+                    if (dt.Rows[dt.Rows.Count - 1]["tv_new_date"].ToString() == "") loggedExpiryDate = DateTime.MinValue;
+                    else loggedExpiryDate = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["tv_new_date"].ToString());
+
                     if (loggedExpiryDate > trueExpiryDate)
                     {
                         // Something is messed up in the expiry log.
