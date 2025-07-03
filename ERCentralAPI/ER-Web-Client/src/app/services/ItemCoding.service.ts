@@ -619,6 +619,9 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
     if (currentItem.oldItemId != "") {
       this._CodingReport += "<b>Your ID:</b> " + currentItem.oldItemId + "<br />";
     }
+    if (currentItem.title != "") {
+      this._CodingReport += '<div class="mt-1"><b>Title:</b> ' + currentItem.title + "</div>";
+    }
     if (currentItem.abstract != "") {
       this._CodingReport += '<div class="small mt-1"><b>Abstract:</b> ' + currentItem.abstract.replace(/</g, "&lt;") + "</div>";
     }

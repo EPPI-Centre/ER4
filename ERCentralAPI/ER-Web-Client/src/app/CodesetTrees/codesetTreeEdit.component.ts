@@ -70,8 +70,7 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy, AfterViewIni
     if (this.selectedNode) return [this.selectedNode.id];
     else return [];
   }
-  //used to expand the tree so to let the user see the currently selected code
-  expandedKeys: string[] = [];
+  
 
   private ShowSelectedCode() {
     if (this.ReviewSetsService.selectedNode == null || this.ReviewSetsService.selectedNode.nodeType != "SetAttribute") return;
@@ -80,9 +79,13 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy, AfterViewIni
       const Set = this.ReviewSetsService.FindSetById(selected.set_id);
       if (Set) {
         const parents = Set.ParentsListByAttId(selected.attribute_id);
-        this.expandedKeys = parents.map(x => x.id);
-        this.expandedKeys.push(Set.id);
-
+        let toExpand = parents.map(x => x.id);
+        toExpand.push(Set.id);
+        for (const id of toExpand) {
+          if (this.ReviewSetsService.ExpandedNodeKeys.findIndex(f => f == id) == -1) {
+            this.ReviewSetsService.ExpandedNodeKeys.push(id);
+          }
+        }
         //scroll the node in view
         if (document) {
           setTimeout(() => {
@@ -202,4 +205,28 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy, AfterViewIni
   }
   ngOnDestroy() {
   }
+
+  /*REGION: retain isExpanded data across all trees...*/
+  public get ExpandedNodeKeys(): string[] {
+    return this.ReviewSetsService.ExpandedNodeKeys;
+  }
+  public isExpanded = (dataItem: any, index: string) => {
+    //console.log("IsExpanded", dataItem, index);
+    const sn = dataItem as singleNode;
+    return this.ReviewSetsService.isExpanded(dataItem as singleNode, sn.id);
+  };
+  public handleCollapse(node: any) {
+    //console.log("hCollapse", node);
+    const sn = node.dataItem as singleNode;
+    this.ReviewSetsService.handleCollapse(sn);
+  }
+  public handleExpand(node: any) {
+    //console.log("hExpand", node);
+    const sn = node.dataItem as singleNode;
+    //console.log("hExpand2", sn);
+    this.ReviewSetsService.handleExpand(sn);
+  }
+  /*END REGION: retain isExpanded data across all trees...*/
+
+
 }

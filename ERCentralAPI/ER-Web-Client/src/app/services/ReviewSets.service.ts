@@ -166,6 +166,7 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
     //console.log("Clear in ReviewSetsService");
     this.selectedNode = null;
     this._ReviewSets = [];
+    this.ExpandedNodeKeys = [];
     this.CurrentArmID = 0;
     //localStorage.removeItem('ReviewSets');
   }
@@ -568,6 +569,63 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
       });
 
   }
+
+  /*REGION: retain isExpanded data across all trees...*/
+  public ExpandedNodeKeys: string[] = [];
+  public isExpanded = (dataItem: singleNode, index: string) => {
+    return this.ExpandedNodeKeys.indexOf(index) > -1;
+  };
+
+  /**
+   * A `collapse` event handler that will remove the node hierarchical index
+   * from the collection, collapsing its children.
+   */
+  public handleCollapse(node: singleNode) {
+    this.ExpandedNodeKeys = this.ExpandedNodeKeys.filter((k) => k !== node.id);
+  }
+
+  /**
+   * An `expand` event handler that will add the node hierarchical index
+   * to the collection, expanding the its children.
+   */
+  public handleExpand(node: singleNode) {
+    this.ExpandedNodeKeys = this.ExpandedNodeKeys.concat(node.id);
+  }
+
+  public ExpandAllFromHere(data: singleNode) {
+    if (data.attributes && data.attributes.length > 0
+      && this.ExpandedNodeKeys.findIndex(f => f == data.id) == -1) {
+      this.ExpandedNodeKeys.push(data.id);
+    }
+    this.InternalExpandAllFromHere(data);
+  }
+  private InternalExpandAllFromHere(data: singleNode) {
+    for (const node of data.attributes) {
+      if (node.attributes && node.attributes.length > 0
+        && this.ExpandedNodeKeys.findIndex(f => f == node.id) == -1) {
+        this.ExpandedNodeKeys.push(node.id);
+      }
+      this.InternalExpandAllFromHere(node);
+    }
+  }
+
+  public CollapseAllFromHere(data: singleNode) {
+    const index = this.ExpandedNodeKeys.findIndex(f => f == data.id);
+    if (index != -1) {
+      this.ExpandedNodeKeys.splice(index, 1);
+    }
+    this.InternalCollapseAllFromHere(data);
+  }
+  private InternalCollapseAllFromHere(data: singleNode) {
+    for (const node of data.attributes) {
+      const index = this.ExpandedNodeKeys.findIndex(f => f == node.id);
+      if (index != -1) {
+        this.ExpandedNodeKeys.splice(index, 1);
+      }
+      this.InternalCollapseAllFromHere(node);
+    }
+  }
+  /*END REGION: retain isExpanded data across all trees...*/
 }
 
 export interface singleNode {

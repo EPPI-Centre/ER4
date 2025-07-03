@@ -17,6 +17,9 @@ using System.IO;
 using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
 
+
+
+
 #if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
@@ -67,7 +70,8 @@ namespace BusinessLibrary.BusinessClasses
             get { return errors; }
         }
         public int RobotContactId { get { return _robotContactId; } }
-        public RobotOpenAICommand(RobotCoderReadOnly robot, int reviewSetId, Int64 itemId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true, bool useFullTextDocument = false)
+        public RobotOpenAICommand(RobotCoderReadOnly robot, int reviewSetId, Int64 itemId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true
+            , bool useFullTextDocument = false, int creditId = 0)
         {
             RobotCoder = robot;
             _reviewSetId = reviewSetId;
@@ -76,10 +80,11 @@ namespace BusinessLibrary.BusinessClasses
             _onlyCodeInTheRobotName = onlyCodeInTheRobotName;
             _lockTheCoding = lockTheCoding;
             _useFullTextDocument = useFullTextDocument;
+            CreditId = creditId;
         }
         public RobotOpenAICommand(RobotCoderReadOnly robot, int reviewSetId, Int64 itemId, bool isLastInBatch, int JobId, int robotContactId, int reviewId, 
             int JobOwnerId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true, bool useFullTextDocument = false, string docsList = "",
-            string ExplicitEndpoint = "", string ExplicitEndpointKey = "")
+            string ExplicitEndpoint = "", string ExplicitEndpointKey = "", int creditId = 0)
         {
             RobotCoder = robot;
             _reviewSetId = reviewSetId;
@@ -96,6 +101,7 @@ namespace BusinessLibrary.BusinessClasses
             _ExplicitEndpointKey = ExplicitEndpointKey;
             _useFullTextDocument = useFullTextDocument;
             _DocsList = docsList;
+            CreditId = creditId;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
@@ -147,7 +153,46 @@ namespace BusinessLibrary.BusinessClasses
         private int _outputTokens = 0;
         private Int64 _Item_set_id = 0;
         private bool hasSavedSomeCodes = false;
-
+        private void ErrorLogSinkDetails(string Message, string Details, bool IsFatal = false)
+        {
+            if (_jobId != 0)
+            {
+                try
+                {
+                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                    {
+                        string SavedMsg = Message;
+                        if (SavedMsg.Length > 200) SavedMsg = SavedMsg.Substring(0, 200);
+                        connection.Open();
+                        using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
+                        {//this is to update the token numbers, and thus the cost, if we can
+                            command.CommandType = System.Data.CommandType.StoredProcedure;
+                            command.Parameters.Add(new SqlParameter("@REVIEW_ID ", _reviewId));
+                            command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", _jobId));
+                            command.Parameters.Add(new SqlParameter("@STATUS", IsFatal ? "Failed" : "Running"));
+                            command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", System.Data.SqlDbType.BigInt));
+                            command.Parameters["@CURRENT_ITEM_ID"].Value = _itemId;
+                            command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", 0));
+                            command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", 0));
+                            command.Parameters.Add(new SqlParameter("@ERROR_MESSAGE", SavedMsg));
+                            command.Parameters.Add(new SqlParameter("@STACK_TRACE", Details));
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ErrorLogSink("RobotOpenAICommand Error: failed to save error details");
+                    ErrorLogSink(Message);
+                    ErrorLogSink(Details + Environment.NewLine);
+                    ErrorLogSink("Exception: " + ex.Message);
+                    if (ex.StackTrace != null) ErrorLogSink(ex.StackTrace + Environment.NewLine);
+                    else ErrorLogSink(Environment.NewLine);
+                }
+            }
+            ErrorLogSink("RobotOpenAICommand Error: " + Message);
+            ErrorLogSink(Details + Environment.NewLine);
+        }
         protected override void DataPortal_Execute()
         {
             ReviewInfo rInfo;
@@ -166,9 +211,18 @@ namespace BusinessLibrary.BusinessClasses
             {
                 throw new System.Security.Authentication.AuthenticationException("RobotOpenAICommand attempted to execute for unknown Review and/or user.");
             }
-            if (!rInfo.CanUseRobots)
+            if (CreditId > 0 )
             {
-                _message = "Error: GPT4 is disabled or there is no credit.";
+                CreditForRobots found = rInfo.CreditForRobotsList.FirstOrDefault(f => f.CreditPurchaseId == CreditId && f.AmountRemaining > 0.01);
+                if (found == null)
+                {
+                    _message = "Error: There is no credit (left) to use.";
+                    return;
+                }
+            }
+            else if (_jobId != 0)//if it's 0, it's a per-item request, see case below
+            {
+                _message = "Error: There is no credit (left) to use.";
                 return;
             }
             if (_jobId == 0)
@@ -584,6 +638,7 @@ namespace BusinessLibrary.BusinessClasses
                 new OpenAIChatClass { role = "system", content = sysprompt}, // {participants: number // total number of participants,\n arm_count: string // number of study arms,\n intervention: string // description of intervention,\n comparison: string // description of comparison }" },
                 new OpenAIChatClass { role = "user", content = userprompt},
             };
+            if (IsDeepSeekLike(RobotCoder)) Merge2Prompts(messages);
 
             result = await MyRobotSubmitRequest(messages, false);
 
@@ -667,8 +722,14 @@ namespace BusinessLibrary.BusinessClasses
             return result;
         }
 
-        private Dictionary<string, string> resultDict;
-        private Dictionary<string, string> resultRagDict;
+        internal static void Merge2Prompts(List<OpenAIChatClass> messages)
+        {
+            messages[1].content = messages[0].content + Environment.NewLine + messages[1].content;
+            messages.Remove(messages[0]);
+        }
+
+        private Dictionary<string, string> resultDict = new Dictionary<string, string>();
+        private Dictionary<string, string> resultRagDict = new Dictionary<string, string>();
 
         // This is just copied and pasted out of the above. It can be the starting point for putting this in a new object and having different options for the robot
         private async Task<bool> MyRobotSubmitRequest(List<OpenAIChatClass> messages, bool isRag)
@@ -693,23 +754,26 @@ namespace BusinessLibrary.BusinessClasses
                 key = AzureSettings.RobotAPIKeyByRobotName(RobotCoder.RobotName);
             }
             
-            double temperature = Convert.ToDouble(RobotCoder.Temperature);
-            int frequency_penalty = Convert.ToInt16(RobotCoder.FrequencyPenalty);
-            int presence_penalty = Convert.ToInt16(RobotCoder.PresencePenalty);
-            double top_p = Convert.ToDouble(RobotCoder.TopP);
-
 
             // *** Create the client and submit the request to the LLM
             var client = new HttpClient();
+
             string json;
             if (_UserPrivateOpenAIKey == "")
             {
-                client.DefaultRequestHeaders.Add("api-key", $"{key}");
+                if (IsDeepSeekLike(RobotCoder))
+                {
+                    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {key}");
+                }
+                else
+                {
+                    client.DefaultRequestHeaders.Add("api-key", $"{key}");
+                }
                 string type = "json_object";
                 var response_format = new { type };
                 //var requestBody = new { response_format, messages, temperature, frequency_penalty, presence_penalty, top_p };
                 //var requestBody = new { messages, temperature, frequency_penalty, presence_penalty, top_p };
-                json = BuildJsonRequestBody(type, messages, temperature, frequency_penalty, presence_penalty, top_p);  //JsonConvert.SerializeObject(requestBody);
+                json = BuildJsonRequestBody(RobotCoder, messages, new List<string>());  //JsonConvert.SerializeObject(requestBody);
             }
             else
             {
@@ -719,7 +783,8 @@ namespace BusinessLibrary.BusinessClasses
                 //string type = "json_object";
                 //var response_format = new { type };
                 //var requestBody = new { model, response_format, messages, temperature, frequency_penalty, presence_penalty, top_p };
-                var requestBody = new { model, messages, temperature, frequency_penalty, presence_penalty, top_p };
+                //var requestBody = new { model, messages, temperature, frequency_penalty, presence_penalty, top_p };
+                var requestBody = new { model, messages };
                 json = JsonConvert.SerializeObject(requestBody);
             }
             var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -743,6 +808,10 @@ namespace BusinessLibrary.BusinessClasses
             if (response.IsSuccessStatusCode == false)
             {
                 _message = "Error: " + response.ReasonPhrase;
+                if (_message != "Error: Too Many Requests")//this is and should be handled in the batch-control side: RobotOpenAiHostedService
+                {
+                    ErrorLogSinkDetails(response.ReasonPhrase == null ? "Unspecified Error" : response.ReasonPhrase, await response.Content.ReadAsStringAsync());
+                }
                 return false;
             }
 
@@ -757,33 +826,110 @@ namespace BusinessLibrary.BusinessClasses
             _inputTokens += generatedText.usage.prompt_tokens;
             _outputTokens += generatedText.usage.total_tokens - generatedText.usage.prompt_tokens;
             var responses = generatedText.choices[0].message.content;
+
+            if (IsDeepSeekLike(RobotCoder))
+            {
+                responses = StripThinkTagAndJsonMarkdown(responses);
+            }
+
             if (isRag)
             {
                 resultRagDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
             }
             else
             {
+                
                 resultDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
+                //"<think>(.*?)</think>(.*)"
             }
             // seems a bit odd setting the _message to 'completed' here when it's not finished, but there are no points between here and returning that we're not returning true
             _message = "Completed " + (errors > 0 ? "with" : "without") + " errors. (Tokens: prompt: " + generatedText.usage.prompt_tokens.ToString() + ", total: " + generatedText.usage.total_tokens.ToString() + ")";
 
             return true;
         }
-        internal static string BuildJsonRequestBody(string type, List<OpenAIChatClass> messages, double temperature, int frequency_penalty, int presence_penalty, double top_p)
+        internal static string StripThinkTagAndJsonMarkdown(string responses)
         {
-            var response_format = new { type };
-            if (temperature + top_p + frequency_penalty + presence_penalty == -4)
+            Regex rx = new Regex("<think>(.*?)</think>", RegexOptions.Singleline);
+
+            responses = rx.Replace(responses, "");
+            responses = responses.Replace("```json", "");
+            responses = responses.Replace("```", "");
+
+            return responses;
+        }
+        //internal static string BuildJsonRequestBody(string type, List<OpenAIChatClass> messages, double temperature, int frequency_penalty, int presence_penalty, double top_p)
+        //{
+        //    var response_format = new { type };
+        //    if (temperature + top_p + frequency_penalty + presence_penalty == -4)
+        //    {
+        //        var requestBody = new { response_format, messages };
+        //        return JsonConvert.SerializeObject(requestBody);
+        //    }
+        //    else
+        //    {
+        //        var requestBody = new { response_format, messages, temperature, frequency_penalty, presence_penalty, top_p };
+        //        //var requestBody = new { messages, temperature, frequency_penalty, presence_penalty, top_p };
+        //        return JsonConvert.SerializeObject(requestBody);
+        //    }
+        //}
+
+        internal static bool IsDeepSeekLike(RobotCoderReadOnly robot)
+        {//simple logic, for now!!
+            return robot.RobotName.ToLower().Contains("deepseek");            
+        }
+
+        internal static string BuildJsonRequestBody(RobotCoderReadOnly Robot, List<OpenAIChatClass> messages, List<string> SettingNamesToIgnore)
+        {
+            JObject res = new JObject();
+            var jMessages = JArray.FromObject(messages);
+            foreach (RobotCoderSetting pair in Robot.RobotSettings)
             {
-                var requestBody = new { response_format, messages };
-                return JsonConvert.SerializeObject(requestBody);
+                if (SettingNamesToIgnore.Contains(pair.SettingName)) continue;
+                if (!pair.SettingName.Contains('.'))
+                {
+                    int IntVal;
+                    decimal DecVal;
+                    if (int.TryParse(pair.SettingValue, out IntVal)) {
+                        res.Add(pair.SettingName, IntVal);
+                    }
+                    else if (decimal.TryParse(pair.SettingValue, out DecVal))
+                    {
+                        res.Add(pair.SettingName, DecVal);
+                    }
+                    else res.Add(pair.SettingName, pair.SettingValue);
+                }
+                else
+                {
+                    string[] splitted = pair.SettingName.Split(new[] {'.'}, StringSplitOptions.RemoveEmptyEntries);
+                    JObject tempToAdd = new JObject();
+                    for (int i = splitted.Length - 1; i >= 0; i--)
+                    {
+                        if (i == splitted.Length - 1)
+                        {//last element, we always add it
+
+                            int IntVal;
+                            decimal DecVal;
+                            if (int.TryParse(pair.SettingValue, out IntVal))
+                            {
+                                tempToAdd.Add(splitted[i], IntVal);
+                            }
+                            else if (decimal.TryParse(pair.SettingValue, out DecVal))
+                            {
+                                tempToAdd.Add(splitted[i], DecVal);
+                            }
+                            else tempToAdd.Add(splitted[i], pair.SettingValue);
+                        }
+                        else
+                        {
+                            tempToAdd = new JObject(new JProperty(splitted[i], tempToAdd));
+                        }
+                    }
+                    res.Merge(tempToAdd);
+                }
             }
-            else
-            {
-                var requestBody = new { response_format, messages, temperature, frequency_penalty, presence_penalty, top_p };
-                //var requestBody = new { messages, temperature, frequency_penalty, presence_penalty, top_p };
-                return JsonConvert.SerializeObject(requestBody);
-            }
+            res.Add("messages", jMessages);
+            //res.Merge(jMessages);
+            return JsonConvert.SerializeObject(res);
         }
 
         private static readonly Regex BooleanPromptRx = new Regex(@": ?boolean ?\/\/");
@@ -925,6 +1071,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
         }
+
 
         public class OpenAIResult
         {

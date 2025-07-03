@@ -87,6 +87,13 @@ export class searchService extends BusyAwareService implements OnDestroy {
   }
   //END of members/methods for Telerik Table management/////////////////////
 
+  private _SearchVisualiseData: iSearchVisualise[] = [];
+  public get SearchVisualiseData(): iSearchVisualise[] {
+    return this._SearchVisualiseData;
+  }
+  public set SearchVisualiseData(searches: iSearchVisualise[]) {
+    this._SearchVisualiseData = searches;
+  }
 
   Fetch() {
     this._BusyMethods.push("Fetch");
@@ -206,7 +213,25 @@ export class searchService extends BusyAwareService implements OnDestroy {
     });
   }
 
+  public FetchVisualiseData(searchId: number): Promise<boolean> {
 
+    this._BusyMethods.push("CreateVisualiseData");
+    let body = JSON.stringify({ searchId: searchId });
+
+    return lastValueFrom(this._httpC.post<any[]>(this._baseUrl + 'api/SearchList/CreateVisualiseData', body)).then
+      (result => {
+        this.SearchVisualiseData = result;
+        this.RemoveBusy("CreateVisualiseData");
+        return true;
+
+      },
+        error => {
+          this.RemoveBusy("CreateVisualiseData");
+          this.modalService.GenericError(error);
+          return false;
+        }
+      );
+  }
 
 }
 
@@ -273,6 +298,9 @@ export interface SearchNameUpdate {
   SearchName: string;
 }
 
-
+export interface iSearchVisualise {
+  count: number;
+  range: string;
+}
 
 

@@ -13,6 +13,12 @@
         button.disabled = 'true';
     }
     </script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+
     <style type="text/css">
         .style6
         {
@@ -68,7 +74,44 @@
                 </tr>
             </table>
             <br />
-            <table ID="Table4" border="1" cellpadding="1" cellspacing="0" width="100%">
+            <!-- this layout is for a 844px wide iframe -->
+            <table  cellpadding="1" cellspacing="0" width="100%">
+                <tr>
+                    <td style="width: 16%;"></td>
+                    <td style="text-align:center;width: 30%;">
+                        <asp:Button ID="cmdGoToLoginScreenNew" runat="server" class="btn btn-success"
+                                onclick="cmdGoToLoginScreen_Click" Text="Login" /><br />
+                        <asp:Label ID="lblAccessNew" runat="server" Font-Bold="False"  
+                                Text="Manage your account and reviews"></asp:Label>
+                    </td>
+                    <td style="width: 4%;"></td>
+                    <td style="text-align:center;width: 30%;">
+                        <asp:Button ID="cmdNewAccountScreen0New" runat="server" class="btn btn-primary"
+                            onclick="cmdNewAccountScreen_Click" Text="Create account" Enabled="False" /><br />
+                        <asp:Label ID="lblNewAccountNew" runat="server" Font-Bold="False" 
+                             Text="Create a new account"></asp:Label>
+                    </td>
+                    <td style="width: 20%;"></td>
+                </tr>
+            </table>
+            <hr />
+            <table  cellpadding="1" cellspacing="0" width="100%">
+                <tr>
+                    <td style="text-align:center;width: 30%;">
+                        <asp:Button ID="cmdForgottenPw" runat="server" onclick="lnkbtForgottenpw_Click" 
+                                   Text="Reset password"></asp:Button>
+                    </td>
+                    <td style="text-align:center;width: 37%;">
+                        <asp:Button ID="cmdForgottenUname" runat="server" onclick="lnkbtForgottenUname_Click" 
+                                   Text="Retrieve username" ></asp:Button>
+                    </td>
+                    <td style="text-align:center;width: 34%;">
+                        <asp:Button ID="cmdForgottenToActivate" runat="server" onclick="lnkbtForgottenToActivate_Click" 
+                                   Text="Resend an activation link"></asp:Button>
+                    </td>
+                </tr>
+             </table>
+            <!--<table ID="Table4" border="1" cellpadding="1" cellspacing="0" width="100%">
                 <tr>
                     <td style="background-color: #99ccff; background-image: url('Images/Web2strip3.gif');">
                         
@@ -93,7 +136,7 @@
                                    >Need to activate your account?</asp:LinkButton>&nbsp
                     </td>
                 </tr>
-            </table>
+            </table>-->
             <asp:Panel ID="pnlForgottenPassword" runat="server" Visible="False" 
                 BackColor="#E2E9EF" BorderColor="Black" BorderWidth="1px"><br />
                 <b>Forgotten your password?<br />
@@ -111,7 +154,7 @@
                     ForeColor="#FF3300"></asp:Label>
             </asp:Panel>
             <br /><br />
-                        <table ID="Table5" border="1" cellpadding="1" cellspacing="0" width="100%">
+            <!--<table ID="Table5" border="1" cellpadding="1" cellspacing="0" width="100%">
                 <tr>
                     <td style="background-image: url('Images/Web2strip3.gif');">
 
@@ -125,7 +168,7 @@
                         &nbsp;<br />
                     </td>
                 </tr>
-            </table>
+            </table>-->
             <asp:Label ID="lblNewAccountTest" runat="server" Font-Bold="True" 
                 Text="YOU ARE NOW TESTING THE NEW ACCOUNT FUNCTION   or   " Visible="False"></asp:Label>
             &nbsp;<asp:LinkButton ID="lbGoToSummary" runat="server" 
@@ -199,42 +242,44 @@
                              oncheckedchanged="cbShowPassword_CheckedChanged" Text="Show Password" />
                      </td>
                  </tr>
-                <tr>
+            <!--</table>-->
+            <!--<table ID="Table9" border="1" cellpadding="1" cellspacing="1" width="750">-->
+                <!--<tr>
                     <td class="style8" style="background-color: #E2E9EF; width: 25%;">
                         Please tell us about yourself.</td>
                     <td style="background-color: #FFFF00;" colspan="3">
                         We will <strong>not</strong> pass on this information. We just want to know who 
                         is using EPPI-Reviewer to help us direct its development.</td>
-                </tr>
+                </tr>-->
                 <tr>
                     <td class="style8" style="background-color: #E2E9EF; width: 25%;">
                         What is your area of research</td>
                     <td class="style6" style="width: 25%; background-color: #E2E9EF;">
-                        <asp:DropDownList ID="ddlAreaOfResearch" runat="server" Height="20px" 
-                            Width="95%">
-                            <asp:ListItem Value="Please select..." Selected="True">Please select...</asp:ListItem>
-                            <asp:ListItem>Agriculture Sciences</asp:ListItem>
-                            <asp:ListItem>Biological Sciences</asp:ListItem>
-                            <asp:ListItem>Computer Sciences</asp:ListItem>
+                    <asp:DropDownList ID="ddlAreaOfResearch" class="btn btn-default dropdown-toggle" Width="95%"
+                        runat="server" >
+                            <asp:ListItem Value="Please select...">Please select...</asp:ListItem>
+                            <asp:ListItem Value="Agriculture Sciences">Agriculture Sciences</asp:ListItem>
+                            <asp:ListItem Value="Biological Sciences">Biological Sciences</asp:ListItem>
+                            <asp:ListItem Value="Computer Sciences">Computer Sciences</asp:ListItem>
                             <asp:ListItem Value="Economics">Economics</asp:ListItem>
-                            <asp:ListItem>Education</asp:ListItem>
-                            <asp:ListItem>Engineering</asp:ListItem>
-                            <asp:ListItem>Environmental Sciences</asp:ListItem>
-                            <asp:ListItem>Health Sciences</asp:ListItem>
-                            <asp:ListItem>Medical</asp:ListItem>
-                            <asp:ListItem>Pharmaceutical</asp:ListItem>
-                            <asp:ListItem>Policy research</asp:ListItem>
-                            <asp:ListItem>Social Sciences</asp:ListItem>
+                            <asp:ListItem Value="Education">Education</asp:ListItem>
+                            <asp:ListItem Value="Engineering">Engineering</asp:ListItem>
+                            <asp:ListItem Value="Environmental">Environmental Sciences</asp:ListItem>
+                            <asp:ListItem Value="Health Sciences">Health Sciences</asp:ListItem>
+                            <asp:ListItem Value="Medical">Medical</asp:ListItem>
+                            <asp:ListItem Value="Pharmaceutical">Pharmaceutical</asp:ListItem>
+                            <asp:ListItem Value="Policy research">Policy research</asp:ListItem>
+                            <asp:ListItem Value="Social Sciences">Social Sciences</asp:ListItem>
                             <asp:ListItem Value="Other (please tell us)">Other (please tell us)</asp:ListItem>
-                        </asp:DropDownList>
+            </asp:DropDownList>
                     </td>
                     <td colspan="2" rowspan="3" style="background-color: #E2E9EF; ">
-                        Information / Organisation / Institute / University / Company<br />
+                        Organisation / further information<br />
                         <asp:TextBox ID="tbDescription" runat="server" CssClass="textbox" Rows="4" 
                             TextMode="MultiLine" Width="95%"></asp:TextBox>
                     </td>
                 </tr>
-                <tr>
+                <!--<tr>
                     <td class="style8" style="background-color: #E2E9EF; width: 25%;">
                         Your position/profession</td>
                     <td class="style6" style="width: 25%; background-color: #E2E9EF;">
@@ -251,8 +296,8 @@
                             <asp:ListItem>Other (please tell us)</asp:ListItem>
                         </asp:DropDownList>
                     </td>
-                </tr>
-                <tr>
+                </tr>-->
+                <!--<tr>
                     <td class="style8" style="background-color: #E2E9EF; width: 25%;">
                         How did you hear about EPPI-Reviewer</td>
                     <td class="style6" style="width: 25%; background-color: #E2E9EF;">
@@ -266,7 +311,7 @@
                             <asp:ListItem>Other (please tell us)</asp:ListItem>
                         </asp:DropDownList>
                     </td>
-                </tr>
+                </tr>-->
             </table>
             <asp:Button ID="cmdCreate" runat="server" CssClass="button" 
                 OnClick="cmdCreate_Click" Text="Create" OnClientClick="setTimeout(disableMe, 1);" />
@@ -288,19 +333,19 @@
             <asp:Label ID="lblNewPassword" runat="server" Font-Bold="True" 
                 Text="Passwords must be at least 8 characters and contain and at least one one lower case letter, one upper case letter, one digit and no spaces." 
                 Visible="False" ForeColor="Red"></asp:Label>
-            <p>
+            <!--<p>
                 <b>Username</b><br />
 
                 The username must be at least 4 characters long and unique. Maximum length is 50 
-                characters.</p>
-            <p>
+                characters.</p>-->
+            <!--<p>
                 <b>Email</b><br />
          
                 Must be valid and unique. <br />
             
                 If you previously had an EPPI-Reviewer account (version 3 or 4 or Web) your email address might already be registered.<br />
             
-            
+                
                 If you get a message saying your email address is already in use please contact 
                 us at <a href="mailto:EPPISupport@ucl.ac.uk">EPPISupport@ucl.ac.uk</a>
                         <br /><b>Newsletter</b><br />
@@ -318,7 +363,7 @@
                         information you can uncheck this box
                         <asp:CheckBox ID="cbSendNewsletter" runat="server" Checked="True" 
                             Text=" before creating your account." />
-                </p>
+                </p>-->
                     <p>                            <asp:LinkButton ID="lbLoginScreen" runat="server" 
                                 onclick="lbReturnToLogin_Click">Login screen</asp:LinkButton>
                         </p>
@@ -405,20 +450,26 @@
                 </tr>
             </table>
             <p>
-                <asp:Button ID="cmdLogin" runat="server" CssClass="button" OnClick="cmdLogin_Click"
+                <asp:Button ID="cmdLogin" runat="server" class="btn btn-success" OnClick="cmdLogin_Click"
                 Text="Login" />
                 &nbsp; &nbsp;<asp:Label 
                 ID="lblOutcome" runat="server" 
                 Font-Bold="True" ForeColor="Red"></asp:Label>
             </p>
             <p>
-                <asp:LinkButton ID="lnkbtForgottenPw1" runat="server" onclick="lnkbtForgottenpw_Click" 
-                                   >Forgot your Password?</asp:LinkButton>&nbsp
-                                   <asp:LinkButton ID="lnkbtForgottenUname1" runat="server" onclick="lnkbtForgottenUname_Click" 
-                                   >Forgot your Username?</asp:LinkButton>&nbsp
-                                   <asp:LinkButton ID="lnkbtForgottenToActivate1" runat="server" onclick="lnkbtForgottenToActivate_Click" 
-                                   >Need to activate your account?</asp:LinkButton>&nbsp
-                                   </p>
+                <asp:Button ID="cmdForgottenPw1" runat="server" onclick="lnkbtForgottenpw_Click" 
+                    Text="Reset password"></asp:Button>&nbsp
+                <asp:Button ID="cmdForgottenUname1" runat="server" onclick="lnkbtForgottenUname_Click" 
+                    Text="Retrieve username"></asp:Button>&nbsp
+                <asp:Button ID="cmdForgottenToActivate1" runat="server" onclick="lnkbtForgottenToActivate_Click" 
+                    Text="Resend an activation link"></asp:Button>
+                <!--<asp:LinkButton ID="lnkbtForgottenPw1" runat="server" onclick="lnkbtForgottenpw_Click" 
+                    >Forgot your Password?</asp:LinkButton>-->&nbsp
+                <!--<asp:LinkButton ID="lnkbtForgottenUname1" runat="server" onclick="lnkbtForgottenUname_Click" 
+                    >Forgot your Username?</asp:LinkButton>-->&nbsp
+                <!--<asp:LinkButton ID="lnkbtForgottenToActivate1" runat="server" onclick="lnkbtForgottenToActivate_Click" 
+                    >Need to activate your account?</asp:LinkButton>-->&nbsp
+            </p>
             <asp:Panel ID="pnlSendPassword" runat="server" Visible="False">
                 <b>Forgotten you password?<br />
                 </b>Please enter you username and email. If your username and email match our 
@@ -457,7 +508,7 @@
                         <asp:Button ID="btForgottenUnameEmailCreate" runat="server" 
                              Text="Retrieve Username" onclick="btForgottenUnameEmailCreate_Click" />
                         <asp:Button ID="btForgottenToActivateLinkCreate" runat="server" 
-                             Text="Send Activation Message" 
+                             Text="Resend Activation Link" 
                             onclick="btForgottenToActivateLinkCreate_Click" />
                     </asp:TableCell>
                 </asp:TableRow>

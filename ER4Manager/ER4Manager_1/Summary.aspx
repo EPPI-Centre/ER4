@@ -5,8 +5,10 @@
         <telerik:RadWindowManager ID="RadWindowManager1" runat="server" EnableShadow="true">
         </telerik:RadWindowManager>
 
-
-
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
         <b>Your account summary&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </b>
         Please note that all dates are dd/mm/yyyy
@@ -17,7 +19,7 @@
             EnableModelValidation="True">
             <Columns>
                 <asp:BoundField DataField="CONTACT_ID"
-                    HeaderText="ContactID">
+                    HeaderText="ID">
                     <HeaderStyle BackColor="#B6C6D6" />
                 </asp:BoundField>
                 <asp:BoundField HeaderText="Name" DataField="CONTACT_NAME">
@@ -152,9 +154,11 @@
 
 
         <asp:Panel ID="pnlCreditPurchases" runat="server" Visible="True">
-            <b>Your credit purchases&nbsp;&nbsp;&nbsp; -&nbsp;&nbsp;&nbsp; If needed, you can 
-                <asp:LinkButton ID="lbMoveCredit" runat="server" OnClick="lbMoveCredit_Click">transfer</asp:LinkButton> credit between purchases.</b>
-
+            <b>Your credit purchases</b>
+            <asp:Label ID="lblCreditTransferInstructions1" runat="server" Text="" Visible="False" Font-Bold="true"></asp:Label>
+                <asp:LinkButton ID="lbMoveCredit" runat="server" OnClick="lbMoveCredit_Click" Visible="false">transfer</asp:LinkButton>
+            <asp:Label ID="lblCreditTransferInstructions2" runat="server" Text="" Visible="False"  Font-Bold="true"></asp:Label>
+            
             <asp:Panel ID="pnlMoveCredit" runat="server" BackColor="#E2E9EF" BorderStyle="Solid" BorderWidth="1px" Visible="False">               
                 Enter the amount to transfer, select the source and destination purchase ID and click Transfer.<br />
                 Transfer (£)&nbsp;<asp:TextBox ID="tbAmountToTransfer" runat="server" CssClass="textbox" Width="40px"></asp:TextBox>
@@ -206,36 +210,43 @@
                 <asp:Label ID="lblCreditPurchaseID" runat="server" Text="N/A" Font-Bold="True"></asp:Label>
                 &nbsp;&nbsp;
                 <asp:LinkButton ID="lbHideHistory" runat="server" OnClick="lbHideHistory_Click">(hide)</asp:LinkButton>
-                <asp:GridView ID="gvCreditHistory" runat="server" CssClass="grviewFixedWidth"
-                AutoGenerateColumns="False" DataKeyNames="CREDIT_EXTENSION_ID"               
-                Width="800px" EnableModelValidation="True">
-                <Columns>
-                    <asp:BoundField DataField="CREDIT_EXTENSION_ID" HeaderText="ExtensionID" Visible="false">
+                <asp:Label ID="lblRTCError" runat="server" style="padding: 2px; margin:1px; display:inline-block;" Text="There was an error" Font-Bold="True" Visible="false" BackColor="#FFCC99" BorderColor="Red"></asp:Label>
+                &nbsp;<asp:GridView ID="gvCreditHistory" runat="server" AutoGenerateColumns="False" CssClass="grviewFixedWidth" 
+                    DataKeyNames="CREDIT_EXTENSION_ID" EnableModelValidation="True" 
+                    onRowDataBound="gvCreditHistory_RowDataBound" Width="800px" FooterStyle-BorderStyle="None">
+                    <Columns>
+                        <asp:BoundField DataField="CREDIT_EXTENSION_ID" HeaderText="ExtensionID" Visible="false">
                         <HeaderStyle BackColor="#B6C6D6" />
-                    </asp:BoundField>
-                    <asp:BoundField DataField="TYPE" HeaderText="Type">
+                        </asp:BoundField>
+                        <asp:BoundField DataField="TYPE" HeaderText="Type">
                         <HeaderStyle BackColor="#B6C6D6" />
-                    </asp:BoundField>
-                    <asp:BoundField DataField="ID" HeaderText="ID">
+                        </asp:BoundField>
+                        <asp:BoundField DataField="ID" HeaderText="ID">
                         <HeaderStyle BackColor="#B6C6D6" />
-                    </asp:BoundField>
-                    <asp:BoundField DataField="NAME" HeaderText="Name">
+                        </asp:BoundField>
+                        <asp:BoundField DataField="NAME" HeaderText="Name">
                         <HeaderStyle BackColor="#B6C6D6" />
-                    </asp:BoundField>
-                    <asp:BoundField DataField="DATE_EXTENDED" HeaderText="Date extended">
+                        </asp:BoundField>
+                        <asp:BoundField DataField="DATE_EXTENDED" HeaderText="Date extended">
                         <HeaderStyle BackColor="#B6C6D6" />
-                    </asp:BoundField>
-                    <asp:BoundField DataField="NUMBER_MONTHS" HeaderText="Months">
+                        </asp:BoundField>
+                        <asp:TemplateField HeaderText="Months applied">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                            <ItemTemplate>
+                                <asp:Label ID="lblNumberMonths" runat="server" Visible="true"></asp:Label>
+                                <asp:LinkButton ID="lbReturnToCreditMonths" runat="server" OnClick="lbReturnToCreditMonths_Click" Visible="true"
+                                    Enabled="false"></asp:LinkButton>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:BoundField DataField="COST" HeaderText="Cost (£)">
                         <HeaderStyle BackColor="#B6C6D6" />
-                    </asp:BoundField>
-                    <asp:BoundField DataField="COST" HeaderText="Cost (£)">
-                        <HeaderStyle BackColor="#B6C6D6" />
-                    </asp:BoundField>
-
-                </Columns>
-            </asp:GridView>
+                        </asp:BoundField>
+                        <asp:BoundField DataField="NUMBER_MONTHS" Visible="true">
+                        </asp:BoundField>
+                    </Columns>
+                </asp:GridView>
+                <asp:Label ID="lblReturnToCreditMsg" runat="server" Visible="false"></asp:Label>
                 
-                <br />
             </asp:Panel>
             <br />
         </asp:Panel>
@@ -267,12 +278,13 @@
 
         <br />
             <b>Accounts you have purchased</b>
+        <asp:Label ID="lblActivateInstructions" runat="server" Text="" Visible="False"></asp:Label><br />
         <asp:GridView ID="gvAccountPurchases" runat="server" CssClass="grviewFixedWidth"
             AutoGenerateColumns="False" DataKeyNames="CONTACT_ID"
             OnRowCommand="gvAccountPurchases_RowCommand" OnRowEditing="gvReviewer_RowEditing"
             Width="800px" EnableModelValidation="True">
             <Columns>
-                <asp:BoundField DataField="CONTACT_ID" HeaderText="ContactID">
+                <asp:BoundField DataField="CONTACT_ID" HeaderText="ID">
                     <HeaderStyle BackColor="#B6C6D6" />
                 </asp:BoundField>
                 <asp:BoundField DataField="CONTACT_NAME" HeaderText="Name">
@@ -290,7 +302,10 @@
                 <asp:BoundField DataField="EXPIRY_DATE" HeaderText="Expiry date">
                     <HeaderStyle BackColor="#B6C6D6" />
                 </asp:BoundField>
-                <asp:ButtonField CommandName="EDIT" HeaderText="Edit" Text="Activate">
+                <asp:ButtonField CommandName="EDIT" HeaderText="New" Text="Activate">
+                    <HeaderStyle BackColor="#B6C6D6" />
+                </asp:ButtonField>
+                <asp:ButtonField CommandName="TRANSFER" HeaderText="Existing" Text="Transfer">
                     <HeaderStyle BackColor="#B6C6D6" />
                 </asp:ButtonField>
             </Columns>
@@ -389,6 +404,52 @@
                 The link will remain active for
                 <strong>14 days</strong>, you can generate a new &quot;activate account&quot; email at any 
                 time, before or after the 14 days deadline.
+        </asp:Panel>
+
+        <asp:Panel ID="pnlActivateIntoExistingAccount" runat="server" Visible="False"
+            Style="margin-top: 0px">
+            <table border="1" cellpadding="1" cellspacing="1" width="500" style="background-color: #B6C6E6;">
+                <tr>
+                    <td>
+                        <b>Rather than activating the new account (ID:</b>
+                        <asp:Label ID="lblSourceGhostAccountID" runat="server" Font-Bold="True" Text=""></asp:Label><b>) 
+                        you can transfer the</b>
+                        <asp:Label ID="lblMonthsCredit" runat="server" Font-Bold="True" Text=""></asp:Label>
+                        <b>month(s) credit to an exsting account</b> (1 month of credit is free, so
+                        <asp:Label ID="lblMonthsCredit2" runat="server" Text=""></asp:Label> month(s) were paid for).
+                        <br />
+                        Enter the email of the existing account and then click on the "Transfer Credit" button.
+
+                    </td>
+                    <td>
+                        
+
+                    </td>
+                </tr>
+            </table>
+            <table border="1" cellpadding="1" cellspacing="1" width="500" style="background-color: #B6C6E6;">
+                <tr>
+                    <td style="background-color: #B6C6D6; width: 130px">Email</td>
+                    <td style="width: 60%">
+                        <asp:TextBox ID="tbTransferEmail" runat="server" CssClass="textbox"
+                            Width="95%"></asp:TextBox>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="background-color: #B6C6D6; width: 160px">Confirm email</td>
+                    <td style="width: 60%">
+                        <asp:TextBox ID="tbTransferEmailConfirmation" runat="server" CssClass="textbox"
+                            Width="95%"></asp:TextBox>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                    <asp:Button runat="server" ID="cmdTransferAccountPurchase" Text="Transfer Credit" CssClass="button"
+                        OnClick="cmdTransferAccountPurchase_Click" />
+                        <asp:Label ID="lblTransferErrorMsg" runat="server" style="padding: 2px; margin:1px; display:inline-block;" Text="" Font-Bold="True" Visible="false" BackColor="#FFCC99" BorderColor="Red"></asp:Label>                        
+                    </td>                   
+                </tr>
+            </table>
         </asp:Panel>
 
         <asp:Panel ID="pnlTransferFromGhostIsDone" runat="server" Visible="False" EnableViewState="false"

@@ -3,6 +3,11 @@
 <%@ Register Assembly="Telerik.Web.UI" Namespace="Telerik.Web.UI" TagPrefix="Telerik" %>
 <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="Server">
 
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
     <script type="text/javascript">
 
 
@@ -38,7 +43,7 @@
                 DataKeyNames="REVIEW_ID" OnRowCommand="gvReviewCochrane_RowCommand" Width="800px"
                 EnableModelValidation="True">
                 <Columns>
-                    <asp:BoundField DataField="REVIEW_ID" HeaderText="ReviewID">
+                    <asp:BoundField DataField="REVIEW_ID" HeaderText="ID">
                         <HeaderStyle BackColor="#B6C6D6" />
                     </asp:BoundField>
                     <asp:BoundField DataField="REVIEW_NAME" HeaderText="Name of review">
@@ -174,7 +179,7 @@
                         OnRowCommand="gvMembersOfReviewCochrane_RowCommand"
                         OnRowDataBound="gvMembersOfReviewCochrane_RowDataBound" Width="800px">
                         <Columns>
-                            <asp:BoundField DataField="CONTACT_ID" HeaderText="Contact ID">
+                            <asp:BoundField DataField="CONTACT_ID" HeaderText="ID">
                                 <HeaderStyle BackColor="#B6C6D6" />
                             </asp:BoundField>
                             <asp:BoundField DataField="CONTACT_NAME" HeaderText="Reviewer">
@@ -306,7 +311,7 @@
                 DataKeyNames="REVIEW_ID" OnRowCommand="gvReviewCochraneFull_RowCommand" Width="800px"
                 EnableModelValidation="True">
                 <Columns>
-                    <asp:BoundField DataField="REVIEW_ID" HeaderText="ReviewID">
+                    <asp:BoundField DataField="REVIEW_ID" HeaderText="ID">
                         <HeaderStyle BackColor="#B6C6D6" />
                     </asp:BoundField>
                     <asp:BoundField DataField="REVIEW_NAME" HeaderText="Name of review">
@@ -446,7 +451,7 @@
                         OnRowCommand="gvMembersOfReviewCochraneFull_RowCommand"
                         OnRowDataBound="gvMembersOfReviewCochraneFull_RowDataBound" Width="800px">
                         <Columns>
-                            <asp:BoundField DataField="CONTACT_ID" HeaderText="Contact ID">
+                            <asp:BoundField DataField="CONTACT_ID" HeaderText="ID">
                                 <HeaderStyle BackColor="#B6C6D6" />
                             </asp:BoundField>
                             <asp:BoundField DataField="CONTACT_NAME" HeaderText="Reviewer">

@@ -15,6 +15,13 @@ using System.IO;
 using System.Data.SqlClient;
 using System.Text.RegularExpressions;
 using Telerik.Web.UI.ExportInfrastructure;
+using Telerik.Web.UI.PivotGrid.Core.Fields;
+using Telerik.Web.UI.com.hisoftware.api2;
+using System.Runtime.InteropServices.ComTypes;
+using Telerik.Web.UI;
+using System.Security.Cryptography;
+using System.Security.Principal;
+using Telerik.Web.UI.ImageEditor;
 
 public partial class Summary : System.Web.UI.Page
 {
@@ -46,7 +53,7 @@ public partial class Summary : System.Web.UI.Page
                 }
 
                 buildContactGrid();
-                buildOrganisationGrid();
+                //buildOrganisationGrid();
                 buildCreditPurchaseGrid();
                 if (Utils.GetSessionString("EnableShopDebit") == "True")
                 {
@@ -222,6 +229,11 @@ public partial class Summary : System.Web.UI.Page
     private void buildCreditPurchaseGrid()
     {
         // adjust fn_CreditRemainingDetails to handle credit transfers
+        lblCreditTransferInstructions1.Visible = false;
+        lblCreditTransferInstructions1.Text = "&nbsp;&nbsp;&nbsp; -&nbsp;&nbsp;&nbsp; If needed, you can";
+        lblCreditTransferInstructions2.Visible = false;
+        lblCreditTransferInstructions2.Text = "credit between purchases.";
+        lbMoveCredit.Visible = false;
 
         DateTime dayPurchased;
         string remaining = "";
@@ -252,6 +264,14 @@ public partial class Summary : System.Web.UI.Page
         idr1.Close();
         gvCreditPurchases.DataSource = dt2;
         gvCreditPurchases.DataBind();
+
+        if (dt2.Rows.Count > 1)
+        {
+            // with 2 or more purchases you can now transfer between purchases
+            lblCreditTransferInstructions1.Visible = true;
+            lblCreditTransferInstructions2.Visible = true;
+            lbMoveCredit.Visible = true;
+        }
 
         if (dt2.Rows.Count == 0)
             lblNoCreditPurchases.Visible = true;
@@ -304,10 +324,13 @@ public partial class Summary : System.Web.UI.Page
 
     private void buildContactPurchasesGrid()
     {
+        lblActivateInstructions.Visible = false;
+        lblActivateInstructions.Text = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Activate</b> for a new account&nbsp;&nbsp;&nbsp;or &nbsp; <b>Transfer</b> to an existing account";
         DateTime dayCreated;
         DateTime dayExpires;
         DateTime lastLogin;
         DateTime today = DateTime.Today;
+        string transferredToId = "";
         DataTable dt = new DataTable();
         System.Data.DataRow newrow;
 
@@ -333,6 +356,9 @@ public partial class Summary : System.Web.UI.Page
                 newrow["CONTACT_NAME"] = "Not set up";
             else
                 newrow["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString();
+
+            if (idr["CONTACT_NAME"].ToString().Contains("Transferred to ID:"))
+                transferredToId = idr["CONTACT_NAME"].ToString().Substring(idr["CONTACT_NAME"].ToString().IndexOf(":"));
 
             if ((idr["EMAIL"].ToString() == null) || (idr["EMAIL"].ToString() == ""))
                 newrow["EMAIL"] = "";
@@ -374,6 +400,11 @@ public partial class Summary : System.Web.UI.Page
             {
                 newrow["EXPIRY_DATE"] = "Not activated: " + idr["MONTHS_CREDIT"].ToString() + " months credit";
             }
+            else if ((idr["EXPIRY_DATE"].ToString() == "") && (int.Parse(idr["MONTHS_CREDIT"].ToString()) < 0)
+                && idr["EMAIL"].ToString() == "")
+            {
+                newrow["EXPIRY_DATE"] = "Transferred " + idr["MONTHS_CREDIT"].ToString().Remove(0, 1) + " months";
+            }
             else if (newrow["IS_FULLY_ACTIVE"].ToString() == "False" && newrow["IS_STALE_AGHOST"].ToString() == "False")
             {
                 newrow["EXPIRY_DATE"] = "Invitation sent: " + idr["MONTHS_CREDIT"].ToString() + " months credit";
@@ -388,6 +419,13 @@ public partial class Summary : System.Web.UI.Page
 
         gvAccountPurchases.DataSource = dt;
         gvAccountPurchases.DataBind();
+
+        if (dt.Rows.Count > 0)
+        {
+            lblActivateInstructions.Visible = true;
+        }
+
+
 
         if (dt.Rows.Count == 0)
             lblOtherPurchasedAccounts.Visible = true;
@@ -407,7 +445,12 @@ public partial class Summary : System.Web.UI.Page
                 {
                     gvAccountPurchases.Rows[i].Cells[5].BackColor = System.Drawing.Color.Yellow;
                 }
-
+                if (gvAccountPurchases.Rows[i].Cells[5].Text.Contains("Transferred"))
+                {
+                    gvAccountPurchases.Rows[i].Cells[5].BackColor = System.Drawing.Color.Aquamarine;
+                    gvAccountPurchases.Rows[i].Cells[6].Enabled = false;
+                    gvAccountPurchases.Rows[i].Cells[7].Enabled = false;
+                }
                 if (gvAccountPurchases.Rows[i].Cells[5].Text.Contains("Invitation sent:"))
                 {
                     gvAccountPurchases.Rows[i].Cells[5].BackColor = System.Drawing.Color.DarkCyan;
@@ -441,6 +484,7 @@ public partial class Summary : System.Web.UI.Page
                     if (dt.Rows[i].ItemArray[6].ToString() == "True")
                     {
                         gvAccountPurchases.Rows[i].Cells[6].Enabled = false;
+                        gvAccountPurchases.Rows[i].Cells[7].Enabled = false;
                     }
                 }
 
@@ -452,14 +496,27 @@ public partial class Summary : System.Web.UI.Page
         pnlActivateGhostForm.Visible = false;
         pnlActivateGhostEmailinUse.Visible = false;
         pnlActivateGhostIsDone.Visible = false;
+        pnlActivateIntoExistingAccount.Visible = false;
         int index = Convert.ToInt32(e.CommandArgument);
         string ContactID = (string)gvAccountPurchases.DataKeys[index].Value;
+        string monthsCredit = gvAccountPurchases.Rows[index].Cells[5].Text;
         switch (e.CommandName)
         {
             case "EDIT":
                 contactData(ContactID, true);
                 pnlActivateGhostForm.Visible = true;
                 pnlContactDetails.Visible = false;
+                break;
+            case "TRANSFER":
+                //Not activated: 4 months credit
+                monthsCredit = monthsCredit.Remove(0, monthsCredit.IndexOf(':') + 1).Trim();
+                monthsCredit = monthsCredit.Remove(monthsCredit.IndexOf(' ')).Trim();
+                monthsCredit = (int.Parse(monthsCredit) - 1).ToString();
+                lblMonthsCredit.Text = monthsCredit;
+                lblMonthsCredit2.Text = monthsCredit;
+                lblSourceGhostAccountID.Text = ContactID;
+                pnlActivateIntoExistingAccount.Visible = true;
+                //pnlContactDetails.Visible = false;
                 break;
             case "CANCEL1":
                 pnlConfirmRevokeGhostActivation.Visible = true;
@@ -948,10 +1005,25 @@ public partial class Summary : System.Web.UI.Page
             case "HISTORY":
                 pnlHistory.Visible = true;
                 DateTime dateExtended;
+                DateTime dateExtendedPlus2Days;
+                DateTime now = DateTime.Today;
                 lblCreditPurchaseID.Text = creditPurchaseID;
                 string sourceID = "";
                 string destinationID = "";
                 string amount = "";
+                string numberOfMonthsExtended = "";
+                string numberOfMonthsHolder = "";
+                string nameSeenLastTime = "";
+                string nameSeenThisTime = "";
+
+                lblReturnToCreditMsg.Text = "You can <b>Return-To-Credit (RTC)</b> unused months for the 'last' extension of a review or account.<br/>" +
+                    "<b>Note:</b> The 'last' extension for a review or account could have been made using a credit purchase other than your own so it may not be visible here.<br/>";
+
+                DateTime trueExpiryDate;
+                DateTime loggedExpiryDate;
+                DateTime startingPoint;
+
+                int LastAccountReviewRow = 0;
 
                 DataTable dt = new DataTable();
                 System.Data.DataRow newrow;
@@ -961,8 +1033,13 @@ public partial class Summary : System.Web.UI.Page
                 dt.Columns.Add(new DataColumn("ID", typeof(string)));
                 dt.Columns.Add(new DataColumn("NAME", typeof(string)));
                 dt.Columns.Add(new DataColumn("DATE_EXTENDED", typeof(string)));
-                dt.Columns.Add(new DataColumn("NUMBER_MONTHS", typeof(string)));
+                dt.Columns.Add(new DataColumn("DATE_EXTENDED_ASDATE", typeof(DateTime)));
+                dt.Columns.Add(new DataColumn("NUMBER_MONTHS", typeof(string))); // this is a tmp data holder that is not visible in the table
                 dt.Columns.Add(new DataColumn("COST", typeof(string)));
+
+                dt.Columns.Add(new DataColumn("tv_tb_contact_or_tb_review_expiry_date", typeof(string))); // this is a tmp data holder that is not visible in the table
+                dt.Columns.Add(new DataColumn("tv_new_date", typeof(string))); // this is a tmp data holder that is not visible in the table
+                dt.Columns.Add(new DataColumn("tv_months_extended", typeof(string))); // this is a tmp data holder that is not visible in the table
 
                 bool isAdmDB = true;
                 IDataReader idr = Utils.GetReader(isAdmDB, "st_CreditHistoryByPurchase",
@@ -971,11 +1048,11 @@ public partial class Summary : System.Web.UI.Page
                 {
                     newrow = dt.NewRow();
                     newrow["CREDIT_EXTENSION_ID"] = idr["tv_credit_extension_id"].ToString();
-                    newrow["ID"] = idr["tv_id_extended"].ToString();
+
 
                     if (idr["tv_id_extended"].ToString() == "0")
                     {
-                        // 000000130000001400000010
+                        // 000000130000001400000010  (credit transfer)
                         sourceID = idr["tv_log_notes"].ToString().Substring(0, 8).TrimStart('0');
                         destinationID = idr["tv_log_notes"].ToString().Substring(8, 8).TrimStart('0');
                         amount = idr["tv_log_notes"].ToString().Substring(16, 8).TrimStart('0');
@@ -991,30 +1068,235 @@ public partial class Summary : System.Web.UI.Page
                             newrow["COST"] = amount;
                         }
                     }
-                    else
-                    {    
+                    else if (idr["tv_type_extended_id"].ToString() == "-1")
+                    {
+                        // this a robot using credit
                         newrow["NAME"] = idr["tv_name"].ToString();
                         newrow["COST"] = idr["tv_cost"].ToString();
+
+                    }
+                    else
+                    {
+                        // an account or review
+                        // we will go through the table and any "last" row in a group that could be eligible for an RTC will be marked as such
+
+                        
+
+                        // not for table display but for later calculations
+                        newrow["tv_tb_contact_or_tb_review_expiry_date"] = idr["tv_tb_contact_or_tb_review_expiry_date"].ToString();
+                        newrow["tv_new_date"] = idr["tv_new_date"].ToString();
+                        newrow["tv_months_extended"] = idr["tv_months_extended"].ToString();
+
+
+                        newrow["NUMBER_MONTHS"] = idr["tv_months_extended"].ToString();
+
+
+                        // reviews and accounts are loaded in groups so we are looking for the last iteration in a group
+                        // Cases to consider
+                        // 1 - the name changes so we want to know if it is last iteration in the group
+                        // 2 - we are on the last name or there is only one name in the entire table
+                        //     - we won't know this case until we have finished loading the table
+
+                        // Case 1
+                        if (nameSeenThisTime == "")
+                        {
+                            nameSeenThisTime = idr["tv_name"].ToString();
+                            nameSeenLastTime = idr["tv_name"].ToString();
+                        }
+                        nameSeenThisTime = idr["tv_name"].ToString();
+                        if (nameSeenThisTime != nameSeenLastTime)
+                        {                       
+                            
+                            // name has changed so we need to look at the previous row. 
+                            // - first, we need to see if it was the most recent extension for that review or account
+                            trueExpiryDate = Convert.ToDateTime(dt.Rows[LastAccountReviewRow]["tv_tb_contact_or_tb_review_expiry_date"].ToString());
+                            //new date can be empty (null in the DB) for un-activated accounts/reviews with their own "months credit".
+                            if (dt.Rows[LastAccountReviewRow]["tv_new_date"].ToString() == "") loggedExpiryDate = DateTime.MinValue;
+                            else loggedExpiryDate = Convert.ToDateTime(dt.Rows[LastAccountReviewRow]["tv_new_date"].ToString());
+                            nameSeenLastTime = nameSeenThisTime;
+                            if (loggedExpiryDate > trueExpiryDate)
+                            {
+                                // something is messed up in the expiry log
+                                // the true loggedExpiryDate should never be further into the future than the trueExpiryDate
+                            }
+                            else if (loggedExpiryDate == trueExpiryDate)
+                            {
+                                // this extension is the most recent so see if there any months to give back
+
+                                // first make sure this wasn't a previous RTC (i.e. doesn't have a negative months extended
+                                if (!dt.Rows[LastAccountReviewRow]["tv_months_extended"].ToString().Contains("-"))
+                                {
+                                    // there are a couple of scenarios to consider
+                                    // 1 - it has only been 2 days since applying the credit, so they can get back all of the credit
+                                    dateExtended = Convert.ToDateTime(dt.Rows[LastAccountReviewRow]["DATE_EXTENDED"].ToString());
+                                    dateExtendedPlus2Days = dateExtended.AddDays(2);
+                                    if (now <= dateExtendedPlus2Days)
+                                    {
+                                        if (dt.Rows[LastAccountReviewRow]["tv_months_extended"].ToString() != "0")
+                                        {
+                                            // we can pull it all back. Put the number of months in the hidden column
+                                            dt.Rows[LastAccountReviewRow]["NUMBER_MONTHS"] = dt.Rows[LastAccountReviewRow]["NUMBER_MONTHS"] +
+                                                "RTC" + dt.Rows[LastAccountReviewRow]["tv_months_extended"].ToString();
+                                        }
+                                    }
+                                    // 2 - check if there are "some" unused months
+                                    else if (trueExpiryDate > now)
+                                    {
+                                        // it hasn't expired yet so figure out how many months we can get back
+                                        numberOfMonthsExtended = dt.Rows[LastAccountReviewRow]["tv_months_extended"].ToString();
+                                        startingPoint = trueExpiryDate.AddMonths(-int.Parse(numberOfMonthsExtended));
+                                        int months = 0;
+
+                                        if (now > startingPoint.AddDays(-2))
+                                        {
+                                            // calulated starting point was before 'now' so we want to 'now' to be the starting 
+                                            startingPoint = now;
+                                        }
+
+                                        for (int i = 1; ; ++i)
+                                        {
+                                            // using the 2 grace days again so there really is a visual difference
+                                            // the "starting point" is the expiry date - the number of months applied
+                                            if (startingPoint.AddMonths(i).AddDays(-2) <= trueExpiryDate)
+                                            {
+                                                months = i;
+                                                dt.Rows[LastAccountReviewRow]["NUMBER_MONTHS"] = numberOfMonthsExtended +
+                                                    "RTC" + months.ToString();
+                                                if (int.Parse(numberOfMonthsExtended) == i)
+                                                {
+                                                    break;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                // there must be an extension from a different credit purchase that is controlling the trueExpiryDate
+                            }
+                        }
+
+                        newrow["NAME"] = idr["tv_name"].ToString();
+                        newrow["COST"] = idr["tv_cost"].ToString();
+
+                        LastAccountReviewRow = dt.Rows.Count;
+
                     }
                     newrow["TYPE"] = idr["tv_type_extended_name"].ToString();
 
-
-
                     dateExtended = Convert.ToDateTime(idr["tv_date_extended"].ToString());
                     newrow["DATE_EXTENDED"] = dateExtended.ToString("dd MMM yyyy");
-                    //newrow["DATE_EXTENDED"] = idr["tv_date_extended"].ToString();
+                    newrow["DATE_EXTENDED_ASDATE"] = dateExtended;
 
-                    newrow["NUMBER_MONTHS"] = idr["tv_months_extended"].ToString();
-                    
+                    numberOfMonthsExtended = idr["tv_months_extended"].ToString();
+                    if (numberOfMonthsExtended == "")
+                    {
+                        numberOfMonthsExtended = "0";
+                    }
+                    newrow["ID"] = idr["tv_id_extended"].ToString();
                     dt.Rows.Add(newrow);
-
                 }
                 idr.Close();
 
+                // we are done reading data. check if the last row should have the RTC link (it needs to be a Review or Account)
+                if (
+                    dt.Rows.Count > 0 
+                    && ( 
+                        (dt.Rows[dt.Rows.Count - 1]["TYPE"].ToString() == "Account") || 
+                        (dt.Rows[dt.Rows.Count - 1]["TYPE"].ToString() == "Review")
+                        )
+                    )
+                {                   
+                    trueExpiryDate = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["tv_tb_contact_or_tb_review_expiry_date"].ToString());
+
+                    if (dt.Rows[dt.Rows.Count - 1]["tv_new_date"].ToString() == "") loggedExpiryDate = DateTime.MinValue;
+                    else loggedExpiryDate = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["tv_new_date"].ToString());
+
+                    if (loggedExpiryDate > trueExpiryDate)
+                    {
+                        // Something is messed up in the expiry log.
+                        // The true loggedExpiryDate should never be further into the future than the trueExpiryDate.
+                        // This check is just for debugging
+                    }
+                    else if (loggedExpiryDate == trueExpiryDate)
+                    {
+                        // first make sure this wasn't a previous RTC (i.e. doesn't have a negative months extended
+                        if (!dt.Rows[dt.Rows.Count - 1]["tv_months_extended"].ToString().Contains("-"))
+                        { 
+                            // this extension is the most recent so see if there any months to give back
+
+                            // there are a couple of scenarios to consider
+                            // 1 - it has only been 2 days since applying the credit, so they can get back all of the credit
+                            dateExtended = Convert.ToDateTime(dt.Rows[dt.Rows.Count - 1]["DATE_EXTENDED"].ToString());
+                            dateExtendedPlus2Days = dateExtended.AddDays(2);
+                            if (now <= dateExtendedPlus2Days)
+                            {
+                                if (dt.Rows[dt.Rows.Count - 1]["tv_months_extended"].ToString() != "0")
+                                {
+                                    // we can pull it all back. Put the number of months in the hidden column
+                                    dt.Rows[dt.Rows.Count - 1]["NUMBER_MONTHS"] = dt.Rows[dt.Rows.Count - 1]["NUMBER_MONTHS"] +
+                                    "RTC" + dt.Rows[dt.Rows.Count - 1]["tv_months_extended"].ToString();
+                                }
+                            }
+                            // 2 - check if there are "some" unused months
+                            else if (trueExpiryDate > now)
+                            {
+                                // it hasn't expired yet so figure out how many months we can get back
+                                numberOfMonthsExtended = dt.Rows[dt.Rows.Count - 1]["tv_months_extended"].ToString();
+                                startingPoint = trueExpiryDate.AddMonths(-int.Parse(numberOfMonthsExtended));
+                                int months = 0;
+
+                                if (now > startingPoint.AddDays(-2))
+                                {
+                                    // calulated starting point was before 'now' so we want to 'now' to be the starting 
+                                    startingPoint = now;
+                                }
+
+                                for (int i = 1; ; ++i)
+                                {
+                                    // using the 2 grace days again so there really is a visual difference
+                                    // the "starting point" is the expiry date minus the number of months applied
+                                    if (startingPoint.AddMonths(i).AddDays(-2) <= trueExpiryDate)
+                                    {
+                                        months = i;
+                                        dt.Rows[dt.Rows.Count - 1]["NUMBER_MONTHS"] = numberOfMonthsExtended +
+                                            "RTC" + months.ToString();
+                                        if (int.Parse(numberOfMonthsExtended) == i)
+                                        {
+                                            break;
+                                        }
+                                    }
+                                    else { break; }
+                                }
+                            }
+                            else
+                            {
+                                // there must be an extension from a different credit purchase that is controlling the trueExpiryDate
+                            }
+                        }
+                    }
+
+                }
+                dt.DefaultView.Sort = "DATE_EXTENDED_ASDATE ASC";
                 gvCreditHistory.DataSource = dt;
                 gvCreditHistory.DataBind();
 
-                break;
+                if (gvCreditHistory.Rows.Count > 0)
+                {                                     
+                    lblReturnToCreditMsg.Visible = true;
+                }
+                else
+                {
+                    lblReturnToCreditMsg.Visible = false;
+                }
+
+                    break;
+
             default:
                 break;
         }
@@ -1034,6 +1316,127 @@ public partial class Summary : System.Web.UI.Page
             //LinkButton lb = (LinkButton)(e.Row.Cells[2].Controls[0]);
             //lb.Attributes.Add("onclick", "if (confirm('Are you sure you want to remove yourself from this organisation?') == false) return false;");
         }
+    }
+
+
+    protected void gvCreditHistory_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            Label lblNumberMonths = (Label)e.Row.FindControl("lblNumberMonths");
+            LinkButton lbReturnToCreditMonths = (LinkButton)e.Row.FindControl("lbReturnToCreditMonths");
+            string monthsColumn = "";
+
+            // get what is in column 7
+            monthsColumn = e.Row.Cells[7].Text;
+
+            if (monthsColumn.Contains("RTC"))
+            {
+                lblNumberMonths.Text = monthsColumn.Remove(monthsColumn.IndexOf("R"));
+                // there is some months that can be returned for credit
+                string numberMonths = monthsColumn.Remove(0, monthsColumn.IndexOf("C") + 1);
+                lbReturnToCreditMonths.Text = "RTC " + monthsColumn.Remove(0, monthsColumn.IndexOf("C")+1) + " months";
+                lbReturnToCreditMonths.Visible = true;
+                lbReturnToCreditMonths.Enabled = true;
+                lbReturnToCreditMonths.Attributes.Add("onclick", "if (confirm('Are you sure you want to return " + numberMonths + " month(s) to your credit purchae?') == false) return false;");
+            }
+            else
+            {
+                lblNumberMonths.Text = monthsColumn;
+                lbReturnToCreditMonths.Enabled = true;
+                lbReturnToCreditMonths.Visible = false;
+            }
+
+            if ((lblNumberMonths.Text == "0") &&
+                    ((e.Row.Cells[1].Text == "Account") || (e.Row.Cells[1].Text == "Review")))
+            {
+                // this is a null transaction (i.e everything applied was taken away) so I will hide it from the user
+                // it will still be visable to eppi admins in the contact details or review details page
+                e.Row.Visible = false;
+            }
+
+            
+            e.Row.Cells[7].Visible = false;            
+            gvCreditHistory.Columns[7].HeaderStyle.Width = 0;
+            gvCreditHistory.Columns[7].HeaderStyle.BorderColor = System.Drawing.ColorTranslator.FromHtml("#e2e9ef");
+            gvCreditHistory.Columns[7].ItemStyle.Width = 0;
+            gvCreditHistory.Columns[7].ItemStyle.BorderColor = System.Drawing.ColorTranslator.FromHtml("#e2e9ef");
+            gvCreditHistory.Columns[7].FooterStyle.Width = 0;
+            gvCreditHistory.Columns[7].FooterStyle.BorderColor = System.Drawing.ColorTranslator.FromHtml("#e2e9ef");
+            
+        }
+    }
+
+    protected void lbReturnToCreditMonths_Click(object sender, EventArgs e)
+    {
+        lblRTCError.Visible = false;
+        LinkButton btn = (LinkButton)sender;
+        GridViewRow row = (GridViewRow)btn.NamingContainer;
+        int rowNumber = row.RowIndex;
+        string dataKey = gvCreditHistory.DataKeys[row.RowIndex].Value.ToString();
+
+        GridViewRow selectedRow = gvCreditHistory.Rows[rowNumber];
+        TableCell type = selectedRow.Cells[1];
+        TableCell iD = selectedRow.Cells[2];
+
+        string creditExtensionID = dataKey;
+        string typeToCredit = type.Text.ToString();
+        string contactOrReviewID = iD.Text.ToString();
+
+        // RTC 2 months
+        string monthsToCredit = btn.Text.ToString().Replace("RTC ", "");
+        monthsToCredit = monthsToCredit.Replace("months", "").Trim();
+
+        // makes the changes in the database
+        //bool isAdmDB = true;
+        //Utils.ExecuteSP(isAdmDB, Server, "st_ReturnToCredit", creditExtensionID, typeToCredit, contactOrReviewID, monthsToCredit);
+
+        SqlParameter[] paramList = new SqlParameter[6];
+
+        paramList[0] = new SqlParameter("@CREDIT_EXTENSION_ID", SqlDbType.Int);
+        paramList[0].Direction = ParameterDirection.Input;
+        paramList[0].Value = creditExtensionID;
+
+        paramList[1] = new SqlParameter("@TYPE_TO_CREDIT", SqlDbType.NVarChar);
+        paramList[1].Direction = ParameterDirection.Input;
+        paramList[1].Value = typeToCredit;
+        paramList[1].Size = 10;
+
+        paramList[2] = new SqlParameter("@CONTACT_OR_REVIEW_ID", SqlDbType.Int);
+        paramList[2].Direction = ParameterDirection.Input;
+        paramList[2].Value = contactOrReviewID;
+
+        paramList[3] = new SqlParameter("@MONTHS_TO_CREDIT", SqlDbType.Int);
+        paramList[3].Direction = ParameterDirection.Input;
+        paramList[3].Value = monthsToCredit;
+
+        paramList[4] = new SqlParameter("@CREDIT_PURCHASE_ID", SqlDbType.Int);
+        paramList[4].Direction = ParameterDirection.Input;
+        paramList[4].Value = lblCreditPurchaseID.Text;
+
+        paramList[5] = new SqlParameter("@RESULT", SqlDbType.NVarChar);
+        paramList[5].Direction = ParameterDirection.Output;
+        paramList[5].Value = "";
+        paramList[5].Size = 100;
+
+
+        bool isAdmDB = true;
+        Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_ReturnToCredit", paramList);
+        string res = paramList[5].Value.ToString();
+
+        if (res == "Success")
+        {
+            // close the history pael and reload the credit table
+            pnlHistory.Visible = false;
+            buildCreditPurchaseGrid();
+        }
+        else
+        {
+            lblRTCError.Visible = true;
+            lblRTCError.Text = res;
+        }
+
+
     }
 
 
@@ -1150,7 +1553,7 @@ public partial class Summary : System.Web.UI.Page
             }
             // if the amount > 0
             if (toTransfer > 0)
-            {           
+            {
                 // something is selected in each control
                 if (ddlSourcePurchaseID.SelectedIndex != ddlDestinationPurchaseID.SelectedIndex)
                 {
@@ -1215,6 +1618,73 @@ public partial class Summary : System.Web.UI.Page
         pnlMoveCredit.Visible = false;
 
     }
+
+    protected void cmdTransferAccountPurchase_Click(object sender, EventArgs e)
+    {
+        lblTransferErrorMsg.Visible = false;
+        bool continueProcess = false;
+        string transferFromId = "";
+        string transferToId = "";
+        string numberOfMonths = "";
+
+        if (tbTransferEmail.Text == tbTransferEmailConfirmation.Text)
+        {
+
+            // check that the email entered exists in the system using st_ContactDetailsEmail
+            bool isAdmDB = true;
+            IDataReader idr = Utils.GetReader(isAdmDB, "st_ContactDetailsEmail",
+                tbTransferEmail.Text);
+            if (idr.Read())
+            {
+                // the account exists grab the account info you need
+                continueProcess = true;
+                transferToId = idr["CONTACT_ID"].ToString();
+            }
+            else
+            {
+                // there is no account with that email address
+                lblTransferErrorMsg.Visible = true;
+                lblTransferErrorMsg.Text = "There is no account with that email address";
+            }
+            idr.Close();
+            if (continueProcess)
+            {
+                // now make the transfer
+
+                // in the original ghost account
+                //   - change the MONTHS_CREDIT to its negative value minus the free month (ex: 4 to -3) 
+                //   - change the CONTACT_NAME to "Transferred to ID:" + the account you are tranferring to
+                //         ex: Transferred to ID:649
+
+                // in the account you are transferring to
+                //   - adjust the EXPIRY_DATE field in TB_CONTACT
+                //   - add a new line to TB_EXPIRY_EDIT_LOG with the correct information
+                //         - do we need a new Extension type?
+
+                object[] paramList = new object[4];
+                paramList[0] = lblSourceGhostAccountID.Text;
+                paramList[1] = transferToId;
+                paramList[2] = lblMonthsCredit.Text;
+                paramList[3] = Utils.GetSessionString("Contact_ID");
+                Utils.ExecuteSP(isAdmDB, Server, "st_TransferCreditFromGhostAccount", paramList);
+
+                // if it all works then...
+                pnlActivateIntoExistingAccount.Visible = false;
+                tbTransferEmailConfirmation.Text = "";
+                tbTransferEmail.Text = "";
+                buildContactPurchasesGrid();
+            }
+
+        }
+        else
+        {
+            lblTransferErrorMsg.Visible = true;
+            lblTransferErrorMsg.Text = "Emails do not match";
+        }
+
+    }
+
+
 
 
 

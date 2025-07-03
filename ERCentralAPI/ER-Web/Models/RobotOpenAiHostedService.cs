@@ -377,16 +377,29 @@ namespace BusinessLibrary.BusinessClasses
                 LLMRobotCommand? cmd = null;
                 int DefaultDelayInMs = 10000;
                 int CurrentDelayInMs;
-                int ActiveThreads = CreditWorkers.Count;
-                int DelayedCallsWithoutError = 0;//used to decide when to decrement
-                double RobotOpenAIRequestsPerMinute;
-                if (double.TryParse(AzureSettings.RobotOpenAIRequestsPerMinute, out RobotOpenAIRequestsPerMinute))
+                int ActiveThreads = 0;
+                foreach (Task running in CreditWorkers)
                 {
-                    if (RobotOpenAIRequestsPerMinute > 0)
+                    if (running.AsyncState != null)
                     {
-                        DefaultDelayInMs = (int)((1000 * 60 / RobotOpenAIRequestsPerMinute)*ActiveThreads);
+                        RobotOpenAiTaskReadOnly? rot = running.AsyncState as RobotOpenAiTaskReadOnly;
+                        if (rot != null && rot.Robot.RobotName == RT.Robot.RobotName)
+                        {
+                            ActiveThreads++;
+                        }
                     }
                 }
+                //just for safety:
+                if (ActiveThreads == 0) ActiveThreads = 1;
+
+                int DelayedCallsWithoutError = 0;//used to decide when to decrement
+                
+                //calculate our initial max pace of requests
+                double RobotOpenAIRequestsPerMinute = RT.Robot.RequestsPerMinute;
+                DefaultDelayInMs = (int)((1000 * 60 / RobotOpenAIRequestsPerMinute)*ActiveThreads);
+
+                //again, just a safety check:
+                if (DefaultDelayInMs < 50) DefaultDelayInMs = 50;
 
                 int done = 0; //how many items we have done already, which is also the index value of the NEXT item to do
                 int todo = 0;
@@ -472,19 +485,22 @@ namespace BusinessLibrary.BusinessClasses
                     if (cmd == null)
                     { //first time we're executing this while loop
                         cmd = LLM_Factory.GetRobot(RT.Robot, RT.ReviewSetId, RT.ItemIDsList[done], RT.ItemIDsList.Count == done + 1 ? true : false,
-                                RT.RobotApiCallId, RT.RobotContactId, RT.ReviewId, RT.JobOwnerId,
-                                RT.OnlyCodeInTheRobotName, RT.LockTheCoding, RT.UseFullTextDocument, doclist);
+                                RT.RobotApiCallId, RT.RobotContactId, RT.ReviewId, RT.JobOwnerId, RT.OnlyCodeInTheRobotName,
+                                 RT.LockTheCoding, RT.UseFullTextDocument, doclist);
+                        cmd.CreditId = RT.CreditPurchaseId;
                     } 
                     else
                     {
                         cmd = LLM_Factory.GetRobot(RT.Robot, RT.ReviewSetId, RT.ItemIDsList[done], RT.ItemIDsList.Count == done + 1 ? true : false,
                                 RT.RobotApiCallId, RT.RobotContactId, RT.ReviewId, RT.JobOwnerId,
-                                RT.OnlyCodeInTheRobotName, RT.LockTheCoding, RT.UseFullTextDocument, doclist, cmd.ReviewSetForPrompts, cmd.CachedPrompt);
+                                RT.OnlyCodeInTheRobotName, RT.LockTheCoding, RT.UseFullTextDocument, doclist, cmd.ReviewSetForPrompts, cmd.CachedPrompt, RT.CreditPurchaseId);
                     }
-                        LogInfo("Submitting ItemId: " + RT.ItemIDsList[done].ToString());
+                    LogInfo("Submitting ItemId: " + RT.ItemIDsList[done].ToString());
                     start = DateTime.Now;
                     cmd = DataPortal.Execute<LLMRobotCommand>(cmd);
                     ApiLatency = (int)((DateTime.Now.Ticks - start.Ticks) / 10000) - 50; //how long the cmd execution took, in Ms, minus 50ms to stay safe...
+                    
+                    
                     if (cmd.ReturnMessage == "Error: Too Many Requests")
                     {
                         LogInfo("(+)Incrementing CurrentDelayInMs at Item = " + RT.ItemIDsList[done].ToString());
@@ -494,7 +510,7 @@ namespace BusinessLibrary.BusinessClasses
                     else if (cmd.ReturnMessage == "Cancelled")
                     {
                         LogInfo("(+++)Cancel request accepted while running RobotOpenAICommand");
-                    }
+                    }//else ifs now check for fatal errors, which stop the batch
                     else if (cmd.ReturnMessage == "Error: No valid prompts in codeset")
                     {
                         Exception e = new Exception("Coding tool supplied contains no valid prompts");
@@ -510,6 +526,12 @@ namespace BusinessLibrary.BusinessClasses
                     else if (cmd.ReturnMessage.StartsWith("Error.") && cmd.ReturnMessage.Contains("An item with the same key has already been added. Key:"))
                     {//this happens if a RAG label appears twice in the coding tool - I.e. exactly the same label, as in when "**RefToRegularPrompt**details" (the whole thing) is repeated exactly.
                         break; //an exception is caught inside RobotOpenAICommand and logged therein, so we just stop processing this whole batch.
+                    }
+                    else if (cmd.ReturnMessage == "Error: There is no credit (left) to use.")
+                    {//for now (June 2025) if credit has been consumed during a batch, the batch ends 
+                        Exception e = new Exception("There is no credit (left) to use.");
+                        LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork error - no credit", true, e, RT.ItemIDsList[done]);
+                        break;
                     }
                     else
                     {

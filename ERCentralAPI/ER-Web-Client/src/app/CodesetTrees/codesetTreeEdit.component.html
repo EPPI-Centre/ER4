@@ -8,13 +8,14 @@
                 [ngClass]="{disableThisAndChildren:!CanChangeSelectedCode}"
                 textField="name"
                 (selectionChange)="NodeSelected($event)"
-                kendoTreeViewExpandable
                 kendoTreeViewHierarchyBinding
                 kendoTreeViewSelectable
                 [selectedKeys]="selectedKeys"
                 selectBy="id"
-                expandBy="id"
-                [(expandedKeys)]="expandedKeys"
+                    expandBy="id"
+                    [isExpanded]="isExpanded"
+                    (collapse)="handleCollapse($event)"
+                    (expand)="handleExpand($event)"
                 childrenField="attributes">
   <ng-template kendoTreeViewNodeTemplate let-data>
     <span *ngIf="data.nodeType == 'ReviewSet'" class="ml-0 mr-1">

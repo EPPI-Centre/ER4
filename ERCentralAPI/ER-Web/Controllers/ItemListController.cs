@@ -121,11 +121,11 @@ namespace ERxWebClient2.Controllers
             {
                 if (SetCSLAUser4Writing())
                 {
-                    DataPortal<Item> dp = new DataPortal<Item>();
-                    SingleCriteria<Item, Int64> criteria = new SingleCriteria<Item, long>(item.itemId);
-                    Item CSLAItem = item.itemId == 0 ? new Item() : dp.Fetch(criteria);
-                    UpdateItemData(item, CSLAItem);
+                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                    Item CSLAItem = item.itemId == 0 ? new Item() : Item.GetItemById(item.itemId, ri.ReviewId);
+                    UpdateItemData(item, CSLAItem, ri);
                     CSLAItem = CSLAItem.Save();
+                    CSLAItem = Item.GetItemById(CSLAItem.ItemId, ri.ReviewId);//to be 100% sure - get the saved item from the DB
                     return Ok(CSLAItem);
                 }
                 else
@@ -139,9 +139,9 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        private void UpdateItemData(ItemJSON item, Item CSLAItem)
+        private void UpdateItemData(ItemJSON item, Item CSLAItem, ReviewerIdentity ri)
         {
-            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            
             if (item.itemId == 0)
             {
                 CSLAItem.CreatedBy = ri.Name;

@@ -170,6 +170,7 @@ export class RobotInvestigate implements OnInit, OnDestroy {
   public get CannotRunRobotInvestigate(): boolean { // this feels a bit backwards, as it returns TRUE to disable the control
     if (!this.HasWriteRights) return true;
     else if (!this._reviewInfoService.ReviewInfo.canUseRobots) return true;
+    else if (this._robotsService.RobotSetting.robotName == "") return true;
     else if (this.selectedAttributeDropDown1 && this.queryInputForRobot.trim().length > 15 && this.busyInvestigating == false) {
       if (this.selectedRobotInvestigateTextOption == 'title') return false;
       else if (this.selectedRobotInvestigateTextOption != 'title' && this.selectedAttributeDropDown2) return false;
