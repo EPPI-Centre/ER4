@@ -116,27 +116,47 @@ export class MAGComp implements OnInit, OnDestroy {
     public IHaveImportedSomething: boolean = false;
     private subItemIDinPath: Subscription | null = null;
 
-      public get HelpAndFeebackContext(): string {
-            switch (this.Context) {
-                  case "RelatedPapers":
-                        return "openalex\\bringuptodate";
-                  case "KeepUpdated":
-                        return "openalex\\keepupdated";
-                  case "Advanced":
-                        return "openalex\\advanced";
-                  case "History":
-                        return "openalex\\history";
-                  case "matching":
-                        return "openalex\\matching";
-                  case "Admin":
-                        return "openalex\\admin";
-                  case "MagSearch":
-                        return "openalex\\search";
-                  default:
-                        // RelatedPapers
-                        return "openalex\\bringuptodate";
-            }
-      } 
+    public get HelpAndFeebackContext(): string {
+          switch (this.Context) {
+                case "RelatedPapers":
+                      return "openalex\\bringuptodate";
+                case "KeepUpdated":
+                      return "openalex\\keepupdated";
+                case "Advanced": //not used anymore
+                      return "openalex\\advanced";
+                case "History":
+                      return "openalex\\history";
+                case "matching":
+                      return "openalex\\matching";
+                case "Admin":
+                      return "openalex\\admin";
+                case "MagSearch":
+                      return "openalex\\search"; 
+                case "SelectedPapers":
+                      return "openalex\\selected";
+                case "PaperDetail":
+                      return "openalex\\selected";
+                case "MagSearchPapersList":
+                      return "openalex\\selected";
+                case "MagRelatedPapersRunList":
+                      return "openalex\\selected";
+                case "BrowseTopic":
+                      return "openalex\\selected";
+                case "MatchesIncluded":
+                      return "openalex\\selected";
+                case "MatchesExcluded":
+                      return "openalex\\selected";
+                case "MatchesIncludedAndExcluded":
+                      return "openalex\\selected";
+                case "ReviewMatchedPapersWithThisCode":
+                      return "openalex\\selected";
+                case "MagAutoUpdateRunPapersList":
+                      return "openalex\\selected";
+                default:
+                      // RelatedPapers
+                      return "openalex\\bringuptodate";
+          }
+    } 
 
     public get Context(): string {
         if (this.NavBar2) return this.NavBar2.Context;
