@@ -464,8 +464,9 @@ namespace BusinessLibrary.BusinessClasses
         {
             ItemIncomingData itm = new ItemIncomingData();
             itm.Title = r.Title;
+            if (r.TypeName == "") { r.TypeName = "Journal, Article"; }
             var type = this.ItemTypes.FirstOrDefault(t => t.Value == r.TypeName);
-            if (type != null) 
+            if (type != null)
             {
                 itm.TypeId = type.Key;
             }
