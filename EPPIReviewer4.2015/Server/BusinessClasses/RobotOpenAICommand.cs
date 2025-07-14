@@ -16,6 +16,10 @@ using Csla.Data;
 using System.IO;
 using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+
+
 
 
 
@@ -829,7 +833,7 @@ namespace BusinessLibrary.BusinessClasses
 
             if (IsDeepSeekLike(RobotCoder))
             {
-                responses = StripThinkTagAndJsonMarkdown(responses);
+                responses = StripThinkTagAndJsonMarkdown(responses, _itemId);
             }
 
             if (isRag)
@@ -847,19 +851,29 @@ namespace BusinessLibrary.BusinessClasses
 
             return true;
         }
-        internal static string StripThinkTagAndJsonMarkdown(string responses)
+        internal static string StripThinkTagAndJsonMarkdown(string responses, long ItemId = 0)
         {
             //remove the <think> section
             Regex rx = new Regex("<think>(.*?)</think>", RegexOptions.Singleline);
             responses = rx.Replace(responses, "");
-            
+#if DEBUG
+            //block that runs in dev/debug mode to check for anomalies...
+            int ind = responses.LastIndexOf("```");
+            if (ind != -1 && ind + 4 < responses.Length)
+            {
+                System.Diagnostics.Debug.WriteLine("Item with long DS answer:" + ItemId.ToString());
+                System.Diagnostics.Debug.WriteLine(responses.Substring(ind + 3));
+            }
+#endif
+
             //take only the "```json [...]```" section
             rx = new Regex("```json(.*?)```", RegexOptions.Singleline);
             Match m = rx.Match(responses);
             if (m.Success && m.Value.Length > 0)
             {
-                responses = m.Value;
+                responses = m.Value.Trim();
             }
+
 
             //and remove the not-JSON MarkDown frame
             responses = responses.Replace("```json", "");
