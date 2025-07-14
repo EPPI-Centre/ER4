@@ -849,12 +849,22 @@ namespace BusinessLibrary.BusinessClasses
         }
         internal static string StripThinkTagAndJsonMarkdown(string responses)
         {
+            //remove the <think> section
             Regex rx = new Regex("<think>(.*?)</think>", RegexOptions.Singleline);
-
             responses = rx.Replace(responses, "");
+            
+            //take only the "```json [...]```" section
+            rx = new Regex("```json(.*?)```", RegexOptions.Singleline);
+            Match m = rx.Match(responses);
+            if (m.Success && m.Value.Length > 0)
+            {
+                responses = m.Value;
+            }
+
+            //and remove the not-JSON MarkDown frame
             responses = responses.Replace("```json", "");
             responses = responses.Replace("```", "");
-
+            
             return responses;
         }
         //internal static string BuildJsonRequestBody(string type, List<OpenAIChatClass> messages, double temperature, int frequency_penalty, int presence_penalty, double top_p)
