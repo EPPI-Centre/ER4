@@ -133,27 +133,17 @@ export class MAGComp implements OnInit, OnDestroy {
                 case "MagSearch":
                       return "openalex\\search"; 
                 case "SelectedPapers":
-                      return "openalex\\selected";
                 case "PaperDetail":
-                      return "openalex\\selected";
                 case "MagSearchPapersList":
-                      return "openalex\\selected";
                 case "MagRelatedPapersRunList":
-                      return "openalex\\selected";
                 case "BrowseTopic":
-                      return "openalex\\selected";
                 case "MatchesIncluded":
-                      return "openalex\\selected";
                 case "MatchesExcluded":
-                      return "openalex\\selected";
                 case "MatchesIncludedAndExcluded":
-                      return "openalex\\selected";
                 case "ReviewMatchedPapersWithThisCode":
-                      return "openalex\\selected";
                 case "MagAutoUpdateRunPapersList":
-                      return "openalex\\selected";
+                      return "openalex\\selectedPapers";
                 default:
-                      // RelatedPapers
                       return "openalex\\bringuptodate";
           }
     } 
