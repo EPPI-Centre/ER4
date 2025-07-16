@@ -213,7 +213,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             if (CreditId > 0 )
             {
-                CreditForRobots? found = rInfo.CreditForRobotsList.FirstOrDefault(f => f.CreditPurchaseId == CreditId && f.AmountRemaining > 0.01);
+                CreditForRobots found = rInfo.CreditForRobotsList.FirstOrDefault(f => f.CreditPurchaseId == CreditId && f.AmountRemaining > 0.01);
                 if (found == null)
                 {
                     _message = "Error: There is no credit (left) to use.";
@@ -900,7 +900,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 else
                 {
-                    string[] splitted = pair.SettingName.Split('.', StringSplitOptions.RemoveEmptyEntries);
+                    string[] splitted = pair.SettingName.Split(new[] {'.'}, StringSplitOptions.RemoveEmptyEntries);
                     JObject tempToAdd = new JObject();
                     for (int i = splitted.Length - 1; i >= 0; i--)
                     {

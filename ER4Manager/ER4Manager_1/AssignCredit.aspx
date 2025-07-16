@@ -202,7 +202,7 @@
         <table style="border-style: none solid solid solid; border-width: medium; width: 100%;">
             <tr>
                 <td>
-                    <asp:GridView ID="gvMembersOfReview" runat="server"
+                    <asp:GridView ID="gvMembersOfReview" runat="server" OnRowDataBound="gvMembersOfReview_RowDataBound"
                         AutoGenerateColumns="False" DataKeyNames="CONTACT_ID" Width="100%">
                         <Columns>
                             <asp:BoundField DataField="CONTACT_ID" HeaderText="Contact ID">
