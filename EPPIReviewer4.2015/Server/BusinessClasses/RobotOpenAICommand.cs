@@ -17,9 +17,6 @@ using System.IO;
 using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
 
-
-
-
 #if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
@@ -622,7 +619,10 @@ namespace BusinessLibrary.BusinessClasses
                 return false;
             }
             //we add length checks here and simply truncate the userprompt if things are too long.
-            int limit = 556522; //128000 / 0.23 we calculated this using 2 tests that had 100K++ tokens each - they had 0.209696 and 0.213639 tokens per char, rounded up for safety
+            //Original calculation was: 128000 (allowed tokens) / 0.23 = 556522. We calculated this (the 0.23 value) using 2 tests that had 100K++ tokens each - they had 0.209696 and 0.213639 tokens per char, rounded up for safety
+            //On 15 July 2025 we got one request (ItemId: 100558868, Review 48449) that submitted 129190 tokens :-(
+            //Thus, we're decreasing the limit by a bit more than 1% (roughly, we'd have 0.227 tokens per char)
+            int limit = 550000;
             if (sysprompt.Length + userprompt.Length > limit)
             {//call is likely to fail because it's too long - we truncate the userprompt and hope for the best!
                 if (sysprompt.Length > limit)
@@ -829,7 +829,7 @@ namespace BusinessLibrary.BusinessClasses
 
             if (IsDeepSeekLike(RobotCoder))
             {
-                responses = StripThinkTagAndJsonMarkdown(responses);
+                responses = StripThinkTagAndJsonMarkdown(responses, _itemId);
             }
 
             if (isRag)
@@ -847,14 +847,34 @@ namespace BusinessLibrary.BusinessClasses
 
             return true;
         }
-        internal static string StripThinkTagAndJsonMarkdown(string responses)
+        internal static string StripThinkTagAndJsonMarkdown(string responses, long ItemId = 0)
         {
+            //remove the <think> section
             Regex rx = new Regex("<think>(.*?)</think>", RegexOptions.Singleline);
-
             responses = rx.Replace(responses, "");
+#if DEBUG
+            //block that runs in dev/debug mode to check for anomalies...
+            int ind = responses.LastIndexOf("```");
+            if (ind != -1 && ind + 4 < responses.Length)
+            {
+                System.Diagnostics.Debug.WriteLine("Item with long DS answer:" + ItemId.ToString());
+                System.Diagnostics.Debug.WriteLine(responses.Substring(ind + 3));
+            }
+#endif
+
+            //take only the "```json [...]```" section
+            rx = new Regex("```json(.*?)```", RegexOptions.Singleline);
+            Match m = rx.Match(responses);
+            if (m.Success && m.Value.Length > 0)
+            {
+                responses = m.Value.Trim();
+            }
+
+
+            //and remove the not-JSON MarkDown frame
             responses = responses.Replace("```json", "");
             responses = responses.Replace("```", "");
-
+            
             return responses;
         }
         //internal static string BuildJsonRequestBody(string type, List<OpenAIChatClass> messages, double temperature, int frequency_penalty, int presence_penalty, double top_p)
