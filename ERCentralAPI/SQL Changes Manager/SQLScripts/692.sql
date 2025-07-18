@@ -71,12 +71,12 @@ end
 
 USE [ReviewerAdmin]
 GO
-select * from TB_ONLINE_HELP where CONTEXT = 'openalex\selectedPapers'
+select * from TB_ONLINE_HELP where CONTEXT = 'openalex\PaperListings'
 if @@rowcount = 0
 begin
 	-- add a new row to TB_EXTENSION_TYPES
 	insert into TB_ONLINE_HELP (CONTEXT, HELP_HTML)
-	values ('openalex\SelectedPapers', 
+	values ('openalex\PaperListings', 
 			'<b>Paper listings</b><br>' +
 			'Apologies, there currently is no help for this page/activity.<br>' +
 			'Please check this help page later: we are adding new Help content regularly.'

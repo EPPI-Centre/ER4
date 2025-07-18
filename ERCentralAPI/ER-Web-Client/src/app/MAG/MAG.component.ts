@@ -142,7 +142,7 @@ export class MAGComp implements OnInit, OnDestroy {
                 case "MatchesIncludedAndExcluded":
                 case "ReviewMatchedPapersWithThisCode":
                 case "MagAutoUpdateRunPapersList":
-                      return "openalex\\selectedPapers";
+                      return "openalex\\PaperListings";
                 default:
                       return "openalex\\bringuptodate";
           }
