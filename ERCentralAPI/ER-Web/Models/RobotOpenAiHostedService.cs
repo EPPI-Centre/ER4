@@ -427,6 +427,7 @@ namespace BusinessLibrary.BusinessClasses
                     }
                 }
                 int ApiLatency = 0; DateTime start;
+                bool isLastinBatch = false;
                 while (done < todo && !ct.IsCancellationRequested)
                 {
                     if (CurrentDelayInMs > DefaultDelayInMs + delayIncrement && DelayedCallsWithoutError >= 10)
@@ -482,16 +483,17 @@ namespace BusinessLibrary.BusinessClasses
                         }
                         if (doclist.EndsWith(",")) doclist = doclist.Substring(0, doclist.Length - 1);
                     }
+                    isLastinBatch = RT.ItemIDsList.Count == done + 1 ? true : false;
                     if (cmd == null)
                     { //first time we're executing this while loop
-                        cmd = LLM_Factory.GetRobot(RT.Robot, RT.ReviewSetId, RT.ItemIDsList[done], RT.ItemIDsList.Count == done + 1 ? true : false,
+                        cmd = LLM_Factory.GetRobot(RT.Robot, RT.ReviewSetId, RT.ItemIDsList[done], isLastinBatch,
                                 RT.RobotApiCallId, RT.RobotContactId, RT.ReviewId, RT.JobOwnerId, RT.OnlyCodeInTheRobotName,
                                  RT.LockTheCoding, RT.UseFullTextDocument, doclist);
                         cmd.CreditId = RT.CreditPurchaseId;
                     } 
                     else
                     {
-                        cmd = LLM_Factory.GetRobot(RT.Robot, RT.ReviewSetId, RT.ItemIDsList[done], RT.ItemIDsList.Count == done + 1 ? true : false,
+                        cmd = LLM_Factory.GetRobot(RT.Robot, RT.ReviewSetId, RT.ItemIDsList[done], isLastinBatch,
                                 RT.RobotApiCallId, RT.RobotContactId, RT.ReviewId, RT.JobOwnerId,
                                 RT.OnlyCodeInTheRobotName, RT.LockTheCoding, RT.UseFullTextDocument, doclist, cmd.ReviewSetForPrompts, cmd.CachedPrompt, RT.CreditPurchaseId);
                     }
@@ -539,22 +541,22 @@ namespace BusinessLibrary.BusinessClasses
                         if (cmd.ReturnMessage == "Error: Null item")
                         {
                             Exception e = new Exception("Failed to retrieve this item");
-                            LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork - " + cmd.ReturnMessage, false, e, RT.ItemIDsList[done]);
+                            LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork - " + cmd.ReturnMessage, isLastinBatch, e, RT.ItemIDsList[done]);
                         }
                         else if (cmd.ReturnMessage == "Error: Short or non-existent title and abstract")
                         {
                             Exception e = new Exception("Not enough data present for this item (T&A)");
-                            LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork - " + cmd.ReturnMessage, false, e, RT.ItemIDsList[done]);
+                            LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork - " + cmd.ReturnMessage, isLastinBatch, e, RT.ItemIDsList[done]);
                         }
                         else if (cmd.ReturnMessage == "Error: no PDFs to process")
                         {
                             Exception e = new Exception("This item doesn't have PDF Document(s) uploaded");
-                            LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork - " + cmd.ReturnMessage, false, e, RT.ItemIDsList[done]);
+                            LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork - " + cmd.ReturnMessage, isLastinBatch, e, RT.ItemIDsList[done]);
                         }
                         else if (cmd.ReturnMessage == "Error: no PDF text to process")
                         {
                             Exception e = new Exception("No text could be extracted from PDF(s) uploaded to this item");
-                            LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork - " + cmd.ReturnMessage, false, e, RT.ItemIDsList[done]);
+                            LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork - " + cmd.ReturnMessage, isLastinBatch, e, RT.ItemIDsList[done]);
                         }
 
                         //end of checks for non-batch-fatal failures
