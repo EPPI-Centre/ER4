@@ -179,6 +179,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<bool> CodeExistsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("CodeExists", "CodeExists", true));
+        public bool CodeExists
+        {
+            get
+            {
+                return GetProperty(CodeExistsProperty);
+            }
+            set
+            {
+                SetProperty(CodeExistsProperty, value);
+            }
+        }
+
         //protected override void AddAuthorizationRules()
         //{
         //    //string[] canWrite = new string[] { "AdminUser", "RegularUser" };
@@ -230,6 +243,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<bool>(DisplayCodeProperty, reader.GetBoolean("DISPLAY_CODE"));
             returnValue.LoadProperty<bool>(DisplayAdditionalTextProperty, reader.GetBoolean("DISPLAY_ADDITIONAL_TEXT"));
             returnValue.LoadProperty<bool>(DisplayCodedTextProperty, reader.GetBoolean("DISPLAY_CODED_TEXT"));
+            returnValue.LoadProperty<bool>(CodeExistsProperty, reader.GetBoolean("CODE_EXISTS"));
 
             returnValue.MarkOld();
             return returnValue;

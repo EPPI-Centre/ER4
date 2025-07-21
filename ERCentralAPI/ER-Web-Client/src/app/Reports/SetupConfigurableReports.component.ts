@@ -186,12 +186,18 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 		this.CancelEditing();
 	}
 	public ShortCodeName(code: iReportColumnCode):string {
-		let res: string = "";
-		if (code.userDefText == "") res = code.parentAttributeText;
-		else res = code.userDefText;
-		if (res.length > 30) {
-			if (res.length > 33) res = res.substring(0, 30) + "...";
-		}
+    let res: string = "";
+    
+      if (code.userDefText == "") res = code.parentAttributeText;
+      else res = code.userDefText;
+      if (res.length > 30) {
+        if (res.length > 33) res = res.substring(0, 30) + "...";
+      }
+    
+    if (!code.codeExists) {
+      // this code no longer exits
+      res += " - Does not exist!";
+    }
 		return res;
 	}
 	public ShortColumnName(col: iReportColumn): string {
@@ -201,7 +207,53 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 			if (res.length > 23) res = res.substring(0, 20) + "...";
 		}
 		return res;
-	}
+  }
+  public CodeOrSetId(code: iReportColumnCode): string {
+    let res: string = "";
+
+    if (code.attributeId == 0) {
+      // this is a coding tool
+      res = "Set ID: " + code.setId.toString();
+    }
+    else {
+      res = "Attribute ID: " + code.attributeId.toString();
+    }
+    return res;
+  }
+  public FullPath(code: iReportColumnCode): string {
+    let res: string = "";
+    let set: ReviewSet | null = null;
+    if (code.codeExists == false) {
+      res = "This code does not exist";
+    }
+    else {
+      if (code.attributeId == 0) {
+        // this is a coding tool
+        res = code.parentAttributeText;
+      }
+      else {
+        set = this.reviewSetsService.FindSetById(code.setId);
+        if (set) {
+          const parents = set.ParentsListByAttId(code.attributeId);
+          if (parents.length == 0) {
+            // we are just below the top so can build the path
+            res = set.set_name + "  >  "  + code.parentAttributeText;
+          }
+          else {           
+            res = set.set_name;
+            // deeper down so we must loop
+            for (var i = parents.length-1; i >= 0; i--) {
+              const setData = parents[i];
+              res = res + "  >  " + setData.name;
+            }
+            res = res + "  >  " + code.parentAttributeText;
+          }
+        }
+      }
+    }
+
+    return res;
+  }
 	public NewReport() {
 		let newR: iConfigurableReport = {
 			name: "",
@@ -304,7 +356,8 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 			reportColumnCodeId: Math.floor(Math.random() * -100000),//negative number as a fake ID, to make new ColumnCodes "unique"
 			reportColumnId: col.reportColumnId,
 			setId: nodeToAdd.set_id,
-			userDefText: nodeToAdd.name,
+      userDefText: nodeToAdd.name,
+      codeExists: true
 		}
 		if (nodeToAdd.nodeType == "SetAttribute") {
 			let att = nodeToAdd as SetAttribute;
