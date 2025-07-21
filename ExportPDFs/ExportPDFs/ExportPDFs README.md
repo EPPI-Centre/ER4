@@ -1,6 +1,6 @@
 ﻿# ExportPDFs readme
 
-This is a little DotNet Core 2.x app used to Export PDFs in bulk. Given a review, and optional criteria to select a subset of references therein, it will export all PDFs to a folder, which can then be packaged in a large Zip file (or alternative) for re-use elsewhere.
+This is a little DotNet 8.x app used to Export PDFs in bulk. Given a review, and optional criteria to select a subset of references therein, it will export all PDFs to a folder, which can then be packaged in a large Zip file (or alternative) for re-use elsewhere.
 
 This utility is meant to be used by superusers and is unlikely it will be adapted for use by end users. The reason is that the volume of exported data can easily be huge and might thus not be suitable for normal operation over HTTP protocols.
 
