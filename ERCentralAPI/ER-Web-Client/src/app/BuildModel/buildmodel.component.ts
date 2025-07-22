@@ -29,11 +29,13 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		private _notificationService: NotificationService
 	) { }
 
-	public selectedModelDropDown1: string = '';
-	public selectedModelDropDown2: string = '';
+  public selectedModelDropDown1: string = '';
+  public selectedModelDropDown2: string = '';
+  public selectedModelDropDown3: string = '';
 	public modelNameText: string = '';
-	public DD1: number = 0;
-	public DD2: number = 0;
+  public DD1: number = 0;
+  public DD2: number = 0;
+  public DD3: number = 0;
 	public get DataSource(): GridDataResult {
 		return {
 			data: orderBy(this._classifierService.ClassifierModelCurrentReviewList, this.sort),
@@ -50,10 +52,13 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 
 		return true;
 
-	}
-	public get HasWriteRights(): boolean {
-		return this._ReviewerIdentityServ.HasWriteRights;
-	}
+  }
+  public get HasWriteRights(): boolean {
+    return this._ReviewerIdentityServ.HasWriteRights;
+  }
+  public get IsSiteAdmin(): boolean {
+    return this._ReviewerIdentityServ.reviewerIdentity.isSiteAdmin;
+  }
 	CanBuildModel() {
 
 		if (this.selectedModelDropDown1 && this.selectedModelDropDown2 && this.modelNameText != ''
@@ -231,33 +236,50 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 			this.DD1 = a.attribute_id;
 		}
 		
-	}
-	SetAttrNotOn(node: singleNode | null | undefined) {
-		//alert(JSON.stringify(node));
-		if (node != null && node != undefined && node.nodeType == "SetAttribute") {
-			let a = node as SetAttribute;
-			this.selectedModelDropDown2 = node.name;
-			this.DD2 = a.attribute_id;
-		}
-	}
-	public isCollapsed: boolean = false;
-	public isCollapsed2: boolean = false;
+  }
+  SetAttrNotOn(node: singleNode | null | undefined) {
+    //alert(JSON.stringify(node));
+    if (node != null && node != undefined && node.nodeType == "SetAttribute") {
+      let a = node as SetAttribute;
+      this.selectedModelDropDown2 = node.name;
+      this.DD2 = a.attribute_id;
+    }
+  }
+  SetAttrInference(node: singleNode | null | undefined) {
+    //alert(JSON.stringify(node));
+    if (node != null && node != undefined && node.nodeType == "SetAttribute") {
+      let a = node as SetAttribute;
+      this.selectedModelDropDown3 = node.name;
+      this.DD3 = a.attribute_id;
+    }
+  }
+  public isCollapsed: boolean = false;
+  public isCollapsed2: boolean = false;
+  public isCollapsed3: boolean = false;
 	CloseBMDropDown1() {
-
 		this.isCollapsed = false;
-	}
-	CloseBMDropDown2() {
+  }
+  CloseBMDropDown2() {
+    this.isCollapsed2 = false;
+  }
+  CloseBMDropDown3() {
+    this.isCollapsed3 = false;
+  }
 
-		this.isCollapsed2 = false;
-	}
 	async BuildModel(title: any) {
 
 		if (this.DD1 != null && this.DD2 != null && this.modelNameText != '') {
-
 			await this._classifierService.CreateAsync(title.model, this.DD1, this.DD2, -1);
 		}
-		
-	}
+  }
+
+  BuildModel2(title: any) {
+    if (this.DD1 != null && this.DD2 != null && this.DD3 != null && this.modelNameText != '') {
+      this._classifierService.BuildClassifierV2(title.model, this.DD1, this.DD2, this.DD3);
+    }
+  }
+
+
     ngAfterViewInit() {
 
 	}

@@ -223,7 +223,42 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
           this.modalService.GenericError(caught);
           this.RemoveBusy("CreateAsync");
         });
-	}
+  }
+
+  BuildClassifierV2(title: string, attrOn: number, attrNotOn: number, attrInference: number, classifierId: number = -1): Promise<void> {
+
+    let MVCcmd: MVCClassifierCommand = new MVCClassifierCommand();
+
+    MVCcmd._attributeIdClassifyTo = 0;
+    MVCcmd._attributeIdNotOn = attrNotOn;
+    MVCcmd._attributeIdOn = attrOn;
+    MVCcmd._attributeInference = attrInference;
+    MVCcmd._sourceId = -1;
+    MVCcmd._title = title;
+    MVCcmd.revInfo = this._reviewInfoService.ReviewInfo;
+    MVCcmd._classifierId = classifierId;
+
+    this._BusyMethods.push("BuildClassifierV2");
+    return lastValueFrom(this._httpC.post<MVCClassifierCommand>(this._baseUrl + 'api/Classifier/BuildClassifierV2',
+      MVCcmd)).then(
+        result => {
+          if (result.returnMessage == '') {
+            this.showBuildModelMessage('request was submitted');
+          } else {
+            this.showBuildModelMessage(result.returnMessage);
+          }
+          this.IamVerySorryRefresh();
+          this.RemoveBusy("BuildClassifierV2");
+        },
+        error => {
+          this.RemoveBusy("BuildClassifierV2");
+          this.modalService.GenericError(error);
+        }).catch((caught) => {
+          this.modalService.GenericError(caught);
+          this.RemoveBusy("BuildClassifierV2");
+        });
+  }
+
 	
   Apply(modeltitle: string, AttributeId: number, ModelId: number, SourceId: number): Promise<string | boolean> {
     let MVCcmd: MVCClassifierCommand = new MVCClassifierCommand();
@@ -467,8 +502,9 @@ export class BuildModelCommand {
 export class MVCClassifierCommand {
 
 	public _title: string = '';
-	public _attributeIdOn: number = 0;
-	public _attributeIdNotOn: number = 0;
+  public _attributeIdOn: number = 0;
+  public _attributeIdNotOn: number = 0;
+  public _attributeInference: number = 0;
 	public _attributeIdClassifyTo: number = 0;
 	public _sourceId: number = 0;
 	public _modelId: number = 0;

@@ -11,28 +11,37 @@
 				<!--<label *ngIf="reviewSetsService.selectedNode" class="font-weight-bold col-md-6 row p-1 "> &nbsp; Current code: {{_reviewSetsService.selectedNode?.name}}</label>-->
 				<div class="col-12 col-sm-6 col-md-4 col-lg-3 ">Learn to apply this code:</div>
 				<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-4">
-					<button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree" (click)="isCollapsed = !isCollapsed; isCollapsed2=false" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">{{selectedModelDropDown1}}&nbsp;</button>
+					<button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree" (click)="isCollapsed = !isCollapsed; isCollapsed3=false; isCollapsed2=false" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">{{selectedModelDropDown1}}&nbsp;</button>
 					<div (click)="SetAttrOn(nodeSelected)" class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
 						<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown1()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 					</div>
 				</div>
 			</div>
 			<div class="col-md-12 row form-group">
-                <div class="col-12 col-sm-6 col-md-4 col-lg-3 ">Distinguish from this code:</div>
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3 ">Distinguish from this code:</div>
 				<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-4">
-					<button class="btn btn-primary col-12  dropdown-toggle" id="dropdownTree2" (click)="isCollapsed2 = !isCollapsed2; isCollapsed=false" [attr.aria-expanded]="!isCollapsed2" aria-controls="collapseCodeTree2">{{selectedModelDropDown2}}&nbsp;</button>
+					<button class="btn btn-primary col-12  dropdown-toggle" id="dropdownTree2" (click)="isCollapsed2 = !isCollapsed2; isCollapsed=false; isCollapsed3=false" [attr.aria-expanded]="!isCollapsed2" aria-controls="collapseCodeTree2">{{selectedModelDropDown2}}&nbsp;</button>
 					<div (click)="SetAttrNotOn(nodeSelected)" class="dropdown-menu" id="collapseCodeTree2" [ngbCollapse]="!isCollapsed2">
 						<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown2()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 					</div>
 				</div>
 			</div>
+			<div *ngIf="IsSiteAdmin" class="col-md-12 row form-group">
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3 ">Inference (test) set:</div>
+				<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-4">
+					<button class="btn btn-danger col-12 dropdown-toggle" id="dropdownTree2" (click)="isCollapsed3 = !isCollapsed3; isCollapsed=false; isCollapsed2=false" [attr.aria-expanded]="!isCollapsed3" aria-controls="collapseCodeTree3">{{selectedModelDropDown3}}&nbsp;</button>
+					<div (click)="SetAttrInference(nodeSelected)" class="dropdown-menu" id="collapseCodeTree3" [ngbCollapse]="!isCollapsed3">
+						<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown3()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
+					</div>
+				</div>
+			</div>
 			<div class="col-md-12 row form-group">
-                <div class="col-12 col-sm-6 col-md-4 col-lg-3 ">Name for your model:</div>
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3 ">Name for your model:</div>
 				<div class=" col-12 col-sm-6 col-md-4">
 					<input id="modelName" name="modelName" #modelName="ngModel" required minlength="4" [(ngModel)]="modelNameText" type="text" class="form-control bg-light form-control col-md-12" />
 
 					<div *ngIf="modelName.invalid && (modelName.dirty || modelName.touched) && modelName.errors"
-						 class="alert alert-danger">
+							 class="alert alert-danger">
 
 						<div *ngIf="modelName.errors.required">
 							Model Name is required.
@@ -43,15 +52,15 @@
 
 					</div>
 					<div *ngIf="selectedModelDropDown1 == selectedModelDropDown2 && selectedModelDropDown1 != ''"
-							class="alert alert-danger">
+							 class="alert alert-danger">
 						Two different codes must be selected in the drop downs
 					</div>
-					</div>
 				</div>
+			</div>
 			<div class="row col-md-12">
 				<div class="col-md-4">
 					<button class="btn btn-outline-danger p-2 m-2" [disabled]="!CanDeleteModel()"
-							(click)="openConfirmationDialogDeleteModels()" >
+									(click)="openConfirmationDialogDeleteModels()">
 						Delete Selected Model(s)
 					</button>
 				</div>
@@ -59,9 +68,10 @@
 					<div class="col-md-6">
 						<button [disabled]="!CanBuildModel()" (click)="BuildModel(modelName)" class="btn btn-primary p-2 m-2"> Build Model</button>
 					</div>
-					<div class="col-md-6">
-						<button (click)="IamVerySorryRefresh()" class="btn btn-info p-2 m-2"> Refresh Models</button>
-					</div>
+          <div class="col-md-6">
+            <button *ngIf="IsSiteAdmin" [disabled]="!CanBuildModel()" (click)="BuildModel2(modelName)" class="btn btn-danger p-2 m-2">Build Model (new)</button>
+            <button (click)="IamVerySorryRefresh()" class="btn btn-info p-2 m-2">Refresh Models</button>
+          </div>
 				</div>
 				<div class="col-md-2"></div>
 			</div>
