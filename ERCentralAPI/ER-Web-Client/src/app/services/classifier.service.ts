@@ -229,10 +229,9 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 
     let MVCcmd: MVCClassifierCommand = new MVCClassifierCommand();
 
-    MVCcmd._attributeIdClassifyTo = 0;
+    MVCcmd._attributeIdClassifyTo = attrInference;
     MVCcmd._attributeIdNotOn = attrNotOn;
     MVCcmd._attributeIdOn = attrOn;
-    MVCcmd._attributeInference = attrInference;
     MVCcmd._sourceId = -1;
     MVCcmd._title = title;
     MVCcmd.revInfo = this._reviewInfoService.ReviewInfo;
@@ -504,7 +503,6 @@ export class MVCClassifierCommand {
 	public _title: string = '';
   public _attributeIdOn: number = 0;
   public _attributeIdNotOn: number = 0;
-  public _attributeInference: number = 0;
 	public _attributeIdClassifyTo: number = 0;
 	public _sourceId: number = 0;
 	public _modelId: number = 0;

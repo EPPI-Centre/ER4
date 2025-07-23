@@ -96,7 +96,6 @@ namespace ERxWebClient2.Controllers
                             , MVCcmd._attributeIdClassifyTo
                             , MVCcmd._classifierId
                             , MVCcmd._sourceId
-							, MVCcmd._attributeInference
                         );
                     cmd.RevInfo = MVCcmd.revInfo.ToCSLAReviewInfo();
 
@@ -303,7 +302,6 @@ namespace ERxWebClient2.Controllers
 			public int _attributeIdOn { get; set; }
 			public int _attributeIdNotOn { get; set; }
             public int _attributeIdClassifyTo { get; set; }
-            public int _attributeInference { get; set; }
             public int _sourceId { get; set; }
 			public int _modelId { get; set; }
 			public int _attributeId { get; set; }

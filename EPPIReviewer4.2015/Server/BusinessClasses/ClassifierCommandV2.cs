@@ -38,7 +38,6 @@ namespace BusinessLibrary.BusinessClasses
         private string _title = "";
         private Int64 _attributeIdOn;
         private Int64 _attributeIdNotOn;
-        private Int64 _attributeInference;
         private Int64 _attributeIdClassifyTo;
         private int _sourceId;
 
@@ -47,12 +46,11 @@ namespace BusinessLibrary.BusinessClasses
 
         private string _returnMessage = "";
 
-        public ClassifierCommandV2(string title, Int64 attributeIdOn, Int64 attributeIdNotOn, Int64 attributeIdClassifyTo, int classiferId, int sourceId, Int64 attributeInference = 0)
+        public ClassifierCommandV2(string title, Int64 attributeIdOn, Int64 attributeIdNotOn, Int64 attributeIdClassifyTo, int classiferId, int sourceId)
         {
             _title = title;
             _attributeIdOn = attributeIdOn;
             _attributeIdNotOn = attributeIdNotOn;
-            _attributeInference = attributeInference;
             _returnMessage = "Success";
             _classifierId = classiferId;
             _attributeIdClassifyTo = attributeIdClassifyTo;
@@ -87,7 +85,6 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_title", _title);
             info.AddValue("_attributeIdOn", _attributeIdOn);
             info.AddValue("_attributeIdNotOn", _attributeIdNotOn);
-            info.AddValue("_attributeInference", _attributeInference);
             info.AddValue("_returnMessage", _returnMessage);
             info.AddValue("_classifierId", _classifierId);
             info.AddValue("_attributeIdClassifyTo", _attributeIdClassifyTo);
@@ -98,7 +95,6 @@ namespace BusinessLibrary.BusinessClasses
             _title = info.GetValue<string>("_title");
             _attributeIdOn = info.GetValue<Int64>("_attributeIdOn");
             _attributeIdNotOn = info.GetValue<Int64>("_attributeIdNotOn");
-            _attributeInference = info.GetValue<Int64>("_attributeInference");
             _returnMessage = info.GetValue<string>("_returnMessage");
             _classifierId = info.GetValue<int>("_classifierId");
             _attributeIdClassifyTo = info.GetValue<Int64>("_attributeIdClassifyTo");
@@ -184,12 +180,20 @@ namespace BusinessLibrary.BusinessClasses
                 DoApplyCheckOrPriorityScreening2(ReviewId, ContactId, "PrioS");
                 return;
             }
-            // We're setting attributes and therefore building or rebuilding a model
-            if (_attributeIdOn + _attributeIdNotOn != -2)
+            // We're setting attributes, with _attributeIdClassifyTo = 0, and therefore building or rebuilding a model with the old system
+            if (_attributeIdOn + _attributeIdNotOn != -2 && _attributeIdClassifyTo == 0)
             {
                 SetLocalTempFilename(ReviewId, ContactId, "Build");
                 // setting filenames later once we have a modelid
-                DoTrainClassifier2(ReviewId, ContactId);
+                DoTrainClassifier(ReviewId, ContactId);
+                return;
+            }
+            // We're setting attributes, with _attributeIdClassifyTo != 0, and therefore building or rebuilding a model with the newer system (July 2025).
+            if (_attributeIdOn + _attributeIdNotOn != -2 && _attributeIdClassifyTo != 0)
+            {
+                SetLocalTempFilename(ReviewId, ContactId, "Build");
+                // setting filenames later once we have a modelid
+                DoTrainClassifier(ReviewId, ContactId);
                 return;
             }
             // if we're not setting attributes AND classifierId is positive, we're scoring using an existing user model
@@ -210,7 +214,7 @@ namespace BusinessLibrary.BusinessClasses
             }
 
         }
-        private void DoTrainClassifier2(int ReviewId, int ContactId) // building a classifier
+        private void DoTrainClassifier(int ReviewId, int ContactId) // building a classifier
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
