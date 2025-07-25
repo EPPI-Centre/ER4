@@ -67,7 +67,7 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         while (reader.Read())
                         {
-                            ReportColumn newReportColumn = ReportColumn.GetReportColumn(reader);
+                            ReportColumn newReportColumn = ReportColumn.GetReportColumn(reader, ri.ReviewId);
                             Add(newReportColumn);
                         }
                     }

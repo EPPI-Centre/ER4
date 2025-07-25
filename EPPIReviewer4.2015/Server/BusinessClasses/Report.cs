@@ -339,6 +339,8 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(ReportTypeProperty, reader.GetString("REPORT_TYPE"));
             //returnValue.LoadProperty<string>(DetailProperty, reader.GetString("REPORT_DETAIL"));
             returnValue.Columns = ReportColumnList.NewReportColumnList();
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
@@ -351,7 +353,7 @@ namespace BusinessLibrary.BusinessClasses
                         returnValue.Columns.RaiseListChangedEvents = false;
                         while (reader2.Read())
                         {
-                            returnValue.Columns.Add(ReportColumn.GetReportColumn(reader2));
+                            returnValue.Columns.Add(ReportColumn.GetReportColumn(reader2, ri.ReviewId));
                         }
                         returnValue.Columns.RaiseListChangedEvents = true;
                     }
