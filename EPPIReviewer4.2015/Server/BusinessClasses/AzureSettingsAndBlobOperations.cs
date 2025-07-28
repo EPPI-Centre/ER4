@@ -172,6 +172,7 @@ namespace BusinessLibrary.BusinessClasses
         public static string subscriptionId { get { return AzureContReviewSettings["subscriptionId"]; } }
         public static string resourceGroup { get { return AzureContReviewSettings["resourceGroup"]; } }
         public static string dataFactoryName { get { return AzureContReviewSettings["dataFactoryName"]; } }
+        public static string dataFactoryManagedIdentity { get { return AzureContReviewSettings["dataFactoryManagedIdentity"]; } }
         public static string covidClassifierPipelineName { get { return AzureContReviewSettings["covidClassifierPipelineName"]; } }
         public static string covidLongCovidPipelineName { get { return AzureContReviewSettings["covidLongCovidPipelineName"]; } }
         public static string progressPlusPipelineName { get { return AzureContReviewSettings["progressPlusPipelineName"]; } }

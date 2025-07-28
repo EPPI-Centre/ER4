@@ -8,6 +8,7 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 import { EventEmitterService } from './EventEmitter.service';
 import { ReviewerIdentityService } from './revieweridentity.service';
 import { ConfigService } from './config.service';
+import { StringKeyValue } from './ItemList.service';
 
 @Injectable({
 
@@ -36,6 +37,14 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 		if (this.clearSub != null) this.clearSub.unsubscribe();
 	}
   private clearSub: Subscription | null = null;
+
+  public modelsList: StringKeyValue[] = [
+    { key: "oldLogReg", value: "Original EPPI Reviewer Classifier (LogReg)" }
+    , { key: "lightgbm", value: "Light Gradient-Boosting Machine" }
+    , { key: "rfc", value: "Random Forest Classifier" }
+    , { key: "xgboost", value: "eXtreme Gradient Boosting" }
+    , { key: "svc", value: "Support Vector Clustering" }
+  ];
 
   private _PriorityScreeningSimulationList: PriorityScreeningSimulation[] = [];
   public get PriorityScreeningSimulationList(): PriorityScreeningSimulation[] {
@@ -225,7 +234,7 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
         });
   }
 
-  BuildClassifierV2(title: string, attrOn: number, attrNotOn: number, attrInference: number, classifierId: number = -1): Promise<void> {
+  BuildClassifierV2(title: string, attrOn: number, attrNotOn: number, attrInference: number, MLModelName: string, classifierId: number = -1): Promise<void> {
 
     let MVCcmd: MVCClassifierCommand = new MVCClassifierCommand();
 
@@ -234,6 +243,7 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
     MVCcmd._attributeIdOn = attrOn;
     MVCcmd._sourceId = -1;
     MVCcmd._title = title;
+    MVCcmd._mlModelName = MLModelName;
     MVCcmd.revInfo = this._reviewInfoService.ReviewInfo;
     MVCcmd._classifierId = classifierId;
 
@@ -507,7 +517,8 @@ export class MVCClassifierCommand {
 	public _sourceId: number = 0;
 	public _modelId: number = 0;
 	public _attributeId: number = 0;
-	public _classifierId: number = 0;
+  public _classifierId: number = 0;
+  public _mlModelName: string = "oldLogReg";
 	public returnMessage: string = '';
 	public revInfo: ReviewInfo = new ReviewInfo();
 }

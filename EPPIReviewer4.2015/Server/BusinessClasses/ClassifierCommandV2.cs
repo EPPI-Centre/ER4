@@ -36,6 +36,7 @@ namespace BusinessLibrary.BusinessClasses
         public ClassifierCommandV2() { }
         // variables for training the classifier
         private string _title = "";
+        private string _mlModelName = "oldLogReg";
         private Int64 _attributeIdOn;
         private Int64 _attributeIdNotOn;
         private Int64 _attributeIdClassifyTo;
@@ -46,15 +47,17 @@ namespace BusinessLibrary.BusinessClasses
 
         private string _returnMessage = "";
 
-        public ClassifierCommandV2(string title, Int64 attributeIdOn, Int64 attributeIdNotOn, Int64 attributeIdClassifyTo, int classiferId, int sourceId)
+        public ClassifierCommandV2(string title, Int64 attributeIdOn, Int64 attributeIdNotOn, Int64 attributeIdClassifyTo, int classiferId, int sourceId, string mlModelName = "oldLogReg")
         {
             _title = title;
+            _mlModelName = mlModelName;
             _attributeIdOn = attributeIdOn;
             _attributeIdNotOn = attributeIdNotOn;
             _returnMessage = "Success";
             _classifierId = classiferId;
             _attributeIdClassifyTo = attributeIdClassifyTo;
             _sourceId = sourceId;
+            _mlModelName = mlModelName;
         }
 
         public string ReturnMessage
@@ -83,6 +86,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             base.OnGetState(info, mode);
             info.AddValue("_title", _title);
+            info.AddValue("_mlModelName", _mlModelName); 
             info.AddValue("_attributeIdOn", _attributeIdOn);
             info.AddValue("_attributeIdNotOn", _attributeIdNotOn);
             info.AddValue("_returnMessage", _returnMessage);
@@ -93,6 +97,7 @@ namespace BusinessLibrary.BusinessClasses
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
             _title = info.GetValue<string>("_title");
+            _mlModelName = info.GetValue<string>("_mlModelName");
             _attributeIdOn = info.GetValue<Int64>("_attributeIdOn");
             _attributeIdNotOn = info.GetValue<Int64>("_attributeIdNotOn");
             _returnMessage = info.GetValue<string>("_returnMessage");
@@ -103,34 +108,6 @@ namespace BusinessLibrary.BusinessClasses
 
 
 #if !SILVERLIGHT
-
-        protected override void DataPortal_Execute()
-        {
-            //if (_title == "DeleteThisModel~~")
-            //{
-            //    DeleteModel();
-            //    return;
-            //}
-            //if (_title.Contains("¬¬CheckScreening"))
-            //{
-            //    DoApplyCheckOrPriorityScreening("ChckS");
-            //    return;
-            //}
-            //if (_title.Contains("¬¬PriorityScreening"))
-            //{
-            //    DoApplyCheckOrPriorityScreening("PrioS");
-            //    return;
-            //}
-            //if (_attributeIdOn + _attributeIdNotOn != -2)
-            //{
-            //    DoTrainClassifier();
-            //}
-            //else
-            //{
-            //    DoApplyClassifier(_classifierId);
-            //}
-            DoNewVersion();
-        }
 
         /* *********************************************************************************************
          * ******************************** NEW REFACTORED VERSION**************************************
@@ -143,12 +120,23 @@ namespace BusinessLibrary.BusinessClasses
         string ClfFile = "";
         string LocalFileName = ""; // local temp file for uploading data
         string RemoteFolder = "";
+        string RunType = "";
         int ModelReviewId = -1;
         string BatchGuid = "";
         bool OpenAlexAutoUpdate = false;
         bool buildingNewModel = false;
 
-        private void DoNewVersion()
+        //dictionary used to translate from strings saved in `tb_CLASSIFIER_MODEL` (and the UI) to strings expected by the datafactory
+        //keys are the former (DB and UI), values the latter (expected by DF)
+        public static Dictionary<string, string> MlModels = new Dictionary<string, string>{
+              { "oldLogReg", "Original EPPI Reviewer Classifier (LogReg)" }
+            , { "lightgbm", "lightgbm"} //AKA "Light Gradient-Boosting Machine"
+            , { "rfc", "RandomForestClassifier" } //AKA
+            , { "xgboost", "xgboost" } //AKA "eXtreme Gradient Boosting"
+            , { "svc", "SVC" } //AKA "Support Vector Clustering"
+        };
+
+        protected override void DataPortal_Execute()
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             int ReviewId = ri.ReviewId;
@@ -180,22 +168,15 @@ namespace BusinessLibrary.BusinessClasses
                 DoApplyCheckOrPriorityScreening2(ReviewId, ContactId, "PrioS");
                 return;
             }
-            // We're setting attributes, with _attributeIdClassifyTo = 0, and therefore building or rebuilding a model with the old system
-            if (_attributeIdOn + _attributeIdNotOn != -2 && _attributeIdClassifyTo == 0)
+            // We're setting attributes, and therefore building or rebuilding a model
+            if (_attributeIdOn + _attributeIdNotOn != -2)
             {
                 SetLocalTempFilename(ReviewId, ContactId, "Build");
                 // setting filenames later once we have a modelid
                 DoTrainClassifier(ReviewId, ContactId);
                 return;
             }
-            // We're setting attributes, with _attributeIdClassifyTo != 0, and therefore building or rebuilding a model with the newer system (July 2025).
-            if (_attributeIdOn + _attributeIdNotOn != -2 && _attributeIdClassifyTo != 0)
-            {
-                SetLocalTempFilename(ReviewId, ContactId, "Build");
-                // setting filenames later once we have a modelid
-                DoTrainClassifier(ReviewId, ContactId);
-                return;
-            }
+            
             // if we're not setting attributes AND classifierId is positive, we're scoring using an existing user model
             if (_attributeIdOn + _attributeIdNotOn == -2 && _classifierId > 0)
             {
@@ -214,8 +195,9 @@ namespace BusinessLibrary.BusinessClasses
             }
 
         }
-        private void DoTrainClassifier(int ReviewId, int ContactId) // building a classifier
+        private void DoTrainClassifier(int ReviewId, int ContactId, bool IsOld = true) // building a classifier
         {
+            RunType = "TrainClassifier";
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 int NewJobId = 0;
@@ -231,6 +213,7 @@ namespace BusinessLibrary.BusinessClasses
                         command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
                         command.Parameters.Add(new SqlParameter("@MODEL_TITLE", _title + " (in progress...)"));
                         command.Parameters.Add(new SqlParameter("@CONTACT_ID", ContactId));
+                        command.Parameters.Add(new SqlParameter("@ML_MODEL_NAME", _mlModelName));
                         command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_ON", _attributeIdOn));
                         command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_NOT_ON", _attributeIdNotOn));
                         command.Parameters.Add(new SqlParameter("@NEW_MODEL_ID", 0));
@@ -271,9 +254,19 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     UndoChangesToClassifierRecord(NewJobId, false);
                     return;
-                }// there's enough data, so we keep going
-
-                Task.Run(() => FireAndForget(ReviewId, NewJobId, "TrainClassifier", ContactId));
+                }
+                // there's enough data, so we keep going
+                if (_mlModelName != "oldLogReg") //new models require two files - training data and one to apply the model to
+                {
+                    LocalFileName = LocalFileName.Replace("Build.tsv", "Apply4Build.tsv");
+                    if (!QueryDbAndSaveTempFileWithoutLabels(ReviewId,ContactId))
+                    {
+                        UndoChangesToClassifierRecord(NewJobId, false);
+                        return;
+                    }
+                    LocalFileName = LocalFileName.Replace("Apply4Build.tsv", "Build.tsv");//set the filename to what it usually is
+                }
+                Task.Run(() => FireAndForget(ReviewId, NewJobId, ContactId));
             }
         }
         private void UndoChangesToClassifierRecord(int JobId, bool Leave_a_trace = true)
@@ -334,6 +327,7 @@ namespace BusinessLibrary.BusinessClasses
         }
         private void DoApplyClassifier2(int ReviewId, int ContactId, string modelFolder)
         {
+            RunType = "ApplyClassifier";
             int NewJobId = 0;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -387,12 +381,13 @@ namespace BusinessLibrary.BusinessClasses
                     } //if (OpenAlexAutoUpdate), we create/fill the local file inside FireAndForget, as it can take about 5s per 1000 works, so can easily take minutes.
                 } 
                 
-                Task.Run(() => FireAndForget(ReviewId, NewJobId, "ApplyClassifier", ContactId));
+                Task.Run(() => FireAndForget(ReviewId, NewJobId, ContactId));
             }
         }
 
         private void DoApplyCheckOrPriorityScreening2(int ReviewId, int ContactId, string CheckOrPriority)
         {
+            RunType = CheckOrPriority;
             int NewJobId = CanRunCheckAndMarkAsStarting(ReviewId, ContactId, CheckOrPriority, ModelReviewId, _title);
             if (NewJobId == 0)
             {
@@ -412,7 +407,7 @@ namespace BusinessLibrary.BusinessClasses
                 File.Delete(LocalFileName);
                 return;
             }
-            Task.Run(() => FireAndForget(ReviewId, NewJobId, CheckOrPriority, ContactId));
+            Task.Run(() => FireAndForget(ReviewId, NewJobId, ContactId));
         }
 
         private int CanRunCheckAndMarkAsStarting(int ReviewId, int ContactId, string JobType, int ReviewIdOfModel, string title)
@@ -463,7 +458,7 @@ namespace BusinessLibrary.BusinessClasses
         private void SetRemoteFileNames(int ReviewId, int ContactId, string rootFolder, string DataFileName)
         {
             BatchGuid = Guid.NewGuid().ToString();
-            if (rootFolder == "user_models/")
+            if (rootFolder == "user_models/" && _mlModelName == "oldLogReg") //original system
             {
                 RemoteFolder = rootFolder + DataFactoryHelper.NameBase + "ReviewId" + ReviewId.ToString() + "ModelId" + _classifierId + "/";
                 string RemoteModelFolder = rootFolder + DataFactoryHelper.NameBase + "ReviewId" + ModelReviewId.ToString() + "ModelId" + _classifierId + "/";
@@ -471,7 +466,16 @@ namespace BusinessLibrary.BusinessClasses
                 VecFile = RemoteModelFolder + "Vectors.pkl";
                 ClfFile = RemoteModelFolder + "Clf.pkl";
                 ScoresFile = RemoteFolder + "ScoresFile.tsv";
-            }// SG Feb 2025 added "else" to these IFs
+            }
+            else if (rootFolder == "user_models/") //must be one of the new ML models (lightgbm | rfc | xgboost | SVC)
+            {
+                RemoteFolder = rootFolder + DataFactoryHelper.NameBase + "ReviewId" + ReviewId.ToString() + "ModelId" + _classifierId + "/";
+                string RemoteModelFolder = rootFolder + DataFactoryHelper.NameBase + "ReviewId" + ModelReviewId.ToString() + "ModelId" + _classifierId + "/";
+                DataFile = RemoteFolder + DataFileName;
+                VecFile = RemoteModelFolder + "Vectors.pkl";
+                ClfFile = RemoteModelFolder + "Clf.pkl";
+                ScoresFile = RemoteFolder + "ScoresFile.tsv";
+            }
             else if (rootFolder == "priority_screening_simulation/")
             {
                 RemoteFolder = rootFolder + DataFactoryHelper.NameBase + "ReviewId" + ReviewId.ToString() + "/";
@@ -763,7 +767,8 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         // ************************* Now the async stuff starts. All types of calls end above with a call to FireAndForget, which then controlls program flow from here on ******************
-        private async void FireAndForget(int ReviewId, int LogId, string RunType, int ContactId)
+        // ************************* Exceptions need to be caught within local code as there is nothing else than can catch them now, and if not caught, can bring ER down ******************
+        private async void FireAndForget(int ReviewId, int LogId, int ContactId)
         {
             if (RunType == "ApplyClassifier" && OpenAlexAutoUpdate)
             {//getting data from OpenAlex, which is slow, so we do it here, rather than when the user is still waiting for the ER API to answer.
@@ -773,7 +778,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
 
-            // everything uploads the temp file to blob
+            // everything uploads a temp file to blob
             if (!UploadTempFileToBlob(ReviewId, LogId))
             {
                 if (RunType == "TrainClassifier")
@@ -786,7 +791,31 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 return;
             }
+            //but for new classifier system, we upload also a file to apply the new model to
+            if (RunType == "TrainClassifier" && _mlModelName != "oldLogReg")
+            {
+                LocalFileName = LocalFileName.Replace("Build.tsv", "Apply4Build.tsv");
+                DataFile = DataFile.Replace("DataForTraining.tsv", "DataForTrainingEvaluation.tsv");
+                if (!UploadTempFileToBlob(ReviewId, LogId))
+                {
+                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                    {
+                        connection.Open();
+                        UndoChangesToClassifierRecord(LogId, true);
+                    }
+                    return;
+                }
+                LocalFileName = LocalFileName.Replace("Apply4Build.tsv", "Build.tsv");//set the filenames back to what it usually is
+                DataFile = DataFile.Replace("DataForTrainingEvaluation.tsv", "DataForTraining.tsv");
+            }
             Dictionary<string, object> parameters = GetAdfParameters(RunType);
+
+            if (parameters.Count == 0 && RunType == "TrainClassifier")
+            {
+                UndoChangesToClassifierRecord(LogId, true);
+                return;
+            }
+
             // everything triggers the ADF API
             bool DFresult = await RunDataFactoryJobAsync(ReviewId, LogId, parameters);
             if (DFresult) //if DF didn't work, we trust the reason was logged appropriately either in DFHelper or in RunDataFactoryJobAsync
@@ -871,7 +900,37 @@ namespace BusinessLibrary.BusinessClasses
 
         private Dictionary<string, object> GetAdfParameters(string jobType)
         {
-            Dictionary<string, object> parameters = new Dictionary<string, object>
+            if (jobType == "TrainClassifier" && _mlModelName != "oldLogReg")
+            {//completely different parameters are used for the newer classifiers (25/07/2025)
+                string modelName = "N/A";
+                var mdl = MlModels[_mlModelName];
+                if (mdl == null)
+                {//something is wrong, we're trying to train for a model we did not recognise
+                    //code calling this method will detect the case where we return no params at all
+                    return new Dictionary<string, object>();
+                }
+                else
+                {
+                    modelName = mdl;
+                }
+                Dictionary<string, object> parameters = new Dictionary<string, object>
+                {
+                    { "labelled_data_path", DataFile.Replace(RemoteFolder, "")}
+                    ,{ "unlabelled_data_path", DataFile.Replace("DataForTraining.tsv", "DataForTrainingEvaluation.tsv").Replace(RemoteFolder, "")}
+                    ,{ "label_header", "Incl" }
+                    ,{ "positive_class_value", 1 }
+                    ,{ "title_header", "PaperTitle"  }
+                    ,{ "abstract_header", "Abstract" } 
+                    ,{ "model_name", modelName}
+                    ,{ "working_container_url", "https://eppimlprod.blob.core.windows.net/eppi-reviewer-data/" + RemoteFolder}
+                    ,{ "output_container_path", "Output"}
+                    , {"managed_identity_client_id", AzureSettings.dataFactoryManagedIdentity}
+                };
+                return parameters;
+            }
+            else
+            {
+                Dictionary<string, object> parameters = new Dictionary<string, object>
                 {
                     {"DataFile", DataFile },
                     {"ScoresFile", ScoresFile },
@@ -879,23 +938,24 @@ namespace BusinessLibrary.BusinessClasses
                     {"VecFile", VecFile},
                     {"ClfFile", ClfFile}
                 };
-            switch (jobType)
-            {
-                case "TrainClassifier":
-                    parameters.Add("do_build_log_reg", true);
-                    break;
-                case "ApplyClassifier":
-                    parameters.Add(GetModelParam(), true);
-                    break;
-                case "PrioS":
-                    parameters.Add("do_priority_screening_simulation", true);
-                    break;
-                case "ChckS":
-                    parameters.Add("do_check_screening", true);
-                    break;
+                switch (jobType)
+                {
+                    case "TrainClassifier":
+                        parameters.Add("do_build_log_reg", true);
+                        break;
+                    case "ApplyClassifier":
+                        parameters.Add(GetModelParam(), true);
+                        break;
+                    case "PrioS":
+                        parameters.Add("do_priority_screening_simulation", true);
+                        break;
+                    case "ChckS":
+                        parameters.Add("do_check_screening", true);
+                        break;
 
+                }
+                return parameters;
             }
-            return parameters;
         }
 
         private string GetModelParam()
@@ -931,7 +991,9 @@ namespace BusinessLibrary.BusinessClasses
             try
             {
                 DataFactoryHelper DFH = new DataFactoryHelper();
-                DataFactoryRes = await DFH.RunDataFactoryProcessV2("EPPI-Reviewer_API", parameters, ReviewId, LogId, "ClassifierCommandV2", this.CancelToken);
+                string pipelineName = "EPPI-Reviewer_API";
+                if (RunType == "TrainClassifier" && _mlModelName != "oldLogReg") pipelineName = "Sam Find Model Pipeline";
+                DataFactoryRes = await DFH.RunDataFactoryProcessV2(pipelineName, parameters, ReviewId, LogId, "ClassifierCommandV2", this.CancelToken);
             }
             catch (Exception ex)
             {

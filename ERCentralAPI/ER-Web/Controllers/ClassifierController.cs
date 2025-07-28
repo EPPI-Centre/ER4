@@ -89,14 +89,15 @@ namespace ERxWebClient2.Controllers
             {
                 if (SetCSLAUser4Writing())
                 {
-                    ClassifierCommandV2 cmd = new ClassifierCommandV2(
-                            MVCcmd._title
-                            , MVCcmd._attributeIdOn
-                            , MVCcmd._attributeIdNotOn
-                            , MVCcmd._attributeIdClassifyTo
-                            , MVCcmd._classifierId
-                            , MVCcmd._sourceId
-                        );
+					ClassifierCommandV2 cmd = new ClassifierCommandV2(
+							MVCcmd._title
+							, MVCcmd._attributeIdOn
+							, MVCcmd._attributeIdNotOn
+							, MVCcmd._attributeIdClassifyTo
+							, MVCcmd._classifierId
+							, MVCcmd._sourceId
+							, MVCcmd._mlModelName
+						);
                     cmd.RevInfo = MVCcmd.revInfo.ToCSLAReviewInfo();
 
                     DataPortal<ClassifierCommandV2> dp = new DataPortal<ClassifierCommandV2>();
@@ -298,8 +299,9 @@ namespace ERxWebClient2.Controllers
 
         public class MVCClassifierCommand
 		{
-			public string _title { get; set; }
-			public int _attributeIdOn { get; set; }
+			public string _title { get; set; } = "";
+			public string _mlModelName { get; set; } = "oldLogReg";
+            public int _attributeIdOn { get; set; }
 			public int _attributeIdNotOn { get; set; }
             public int _attributeIdClassifyTo { get; set; }
             public int _sourceId { get; set; }

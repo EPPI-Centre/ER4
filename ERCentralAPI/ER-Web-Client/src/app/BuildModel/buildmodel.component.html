@@ -3,53 +3,68 @@
     Close/back
 </button>
 
-<div class="container col-md-12 form p-0 ">
-	<p hidden>{{selectedNode?.name}}</p>
-	<div class="col-md-12 row card p-0 m-0">
-		<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
-			<div class="col-md-12 row form-group pt-1 mt-1 mt-md-0">
-				<!--<label *ngIf="reviewSetsService.selectedNode" class="font-weight-bold col-md-6 row p-1 "> &nbsp; Current code: {{_reviewSetsService.selectedNode?.name}}</label>-->
-				<div class="col-12 col-sm-6 col-md-4 col-lg-3 ">Learn to apply this code:</div>
-				<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-4">
+<div class="container  col-12 p-0 ">
+	<div class="row bg-light border border-primary rounded m-1 p-1">
+		<div class="col-12 col-md-8 p-0 m-0">
+			<div *ngIf="IsSiteAdmin" class="col-12 row py-1 mx-0 px-0">
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3 my-auto mx-0 px-0">
+					<div class="mx-1">ML Model to build:</div>
+				</div>
+				<select class="alert-info col-12 col-sm-10 col-md-8 col-lg-9  mx-0 px-0 py-1" name="ModelSelector"
+								[disabled]="!HasWriteRights" [(ngModel)]="selectedModel">
+					<option *ngFor="let mod of modelsList"
+									[ngValue]="mod" [selected]="mod == selectedModel">
+						{{mod.value}}
+					</option>
+				</select>
+			</div>
+
+			<div class="col-12 row py-1 mx-0 px-0">
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3 my-auto mx-0 px-0">
+					<div class="mx-1">Learn to apply this code:</div>
+				</div>
+				<div ngbDropdown class="d-inline-block col-12 col-sm-10 col-md-8 col-lg-9">
 					<button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree" (click)="isCollapsed = !isCollapsed; isCollapsed3=false; isCollapsed2=false" [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree">{{selectedModelDropDown1}}&nbsp;</button>
 					<div (click)="SetAttrOn(nodeSelected)" class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
 						<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown1()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 					</div>
 				</div>
 			</div>
-			<div class="col-md-12 row form-group">
-				<div class="col-12 col-sm-6 col-md-4 col-lg-3 ">Distinguish from this code:</div>
-				<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-4">
+			<div class="col-12 row py-1 mx-0 px-0">
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3 my-auto mx-0 px-0">
+					<div class="mx-1">Distinguish from this code:</div>
+				</div>
+				<div ngbDropdown class="d-inline-block col-12 col-sm-10 col-md-8 col-lg-9">
 					<button class="btn btn-primary col-12  dropdown-toggle" id="dropdownTree2" (click)="isCollapsed2 = !isCollapsed2; isCollapsed=false; isCollapsed3=false" [attr.aria-expanded]="!isCollapsed2" aria-controls="collapseCodeTree2">{{selectedModelDropDown2}}&nbsp;</button>
 					<div (click)="SetAttrNotOn(nodeSelected)" class="dropdown-menu" id="collapseCodeTree2" [ngbCollapse]="!isCollapsed2">
 						<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown2()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 					</div>
 				</div>
 			</div>
-			<div *ngIf="IsSiteAdmin" class="col-md-12 row form-group">
-				<div class="col-12 col-sm-6 col-md-4 col-lg-3 ">Inference (test) set:</div>
-				<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-4">
+			<div *ngIf="selectedModel.key != 'oldLogReg'" class="col-12 row py-1 mx-0 px-0">
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3 my-auto mx-0 px-0">
+					<div class="mx-1">Inference (test) set:</div>
+				</div>
+				<div ngbDropdown class="d-inline-block col-12 col-sm-10 col-md-8 col-lg-9">
 					<button class="btn btn-danger col-12 dropdown-toggle" id="dropdownTree2" (click)="isCollapsed3 = !isCollapsed3; isCollapsed=false; isCollapsed2=false" [attr.aria-expanded]="!isCollapsed3" aria-controls="collapseCodeTree3">{{selectedModelDropDown3}}&nbsp;</button>
 					<div (click)="SetAttrInference(nodeSelected)" class="dropdown-menu" id="collapseCodeTree3" [ngbCollapse]="!isCollapsed3">
 						<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown3()" [rootsOnly]="!CanOnlySelectRoots()"></codesetSelector>
 					</div>
 				</div>
 			</div>
-			<div class="col-md-12 row form-group">
-				<div class="col-12 col-sm-6 col-md-4 col-lg-3 ">Name for your model:</div>
-				<div class=" col-12 col-sm-6 col-md-4">
+			<div class="col-12 row py-1 mx-0 px-0">
+				<div class="col-12 col-sm-6 col-md-4 col-lg-3 my-auto mx-0 px-0">
+					<div class="mx-1">Name for your model:</div>
+				</div>
+				<div class=" col-12 col-sm-10 col-md-8 col-lg-9">
 					<input id="modelName" name="modelName" #modelName="ngModel" required minlength="4" [(ngModel)]="modelNameText" type="text" class="form-control bg-light form-control col-md-12" />
-
-					<div *ngIf="modelName.invalid && (modelName.dirty || modelName.touched) && modelName.errors"
-							 class="alert alert-danger">
-
+					<div *ngIf="modelName.invalid && (modelName.dirty || modelName.touched) && modelName.errors" class="alert alert-danger">
 						<div *ngIf="modelName.errors.required">
 							Model Name is required.
 						</div>
 						<div *ngIf="modelName.errors.minlength">
 							Model Name must be at least 4 characters long.
 						</div>
-
 					</div>
 					<div *ngIf="selectedModelDropDown1 == selectedModelDropDown2 && selectedModelDropDown1 != ''"
 							 class="alert alert-danger">
@@ -57,31 +72,29 @@
 					</div>
 				</div>
 			</div>
-			<div class="row col-md-12">
-				<div class="col-md-4">
-					<button class="btn btn-outline-danger p-2 m-2" [disabled]="!CanDeleteModel()"
-									(click)="openConfirmationDialogDeleteModels()">
-						Delete Selected Model(s)
-					</button>
-				</div>
-				<div class="col-md-6 row font-weight-bold">
-					<div class="col-md-6">
-						<button [disabled]="!CanBuildModel()" (click)="BuildModel(modelName)" class="btn btn-primary p-2 m-2"> Build Model</button>
-					</div>
-          <div class="col-md-6">
-            <button *ngIf="IsSiteAdmin" [disabled]="!CanBuildModel()" (click)="BuildModel2(modelName)" class="btn btn-danger p-2 m-2">Build Model (new)</button>
-            <button (click)="IamVerySorryRefresh()" class="btn btn-info p-2 m-2">Refresh Models</button>
-          </div>
-				</div>
-				<div class="col-md-2"></div>
-			</div>
 		</div>
 
+		<div class="col-12 col-md-4 p-0 m-0 d-flex">
+			<div *ngIf="IsSiteAdmin" class="rounded bg-white mx-auto my-auto p-2 ">Advanced options here</div>
+		</div>
+
+		<div class="row col-12">
+			<button class="btn btn-outline-danger p-2 m-2" [disabled]="!CanDeleteModel()"
+							(click)="openConfirmationDialogDeleteModels()">
+				Delete Selected Model(s)
+			</button>
+			<button *ngIf="selectedModel.key == 'oldLogReg'" [disabled]="!CanBuildModel()" (click)="BuildModel(modelName)" class="btn btn-primary p-2 m-2"> Build Model</button>
+		  <button *ngIf="selectedModel.key != 'oldLogReg'" [disabled]="!CanBuildModel()" (click)="BuildModel2(modelName)" class="btn btn-danger p-2 m-2">Build Model (new)</button>
+			<button (click)="Refresh()" class="btn btn-info p-2 m-2">Refresh Models</button>
+		</div>
+	</div>
+
+	<div class="col-md-12 row card p-0 m-0">
 		<div class="col-md-12">
 			<kendo-grid [data]="DataSource" [height]="410"
 									[sort]="sort"
 									(sortChange)="sortChange($event)"
-									(remove)="removeHandler($event)">
+									>
 
 				<kendo-grid-column [sortable]="false" field="add" [width]="50"
 													 [headerStyle]="{'text-align': 'center'}"
