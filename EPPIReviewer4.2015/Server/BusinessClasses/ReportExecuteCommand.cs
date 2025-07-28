@@ -159,11 +159,12 @@ namespace BusinessLibrary.BusinessClasses
         protected void HorizontalReport(Csla.Data.SafeDataReader reader)
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            int reviewId = ri.ReviewId;
             ReportColumnList rcl = ReportColumnList.NewReportColumnList();
             _return_report = "";
             while (reader.Read())
             {
-                ReportColumn newReportColumn = ReportColumn.GetReportColumn(reader, ri.ReviewId);
+                ReportColumn newReportColumn = ReportColumn.GetReportColumn(reader, reviewId);
                 rcl.Add(newReportColumn);
             }
             if (rcl.Count > 0)

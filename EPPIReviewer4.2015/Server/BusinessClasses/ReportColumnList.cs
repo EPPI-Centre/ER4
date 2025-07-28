@@ -55,6 +55,7 @@ namespace BusinessLibrary.BusinessClasses
         protected void DataPortal_Fetch(SingleCriteria<ReportColumnList, int> criteria)
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as BusinessLibrary.Security.ReviewerIdentity;
+            int reviewId = ri.ReviewId;
             RaiseListChangedEvents = false;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -67,7 +68,7 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         while (reader.Read())
                         {
-                            ReportColumn newReportColumn = ReportColumn.GetReportColumn(reader, ri.ReviewId);
+                            ReportColumn newReportColumn = ReportColumn.GetReportColumn(reader, reviewId);
                             Add(newReportColumn);
                         }
                     }

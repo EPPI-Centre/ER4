@@ -340,7 +340,7 @@ namespace BusinessLibrary.BusinessClasses
             //returnValue.LoadProperty<string>(DetailProperty, reader.GetString("REPORT_DETAIL"));
             returnValue.Columns = ReportColumnList.NewReportColumnList();
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-
+            int reviewId = ri.ReviewId;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
@@ -353,7 +353,7 @@ namespace BusinessLibrary.BusinessClasses
                         returnValue.Columns.RaiseListChangedEvents = false;
                         while (reader2.Read())
                         {
-                            returnValue.Columns.Add(ReportColumn.GetReportColumn(reader2, ri.ReviewId));
+                            returnValue.Columns.Add(ReportColumn.GetReportColumn(reader2, reviewId));
                         }
                         returnValue.Columns.RaiseListChangedEvents = true;
                     }
