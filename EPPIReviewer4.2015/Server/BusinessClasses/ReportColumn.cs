@@ -179,7 +179,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        internal static ReportColumn GetReportColumn(SafeDataReader reader)
+        internal static ReportColumn GetReportColumn(SafeDataReader reader, int ReviewId)
         {
             ReportColumn returnValue = new ReportColumn();
             returnValue.LoadProperty<int>(ReportColumnIdProperty, reader.GetInt32("REPORT_COLUMN_ID"));
@@ -193,6 +193,7 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlCommand command = new SqlCommand("st_ReportColumnCodeList", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
                     command.Parameters.Add(new SqlParameter("@REPORT_COLUMN_ID", returnValue.ReadProperty(ReportColumnIdProperty)));
                     using (Csla.Data.SafeDataReader reader2 = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {

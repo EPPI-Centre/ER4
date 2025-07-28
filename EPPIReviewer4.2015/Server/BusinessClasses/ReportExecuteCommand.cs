@@ -158,11 +158,12 @@ namespace BusinessLibrary.BusinessClasses
 
         protected void HorizontalReport(Csla.Data.SafeDataReader reader)
         {
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             ReportColumnList rcl = ReportColumnList.NewReportColumnList();
             _return_report = "";
             while (reader.Read())
             {
-                ReportColumn newReportColumn = ReportColumn.GetReportColumn(reader);
+                ReportColumn newReportColumn = ReportColumn.GetReportColumn(reader, ri.ReviewId);
                 rcl.Add(newReportColumn);
             }
             if (rcl.Count > 0)
@@ -468,9 +469,10 @@ namespace BusinessLibrary.BusinessClasses
 
             int attributeCount = 0;
             int outcomeAttributeCount = 0;
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             while (reader.Read())
             {
-                ReportColumn newReportColumn = ReportColumn.GetReportColumn(reader);
+                ReportColumn newReportColumn = ReportColumn.GetReportColumn(reader, ri.ReviewId);
                 rcl.Add(newReportColumn);
                 if (newReportColumn.Codes.Count > 0)
                 {
@@ -624,10 +626,10 @@ namespace BusinessLibrary.BusinessClasses
                 dt.Columns.Add(new DataColumn("Imported Id", System.Type.GetType("System.String")));
             }
             dt.Columns.Add(new DataColumn("Title", System.Type.GetType("System.String")));
-
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             while (reader.Read())
             {
-                ReportColumn newReportColumn = ReportColumn.GetReportColumn(reader);
+                ReportColumn newReportColumn = ReportColumn.GetReportColumn(reader, ri.ReviewId);
                 rcl.Add(newReportColumn);
                 if (newReportColumn.Codes.Count > 0)
                 {
