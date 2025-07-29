@@ -136,7 +136,8 @@ export class editItemDetailsComp implements OnInit, OnDestroy {
     Save() {
         if (this.item) {
             this.ItemListService.UpdateItem(this.item);
-            if (this.returnTo == "itemcoding/PriorityScreening2") this.priorityScreeningService.CurrentItem = this.item;//so that my changes will be visible
+          if (this.returnTo == "itemcoding/PriorityScreening2"
+            || this.returnTo == "itemcoding/ScreeningFromList2" ) this.priorityScreeningService.CurrentItem = this.item;//so that my changes will be visible
         }
     }
     private GetItem() {

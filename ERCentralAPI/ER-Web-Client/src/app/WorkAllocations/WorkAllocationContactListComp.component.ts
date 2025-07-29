@@ -186,20 +186,44 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
       return true;
     else return false;
   }
+  HasScreeningFromSearchList(): boolean {
+    if (this.reviewInfoService
+      && this.reviewInfoService.ReviewInfo
+      && this.reviewInfoService.ReviewInfo.showScreening
+      && this.reviewInfoService.ReviewInfo.screeningCodeSetId != 0
+      && this.reviewInfoService.ReviewInfo.screeningFromSearchListIsGood
+      && this.ReviewerIdentityServ.HasWriteRights)
+      return true;
+    else return false;
+  }
 
   private subGotPriorityScreeningData: Subscription | null = null;
   StartScreening() {
-    //alert('Start Screening: not implemented');
     this.ItemListService.IsInScreeningMode = true;
     this.subGotPriorityScreeningData = this.PriorityScreeningService.gotList.subscribe(this.ContinueStartScreening());
     this.PriorityScreeningService.Fetch();
 
   }
+  StartScreeningFromList() {
+    this.ItemListService.IsInScreeningMode = true;
+    this.subGotPriorityScreeningData = this.PriorityScreeningService.gotList.subscribe(this.ContinueStartScreeningFromList());
+    this.PriorityScreeningService.Fetch();
+
+  }
+
   ContinueStartScreening() {
     if (this.subGotPriorityScreeningData) this.subGotPriorityScreeningData.unsubscribe();
     if (this.Context == 'FullUI') this.router.navigate(['itemcoding', 'PriorityScreening']);
     else if (this.Context == 'CodingOnly') this.router.navigate(['itemcodingOnly', 'PriorityScreening']);
   }
+
+  ContinueStartScreeningFromList() {
+    if (this.subGotPriorityScreeningData) this.subGotPriorityScreeningData.unsubscribe();
+    if (this.Context == 'FullUI') this.router.navigate(['itemcoding', 'ScreeningFromList']);
+    else if (this.Context == 'CodingOnly') this.router.navigate(['itemcodingOnly', 'ScreeningFromList']);
+  }
+
+
   ngOnDestroy() {
     if (this.subWorkAllocationsLoaded) this.subWorkAllocationsLoaded.unsubscribe();
     //if (this.subCodingCheckBoxClickedEvent) this.subCodingCheckBoxClickedEvent.unsubscribe();

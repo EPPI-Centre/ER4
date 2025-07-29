@@ -427,14 +427,31 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     if (this.itemString == 'PriorityScreening') {
       if (this.subGotScreeningItem == null) this.subGotScreeningItem = this.PriorityScreeningService.gotItem.subscribe(() => this.GotScreeningItem());
       this.IsScreening = true;
-      console.log("asking for next screening item");
+      this.PriorityScreeningService.UsingListFromSearch = false;
+      //console.log("asking for next screening item");
       this.PriorityScreeningService.NextItem();
     }
     else if (this.itemString == 'PriorityScreening2') {//we're back from editing an item
       if (this.subGotScreeningItem == null) this.subGotScreeningItem = this.PriorityScreeningService.gotItem.subscribe(() => this.GotScreeningItem());
       this.IsScreening = true;
+      this.PriorityScreeningService.UsingListFromSearch = false;
       this.itemString = 'PriorityScreening';//just for safety...
-      console.log("NOT(!) asking for next screening item");
+      //console.log("NOT(!) asking for next screening item");
+      this.GotScreeningItem();
+    }
+    else if (this.itemString == 'ScreeningFromList') {
+      if (this.subGotScreeningItem == null) this.subGotScreeningItem = this.PriorityScreeningService.gotItem.subscribe(() => this.GotScreeningItem());
+      this.IsScreening = true;
+      this.PriorityScreeningService.UsingListFromSearch = true;
+      //console.log("asking for next screening item");
+      this.PriorityScreeningService.NextItem();
+    }
+    else if (this.itemString == 'ScreeningFromList2') {//we're back from editing an item
+      if (this.subGotScreeningItem == null) this.subGotScreeningItem = this.PriorityScreeningService.gotItem.subscribe(() => this.GotScreeningItem());
+      this.IsScreening = true;
+      this.PriorityScreeningService.UsingListFromSearch = true;
+      this.itemString = 'ScreeningFromList';//just for safety...
+      //console.log("NOT(!) asking for next screening item");
       this.GotScreeningItem();
     }
     else {

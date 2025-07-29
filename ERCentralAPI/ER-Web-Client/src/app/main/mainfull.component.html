@@ -28,9 +28,9 @@
                           Sources <span [innerHTML]="SourcesPanelTogglingSymbol"></span>
                         </button>
                         <!--<button *ngIf="HasAdminRights" type="button" class="btn btn-outline-primary m-1" (click)="toggleReviewersPanel()"
-                                >
-                          Reviewers <span [innerHTML]="ReviewersPanelTogglingSymbol"></span>
-                        </button>-->
+              >
+        Reviewers <span [innerHTML]="ReviewersPanelTogglingSymbol"></span>
+      </button>-->
                       </div>
                       <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed" class="mt-1"
                                        style="max-height: 520px;"></readonlyreviews>
@@ -53,6 +53,14 @@
                       <div class="border border-primary rounded align-content-end row p-1 mx-0 mt-1">
                         <div class="mx-1">The Screening List is <b>Enabled and Ready</b>:</div>
                         <button (click)="StartScreening()" class="btn btn-sm btn-primary mx-0 py-0 px-1">
+                          Start Screening
+                        </button>
+                      </div>
+                    </div>
+                    <div *ngIf="HasSreeningFromSearchList">
+                      <div class="border border-primary rounded align-content-end row p-1 mx-0 mt-1">
+                        <div class="mx-1">The <span class="p-1 m-1 border border-info rounded ">Screening From Search</span> List is <b>Enabled and Ready</b>:</div>
+                        <button (click)="StartScreeningFromList()" class="btn btn-sm btn-info mx-0 py-0 px-1">
                           Start Screening
                         </button>
                       </div>

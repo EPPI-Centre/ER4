@@ -46,7 +46,7 @@ namespace ERxWebClient2.Controllers
                 if (SetCSLAUser4Writing())
                 {
                     DataPortal<TrainingNextItem> dp = new DataPortal<TrainingNextItem>();
-                    TrainingNextItem result = dp.Fetch(new SingleCriteria<TrainingNextItem, int>(crit.Value));
+                    TrainingNextItem result = dp.Fetch(new ScreeningItemCriteria(crit.Value, false));
                     return Ok(result);
                 }
                 else return Forbid();
@@ -66,7 +66,7 @@ namespace ERxWebClient2.Controllers
                 if (SetCSLAUser4Writing())
                 {
                     DataPortal<TrainingPreviousItem> dp = new DataPortal<TrainingPreviousItem>();
-                    TrainingPreviousItem result = dp.Fetch(new SingleCriteria<TrainingPreviousItem, Int64>(crit.Value));
+                    TrainingPreviousItem result = dp.Fetch(new ScreeningGivenItemCriteria(crit.Value, false));
                     return Ok(result);
                 }
                 else return Forbid();
@@ -74,10 +74,53 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 string json = JsonConvert.SerializeObject(crit);
-                _logger.LogError(e, "Dataportal Error with Training of the previous item: {0}", json);
+                _logger.LogError(e, "Dataportal Error in TrainingPreviousItem: {0}", json);
                 return StatusCode(500, e.Message);
             }
         }
+
+        [HttpPost("[action]")]
+        public IActionResult TrainingNextItemFromList([FromBody] SingleIntCriteria crit)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<TrainingNextItem> dp = new DataPortal<TrainingNextItem>();
+                    TrainingNextItem result = dp.Fetch(new ScreeningItemCriteria(crit.Value, true));
+                    return Ok(result);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                string json = JsonConvert.SerializeObject(crit);
+                _logger.LogError(e, "Dataportal Error in TrainingNextItemFromList: {0}", json);
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult TrainingPreviousItemFromList([FromBody] SingleInt64Criteria crit)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<TrainingPreviousItem> dp = new DataPortal<TrainingPreviousItem>();
+                    TrainingPreviousItem result = dp.Fetch(new ScreeningGivenItemCriteria(crit.Value, true));
+                    return Ok(result);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                string json = JsonConvert.SerializeObject(crit);
+                _logger.LogError(e, "Dataportal Error in TrainingPreviousItemFromList: {0}", json);
+                return StatusCode(500, e.Message);
+            }
+        }
+
+
         [HttpPost("[action]")]
         public IActionResult TrainingRunCommand([FromBody] SingleInt64Criteria crit)
         {

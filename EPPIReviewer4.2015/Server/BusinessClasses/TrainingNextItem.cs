@@ -112,7 +112,7 @@ namespace BusinessLibrary.BusinessClasses
 
         }
 
-        protected void DataPortal_Fetch(SingleCriteria<TrainingNextItem, int> criteria)
+        protected void DataPortal_Fetch(ScreeningItemCriteria criteria)
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -123,7 +123,8 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
-                    command.Parameters.Add(new SqlParameter("@TRAINING_CODE_SET_ID", criteria.Value));
+                    command.Parameters.Add(new SqlParameter("@TRAINING_CODE_SET_ID", criteria.TrainingSetId));
+                    command.Parameters.Add(new SqlParameter("@USE_LIST_FROM_SEARCH", criteria.IsListFromSearch));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         if (reader.Read())
@@ -162,6 +163,30 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 #endif
+
+    }
+    [Serializable]
+    public class ScreeningItemCriteria: CriteriaBase<ScreeningItemCriteria>
+    {
+        public ScreeningItemCriteria(int trainingSetId, bool isListFromSearchProperty)
+        //: base(type)
+        {
+            LoadProperty(TrainingSetIdProperty, trainingSetId);
+            LoadProperty(IsListFromSearchProperty, isListFromSearchProperty);
+        }
+#if !SILVERLIGHT
+        public ScreeningItemCriteria() { }
+#endif
+        private static PropertyInfo<int> TrainingSetIdProperty = RegisterProperty<int>(typeof(ScreeningItemCriteria), new PropertyInfo<int>("TrainingSetId", "TrainingSetId"));
+        public int TrainingSetId
+        {
+            get { return ReadProperty(TrainingSetIdProperty); }
+        }
+        private static PropertyInfo<bool> IsListFromSearchProperty = RegisterProperty<bool>(typeof(ScreeningItemCriteria), new PropertyInfo<bool>("IsListFromSearch", "IsListFromSearch"));
+        public bool IsListFromSearch
+        {
+            get { return ReadProperty(IsListFromSearchProperty); }
+        }
 
     }
 }

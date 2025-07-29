@@ -47,6 +47,16 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
   public CurrentItem: Item = new Item();
   public CurrentItemIndex: number = 0;
   public LastItemInTheQueueIsDone: boolean = false;
+  public UsingListFromSearch: boolean = false;
+
+  public get NextItemAPIendpoint(): string {
+    if (this.UsingListFromSearch) return 'api/PriorirtyScreening/TrainingNextItemFromList';
+    else return 'api/PriorirtyScreening/TrainingNextItem';
+  }
+  public get ScreenedItemAPIendpoint(): string {
+    if (this.UsingListFromSearch) return 'api/PriorirtyScreening/TrainingPreviousItemFromList';
+    else return 'api/PriorirtyScreening/TrainingPreviousItem';
+  }
 
   private _CurrentItemAdditionalData: iAdditionalItemDetails | null = null;
   public get CurrentItemAdditionalData(): iAdditionalItemDetails | null {
@@ -98,8 +108,8 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
     //otherwise ask for "next in list", which will reserve the item (TrainingNextItem)
     //console.log(this.CurrentItem == null);
     //console.log(this.CurrentItem.itemId == 0);
-    console.log(this.ScreenedItemIds.indexOf(this.CurrentItem.itemId));
-    console.log(this.ScreenedItemIds.length, this.ScreenedItemIds);
+    //console.log(this.ScreenedItemIds.indexOf(this.CurrentItem.itemId));
+    //console.log(this.ScreenedItemIds.length, this.ScreenedItemIds);
 
     if ((this.CurrentItem == null || this.CurrentItem.itemId == 0) || (this.ScreenedItemIds.indexOf(this.CurrentItem.itemId) == this.ScreenedItemIds.length - 1)) {
       this.FetchNextItem();
@@ -115,7 +125,7 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
   private FetchNextItem() {
     this._BusyMethods.push("FetchNextItem");
     let body = JSON.stringify({ Value: this.ReviewInfoService.ReviewInfo.screeningCodeSetId });
-    lastValueFrom(this._httpC.post<TrainingNextItem>(this._baseUrl + 'api/PriorirtyScreening/TrainingNextItem',
+    lastValueFrom(this._httpC.post<TrainingNextItem>(this._baseUrl + this.NextItemAPIendpoint,
       body)).then(
         success => {
           this.RemoveBusy("FetchNextItem");
@@ -146,7 +156,7 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
     let body = JSON.stringify({ Value: this.ScreenedItemIds[index] });
     //console.log("FetchScreenedItem", this.ScreenedItemIds.indexOf(this.CurrentItem.itemId));
     //console.log(this.ScreenedItemIds.length, this.ScreenedItemIds);
-    lastValueFrom(this._httpC.post<TrainingPreviousItem>(this._baseUrl + 'api/PriorirtyScreening/TrainingPreviousItem',
+    lastValueFrom(this._httpC.post<TrainingPreviousItem>(this._baseUrl + this.ScreenedItemAPIendpoint,
       body)).then(
         success => {
           this.RemoveBusy("FetchScreenedItem");

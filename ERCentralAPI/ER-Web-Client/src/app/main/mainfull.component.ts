@@ -261,13 +261,26 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
   StartScreening() {
     if (this.workAllocationsContactComp) this.workAllocationsContactComp.StartScreening();
   }
-
+  StartScreeningFromList() {
+    if (this.workAllocationsContactComp) this.workAllocationsContactComp.StartScreeningFromList();
+  }
   public get HasSreeningList(): boolean {
     if (this.reviewInfoService.ReviewInfo.reviewId != this.ReviewerIdentityServ.reviewerIdentity.reviewId) return false;
     else {
       if (this.reviewInfoService.ReviewInfo.showScreening
         && this.reviewInfoService.ReviewInfo.screeningCodeSetId > 0
         && this.reviewInfoService.ReviewInfo.screeningListIsGood) {
+        return true;
+      }
+    }
+    return false;
+  }
+  public get HasSreeningFromSearchList(): boolean {
+    if (this.reviewInfoService.ReviewInfo.reviewId != this.ReviewerIdentityServ.reviewerIdentity.reviewId) return false;
+    else {
+      if (this.reviewInfoService.ReviewInfo.showScreening
+        && this.reviewInfoService.ReviewInfo.screeningCodeSetId > 0
+        && this.reviewInfoService.ReviewInfo.screeningFromSearchListIsGood) {
         return true;
       }
     }

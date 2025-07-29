@@ -190,6 +190,19 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ScreeningListIsGoodProperty, value);
             }
         }
+
+        public static readonly PropertyInfo<bool> ScreeningFromSearchListIsGoodProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ScreeningFromSearchListIsGood", "ScreeningFromSearchListIsGood", false));
+        public bool ScreeningFromSearchListIsGood
+        {
+            get
+            {
+                return GetProperty(ScreeningFromSearchListIsGoodProperty);
+            }
+            set
+            {
+                SetProperty(ScreeningFromSearchListIsGoodProperty, value);
+            }
+        }
         //public static readonly  PropertyInfo<string> ScreeningDataFileProperty = RegisterProperty<string>(new PropertyInfo<string>("ScreeningDataFile", "ScreeningDataFile Id", ""));
         //public string ScreeningDataFile
         //{
@@ -513,6 +526,26 @@ namespace BusinessLibrary.BusinessClasses
                             else
                             {
                                 LoadProperty<bool>(ScreeningListIsGoodProperty, false);
+                            }
+                        }
+                    }
+                    using (SqlCommand command = new SqlCommand("st_TrainingNextItem", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                        command.Parameters.Add(new SqlParameter("@CONTACT_ID", ContactId));
+                        command.Parameters.Add(new SqlParameter("@TRAINING_CODE_SET_ID", ScreeningCodeSetId));
+                        command.Parameters.Add(new SqlParameter("@SIMULATE", 1));
+                        command.Parameters.Add(new SqlParameter("@USE_LIST_FROM_SEARCH", 1));
+                        using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                        {
+                            if (reader.Read())
+                            {
+                                LoadProperty<bool>(ScreeningFromSearchListIsGoodProperty, true);
+                            }
+                            else
+                            {
+                                LoadProperty<bool>(ScreeningFromSearchListIsGoodProperty, false);
                             }
                         }
                     }
