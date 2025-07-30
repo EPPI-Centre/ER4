@@ -199,12 +199,14 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
 
   private subGotPriorityScreeningData: Subscription | null = null;
   StartScreening() {
+    //console.log("StartScreening");
     this.ItemListService.IsInScreeningMode = true;
     this.subGotPriorityScreeningData = this.PriorityScreeningService.gotList.subscribe(this.ContinueStartScreening());
     this.PriorityScreeningService.Fetch();
 
   }
   StartScreeningFromList() {
+    //console.log("StartScreeningFromList");
     this.ItemListService.IsInScreeningMode = true;
     this.subGotPriorityScreeningData = this.PriorityScreeningService.gotList.subscribe(this.ContinueStartScreeningFromList());
     this.PriorityScreeningService.Fetch();
@@ -212,12 +214,14 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
   }
 
   ContinueStartScreening() {
+    //console.log("ContinueStartScreening");
     if (this.subGotPriorityScreeningData) this.subGotPriorityScreeningData.unsubscribe();
     if (this.Context == 'FullUI') this.router.navigate(['itemcoding', 'PriorityScreening']);
     else if (this.Context == 'CodingOnly') this.router.navigate(['itemcodingOnly', 'PriorityScreening']);
   }
 
   ContinueStartScreeningFromList() {
+    //console.log("ContinueStartScreeningFromList");
     if (this.subGotPriorityScreeningData) this.subGotPriorityScreeningData.unsubscribe();
     if (this.Context == 'FullUI') this.router.navigate(['itemcoding', 'ScreeningFromList']);
     else if (this.Context == 'CodingOnly') this.router.navigate(['itemcodingOnly', 'ScreeningFromList']);
