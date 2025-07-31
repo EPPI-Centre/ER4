@@ -458,6 +458,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
       //this.itemID = +this.itemString;
       this.item = this.ItemListService.getItem(+this.itemString);
       this.IsScreening = false;
+      this.PriorityScreeningService.UsingListFromSearch = false;
       this.GetItemCoding();
       //this.ItemListService.eventChange(this.itemID);
       //console.log('fill in arms here teseroo1');
