@@ -46,22 +46,30 @@
 	<ul *ngIf="IsScreening" class="pagination justify-content-start">
 		<li>
 			<button [ngClass]="{disabled:!CanGoToPreviousScreening()}"
-					[disabled]="!CanGoToPreviousScreening()"
-					class="page-link" (click)="prevScreeningItem()">
-				Previously Screened 
+							[disabled]="!CanGoToPreviousScreening()"
+							class="page-link" (click)="prevScreeningItem()">
+				Previously Screened
 			</button>
 
 		</li>
 		<li>
 			<button [ngClass]="{disabled:!CanMoveToNextInScreening()}"
-					[disabled]="!CanMoveToNextInScreening()"
-					class="page-link" (click)="GetScreeningItem()">
+							[disabled]="!CanMoveToNextInScreening()"
+							class="page-link" (click)="GetScreeningItem()">
 				Next In screening
 			</button>
 		</li>
 		<li class="small my-auto ml-2 px-1 rounded bg-light border border-info"
 				title="Number of items screened in this session">
-		{{PreviouslyScreenedCount}}
+			{{PreviouslyScreenedCount}}
+		</li>
+		<li *ngIf="IsListFromSearch" class="small my-auto ml-2 px-1 rounded alert-info border border-info"
+				title="You are using the 'From Search' screening list">
+			FS
+		</li>
+		<li *ngIf="!IsListFromSearch" class="small my-auto ml-2 px-1 rounded alert-primary border border-primary"
+				title="You are using the Priority Screening list">
+			PS
 		</li>
 	</ul>
 </div>
