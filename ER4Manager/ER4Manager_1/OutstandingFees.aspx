@@ -75,7 +75,7 @@
                 </td>
 
                 <td colspan="1" align="left" style="border-left: medium none #C0C0C0; border-right: medium none #C0C0C0; border-top: medium solid #C0C0C0; border-bottom: medium none #C0C0C0; padding: 6px; width: 30%; height: 51px;">
-                    <b>Outstanding fee (in £5 increments)</b><br />
+                    <b>Outstanding fee (excluding VAT)<br />in £1 increments</b><br />
                     <asp:TextBox ID="tbOutstandingFee" runat="server" Width="90%"></asp:TextBox>
                 </td>
                 <td colspan="1" style="border-left: medium none #C0C0C0; border-right: medium solid #C0C0C0; border-top: medium solid #C0C0C0; border-bottom: medium none #C0C0C0; padding: 6px; width: 10%; vertical-align: middle; height: 51px;"></td>

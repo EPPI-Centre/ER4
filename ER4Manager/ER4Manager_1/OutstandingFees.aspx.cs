@@ -304,8 +304,8 @@ public partial class OutstandingFees : System.Web.UI.Page
             if (tbOutstandingFee.Text.Contains('.'))
                 tbOutstandingFee.Text = tbOutstandingFee.Text.Remove(tbOutstandingFee.Text.IndexOf('.'));
            
-            // its an an int so check it is in £5 increments
-            if ((int.Parse(tbOutstandingFee.Text) % 5 == 0))
+            // its an an int so check it is in £1 increments
+            if ((int.Parse(tbOutstandingFee.Text) % 1 == 0)) // this check not really needed but the code was already there...
             {
                 string dateCreated = "";
                 try
@@ -359,7 +359,7 @@ public partial class OutstandingFees : System.Web.UI.Page
             else
             {
                 lblOutstandingFeeError.Visible = true;
-                lblOutstandingFeeError.Text = "Must be in £5 increments";
+                lblOutstandingFeeError.Text = "Must be in £1 increments";
             }
 
         }
