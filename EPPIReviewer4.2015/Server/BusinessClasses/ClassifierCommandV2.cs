@@ -195,7 +195,7 @@ namespace BusinessLibrary.BusinessClasses
             }
 
         }
-        private void DoTrainClassifier(int ReviewId, int ContactId, bool IsOld = true) // building a classifier
+        private void DoTrainClassifier(int ReviewId, int ContactId) // building a classifier
         {
             RunType = "TrainClassifier";
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
@@ -250,16 +250,25 @@ namespace BusinessLibrary.BusinessClasses
                 SetRemoteFileNames(ReviewId, ContactId, "user_models/", "DataForTraining.tsv");
 
                 // now save the temp file with labels for training
-                if (!QueryDbAndSaveTempFileWithLabels(ReviewId, ContactId, NewJobId)) // there wasn't enough data
+                if (_mlModelName == "oldLogReg")
                 {
-                    UndoChangesToClassifierRecord(NewJobId, false);
-                    return;
+                    if (!QueryDbAndSaveTempFileWithLabels(ReviewId, ContactId, NewJobId)) // there wasn't enough data
+                    {
+                        UndoChangesToClassifierRecord(NewJobId, false);
+                        return;
+                    }
                 }
-                // there's enough data, so we keep going
-                if (_mlModelName != "oldLogReg") //new models require two files - training data and one to apply the model to
+                else 
                 {
+                    //new models require more data to work well-enough - Sam's code will work with 7 per class, but it's way better with almost twice that...
+                    if (!QueryDbAndSaveTempFileWithLabels(ReviewId, ContactId, NewJobId, 13, 13, 30)) // there wasn't enough data
+                    {
+                        UndoChangesToClassifierRecord(NewJobId, false);
+                        return;
+                    }
+                    //new models require two files - training data and one to apply the model to
                     LocalFileName = LocalFileName.Replace("Build.tsv", "Apply4Build.tsv");
-                    if (!QueryDbAndSaveTempFileWithoutLabels(ReviewId,ContactId))
+                    if (!QueryDbAndSaveTempFileWithoutLabels(ReviewId, ContactId))
                     {
                         UndoChangesToClassifierRecord(NewJobId, false);
                         return;

@@ -1341,7 +1341,7 @@ export class SearchComp implements OnInit, OnDestroy {
   }
   SearchGetItemList(dataItem: Search) {
     let cr: Criteria = new Criteria();
-    cr.onlyIncluded = dataItem.selected;
+    cr.onlyIncluded = null;
     cr.showDeleted = false;
     cr.pageNumber = 0;
     cr.searchId = dataItem.searchId;
