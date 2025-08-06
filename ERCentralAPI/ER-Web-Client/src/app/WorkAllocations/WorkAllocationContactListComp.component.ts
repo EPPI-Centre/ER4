@@ -209,7 +209,7 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
     //console.log("StartScreeningFromList");
     this.ItemListService.IsInScreeningMode = true;
     this.subGotPriorityScreeningData = this.PriorityScreeningService.gotList.subscribe(this.ContinueStartScreeningFromList());
-    this.PriorityScreeningService.Fetch();
+    this.PriorityScreeningService.FetchTrainingFromSearchList();
 
   }
 

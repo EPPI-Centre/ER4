@@ -38,6 +38,23 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [HttpGet("[action]")]
+        public IActionResult TrainingFromSearchList()
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                DataPortal<ScreeningFromSearchIterationList> dp = new DataPortal<ScreeningFromSearchIterationList>();
+                ScreeningFromSearchIterationList result = dp.Fetch();
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error with TrainingFromSearchList");
+                return StatusCode(500, e.Message);
+            }
+        }
         [HttpPost("[action]")]
         public IActionResult TrainingNextItem([FromBody] SingleIntCriteria crit)
         {
@@ -150,6 +167,28 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [HttpPost("[action]")]
+        public IActionResult ScreeningFromSearchCommand([FromBody] ScreeningFromSearchCommandMVC crit)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ScreeningFromSearchCommand res = crit.ToCslaBO();
+                    DataPortal<ScreeningFromSearchCommand> dp = new DataPortal<ScreeningFromSearchCommand>();
+                    res = dp.Execute(res);
+                    return Ok(res);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error in ScreeningFromSearchCommand!");
+                return StatusCode(500, e.Message);
+            }
+        }
+
         [HttpGet("[action]")]
         public IActionResult GetTrainingScreeningCriteriaList()
         {
@@ -318,5 +357,19 @@ namespace ERxWebClient2.Controllers
         public long trainingScreeningCriteriaId { get; set; }
         public bool included { get; set; }
         public bool deleted { get; set; }
+    }
+    public class ScreeningFromSearchCommandMVC
+    {
+        public int searchId { get; set; }
+        public int codeSetId { get; set; }
+        public Int64 triggeringItemId { get; set; }
+        public bool createNew { get; set; } = false;
+        public string result { get; set; } = "";
+
+        public ScreeningFromSearchCommand ToCslaBO()
+        {
+            ScreeningFromSearchCommand res = new ScreeningFromSearchCommand(searchId, codeSetId, triggeringItemId, createNew);
+            return res;
+        }
     }
 }

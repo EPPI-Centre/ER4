@@ -43,7 +43,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
   faSpinner = faSpinner;
 
   ngOnInit() {
-    this.PriorityScreeningService.Fetch();
+    this.PriorityScreeningService.Fetch().then(()=> this.PriorityScreeningService.FetchTrainingFromSearchList());
     this.RevInfoSub = this.ReviewInfoService.ReviewInfoChanged.subscribe(() => this.RefreshRevinfo());
     if (!this.ReviewerIdentityService.HasAdminRights) this.CurrentStep = 5;
     if (this.SearchService.SearchList.length == 0) {
@@ -77,6 +77,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
   private subGotPriorityScreeningData: Subscription | null = null;
   private RevInfoSub: Subscription | null = null;
   public AllowEditOnStep4: boolean = false;
+  public AllowEditOnStep4fs: boolean = false;
   private _ScreenAllItems: boolean = true;
   private _ItemsWithThisAttribute: SetAttribute | null = null;
   public selectedCodeSetDropDown: ReviewSet | null = null;
@@ -157,6 +158,14 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
   public get ShowTrainingTableText(): string {
     if (this.ShowTrainingTable) return "Hide Progress Table";
     else return "Show Progress Table";
+  }
+
+  public get ScreeningListIsGood(): boolean {
+    return this.ReviewInfoService.ReviewInfo.screeningListIsGood;
+  }
+
+  public get ScreeningFromSearchListIsGood(): boolean {
+    return this.ReviewInfoService.ReviewInfo.screeningFromSearchListIsGood;
   }
 
   public get ItemsWithThisAttribute(): SetAttribute | null {
@@ -308,13 +317,6 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
   public get ScreeningTools(): ReviewSet[] {
     return this.ReviewSetsService.ReviewSets.filter(found => found.setType.setTypeName == "Screening")
   }
-  public get CanSaveConfiguration(): boolean {
-    if (!this.CanWrite()) return false;
-    if (!this.ConfigurationIsValid) return false;
-    //if (this.CurrentStep == 4 && this.ConfigHasChanged == false) return false; //final step of the PS wizard, do we allow saving every time?
-    if (this.CurrentStep == 5 && this.ConfigHasChanged == false) return false;
-    return true;
-  }
   public get ConfigHasChanged(): boolean {
     if (JSON.stringify(this.revInfo) === JSON.stringify(this.ReviewInfoService.ReviewInfo)) return false;
     else return true;
@@ -331,8 +333,14 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     }
     else return "";
   }
+  public get CanSaveConfiguration(): boolean {
+    if (!this.CanWrite()) return false;
+    if (!this.ConfigurationIsValid) return false;
+    if (this.CurrentStep == 5 && this.ConfigHasChanged == false) return false;
+    return true;
+  }
   public get ConfigurationIsValid(): boolean {
-    if (this.revInfo.screeningCodeSetId < 1) return false;//don't know what to screen
+    if (this.revInfo.screeningCodeSetId < 1) return false;//don't know what to screen against
     if (this.revInfo.screeningWhatAttributeId < 0) return false; //0 if screen all items more than 0 if screen items with this code
     if (!this.ScreenAllItems && this.revInfo.screeningWhatAttributeId < 1) return false;//screen items with this code: need a valid AttributeId
     if (this.ScreenAllItems && this.revInfo.screeningWhatAttributeId != 0) return false;//screen all items: need this to be 0
@@ -341,10 +349,12 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
       //console.log("type of list isn't set?", this.revInfo.screeningMode);
       return false;//type of list isn't set.
     }
-    //check data entry mode...
+    return this.CheckDataEntryMode();    
+  }
+  private CheckDataEntryMode(): boolean {
     const set = this.selectedCodeSetDropDown;
     if (set == null) return false;//uh? Chosen set isn't in review!
-    console.log("Got here", this.revInfo);
+    //console.log("Got here", this.revInfo);
     if (this.revInfo.screeningReconcilliation == "") return false;//reconciliation is NOT set
     if (this.revInfo.screeningNPeople > 1) {//multiple people per item:
       if (set.codingIsFinal) return false;//but codeset is in "normal" data entry.
@@ -355,6 +365,25 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     }
     return true;//no concern found
   }
+
+  public get CanSaveConfigurationFs(): boolean {
+    if (!this.CanWrite()) return false;
+    if (!this.ConfigurationIsValidFs) return false;
+    if (this.CurrentStep == 5 && this.ConfigHasChanged == false) return false;
+    return true;
+  }
+
+  public get ConfigurationIsValidFs(): boolean {
+    if (this.revInfo.screeningCodeSetId < 1) return false;//don't know what to screen against
+    if (this.SearchToUseForFromSearchList == null || this.SearchToUseForFromSearchList.searchId < 1) return false;//search
+    if (this.ScreeningModeOptions.findIndex(found => found.value == this.revInfo.screeningMode) < 1) {
+      //console.log("type of list isn't set?", this.revInfo.screeningMode);
+      return false;//type of list isn't set.
+    }
+    return this.CheckDataEntryMode();
+  }
+
+
   public get ReconciliationModeError(): string {
     if (this.selectedCodeSetDropDown == null) return "";//we have bigger problems!
     else if (this.revInfo.screeningReconcilliation == "") return "Please select a reconciliation mode.";
@@ -489,6 +518,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
   }
   DoRefreshRevinfo() {
     //console.log("DoRefreshRevinfo", this.ReviewInfoService.ReviewInfo.screeningReconcilliation);
+
     this.revInfo = this.ReviewInfoService.ReviewInfo.Clone();
     if (this.revInfo.screeningWhatAttributeId > 0) {
       this.ScreenAllItems = false;
@@ -519,16 +549,26 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     else if (this.selectedCodeSetDropDown.codingIsFinal) return "Single data entry";
     else return "Comparison mode"
   }
-  StartScreening() {
-    //alert('Start Screening: not implemented');
+  async StartScreening() {
     this.ItemListService.IsInScreeningMode = true;
-    this.subGotPriorityScreeningData = this.PriorityScreeningService.gotList.subscribe(this.ContinueStartScreening());
-    this.PriorityScreeningService.Fetch();
-
+    await this.PriorityScreeningService.Fetch();
+    this.ContinueStartScreening();
   }
   ContinueStartScreening() {
     if (this.subGotPriorityScreeningData) this.subGotPriorityScreeningData.unsubscribe();
     this.router.navigate(['itemcoding', 'PriorityScreening']);
+  }
+
+
+  async StartScreeningFs() {
+    this.ItemListService.IsInScreeningMode = true;
+    await this.PriorityScreeningService.FetchTrainingFromSearchList();
+    this.ContinueStartScreeningFs();
+  }
+
+  ContinueStartScreeningFs() {
+    if (this.subGotPriorityScreeningData) this.subGotPriorityScreeningData.unsubscribe();
+    this.router.navigate(['itemcoding', 'ScreeningFromList']);
   }
   public async GenerateList() {
     //console.log("regenerate list: ", this.revInfo.screeningMode, this.PriorityScreeningService.TrainingScreeningCriteria.length);
@@ -594,15 +634,41 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
       this.GoToAllinOneStep();
     }
   }
+  async SaveOptionsAndCreate_FS_List() {
+    if (!this.CanWrite()
+      || this.revInfo.screeningCodeSetId < 1
+      || this.SearchToUseForFromSearchList == null
+      || this.SearchToUseForFromSearchList.searchId < 1
+    ) return;
+    let IsNew: boolean = true;
+    if (this.ReviewInfoService.ReviewInfo.screeningFSListSearchId == this.SearchToUseForFromSearchList.searchId) IsNew = false;
+    let res: boolean | string = await this.ReviewInfoService.Update(this.revInfo);
+    if (res == true) {
+      res = await this.PriorityScreeningService.RunNewFromSearchCommand(0, this.revInfo.screeningCodeSetId, IsNew, this.SearchToUseForFromSearchList.searchId);
+      this.AllowEditOnStep4 = false;
+      this.CancelEditingAllOptions();
+      this.GoToAllinOneStep();
+    }
+  }
+  async ReGenerateFsList() {
+    if (!this.CanWrite()
+      || this.revInfo.screeningCodeSetId < 1
+      || this.revInfo.screeningFSListSearchId < 1
+    ) return;
+    let res = await this.PriorityScreeningService.RunNewFromSearchCommand(0, this.revInfo.screeningCodeSetId, false, this.revInfo.screeningFSListSearchId);
+  }
+
+
   RefreshAll() {
-    this.PriorityScreeningService.Fetch();
+    this.PriorityScreeningService.Fetch().then(() => this.PriorityScreeningService.FetchTrainingFromSearchList());
     this.PriorityScreeningService.GetTrainingScreeningCriteriaList();
     this.ReviewInfoService.Fetch().then(() => { this.PrepareSearchesList(); });
   }
-  async CheckIfCancelEditAllOptions() {
+  async CheckIfCancelEditAllOptions(Origin:string) {
     await Helpers.Sleep(80);
     console.log("CheckIfCancelEditAllOptions:", this.AllowEditOnStep4);
-    if (this.AllowEditOnStep4 == false) this.CancelEditingAllOptions();
+    if (Origin == "PS" && this.AllowEditOnStep4 == false) this.CancelEditingAllOptions();
+    if (Origin == "FS" && this.AllowEditOnStep4fs == false) this.CancelEditingAllOptions();
   }
   CancelEditingAllOptions() {
     this.AllowEditOnStep4 = false;
