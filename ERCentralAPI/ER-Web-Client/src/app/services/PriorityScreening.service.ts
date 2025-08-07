@@ -47,7 +47,16 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
   public CurrentItem: Item = new Item();
   public CurrentItemIndex: number = 0;
   public LastItemInTheQueueIsDone: boolean = false;
-  public UsingListFromSearch: boolean = false;
+  private _UsingListFromSearch: boolean = false;
+  public get UsingListFromSearch(): boolean {
+    return this._UsingListFromSearch;
+  }
+  public set UsingListFromSearch(val: boolean) {
+    if (val != this._UsingListFromSearch) {
+      this._UsingListFromSearch = val;
+      this.ScreenedItemIds = [];
+    }
+  }
 
   public get NextItemAPIendpoint(): string {
     if (this.UsingListFromSearch) return 'api/PriorirtyScreening/TrainingNextItemFromList';
@@ -69,8 +78,8 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
     return this._TrainingList;
   } 
 
-  private _TrainingFromSearchList: iScreeningFromSearchIteration[] = [];
-  public get TrainingFromSearchList(): iScreeningFromSearchIteration[] {
+  private _TrainingFromSearchList: ScreeningFromSearchIterationList = new ScreeningFromSearchIterationList([]);
+  public get TrainingFromSearchList(): ScreeningFromSearchIterationList {
     return this._TrainingFromSearchList;
   }
 
@@ -99,7 +108,7 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
     this._BusyMethods.push("FetchTrainingFromSearchList");
 
     return lastValueFrom(this._httpC.get<iScreeningFromSearchIteration[]>(this._baseUrl + 'api/PriorirtyScreening/TrainingFromSearchList')).then(tL => {
-      this._TrainingFromSearchList = tL;
+      this._TrainingFromSearchList = new ScreeningFromSearchIterationList(tL);
       this.RemoveBusy("FetchTrainingFromSearchList");
       return true;
       //this.Save();
@@ -249,7 +258,7 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
 
   private CheckUpdateFromSearchNumbers(screeningItem: TrainingNextItem) {
     let currentCount: number = screeningItem.rank;
-    let totalScreened = this._TrainingFromSearchList[this._TrainingFromSearchList.length - 1].totalN;
+    let totalScreened = this._TrainingFromSearchList.Iterations[this._TrainingFromSearchList.Iterations.length - 1].screenedFromList;
     let NeedsDoing: boolean = false;
     if (totalScreened <= 500) {
       if (currentCount % 25 == 0) {
@@ -457,14 +466,17 @@ export interface Training {
 export interface iScreeningFromSearchIteration {
   trainingFsId: number;
   contactId: number;
+  searchId: number;
   date: string;
   iteration: number;
   contactName: string;
   tp: number;
   tn: number;
-  totalN: number;
-  totalIncludes: number;
-  totalExcludes: number;
+  totalScreened: number;
+  localTN: number;
+  localTP: number;
+  totItemsInList: number;
+  screenedFromList: number;
 }
 export interface TrainingNextItem {
   itemId: number;
@@ -502,4 +514,41 @@ export interface iFromSearchCommand {
   triggeringItemId: number;
   createNew: boolean;
   result: string;
+}
+
+export class ScreeningFromSearchIterationList {
+  constructor(iterations: iScreeningFromSearchIteration[]) {
+    this._Iterations = iterations;
+    if (this._Iterations.length > 0) {
+      this.SetSearchIdFilter(this._Iterations[this._Iterations.length - 1].searchId);
+    } else {
+      this.SetSearchIdFilter(0);
+    }
+    this._AllSearchIds = [];
+    for (const s of this._Iterations) {
+      if (this._AllSearchIds.findIndex(f => f == s.searchId) == -1) this._AllSearchIds.push(s.searchId);
+    }
+  }
+  private _FilterBySearchId: number = 0;
+  private _AllSearchIds: number[] = [];
+  private _Iterations: iScreeningFromSearchIteration[] = [];
+  private _FilteredIterations: iScreeningFromSearchIteration[] = []; 
+  public get FilterBySearchId(): number {
+    return this._FilterBySearchId;
+  }
+  public get AllSearchIds(): number[] {
+    return this._AllSearchIds;
+  }
+  public get Iterations(): iScreeningFromSearchIteration[] {
+    return this._Iterations;
+  }
+  public get FilteredIterations(): iScreeningFromSearchIteration[] {
+    return this._FilteredIterations;
+  }
+  //public get 
+  public SetSearchIdFilter(SearchId: number) {
+    this._FilterBySearchId = SearchId;
+    const res = this._Iterations.filter(f => f.searchId == SearchId);
+    this._FilteredIterations = res;
+  }
 }

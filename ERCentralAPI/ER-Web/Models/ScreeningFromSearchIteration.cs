@@ -9,6 +9,7 @@ using Csla.Serialization;
 using Csla.Silverlight;
 //using Csla.Validation;
 using Csla.DataPortalClient;
+using Newtonsoft.Json;
 
 #if!SILVERLIGHT
 using System.Data.SqlClient;
@@ -20,6 +21,7 @@ using BusinessLibrary.Security;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
+    [JsonObject(MemberSerialization.OptIn)]
     public class ScreeningFromSearchIteration : BusinessBase<ScreeningFromSearchIteration>
     {
 
@@ -28,6 +30,7 @@ namespace BusinessLibrary.BusinessClasses
 
 
         public static readonly PropertyInfo<int> TrainingFsIdProperty = RegisterProperty<int>(new PropertyInfo<int>("TrainingFsId", "TrainingFsId"));
+        [JsonProperty]
         public int TrainingFsId
         {
             get
@@ -37,6 +40,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "ContactId"));
+        [JsonProperty]
         public int ContactId
         {
             get
@@ -45,6 +49,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         public static readonly PropertyInfo<int> SearchIdProperty = RegisterProperty<int>(new PropertyInfo<int>("SearchId", "SearchId"));
+        [JsonProperty]
         public int SearchId
         {
             get
@@ -53,6 +58,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         public static readonly PropertyInfo<DateTime> DateProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("Date", "Date"));
+        [JsonProperty]
         public DateTime Date
         {
             get
@@ -62,6 +68,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<int> IterationProperty = RegisterProperty<int>(new PropertyInfo<int>("Iteration", "Iteration"));
+        [JsonProperty]
         public int Iteration
         {
             get
@@ -71,6 +78,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<string> ContactNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactName", "ContactName"));
+        [JsonProperty]
         public string ContactName
         {
             get
@@ -80,7 +88,8 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<Int32> TPProperty = RegisterProperty<Int32>(new PropertyInfo<Int32>("TP", "TP"));
-        public double TP
+        [JsonProperty]
+        public int TP
         {
             get
             {
@@ -89,7 +98,8 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<Int32> TNProperty = RegisterProperty<Int32>(new PropertyInfo<Int32>("TN", "TN"));
-        public double TN
+        [JsonProperty]
+        public int TN
         {
             get
             {
@@ -97,9 +107,9 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-
-        public static readonly PropertyInfo<Int32> TotalNProperty = RegisterProperty<Int32>(new PropertyInfo<Int32>("TotalN", "TotalN"));
-        public double TotalN
+        public static readonly PropertyInfo<Int32> TotalScreenedProperty = RegisterProperty<Int32>(new PropertyInfo<Int32>("TotalScreened", "TotalScreened"));
+        [JsonProperty]
+        public int TotalScreened
         {
             get
             {
@@ -107,24 +117,44 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public double TotalIncludes
+        public static readonly PropertyInfo<Int32> LocalTNProperty = RegisterProperty<Int32>(new PropertyInfo<Int32>("LocalTN", "LocalTN"));
+        [JsonProperty]
+        public int LocalTN
         {
             get
             {
-                return TP;
+                return GetProperty(LocalTNProperty);
             }
         }
 
-        
-        public double TotalExcludes
+        public static readonly PropertyInfo<Int32> LocalTPProperty = RegisterProperty<Int32>(new PropertyInfo<Int32>("LocalTP", "LocalTP"));
+        [JsonProperty]
+        public int LocalTP
         {
             get
             {
-                return TN;
+                return GetProperty(LocalTPProperty);
             }
         }
 
-
+        public static readonly PropertyInfo<Int32> TotItemsInListProperty = RegisterProperty<Int32>(new PropertyInfo<Int32>("TotItemsInList", "TotItemsInList"));
+        [JsonProperty]
+        public int TotItemsInList
+        {
+            get
+            {
+                return GetProperty(TotItemsInListProperty);
+            }
+        }
+        public static readonly PropertyInfo<Int32> ScreenedFromListProperty = RegisterProperty<Int32>(new PropertyInfo<Int32>("ScreenedFromList", "ScreenedFromList"));
+        [JsonProperty]
+        public int ScreenedFromList
+        {
+            get
+            {
+                return LocalTP + LocalTN;
+            }
+        }
         //protected override void AddAuthorizationRules()
         //{
         //    //string[] canWrite = new string[] { "AdminUser", "RegularUser" };
@@ -167,12 +197,15 @@ namespace BusinessLibrary.BusinessClasses
             ScreeningFromSearchIteration returnValue = new ScreeningFromSearchIteration();
             returnValue.LoadProperty<int>(TrainingFsIdProperty, reader.GetInt32("TRAINING_FS_ID"));
             returnValue.LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
-            returnValue.LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
+            returnValue.LoadProperty<int>(SearchIdProperty, reader.GetInt32("SEARCH_ID"));
             returnValue.LoadProperty<DateTime>(DateProperty, reader.GetDateTime("DATE"));
             returnValue.LoadProperty<int>(IterationProperty, reader.GetInt32("ITERATION"));
             returnValue.LoadProperty<string>(ContactNameProperty, reader.GetString("CONTACT_NAME"));
             returnValue.LoadProperty<int>(TPProperty, reader.GetInt32("TRUE_POSITIVES"));
             returnValue.LoadProperty<int>(TNProperty, reader.GetInt32("TRUE_NEGATIVES"));
+            returnValue.LoadProperty<int>(LocalTPProperty, reader.GetInt32("LOCAL_TP"));
+            returnValue.LoadProperty<int>(LocalTNProperty, reader.GetInt32("LOCAL_TN"));
+            returnValue.LoadProperty<int>(TotItemsInListProperty, reader.GetInt32("LOCAL_TOT"));
             returnValue.MarkOld();
             return returnValue;
         }

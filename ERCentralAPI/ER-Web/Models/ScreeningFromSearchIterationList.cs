@@ -19,31 +19,7 @@ namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
     public class ScreeningFromSearchIterationList : DynamicBindingListBase<ScreeningFromSearchIteration>
-    {
-        public int LastSearchId
-        {
-            get
-            {
-                if (Count == 0) return -1;
-                else
-                {
-                    return this[Count - 1].SearchId;
-                }
-            }
-        } 
-        public List<int> AllSearchIds
-        {
-            get
-            {
-                List<int> res = new List<int>();
-                foreach (ScreeningFromSearchIteration sfsi in this)
-                {
-                    if (!res.Contains(sfsi.SearchId)) res.Add(sfsi.SearchId);
-                }
-                return res;
-            }
-        }
-        
+    {                
         public ScreeningFromSearchIterationList() { }
 
 #if !SILVERLIGHT

@@ -87,13 +87,13 @@
         <li [ngClass]="{'font-weight-bold' : CurrentStep==3}">
           <div class="row m-0">
             How to screen:
-            <div *ngIf="revInfo.screeningMode !=''" class="border font-weight-normal border-success rounded bg-light ml-1 px-1">
-              Mode: {{revInfo.screeningMode}}
-              <span *ngIf="selectedCodeSetDropDown != null && selectedCodeSetDropDown.codingIsFinal && revInfo.screeningNPeople == 0">
+            <div *ngIf="EditingRevInfo.screeningMode !=''" class="border font-weight-normal border-success rounded bg-light ml-1 px-1">
+              Mode: {{EditingRevInfo.screeningMode}}
+              <span *ngIf="selectedCodeSetDropDown != null && selectedCodeSetDropDown.codingIsFinal && EditingRevInfo.screeningNPeople == 0">
                 | One person per item
               </span>
-              <span *ngIf="revInfo.screeningNPeople > 1">
-                | {{revInfo.screeningNPeople}} people per item
+              <span *ngIf="EditingRevInfo.screeningNPeople > 1">
+                | {{EditingRevInfo.screeningNPeople}} people per item
               </span>
             </div>
           </div>
@@ -148,7 +148,7 @@
         </div>
       </div>
 
-      <div *ngIf="revInfo.screeningMode == 'Priority'" class="row my-1 mx-0 border-top" [ngClass]="{'DisabledStep' : !CanWrite()}">
+      <div *ngIf="EditingRevInfo.screeningMode == 'Priority'" class="row my-1 mx-0 border-top" [ngClass]="{'DisabledStep' : !CanWrite()}">
         <div class="col-7">
           <ng-container *ngTemplateOutlet="TemplateTrainingCriteriaList"></ng-container>
           <div class="col-12 font-weight-bold text-danger">Confirm: <input type="text" maxlength="30" [(ngModel)]="ConfirmTrainingListIsGood" /> </div>
@@ -278,13 +278,13 @@
         <li [ngClass]="{'font-weight-bold' : CurrentStep==7}">
           <div class="row m-0">
             How to screen:
-            <div *ngIf="revInfo.screeningMode !=''" class="border font-weight-normal border-success rounded bg-light ml-1 px-1">
+            <div *ngIf="EditingRevInfo.screeningMode !=''" class="border font-weight-normal border-success rounded bg-light ml-1 px-1">
               Mode: {{GetCodingToolDEMode()}}
-              <span *ngIf="selectedCodeSetDropDown != null && selectedCodeSetDropDown.codingIsFinal && revInfo.screeningNPeople == 0">
+              <span *ngIf="selectedCodeSetDropDown != null && selectedCodeSetDropDown.codingIsFinal && EditingRevInfo.screeningNPeople == 0">
                 | One person per item
               </span>
-              <span *ngIf="revInfo.screeningNPeople > 1">
-                | {{revInfo.screeningNPeople}} people per item
+              <span *ngIf="EditingRevInfo.screeningNPeople > 1">
+                | {{EditingRevInfo.screeningNPeople}} people per item
               </span>
             </div>
           </div>
@@ -393,114 +393,196 @@
     <kendo-tabstrip #tabstrip [keepTabContent]="true">
       <kendo-tabstrip-tab [selected]="true" [title]="'Priority Screening'">
         <ng-template kendoTabContent>
-          <div class="col-12 row mx-0 px-0">
+          <div class="col-12 row mx-0 px-0" style="max-height:60vh;overflow:auto;">
             <ng-container *ngTemplateOutlet="AllPSsettings"></ng-container>
           </div>
         </ng-template>
       </kendo-tabstrip-tab>
       <kendo-tabstrip-tab [title]="'From Search Screening List'">
         <ng-template kendoTabContent>
+          <div class="row mx-0 px-0" style="max-height: 60vh; overflow: auto;">
+            <div class="border border-primary rounded m-0 p-1 col-12 col-md-6">
+              <div class="row m-0 p-0 ">
+                <button class=" pt-1 m-1 rounded btn btn-outline-dark" (click)="Cancel()" style="min-width:100px">
+                  Close
+                </button>
+                <div *ngIf="HasAdminRights" class="col">
 
-
-
-          <div class="border border-primary rounded m-0 p-1">
-            <div class="row m-0 p-0 ">
-              <button class=" pt-1 m-1 rounded btn btn-outline-dark" (click)="Cancel()" style="min-width:100px">
-                Close
-              </button>
-              <div *ngIf="HasAdminRights" class="col">
-
-                <div class="brightSwitch row float-right">
-                  <div class="mt-1 mr-1">Edit all Settings?</div>
-                  <kendo-switch name="CanEditSWfs" class=""
-                                [disabled]="!CanWrite() "
-                                [(ngModel)]="AllowEditOnStep4fs"
-                                [onLabel]="'Yes'" (click)="CheckIfCancelEditAllOptions('FS')"
-                                [offLabel]="'No'"></kendo-switch>
+                  <div class="brightSwitch row float-right">
+                    <div class="mt-1 mr-1">Edit all Settings?</div>
+                    <kendo-switch name="CanEditSWfs" class=""
+                                  [disabled]="!CanWrite() "
+                                  [(ngModel)]="AllowEditOnStep4fs"
+                                  [onLabel]="'Yes'" (click)="CheckIfCancelEditAllOptions('FS')"
+                                  [offLabel]="'No'"></kendo-switch>
+                  </div>
                 </div>
+              </div>
+              <div class="col-12 border border-primary rounded my-1 p-0">
+                <div class="row m-2 p-1 alert-info rounded">
+                  <div class="col-12 p-0 m-0 rounded alert-light">
+                    <button class="m-1 py-0 px-1 btn btn-outline-primary" [disabled]="!CanWrite() || !ScreeningFromSearchListIsGood" (click)="StartScreeningFs()">
+                      Begin Screening (FS)
+                    </button>
+                    <button class="m-1 py-0 px-1 btn btn-outline-secondary" [disabled]="!CanWrite() " (click)="ReGenerateFsList()">
+                      Update Progress (FS)
+                    </button>
+                    <button *ngIf="!IsServiceBusy()" class="btn btn-sm btn-outline-success mx-1 my-1 py-1 px-2 ng-star-inserted" (click)="RefreshAll()">
+                      <fa-icon [icon]="faArrowsRotate" class="my-0"></fa-icon>
+                    </button>
+
+                  </div>
+                  <div class="col-12 row p-0 mx-0 my-1 ">
+                    <div class="d-block rounded alert-light border-light m-1 px-1">Screening List is present: <strong>{{ScreeningFromSearchListIsGood ? "Yes" : "No"}}</strong></div>
+                    <div class="d-block rounded alert-light border-light m-1 px-1">
+                      Search Used for this list:
+                      <strong *ngIf="SearchToUseForFromSearchList != null && SearchToUseForFromSearchList.searchId > 0"> {{SearchToUseForFromSearchList.title}} (#{{SearchToUseForFromSearchList.searchNo}})</strong>
+                      <strong *ngIf="SearchToUseForFromSearchList == null || SearchToUseForFromSearchList.searchId < 1"> N/A</strong>
+                    </div>
+                  </div>
+                  <div *ngIf="!AllowEditOnStep4fs" class="col-12 row p-0 mx-0 my-1 ">
+                    <div class="d-block rounded alert-light border-light  m-1 px-1">Screening tool: <strong>{{GetCodingToolName()}}</strong></div>
+                    <div *ngIf="EditingRevInfo.screeningNPeople > 1" class="d-block rounded alert-light border-light  m-1 px-1">
+                      Reconciliation mode: <strong>{{SelectedReconcileOptionName}}</strong>
+                    </div>
+                    <div *ngIf="EditingRevInfo.screeningNPeople > 1" class="d-block rounded alert-light border-light m-1  px-1">
+                      N of people screening each item: <strong>{{EditingRevInfo.screeningNPeople}}</strong>
+                    </div>
+
+                    <div *ngIf="EditingRevInfo.screeningNPeople <= 1" class="d-block rounded alert-light border-light  m-1 px-1">
+                      N of people screening each item: <strong>1</strong>
+                    </div>
+
+                  </div>
+                  <div *ngIf="AllowEditOnStep4fs" class="col-12 p-1 mx-0 my-1 text-body rounded background bg-white">
+                    <div class="row justify-content-center">
+                      <div class="font-weight-bold text-primary">
+                        Edit all Screening Settings:
+                      </div>
+                    </div>
+
+                    <ng-container *ngTemplateOutlet="TemplateScreeningTool"></ng-container>
+
+                    <div style="max-height:25vh; overflow:auto;">
+                      <ng-container *ngTemplateOutlet="SourcesTable"></ng-container>
+                    </div>
+
+                    <ng-container *ngTemplateOutlet="TemplateScreeeningMode"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="TemplatePeoplePerItem"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="TemplateReconciliationMode"></ng-container>
+
+                    <ng-container *ngTemplateOutlet="TemplateAutoExclude"></ng-container>
+
+                    <div class="row m-0 p-0">
+                      <div class="m-2 p-1 rounded border border-info">
+                        <button class=" pt-1 m-1 rounded  btn btn-success" style="min-width:120px"
+                                *ngIf="CanSaveConfigurationFs" (click)="SaveOptionsAndCreate_FS_List()">
+                          Save and Update Progress
+                        </button>
+                        <button class=" pt-1 m-1 rounded  btn btn-success" style="min-width:120px"
+                                *ngIf="!CanSaveConfigurationFs" (click)="ReGenerateFsList()">
+                          Update Progress
+                        </button>
+                        <button class="m-1 py-1 px-5 btn btn-outline-dark  " (click)="CancelEditingAllOptions()">
+                          Cancel
+                        </button>
+                        <div *ngIf="!ConfigHasChanged" class="row m-0 small"><div class=" rounded p-1 alert-info small">No change to save</div></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div *ngIf="!AllowEditOnStep4fs" class="col-12 p-1 mx-0 my-1 text-body rounded background bg-white">
+                  <ng-container *ngTemplateOutlet="ProgressFStable"></ng-container>
+                </div>
+
               </div>
             </div>
-            <div class="col-12 border border-primary rounded my-1 p-0">
-              <div class="row m-2 p-1 alert-info rounded">
-                <div class="col-12 p-0 m-0 rounded alert-light">
-                  <button class="m-1 py-0 px-1 btn btn-outline-primary" [disabled]="!CanWrite() || !ScreeningFromSearchListIsGood" (click)="StartScreeningFs()">
-                    Begin Screening (FS)
-                  </button>
-                  <button class="m-1 py-0 px-1 btn btn-outline-secondary" [disabled]="!CanWrite() " (click)="ReGenerateFsList()">
-                    Update Progress (FS)
-                  </button>
-                  <button *ngIf="!IsServiceBusy()" class="btn btn-sm btn-outline-success mx-1 my-1 py-1 px-2 ng-star-inserted" (click)="RefreshAll()">
-                    <fa-icon [icon]="faArrowsRotate" class="my-0"></fa-icon>
-                  </button>
 
-                </div>
-                <div class="col-12 row p-0 mx-0 my-1 ">
-                  <div class="d-block rounded alert-light border-light m-1 px-1">Screening List is present: <strong>{{ScreeningFromSearchListIsGood ? "Yes" : "No"}}</strong></div>
-                  <div class="d-block rounded alert-light border-light m-1 px-1">
-                    Search Used for this list:
-                    <strong *ngIf="SearchToUseForFromSearchList != null && SearchToUseForFromSearchList.searchId > 0"> {{SearchToUseForFromSearchList.title}} (#{{SearchToUseForFromSearchList.searchNo}})</strong>
-                    <strong *ngIf="SearchToUseForFromSearchList == null || SearchToUseForFromSearchList.searchId < 1"> N/A</strong>
+            <div class="col-12 col-md-6 px-1">
+              <div class=" border border-primary rounded row mx-0">
+                <div class="col-12 row mx-0">
+                  <div class="mx-auto my-1">
+                    Screening progress (FS)
                   </div>
                 </div>
-                <div *ngIf="!AllowEditOnStep4fs" class="col-12 row p-0 mx-0 my-1 ">
-                  <div class="d-block rounded alert-light border-light  m-1 px-1">Screening tool: <strong>{{GetCodingToolName()}}</strong></div>
-                  <div *ngIf="revInfo.screeningNPeople > 1" class="d-block rounded alert-light border-light  m-1 px-1">
-                    Reconciliation mode: <strong>{{SelectedReconcileOptionName}}</strong>
-                  </div>
-                  <div *ngIf="revInfo.screeningNPeople > 1" class="d-block rounded alert-light border-light m-1  px-1">
-                    N of people screening each item: <strong>{{revInfo.screeningNPeople}}</strong>
-                  </div>
-
-                  <div *ngIf="revInfo.screeningNPeople <= 1" class="d-block rounded alert-light border-light  m-1 px-1">
-                    N of people screening each item: <strong>1</strong>
-                  </div>
-
+                <div class="col-12 row mx-0">
+                  <div class="my-auto mx-1"> Filter By:</div>
+                  <select (change)="ChangeFSprogressFilter($event)" class="m-1">
+                    <option *ngFor="let srcId of TrainingFromSearchList.AllSearchIds" [selected]="srcId == TrainingFromSearchList.FilterBySearchId" [value]="srcId">
+                      {{FilterBySearchText(srcId)}}
+                    </option>
+                  </select>
                 </div>
-                <div *ngIf="AllowEditOnStep4fs" class="col-12 p-1 mx-0 my-1 text-body rounded background bg-white">
-                  <div class="row justify-content-center">
-                    <div class="font-weight-bold text-primary">
-                      Edit all Screening Settings:
-                    </div>
+                <div class="row mx-auto border border-info rounded ">
+                  <div class=" mx-1 border-right border-info row">
+                    <div class="my-auto">Show Review-Wide progress:</div>
+                    <input class="my-1 mx-1 d-inline" type="radio" name="FSProgressTypeRb"
+                           [value]="false" [(ngModel)]="FS_ShowListProgress">
                   </div>
-
-                  <ng-container *ngTemplateOutlet="TemplateScreeningTool"></ng-container>
-
-                  <div style="max-height:25vh; overflow:auto;">
-                    <ng-container *ngTemplateOutlet="SourcesTable"></ng-container>
+                  <div class="mr-1 ml-0 row">
+                    <div class="my-auto">Show Within-List progress:</div>
+                    <input class="my-1 mx-1 d-inline" type="radio" name="FSProgressTypeRb"
+                           [value]="true" [(ngModel)]="FS_ShowListProgress">
                   </div>
+                </div>
+                <div class="col-12">
+                  <kendo-chart *ngIf="!FS_ShowListProgress">
+                    <kendo-chart-series>
+                      <kendo-chart-series-item type="scatterLine"
+                                               [data]="TrainingFromSearchList.FilteredIterations"
+                                               xField="totalScreened" yField="tp">
+                      </kendo-chart-series-item>
+                    </kendo-chart-series>
+                    <kendo-chart-x-axis>
+                      <kendo-chart-x-axis-item [title]="{ text: 'Total Items' }"
+                                               [labels]="{ format: '{0}' }">
+                      </kendo-chart-x-axis-item>
+                    </kendo-chart-x-axis>
+                    <kendo-chart-y-axis>
+                      <kendo-chart-y-axis-item [title]="{ text: 'Included' }"
+                                               [labels]="{ format: '{0}' }">
+                      </kendo-chart-y-axis-item>
+                    </kendo-chart-y-axis>
+                    <kendo-chart-tooltip format="{1} included, of {0} screened" class="small">
+                    </kendo-chart-tooltip>
+                  </kendo-chart>
 
-                  <ng-container *ngTemplateOutlet="TemplateScreeeningMode"></ng-container>
+                  <kendo-chart *ngIf="FS_ShowListProgress">
+                    <kendo-chart-series>
+                      <kendo-chart-series-item type="scatterLine"
+                                               [data]="TrainingFromSearchList.FilteredIterations"
+                                               xField="screenedFromList" yField="localTP">
+                      </kendo-chart-series-item>
+                    </kendo-chart-series>
+                    <kendo-chart-x-axis>
+                      <kendo-chart-x-axis-item [title]="{ text: 'Screened items (from this list)' }"
+                                               [labels]="{ format: '{0}' }">
+                      </kendo-chart-x-axis-item>
+                    </kendo-chart-x-axis>
+                    <kendo-chart-y-axis>
+                      <kendo-chart-y-axis-item [title]="{ text: 'Included' }"
+                                               [labels]="{ format: '{0}' }">
+                      </kendo-chart-y-axis-item>
+                    </kendo-chart-y-axis>
+                    <kendo-chart-tooltip format="{1} included, of {0} screened" class="small">
+                    </kendo-chart-tooltip>
+                  </kendo-chart>
 
-                  <ng-container *ngTemplateOutlet="TemplatePeoplePerItem"></ng-container>
 
-                  <ng-container *ngTemplateOutlet="TemplateReconciliationMode"></ng-container>
-
-                  <ng-container *ngTemplateOutlet="TemplateAutoExclude"></ng-container>
-
-                  <div class="row m-0 p-0">
-                    <div class="m-2 p-1 rounded border border-info">
-                      <button class=" pt-1 m-1 rounded  btn btn-success" style="min-width:120px"
-                              *ngIf="CanSaveConfigurationFs" (click)="SaveOptionsAndCreate_FS_List()">
-                        Save and Update Progress
-                      </button>
-                      <button class=" pt-1 m-1 rounded  btn btn-success" style="min-width:120px"
-                              *ngIf="!CanSaveConfigurationFs" (click)="ReGenerateFsList()">
-                        Update Progress
-                      </button>
-                      <button class="m-1 py-1 px-5 btn btn-outline-dark  " (click)="CancelEditingAllOptions()">
-                        Cancel
-                      </button>
-                      <div *ngIf="!ConfigHasChanged" class="row m-0 small"><div class=" rounded p-1 alert-info small">No change to save</div></div>
-                    </div>
-                  </div>
                 </div>
               </div>
-
-
+              <div *ngIf="AllowEditOnStep4fs" class="col-12 px-0">
+                <div class="col-12 p-0 mx-0 my-1 text-body rounded background bg-white">
+                  <ng-container *ngTemplateOutlet="ProgressFStable"></ng-container>
+                </div>
+              </div>
             </div>
             
-          </div>
 
+
+          </div>
         </ng-template>
       </kendo-tabstrip-tab>
     </kendo-tabstrip>
@@ -540,30 +622,30 @@
 
               </div>
               <div class="col-12 row p-0 mx-0 my-1 ">
-                <!--<div class="d-block rounded alert-light border-light m-1 px-1">Review is indexed: <strong>{{revInfo.screeningIndexed ? "Yes" : "No"}}</strong></div>-->
-                <div class="d-block rounded alert-light border-light m-1 px-1">Screening List is present: <strong>{{revInfo.screeningListIsGood ? "Yes" : "No"}}</strong></div>
-                <div class="d-block rounded alert-light border-light m-1 px-1">Training is running: <strong>{{revInfo.screeningModelRunning ? "Yes" : "No"}}</strong></div>
+                <!--<div class="d-block rounded alert-light border-light m-1 px-1">Review is indexed: <strong>{{EditingRevInfo.screeningIndexed ? "Yes" : "No"}}</strong></div>-->
+                <div class="d-block rounded alert-light border-light m-1 px-1">Screening List is present: <strong>{{EditingRevInfo.screeningListIsGood ? "Yes" : "No"}}</strong></div>
+                <div class="d-block rounded alert-light border-light m-1 px-1">Training is running: <strong>{{EditingRevInfo.screeningModelRunning ? "Yes" : "No"}}</strong></div>
               </div>
               <div *ngIf="!AllowEditOnStep4" class="col-12 row p-0 mx-0 my-1 ">
                 <div class="d-block rounded alert-light border-light  m-1 px-1">Screening tool: <strong>{{GetCodingToolName()}}</strong></div>
-                <div class="d-block rounded alert-light border-light  m-1 px-1">Screening mode: <strong>{{revInfo.screeningMode}}</strong></div>
-                <div *ngIf="revInfo.screeningWhatAttributeId > 0" class="d-block rounded alert-light border-light  m-1 px-1">
+                <div class="d-block rounded alert-light border-light  m-1 px-1">Screening mode: <strong>{{EditingRevInfo.screeningMode}}</strong></div>
+                <div *ngIf="EditingRevInfo.screeningWhatAttributeId > 0" class="d-block rounded alert-light border-light  m-1 px-1">
                   Screen items with this code:
                   <strong *ngIf="ItemsWithThisAttribute == null" class="alert-danger">Not Set</strong>
                   <strong *ngIf="ItemsWithThisAttribute !== null">{{ItemsWithThisAttribute.attribute_name}}</strong>
                 </div>
-                <div *ngIf="revInfo.screeningWhatAttributeId <= 0" class="d-block rounded alert-light  border-light m-1 px-1">
+                <div *ngIf="EditingRevInfo.screeningWhatAttributeId <= 0" class="d-block rounded alert-light  border-light m-1 px-1">
                   Screening <strong>all</strong> items.
                 </div>
 
-                <div *ngIf="revInfo.screeningNPeople > 1" class="d-block rounded alert-light border-light  m-1 px-1">
+                <div *ngIf="EditingRevInfo.screeningNPeople > 1" class="d-block rounded alert-light border-light  m-1 px-1">
                   Reconciliation mode: <strong>{{SelectedReconcileOptionName}}</strong>
                 </div>
-                <div *ngIf="revInfo.screeningNPeople > 1" class="d-block rounded alert-light border-light m-1  px-1">
-                  N of people screening each item: <strong>{{revInfo.screeningNPeople}}</strong>
+                <div *ngIf="EditingRevInfo.screeningNPeople > 1" class="d-block rounded alert-light border-light m-1  px-1">
+                  N of people screening each item: <strong>{{EditingRevInfo.screeningNPeople}}</strong>
                 </div>
 
-                <div *ngIf="revInfo.screeningNPeople <= 1" class="d-block rounded alert-light border-light  m-1 px-1">
+                <div *ngIf="EditingRevInfo.screeningNPeople <= 1" class="d-block rounded alert-light border-light  m-1 px-1">
                   N of people screening each item: <strong>1</strong>
                 </div>
 
@@ -608,7 +690,7 @@
 
 
           </div>
-          <div *ngIf="revInfo.screeningMode == 'Priority'" class="col-12 border border-primary rounded m-0 p-0">
+          <div *ngIf="EditingRevInfo.screeningMode == 'Priority'" class="col-12 border border-primary rounded m-0 p-0">
             <ng-container *ngTemplateOutlet="TemplateTrainingCriteriaList"></ng-container>
           </div>
         </div>
@@ -755,7 +837,7 @@
           <select class="rounded btn border border-info dropdonw-toggle" name="ScreeningModeOptionsSelect"
                   style="min-width: 200px; max-width:720px;" (change)="SetScreeningMode($event)">
             <option *ngFor="let item of ScreeningModeOptions" [value]="item.value"
-                    [selected]="item.value == revInfo.screeningMode">
+                    [selected]="item.value == EditingRevInfo.screeningMode">
               {{item.value}}
             </option>
           </select>
@@ -875,7 +957,7 @@
           <div class="my-auto"><span *ngIf="CurrentStep==3">2.2 </span>N. of people per item:</div>
         </div>
         <div *ngIf="selectedCodeSetDropDown && !selectedCodeSetDropDown.codingIsFinal" class="col-9 p-0 mx-0 row">
-          <kendo-numerictextbox [(ngModel)]="revInfo.screeningNPeople"
+          <kendo-numerictextbox [(ngModel)]="EditingRevInfo.screeningNPeople"
                                 [disabled]="!CanChangePeoplePerItem || !CanWrite()"
                                 [min]="1" [format]="'n0'"
                                 [max]="Contacts.length > 10 ? 10 : Contacts.length"
@@ -906,7 +988,7 @@
         </div>
       </div>
       <div *ngIf="!CheckAndUpdatePeoplePerItem() || ShowChangeDataEntry" class="row m-0 p-0">
-        <div *ngIf="revInfo.screeningCodeSetId >= 1 && (selectedCodeSetDropDown && selectedCodeSetDropDown.codingIsFinal && revInfo.screeningNPeople != 1)"
+        <div *ngIf="EditingRevInfo.screeningCodeSetId >= 1 && (selectedCodeSetDropDown && selectedCodeSetDropDown.codingIsFinal && EditingRevInfo.screeningNPeople != 1)"
              class="alert-danger rounded row col-12 m-1">
           <div class="col-12 m-0 p-0">
             <div>
@@ -935,11 +1017,11 @@
             </div>
           </div>
         </div>
-        <div *ngIf="revInfo.screeningCodeSetId >= 1 && (selectedCodeSetDropDown && !selectedCodeSetDropDown.codingIsFinal && revInfo.screeningNPeople > 1)"
+        <div *ngIf="EditingRevInfo.screeningCodeSetId >= 1 && (selectedCodeSetDropDown && !selectedCodeSetDropDown.codingIsFinal && EditingRevInfo.screeningNPeople > 1)"
              class="alert-success  rounded row col-12 m-1">
           The selected coding tool is set for multiple coding (Comparison Data Entry): more than one person per item is appropriate.
         </div>
-        <div *ngIf="revInfo.screeningCodeSetId >= 1 && (selectedCodeSetDropDown && !selectedCodeSetDropDown.codingIsFinal && revInfo.screeningNPeople == 1)"
+        <div *ngIf="EditingRevInfo.screeningCodeSetId >= 1 && (selectedCodeSetDropDown && !selectedCodeSetDropDown.codingIsFinal && EditingRevInfo.screeningNPeople == 1)"
              class="alert-danger  rounded row col-12 m-1">
           <div>
             The selected coding tool is set for multiple coding (Comparison Data Entry).<br />
@@ -981,7 +1063,7 @@
           <select class="rounded small btn border border-info dropdonw-toggle" name="ScreeningModeOptionsSelect"
                   style="min-width: 200px; max-width:720px;" (change)="SetReconciliationMode($event)">
             <option *ngFor="let item of ReconcileOptions" [value]="item.key" class="small"
-                    [selected]="item.key == revInfo.screeningReconcilliation">
+                    [selected]="item.key == EditingRevInfo.screeningReconcilliation">
               {{item.value}}
             </option>
           </select>
@@ -1008,17 +1090,17 @@
         <div class="col-9 p-0 mx-0 row">
           <div class=" d-block rounded border border-info my-1 mr-1 p-0">
             <input class="mt-1 mx-1 d-inline" type="radio" [disabled]="!CanChangeAutoExcludeAndIndexing || !CanWrite()" name="AutoExclude"
-                   [value]="true" [(ngModel)]="revInfo.screeningAutoExclude">
+                   [value]="true" [(ngModel)]="EditingRevInfo.screeningAutoExclude">
             <div class="mr-2 d-inline">Yes</div>
           </div>
           <div class=" d-block rounded border border-info p-0 m-1">
             <input class="mt-1 mx-1 d-inline" type="radio" [disabled]="!CanChangeAutoExcludeAndIndexing || !CanWrite()" name="AutoExclude"
-                   [value]="false" [(ngModel)]="revInfo.screeningAutoExclude">
+                   [value]="false" [(ngModel)]="EditingRevInfo.screeningAutoExclude">
             <div class="mr-2 d-inline">No</div>
           </div>
           <div class="small alert-secondary rounded p-1 mx-1 my-auto">This is a <strong>Review-Wide</strong> option.</div>
         </div>
-        <div *ngIf="revInfo.screeningAutoExclude" class="col-12 p-0 mx-0 mb-1 row">
+        <div *ngIf="EditingRevInfo.screeningAutoExclude" class="col-12 p-0 mx-0 mb-1 row">
           <div class="rounded alert-info m-0 p-1 small">
             <div class="alert-warning m-1 p-1"><strong>Warning:</strong> this will mark items with the Exclude (E) flag <strong>only when</strong> their coding is automatically completed.</div>
             When completing some coding via comparions, the items that received Exclude codes, <strong>will not</strong> receive the E flag.
@@ -1029,12 +1111,12 @@
     </ng-template>
 
     <ng-template #SourcesTable>
-      <table class="table table-sm tableFixHead" id="OutcomesTable" style="max-height:30vh;overflow:auto;">
+      <table class="table table-sm tableFixHead" style="max-height:30vh;overflow:auto;">
         <thead>
           <tr>
             <th class="bg-white"></th>
             <th class="bg-white">
-              No
+              N.
             </th>
             <th class="bg-white">
               Name
@@ -1051,7 +1133,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let s of SearchesWithScores" (click)="SelectThisSearch(s)">
+          <tr *ngFor="let s of SearchesWithScores" (click)="SelectThisSearch(s)" style="cursor:pointer;">
             <td>
               <input class="my-auto larger-checkbox" type="checkbox" [ngModel]="s.selected" />
             </td>
@@ -1074,6 +1156,99 @@
         </tbody>
       </table>
     </ng-template>
+    <ng-template #ProgressFStable>
+      <div class="col-12 border border-primary rounded m-0 p-0">
+        <div class="row m-0 p-0 ">
+          <div class="col m-0 p-0">
+            <button class="btn btn-outline-primary btn-sm px-1 py-0 m-1 float-right"
+                    (click)="ShowTrainingFSTable = !ShowTrainingFSTable">
+              {{ShowTrainingFSTableText}}
+            </button>
+          </div>
+        </div>
+        <div *ngIf="ShowTrainingFSTable" class="row mx-0 my-1 p-0 ">
+
+          <kendo-grid *ngIf="!FS_ShowListProgress"
+                      [data]="TrainingFromSearchList.Iterations"
+                      [pageSize]="TrainingFromSearchList.Iterations.length"
+                      scrollable="virtual"
+                      [style.max-height.px]="300">
+            <kendo-grid-column field="iteration" [width]="1" title="#"
+                               headerClass="p-1 m-0 font-weight-bold small"
+                               class="p-1 m-0 small"></kendo-grid-column>
+            <kendo-grid-column field="date" title="Date" [width]="3"
+                               headerClass="p-1 m-0 font-weight-bold small"
+                               class="p-1 m-0 small">
+              <ng-template kendoGridCellTemplate let-dataItem>
+                {{FormatDate2(dataItem.date)}}
+              </ng-template>
+            </kendo-grid-column>
+            <kendo-grid-column field="searchId" title="Search" [width]="4"
+                               headerClass="p-1 m-0 font-weight-bold small"
+                               class="p-1 m-0 small">
+              <ng-template kendoGridCellTemplate let-dataItem>
+                {{FilterBySearchText(dataItem.searchId)}}
+              </ng-template>
+            </kendo-grid-column>
+            <kendo-grid-column field="contactName" title="By" [width]="3"
+                               headerClass="p-1 m-0 font-weight-bold small"
+                               class="p-1 m-0 small"></kendo-grid-column>
+            <kendo-grid-column field="tp" title="Incl" [width]="2"
+                               headerClass="p-1 m-0 font-weight-bold small"
+                               class="p-1 m-0 small"></kendo-grid-column>
+            <kendo-grid-column field="tn" title="Excl" [width]="2"
+                               headerClass="p-1 m-0 font-weight-bold small"
+                               class="p-1 m-0 small"></kendo-grid-column>
+            <kendo-grid-column field="totalScreened" title="Tot" [width]="2"
+                               headerClass="p-1 m-0 font-weight-bold small"
+                               class="p-1 m-0 small"></kendo-grid-column>
+          </kendo-grid>
+
+          <kendo-grid *ngIf="FS_ShowListProgress"
+                      [data]="TrainingFromSearchList.Iterations"
+                      [pageSize]="TrainingFromSearchList.Iterations.length"
+                      scrollable="virtual"
+                      [style.max-height.px]="300">
+            <kendo-grid-column field="iteration" title="#" [width]="1"
+                               headerClass="p-1 m-0 font-weight-bold small"
+                               class="p-1 m-0 small"></kendo-grid-column>
+            <kendo-grid-column field="date" title="Date" [width]="4"
+                               headerClass="p-1 m-0 font-weight-bold small"
+                               class="p-1 m-0 small">
+              <ng-template kendoGridCellTemplate let-dataItem>
+                {{FormatDate2(dataItem.date)}}
+              </ng-template>
+            </kendo-grid-column>
+            <kendo-grid-column field="searchId" title="Search" [width]="5"
+                               headerClass="p-1 m-0 font-weight-bold small"
+                               class="p-1 m-0 small">
+              <ng-template kendoGridCellTemplate let-dataItem>
+                {{FilterBySearchText(dataItem.searchId)}}
+              </ng-template>
+            </kendo-grid-column>
+            <kendo-grid-column field="contactName" title="By" [width]="3"
+                               headerClass="p-1 m-0 font-weight-bold small"
+                               class="p-1 m-0 small"></kendo-grid-column>
+            <kendo-grid-column field="localTP" title="Incl" [width]="1"
+                               headerClass="p-1 m-0 font-weight-bold small"
+                               class="p-1 m-0 small"></kendo-grid-column>
+            <kendo-grid-column field="localTN" title="Excl" [width]="1"
+                               headerClass="p-1 m-0 font-weight-bold small"
+                               class="p-1 m-0 small"></kendo-grid-column>
+            <kendo-grid-column field="screenedFromList" title="Screened (from list)" [width]="2"
+                               headerClass="p-1 m-0 font-weight-bold small"
+                               class="p-1 m-0 small"></kendo-grid-column>
+            <kendo-grid-column field="totItemsInList" title="List length" [width]="2"
+                               headerClass="p-1 m-0 font-weight-bold small"
+                               class="p-1 m-0 small"></kendo-grid-column>
+          </kendo-grid>
+
+
+        </div>
+      </div>
+    </ng-template>
+
+
   </div>
 
 
