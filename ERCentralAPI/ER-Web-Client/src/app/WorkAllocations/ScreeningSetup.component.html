@@ -309,7 +309,9 @@
           </div>
         </div>
         <div class="col-4 rounded border border-info alert-info small">
-          This is the "Classifier" search you use to create the screening list. Only searches with Classifier scores can be used.
+          This is the "Classifier" search you use to create the screening list. Only searches with Classifier scores can be used.<br />
+          Like for priority screening, the resulting list will feed items to screen on request, following the order of the list, from high to low scores.<br />
+          Upon creating the list, only items that need screening (i.e. items that don't have completed coding for the screening tool) will be included in the list.
         </div>
       </div>
       <div class="row justify-content-center mx-0">
@@ -378,8 +380,7 @@
           </div>
         </div>
         <div class="col-4 rounded border border-info alert-info small" style="max-height:150px; overflow-y:auto">
-          In order to begin screening, a screening list needs to be present and up-to-date. Thus, in most cases you'll want to click on "Save and Create List", which will also close this panel.<br />
-          Clicking "Save settings" will bring you to a summary page, where you can click "Create list" if needed and/or edit all settings.
+          To save changes, click on "Save and Create List", which will also close this panel and update the progress graph/table.<br />
         </div>
       </div>
 
@@ -411,7 +412,7 @@
                   <div class="brightSwitch row float-right">
                     <div class="mt-1 mr-1">Edit all Settings?</div>
                     <kendo-switch name="CanEditSWfs" class=""
-                                  [disabled]="!CanWrite() "
+                                  [disabled]="!CanWrite() || AllowEditOnStep4 == true"
                                   [(ngModel)]="AllowEditOnStep4fs"
                                   [onLabel]="'Yes'" (click)="CheckIfCancelEditAllOptions('FS')"
                                   [offLabel]="'No'"></kendo-switch>
@@ -600,7 +601,7 @@
               <div class="brightSwitch row float-right">
                 <div class="mt-1 mr-1">Edit all Settings?</div>
                 <kendo-switch name="CanEditSW" class=""
-                              [disabled]="!CanWrite() "
+                              [disabled]="!CanWrite() || AllowEditOnStep4fs == true"
                               [(ngModel)]="AllowEditOnStep4"
                               [onLabel]="'Yes'" (click)="CheckIfCancelEditAllOptions('PS')"
                               [offLabel]="'No'"></kendo-switch>
@@ -1133,9 +1134,9 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let s of SearchesWithScores" (click)="SelectThisSearch(s)" style="cursor:pointer;">
+          <tr *ngFor="let s of SearchesWithScores" (click)="SelectThisSearch(s)" style="cursor:pointer;" [ngClass]="{'font-weight-bold' : s.selected==true}">
             <td>
-              <input class="my-auto larger-checkbox" type="checkbox" [ngModel]="s.selected" />
+              <input class="my-auto larger-checkbox" type="checkbox" [ngModel]="s.selected" [disabled]="s.selected" />
             </td>
             <td>
               {{s.searchNo}}

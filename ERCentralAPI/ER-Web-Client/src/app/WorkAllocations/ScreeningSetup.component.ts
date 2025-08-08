@@ -16,7 +16,6 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import 'hammerjs';
 import { Search, searchService } from '../services/search.service';
-import { forEach } from 'lodash';
 import { NotificationService } from '@progress/kendo-angular-notification';
 
 @Component({
@@ -48,11 +47,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     this.PriorityScreeningService.Fetch().then(()=> this.PriorityScreeningService.FetchTrainingFromSearchList());
     this.RevInfoSub = this.ReviewInfoService.ReviewInfoChanged.subscribe(() => this.RefreshRevinfo());
     if (!this.ReviewerIdentityService.HasAdminRights) this.CurrentStep = 5;
-    if (this.SearchService.SearchList.length == 0) {
-      this.SearchService.Fetch().then(()=> this.PrepareSearchesList());
-    } else {
-      this.PrepareSearchesList();
-    }
+    
     if (this.ReviewInfoService.ReviewInfo.reviewId == 0) {
       this.ReviewInfoService.Fetch();
     }
@@ -63,6 +58,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
       //console.log("will clone revinfo:", this.ReviewInfoService.ReviewInfo);
       this.DoRefreshRevinfo();
       this.PriorityScreeningService.GetTrainingScreeningCriteriaList();
+      this.PrepareSearchesList();
     }
   }
   public EditingRevInfo: ReviewInfo = new ReviewInfo();
@@ -70,13 +66,11 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
   public CurrentStep: number =0;
   private _stepNames: string[] = ["Start", "define what type of list to use" ,"define what to do", "define how to do it", "automation options", "show all settings"
     , "screening tool and what search to use", "screening mode and automation"];
-  @ViewChild('faketablerow') faketablerow!: ElementRef;
   @ViewChild('WithOrWithoutCode') WithOrWithoutCode!: codesetSelectorComponent;
   @ViewChild('AddTrainingCriteriaDDown') AddTrainingCriteriaDDown!: codesetSelectorComponent;
 
   public DropdownWithWithoutSelectedCode: singleNode | null = null;
   public DropdownAddTrainingCriteriaSelectedCode: singleNode | null = null;
-  private subGotPriorityScreeningData: Subscription | null = null;
   private RevInfoSub: Subscription | null = null;
   public AllowEditOnStep4: boolean = false;
   public AllowEditOnStep4fs: boolean = false;
@@ -110,31 +104,53 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     if (this.ReviewInfoService.ReviewInfo.reviewId < 1) {
       await this.ReviewInfoService.Fetch();
     }
+    if (this.SearchService.SearchList.length == 0) {
+      if (this.SearchService.IsBusy) {
+        console.log("SearchService.IsBusy, waiting...");
+        let safetyC: number = 0;
+        while (this.SearchService.IsBusy && safetyC < 350) {//not going to wait here more than ~35s
+          await Helpers.Sleep(100);
+          safetyC++;
+        }
+      }
+      if (this.SearchService.SearchList.length == 0) {
+        console.log("Last ditch attempt to get searches list...");
+        await setTimeout(async () => {
+          //we need to delay this call, otherwise SearchComponent throws the value changed after checking it error
+          await this.SearchService.Fetch();
+          if (this.SearchService.SearchList.length > 0) {
+            //now we have some searches in the list, so we can consume it to set-up things in here.
+            this.PrepareSearchesList();
+          }
+        }, 10);
+      }
+    }
+    
     this._SearchesWithScores = this.SearchService.SearchList.filter(f => f.isClassifierResult == true);
+    this._SearchesWithScores.sort((a, b) => b.searchNo - a.searchNo);
     this.innerSetCurrentSearchFS();
     
-    
-    this._SearchesWithScores.sort((a, b) => b.searchNo - a.searchNo);
-    this.innerSelectCurrentSearchFromRevinfo();
   }
   private innerSetCurrentSearchFS() {
+    
     this.SearchToUseForFromSearchList = null;
     this.EditingRevInfo.screeningFSListSearchId = this.ReviewInfoService.ReviewInfo.screeningFSListSearchId;
     this.EditingRevInfo.screeningFSListSearchName = this.ReviewInfoService.ReviewInfo.screeningFSListSearchName;
     if (this.ReviewInfoService.ReviewInfo.screeningFSListSearchId > 0) {
       const foundSearch = this.SearchesWithScores.find(f => f.searchId == this.ReviewInfoService.ReviewInfo.screeningFSListSearchId);
-      if (foundSearch) this.SearchToUseForFromSearchList = foundSearch;
+      if (foundSearch) {
+        this.SearchToUseForFromSearchList = foundSearch;
+        const SearchIdTouse = this.SearchToUseForFromSearchList.searchId;
+        for (let s of this._SearchesWithScores) {
+          s.selected = false;
+          if (s.searchId == SearchIdTouse) {
+            s.selected = true;
+          }
+        }
+      }
     }
   }
-  private innerSelectCurrentSearchFromRevinfo() {
-    let SearchIdTouse = -1;
-    if (this.SearchToUseForFromSearchList) SearchIdTouse = this.SearchToUseForFromSearchList.searchId;
-    for (let s of this._SearchesWithScores) {
-      s.selected = false;
-      //if current list uses this search, then set to true!?!
-      if (s.searchId == SearchIdTouse) s.selected = true;
-    }
-  }
+
 
   private _ScreeningModeOptions: kvSelectFrom[] = [
     { key: 0, value: '[Please select]' },
@@ -175,7 +191,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
   }
 
   public get ShowTrainingFSTableText(): string {
-    if (this.ShowTrainingTable) return "Hide Progress Table";
+    if (this.ShowTrainingFSTable) return "Hide Progress Table";
     else return "Show Progress Table";
   }
   public get ScreeningListIsGood(): boolean {
@@ -581,13 +597,9 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
   async StartScreeningFs() {
     this.ItemListService.IsInScreeningMode = true;
     await this.PriorityScreeningService.FetchTrainingFromSearchList();
-    this.ContinueStartScreeningFs();
-  }
-
-  ContinueStartScreeningFs() {
-    if (this.subGotPriorityScreeningData) this.subGotPriorityScreeningData.unsubscribe();
     this.router.navigate(['itemcoding', 'ScreeningFromList']);
   }
+
   public async GenerateList() {
     //console.log("regenerate list: ", this.EditingRevInfo.screeningMode, this.PriorityScreeningService.TrainingScreeningCriteria.length);
     if (!this.CanWrite()) return;
@@ -718,8 +730,10 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
   }
   CancelEditingAllOptions() {
     this.AllowEditOnStep4 = false;
+    this.AllowEditOnStep4fs = false;
     this.ResetAllEditFromValues();
     this.DoRefreshRevinfo();
+    this.innerSetCurrentSearchFS()
   }
   ResetAllEditFromValues() {
     this.ScreenAllItems = true;
@@ -810,6 +824,10 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     //console.log("selecting search:", s.selected);
     const list = this.SearchesWithScores;
     const todo = s.selected;
+    if (todo == true && this.SearchToUseForFromSearchList && s.searchId == this.SearchToUseForFromSearchList.searchId) {
+      //we're un-selecting the currently selected search, which isn't allowed.
+      return;
+    }
     for (let SS of list) { SS.selected = false; }
     s.selected = !todo;
     if (s.selected == true) {
@@ -820,11 +838,9 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     } else {
       //console.log("selecting search3:", s);
       this.innerSetCurrentSearchFS();
-      this.innerSelectCurrentSearchFromRevinfo();
     }
 
   }
-
 
   Cancel() {
     console.log("cancel screening");

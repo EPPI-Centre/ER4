@@ -51,7 +51,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
   ngOnInit() {
 
-    //console.log("SearchComp init:", this.InstanceId);
+    //console.log("SearchComp init");
     if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
       this.router.navigate(['home']);
     }
@@ -61,8 +61,9 @@ export class SearchComp implements OnInit, OnDestroy {
       //this.getMembers();
       //console.log(this.Contacts);
       this.clearSub = this._eventEmitter.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); })
-
-      this._sourcesService.FetchSources();
+      this._searchService.Fetch().then(() => {
+        if (this._sourcesService.ReviewSources.length == 0 && !this._sourcesService.IsBusy) this._sourcesService.FetchSources();
+      });
     }
   }
   //getMembers() {
