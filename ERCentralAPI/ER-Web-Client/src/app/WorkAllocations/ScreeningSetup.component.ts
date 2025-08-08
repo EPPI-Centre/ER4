@@ -106,7 +106,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     }
     if (this.SearchService.SearchList.length == 0) {
       if (this.SearchService.IsBusy) {
-        console.log("SearchService.IsBusy, waiting...");
+        //console.log("SearchService.IsBusy, waiting...");
         let safetyC: number = 0;
         while (this.SearchService.IsBusy && safetyC < 350) {//not going to wait here more than ~35s
           await Helpers.Sleep(100);
@@ -114,7 +114,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
         }
       }
       if (this.SearchService.SearchList.length == 0) {
-        console.log("Last ditch attempt to get searches list...");
+        //console.log("Last ditch attempt to get searches list...");
         await setTimeout(async () => {
           //we need to delay this call, otherwise SearchComponent throws the value changed after checking it error
           await this.SearchService.Fetch();
@@ -589,7 +589,6 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     this.ContinueStartScreening();
   }
   ContinueStartScreening() {
-    if (this.subGotPriorityScreeningData) this.subGotPriorityScreeningData.unsubscribe();
     this.router.navigate(['itemcoding', 'PriorityScreening']);
   }
 
@@ -848,7 +847,6 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy() {
-    if (this.subGotPriorityScreeningData) this.subGotPriorityScreeningData.unsubscribe();
     if (this.RevInfoSub) this.RevInfoSub.unsubscribe();
   }
 
