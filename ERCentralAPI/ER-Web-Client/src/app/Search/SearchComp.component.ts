@@ -1462,7 +1462,7 @@ export class SearchComp implements OnInit, OnDestroy {
     this.CurrentDropdownSelectedCode = null;
     this.SearchForPeoplesModel = 'true';
     this.classifierService.Clear();
-
+    this._searchService.Clear();
   }
 }
 

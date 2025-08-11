@@ -148,6 +148,16 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
           }
         }
       }
+      else {//we couldn't find the search to "select", but we still want to unselect all searches
+        for (let s of this._SearchesWithScores) {
+          s.selected = false;
+        }
+      }
+    }
+    else {//we make sure no search is selected, because nothing is configured in RevInfo. so nothing _should_ be selected
+      for (let s of this._SearchesWithScores) {
+        s.selected = false;
+      }
     }
   }
 
@@ -251,6 +261,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     else return true;
   }
   public get CanChangePeoplePerItem(): boolean {
+    if (this.CurrentStep == 7) return true;//can always change if wizard for the FS type of list
     if (this.EditingRevInfo.screeningMode == '') return false;
     if (this.EditingRevInfo.screeningMode == "Priority") {
       if (this.TrainingScreeningCriteriaListIsNotGoodMsg != "") return false;
@@ -410,10 +421,6 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
   public get ConfigurationIsValidFs(): boolean {
     if (this.EditingRevInfo.screeningCodeSetId < 1) return false;//don't know what to screen against
     if (this.SearchToUseForFromSearchList == null || this.SearchToUseForFromSearchList.searchId < 1) return false;//search
-    if (this.ScreeningModeOptions.findIndex(found => found.value == this.EditingRevInfo.screeningMode) < 1) {
-      //console.log("type of list isn't set?", this.EditingRevInfo.screeningMode);
-      return false;//type of list isn't set.
-    }
     return this.CheckDataEntryMode();
   }
 
@@ -674,6 +681,10 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     let res: boolean | string = await this.ReviewInfoService.Update(this.EditingRevInfo);
     if (res == true) {
       res = await this.PriorityScreeningService.RunNewFromSearchCommand(0, this.EditingRevInfo.screeningCodeSetId, IsNew, this.SearchToUseForFromSearchList.searchId);
+      if (IsNew && this.ReviewInfoService.ReviewInfo.screeningFromSearchListIsGood == false) {
+        //it's possible that we now have a screeningFromSearchList so we need to do the work of re-fetching the ReviewInfo
+        this.ReviewInfoService.Fetch();
+      }
       this.AllowEditOnStep4 = false;
       this.CancelEditingAllOptions();
       this.GoToAllinOneStep();

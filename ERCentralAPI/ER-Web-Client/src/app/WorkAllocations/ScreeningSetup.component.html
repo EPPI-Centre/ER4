@@ -266,9 +266,6 @@
             Screening tool and what search to use:
             <div *ngIf="selectedCodeSetDropDown !== null" class="border font-weight-normal border-success rounded bg-light ml-1 px-1">
               Tool: {{GetCodingToolName()}}
-              <span *ngIf="ScreenAllItems">
-                | All Items
-              </span>
               <span *ngIf="SearchToUseForFromSearchList != null">
                 | Items from this search: {{SearchToUseForFromSearchList.title}} (#{{SearchToUseForFromSearchList.searchNo}})
               </span>
@@ -328,7 +325,7 @@
     </div>
 
     <div *ngIf="CurrentStep==7" class="">
-      <div class="row my-1 mx-0 " [ngClass]="{'DisabledStep' : !CanChangePeoplePerItem}">
+      <div class="row my-1 mx-0 " >
         <div class="col-7">
           <ng-container *ngTemplateOutlet="TemplatePeoplePerItem"></ng-container>
         </div>
@@ -961,7 +958,7 @@
           <kendo-numerictextbox [(ngModel)]="EditingRevInfo.screeningNPeople"
                                 [disabled]="!CanChangePeoplePerItem || !CanWrite()"
                                 [min]="1" [format]="'n0'"
-                                [max]="Contacts.length > 10 ? 10 : Contacts.length"
+                                [max]="Contacts.length > 10 ? 10 : (Contacts.length < 2 ? 2 : Contacts.length)"
                                 [step]="1"
                                 [autoCorrect]="true"
                                 (valueChange)="{}"
@@ -1133,10 +1130,32 @@
             </th>
           </tr>
         </thead>
-        <tbody>
+        <tbody *ngIf="(CurrentStep == 6 && CanChangeWhatToScreen) || CurrentStep !=6">
           <tr *ngFor="let s of SearchesWithScores" (click)="SelectThisSearch(s)" style="cursor:pointer;" [ngClass]="{'font-weight-bold' : s.selected==true}">
             <td>
               <input class="my-auto larger-checkbox" type="checkbox" [ngModel]="s.selected" [disabled]="s.selected" />
+            </td>
+            <td>
+              {{s.searchNo}}
+            </td>
+            <td>
+              {{s.title}}
+            </td>
+            <td>
+              {{s.contactName}}
+            </td>
+            <td>
+              {{FormatDate(s.searchDate)}}
+            </td>
+            <td>
+              {{s.hitsNo}}
+            </td>
+          </tr>
+        </tbody>
+        <tbody *ngIf="CurrentStep == 6 && !CanChangeWhatToScreen">
+          <tr *ngFor="let s of SearchesWithScores" [ngClass]="{'font-weight-bold' : s.selected==true}">
+            <td>
+              <input class="my-auto larger-checkbox" type="checkbox" [ngModel]="s.selected" disabled />
             </td>
             <td>
               {{s.searchNo}}
