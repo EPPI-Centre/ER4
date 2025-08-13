@@ -119,16 +119,19 @@ namespace BusinessLibrary.BusinessClasses
                         }
                     }
                 }
-                using (SqlCommand command2 = new SqlCommand("st_Item", connection))
+                if (ItemId > 0)
                 {
-                    command2.CommandType = System.Data.CommandType.StoredProcedure;
-                    command2.Parameters.Add(new SqlParameter("@ITEM_ID", this.ItemId));
-                    command2.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                    using (Csla.Data.SafeDataReader reader2 = new Csla.Data.SafeDataReader(command2.ExecuteReader()))
+                    using (SqlCommand command2 = new SqlCommand("st_Item", connection))
                     {
-                        if (reader2.Read())
+                        command2.CommandType = System.Data.CommandType.StoredProcedure;
+                        command2.Parameters.Add(new SqlParameter("@ITEM_ID", this.ItemId));
+                        command2.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                        using (Csla.Data.SafeDataReader reader2 = new Csla.Data.SafeDataReader(command2.ExecuteReader()))
                         {
-                            this.Item = Item.GetItem(reader2);
+                            if (reader2.Read())
+                            {
+                                this.Item = Item.GetItem(reader2);
+                            }
                         }
                     }
                 }
