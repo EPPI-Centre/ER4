@@ -208,7 +208,7 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
             this.modalService.GenericErrorMessage(
               "Can't access the requested item at this time: \r\n"
               + "This is usually because it's being screened by someone else.\r\n"
-              + "Please try again in a short while.\r\n"
+              + "Please try again in a short while.\r\n\r\n"
               + "[If you're trying to reach a new item to screen, you can do this immediately by clicking on \"Close/back\" and then on \"Start Screening\".]"
             );
           }
