@@ -194,13 +194,24 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
       body)).then(
         success => {
           this.RemoveBusy("FetchScreenedItem");
-          this.CurrentItem = success.item;
-          this.FetchAdditionalItemDetails();
-          let currentIndex = this.ScreenedItemIds.indexOf(this.CurrentItem.itemId);
-          if (currentIndex == -1) this.ScreenedItemIds.push(this.CurrentItem.itemId);//do we really need this?? If it happens, means something is wrong...
-          this.CurrentItemIndex = currentIndex;
-          //return this.CurrentItem;
-          this.gotItem.emit();
+
+          if (success.item != null) {
+            this.CurrentItem = success.item;
+            this.FetchAdditionalItemDetails();
+            let currentIndex = this.ScreenedItemIds.indexOf(this.CurrentItem.itemId);
+            if (currentIndex == -1) this.ScreenedItemIds.push(this.CurrentItem.itemId);//do we really need this?? If it happens, means something is wrong...
+            this.CurrentItemIndex = currentIndex;
+            //return this.CurrentItem;
+            this.gotItem.emit();
+          }
+          else {
+            this.modalService.GenericErrorMessage(
+              "Can't access the requested item at this time: \r\n"
+              + "This is usually because it's being screened by someone else.\r\n"
+              + "Please try again in a short while.\r\n\r\n"
+              + "[If you're trying to reach a new item to screen, you can do this immediately by clicking on \"Close/back\" and then on \"Start Screening\".]"
+            );
+          }
         },
         error => {
           this.RemoveBusy("FetchScreenedItem");
