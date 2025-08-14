@@ -388,17 +388,17 @@
 
     <!--All config and summary-->
   <div *ngIf="CurrentStep == 5" class="row m-1 p-1">
-    <kendo-tabstrip #tabstrip [keepTabContent]="true">
+    <kendo-tabstrip #tabstripScreening [keepTabContent]="true">
       <kendo-tabstrip-tab [selected]="true" [title]="'Priority Screening'">
         <ng-template kendoTabContent>
-          <div class="col-12 row mx-0 px-0" style="max-height:60vh;overflow:auto;">
+          <div class="col-12 row mx-0 px-0" style="max-height:70vh;overflow:auto;">
             <ng-container *ngTemplateOutlet="AllPSsettings"></ng-container>
           </div>
         </ng-template>
       </kendo-tabstrip-tab>
       <kendo-tabstrip-tab [title]="'From Search Screening List'">
         <ng-template kendoTabContent>
-          <div class="row mx-0 px-0" style="max-height: 60vh; overflow: auto;">
+          <div class="row mx-0 px-0" style="max-height: 70vh; overflow: auto;">
             <div class="border border-primary rounded m-0 p-1 col-12 col-md-6">
               <div class="row m-0 p-0 ">
                 <button class=" pt-1 m-1 rounded btn btn-outline-dark" (click)="Cancel()" style="min-width:100px">
@@ -419,7 +419,7 @@
               <div class="col-12 border border-primary rounded my-1 p-0">
                 <div class="row m-2 p-1 alert-info rounded">
                   <div class="col-12 p-0 m-0 rounded alert-light">
-                    <button class="m-1 py-0 px-1 btn btn-outline-primary" [disabled]="!CanWrite() || !ScreeningFromSearchListIsGood" (click)="StartScreeningFs()">
+                    <button class="m-1 py-0 px-1 btn btn-outline-info" [disabled]="!CanWrite() || !ScreeningFromSearchListIsGood" (click)="StartScreeningFs()">
                       Begin Screening (FS)
                     </button>
                     <button class="m-1 py-0 px-1 btn btn-outline-secondary" [disabled]="!CanWrite() " (click)="ReGenerateFsList()">
@@ -464,8 +464,6 @@
                     <div style="max-height:25vh; overflow:auto;">
                       <ng-container *ngTemplateOutlet="SourcesTable"></ng-container>
                     </div>
-
-                    <ng-container *ngTemplateOutlet="TemplateScreeeningMode"></ng-container>
 
                     <ng-container *ngTemplateOutlet="TemplatePeoplePerItem"></ng-container>
 
@@ -761,7 +759,7 @@
     </ng-template>
 
     <ng-template #TemplateScreeningTool>
-      <div class="row m-0 p-0">
+      <div *ngIf="CanChangeScreeningTool" class="row m-0 p-0">
         <div class="col-3 mx-0 row p-0">
           <div class="my-auto"><span *ngIf="CurrentStep==2">1.1 </span>Screeening Tool:</div>
         </div>
@@ -781,6 +779,23 @@
             </div>
           </div>
           <div class="small alert-secondary rounded p-1 mx-1 my-auto">This is a <strong>Review-Wide</strong> option.</div>
+        </div>
+      </div>
+      <div *ngIf="!CanChangeScreeningTool" class="row m-0 p-0">
+        <div class="col-3 mx-0 row p-0">
+          <div class="my-auto">Screeening Tool:</div>
+          
+        </div>
+        <div class="row my-1 col-9 p-0">
+          <div class="border rounded border-success px-2 py-1">{{GetCodingToolName()}}</div>
+        </div>
+        <div class="col-12 p-1 mx-0">
+          <div class="alert-info border border-info small p-1">
+            The <strong>screening tool</strong> is a review-wide setting. You cannot change it here, because Priority Screening is currently configured
+            to learn from screening decisions, based on a list of <strong>{{this.TrainingScreeningCriteriaList.length.toString()}} codes</strong>. <br />
+            This list <strong>extremely important</strong> for Priority Screening and depends on what codes are part of the Screening Tool.<br />
+            To change this setting, <strong>please change it from the Priority Screening Wizard or Tab</strong>, and then return here.
+          </div>
         </div>
       </div>
     </ng-template>
@@ -1176,6 +1191,7 @@
         </tbody>
       </table>
     </ng-template>
+
     <ng-template #ProgressFStable>
       <div class="col-12 border border-primary rounded m-0 p-0">
         <div class="row m-0 p-0 ">
@@ -1255,7 +1271,7 @@
             <kendo-grid-column field="localTN" title="Excl" [width]="1"
                                headerClass="p-1 m-0 font-weight-bold small"
                                class="p-1 m-0 small"></kendo-grid-column>
-            <kendo-grid-column field="screenedFromList" title="Screened (from list)" [width]="2"
+            <kendo-grid-column field="screenedFromList" title="Tot (from list)" [width]="2"
                                headerClass="p-1 m-0 font-weight-bold small"
                                class="p-1 m-0 small"></kendo-grid-column>
             <kendo-grid-column field="totItemsInList" title="List length" [width]="2"

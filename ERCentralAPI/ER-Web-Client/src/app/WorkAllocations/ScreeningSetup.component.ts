@@ -17,6 +17,7 @@ import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import 'hammerjs';
 import { Search, searchService } from '../services/search.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
+import { TabStripComponent } from '@progress/kendo-angular-layout';
 
 @Component({
   selector: 'ScreeningSetupComp',
@@ -68,6 +69,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     , "screening tool and what search to use", "screening mode and automation"];
   @ViewChild('WithOrWithoutCode') WithOrWithoutCode!: codesetSelectorComponent;
   @ViewChild('AddTrainingCriteriaDDown') AddTrainingCriteriaDDown!: codesetSelectorComponent;
+  @ViewChild('tabstripScreening') tabstripScreening!: TabStripComponent;
 
   public DropdownWithWithoutSelectedCode: singleNode | null = null;
   public DropdownAddTrainingCriteriaSelectedCode: singleNode | null = null;
@@ -252,7 +254,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     return (this.CanChangePeoplePerItem && this.CanGoToNextStep());
   }
   public CanGoToStep7(): boolean {
-    console.log("Can go to S7:", this.SearchToUseForFromSearchList);
+    //console.log("Can go to S7:", this.SearchToUseForFromSearchList);
     if (this.selectedCodeSetDropDown == null || this.SearchToUseForFromSearchList == null) return false;
     else return (this.CanGoToNextStep());
   }
@@ -274,6 +276,18 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     if (this.EditingRevInfo.screeningReconcilliation == "") return false;
     else return true;
   }
+
+  public get CanEditSelectedSet(): boolean {
+    return (this.CanWrite() && this.selectedCodeSetDropDown != null && this.selectedCodeSetDropDown.allowEditingCodeset);
+  }
+
+  public get CanChangeScreeningTool(): boolean {
+    if (this.CurrentStep == 5 && this.AllowEditOnStep4) return true;//editing all settings for PS
+    if (this.CurrentStep < 5) return true;//editing via the PS wizard
+    if (this.TrainingScreeningCriteriaList.length == 0) return true;//safe to change the screening tool: PS isn't learning from anything!
+    return false;//not allowed in all other cases
+  }
+
   public GoToAllinOneStep() {
     this.CurrentStep = 5;
   }
@@ -311,9 +325,6 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
   }
   public get HasAdminRights(): boolean {
     return this.ReviewerIdentityService.HasAdminRights;
-  }
-  public get CanEditSelectedSet(): boolean {
-    return (this.CanWrite() && this.selectedCodeSetDropDown != null && this.selectedCodeSetDropDown.allowEditingCodeset);
   }
   public get WorkToDoSelectedCodeSetDataEntryM(): string {
     if (this.selectedCodeSetDropDown != null && this.selectedCodeSetDropDown.codingIsFinal) return "Comparison";
@@ -488,12 +499,17 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
       this.ShowAddTrainingCriteriaClick();
     }
   }
+
+  //this changes what screening tool is set for the review
   setCodeSetDropDown(codeset: ReviewSet) {
     this.selectedCodeSetDropDown = codeset;
     if (this.EditingRevInfo.screeningCodeSetId !== codeset.set_id) {
+      //we're changing the "screening tool" for the review, might need to change the Codes that PS is learning from
       this.EditingRevInfo.screeningCodeSetId = codeset.set_id;
-      if (this.CurrentStep == 5) {
-        //user is doing the "I'll edit all my settings in one go" thing, so we'll ask what to do.
+      if (this.CurrentStep == 5
+        && this.AllowEditOnStep4 == true
+      ) {
+        //user is doing the "I'll edit all my settings in one go (for PS)" thing, so we'll ask what to do.
         this.ConfirmationDialogService.confirm("Update training codes?",
           "You have <em>changed</em> the screening tool.<br /> Would you like to automatically update the list of training codes?<br />Training codes are <strong>important</strong>! They define what the machine will learn from, so <strong>please check</strong> that they are correct, in any case."
           , false, "", "Yes, auto-update", "No, I'll do it myself"
@@ -503,10 +519,12 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
               this.DoResetTrainingCodes();
             }
           }).catch(() => { });
-      } else {
+      }
+      else if(this.CurrentStep < 5) {
         //we're doing this in the wizard, so we'll silently change the codes in all cases...
         this.DoResetTrainingCodes();
-      }
+      }// we don't change the training codes in other cases, because code is supposed to NOT allow other cases where a list of training codes already exists
+
       if (codeset.codingIsFinal) {
         //we picked a "normal" data entry set, people per item needs to be 0 (for some reason!)
         this.EditingRevInfo.screeningNPeople = 0;
@@ -688,6 +706,17 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
       this.AllowEditOnStep4 = false;
       this.CancelEditingAllOptions();
       this.GoToAllinOneStep();
+      let counter: number = 0;
+      if (!this.tabstripScreening) {
+        while (!this.tabstripScreening && counter < 20) {
+          //console.log("Wait for tabstripScreening", counter);
+          await Helpers.Sleep(25);
+          counter++;
+        }
+      }
+      if (this.tabstripScreening) {
+        this.tabstripScreening.selectTab(1);
+      }
     }
   }
   async ReGenerateFsList() {
@@ -734,7 +763,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
   }
   async CheckIfCancelEditAllOptions(Origin:string) {
     await Helpers.Sleep(80);
-    console.log("CheckIfCancelEditAllOptions:", this.AllowEditOnStep4);
+    //console.log("CheckIfCancelEditAllOptions:", this.AllowEditOnStep4);
     if (Origin == "PS" && this.AllowEditOnStep4 == false) this.CancelEditingAllOptions();
     if (Origin == "FS" && this.AllowEditOnStep4fs == false) this.CancelEditingAllOptions();
   }
@@ -743,7 +772,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     this.AllowEditOnStep4fs = false;
     this.ResetAllEditFromValues();
     this.DoRefreshRevinfo();
-    this.innerSetCurrentSearchFS()
+    this.innerSetCurrentSearchFS();
   }
   ResetAllEditFromValues() {
     this.ScreenAllItems = true;
@@ -769,7 +798,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
         //set is in normal data entry, so we'll automatically set screeningNPeople to 0
         if (this.EditingRevInfo.screeningNPeople == 1) {
           this.ngZone.run(() => setTimeout(() => {
-            console.log("screeningNPeople goes to => 0");
+            //console.log("screeningNPeople goes to => 0");
             this.EditingRevInfo.screeningNPeople = 0;
           }, 8));
         }
@@ -787,7 +816,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
       else {//multiple screening, but n of people 1 or less
         if (this.EditingRevInfo.screeningNPeople == 0) {
           this.ngZone.run(() => setTimeout(() => {
-            console.log("screeningNPeople goes to => 1");
+            //console.log("screeningNPeople goes to => 1");
             this.EditingRevInfo.screeningNPeople = 1;
           }, 8));//just avoiding to have a 0 here...
         }//we delay this so to let Angular UI to catch up...
@@ -853,7 +882,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
   }
 
   Cancel() {
-    console.log("cancel screening");
+    //console.log("cancel screening");
     this.emitterCancel.emit();
   }
 
