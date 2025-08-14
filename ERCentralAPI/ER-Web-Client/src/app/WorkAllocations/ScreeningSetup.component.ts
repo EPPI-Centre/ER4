@@ -502,6 +502,37 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
 
   //this changes what screening tool is set for the review
   setCodeSetDropDown(codeset: ReviewSet) {
+    //we need to check 2 things.
+    //(1) if we're editing PS settings and there is a FS list in place, changing the Screening tool makes the FS list potentially wrong - got to warn users.
+    //(2) if we're editing  PS settings "all at once" we have to ask what to do about training codes
+    //So, we do the 1st check here, tell people about the gotcha if needed, then proceed to DoSetCodeSetDropDown(...), where we may ask another question to users.
+    if (this.selectedCodeSetDropDown && this.selectedCodeSetDropDown.set_id == codeset.set_id) {
+      return;//nothing to change!!
+    }
+    if (this.selectedCodeSetDropDown == null) {
+      //starting from scratch, safe to proceed without warnings
+      this.DoSetCodeSetDropDown(codeset);
+      return;
+    }
+    let Msg = "Changing the screening tool is allowed, but it will instantly invalidate all values in the progress graphs and tables.<br />Proceed anyway?";
+    const iterats = this.TrainingFromSearchList.Iterations;
+    if (this.CurrentStep == 5 //editing all at once
+      && this.AllowEditOnStep4 == true //editing PS settings
+      && iterats.length > 0 //FS is in use or has been in use
+      && this.ScreeningFromSearchListIsGood //we haven't "finished" this list!
+    ) {
+      Msg = "Changing the screening tool is allowed, but it will instantly invalidate all values in the progress graphs and tables.<br /><br />"
+        + "Moreover, it's likely to make the current 'from search' screening list <strong>invalid/nonsensical</strong>, so you should then check and possibly re-create that list too.<br />"
+        + "Proceed anyway?";
+    }
+    this.ConfirmationDialogService.confirm("Change the screening tool?"
+      , Msg, false, "", "Proceed", "Cancel"
+    ).then((res: any) => {
+      if (res == true) this.DoSetCodeSetDropDown(codeset);
+    }).catch(() => { });
+  }
+  //this changes what screening tool is set for the review
+  DoSetCodeSetDropDown(codeset: ReviewSet) {
     this.selectedCodeSetDropDown = codeset;
     if (this.EditingRevInfo.screeningCodeSetId !== codeset.set_id) {
       //we're changing the "screening tool" for the review, might need to change the Codes that PS is learning from
@@ -520,7 +551,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
             }
           }).catch(() => { });
       }
-      else if(this.CurrentStep < 5) {
+      else if (this.CurrentStep < 5) {
         //we're doing this in the wizard, so we'll silently change the codes in all cases...
         this.DoResetTrainingCodes();
       }// we don't change the training codes in other cases, because code is supposed to NOT allow other cases where a list of training codes already exists
