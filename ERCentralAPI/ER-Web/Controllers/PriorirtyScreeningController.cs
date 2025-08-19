@@ -169,7 +169,7 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpPost("[action]")]
-        public IActionResult ScreeningFromSearchCommand([FromBody] ScreeningFromSearchCommandMVC crit)
+        public IActionResult RunScreeningFromSearchCommand([FromBody] ScreeningFromSearchCommandMVC crit)
         {
             try
             {
@@ -185,6 +185,26 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Error in ScreeningFromSearchCommand!");
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpGet("[action]")]
+        public IActionResult DeleteScreeningFromSearch()
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ScreeningFromSearchCommand res = ScreeningFromSearchCommand.GetCommandToStopCurrentFromSearchList();
+                    DataPortal<ScreeningFromSearchCommand> dp = new DataPortal<ScreeningFromSearchCommand>();
+                    res = dp.Execute(res);
+                    return Ok(res);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error in DeleteScreeningFromSearch");
                 return StatusCode(500, e.Message);
             }
         }

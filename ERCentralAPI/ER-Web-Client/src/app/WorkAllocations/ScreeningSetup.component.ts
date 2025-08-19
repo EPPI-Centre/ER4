@@ -6,9 +6,9 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { kvSelectFrom } from './WorkAllocationComp.component';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ModalService } from '../services/modal.service';
-import { PriorityScreeningService, Training, iTrainingScreeningCriteria, ScreeningFromSearchIterationList } from '../services/PriorityScreening.service';
+import { PriorityScreeningService, Training, iTrainingScreeningCriteria, ScreeningFromSearchIterationList, ScreeningFromSearchIterationRun, iScreeningFromSearchIteration } from '../services/PriorityScreening.service';
 import { Helpers } from '../helpers/HelperMethods';
-import { GridDataResult } from '@progress/kendo-angular-grid';
+import { GridDataResult, RowClassArgs } from '@progress/kendo-angular-grid';
 import { ItemListService } from '../services/ItemList.service';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
@@ -263,7 +263,8 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     else return true;
   }
   public get CanChangePeoplePerItem(): boolean {
-    if (this.CurrentStep == 7) return true;//can always change if wizard for the FS type of list
+    if (this.CurrentStep == 7) return this.selectedCodeSetDropDown != null;//can always change if wizard for the FS type of list
+    if (this.CurrentStep == 5 && this.AllowEditOnStep4fs == true) return this.selectedCodeSetDropDown != null;//as above
     if (this.EditingRevInfo.screeningMode == '') return false;
     if (this.EditingRevInfo.screeningMode == "Priority") {
       if (this.TrainingScreeningCriteriaListIsNotGoodMsg != "") return false;
@@ -431,7 +432,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
 
   public get ConfigurationIsValidFs(): boolean {
     if (this.EditingRevInfo.screeningCodeSetId < 1) return false;//don't know what to screen against
-    if (this.SearchToUseForFromSearchList == null || this.SearchToUseForFromSearchList.searchId < 1) return false;//search
+    if (this.EditingRevInfo.screeningFSListSearchId < 1 && this.SearchToUseForFromSearchList == null) return false;//search
     return this.CheckDataEntryMode();
   }
 
@@ -515,10 +516,8 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
     let Msg = "Changing the screening tool is allowed, but it will instantly invalidate all values in the progress graphs and tables.<br />Proceed anyway?";
-    const iterats = this.TrainingFromSearchList.Iterations;
-    if (this.CurrentStep == 5 //editing all at once
-      && this.AllowEditOnStep4 == true //editing PS settings
-      && iterats.length > 0 //FS is in use or has been in use
+    const iterats = this.TrainingFromSearchList.AllITerations;
+    if (iterats.length > 0 //FS is in use or has been in use
       && this.ScreeningFromSearchListIsGood //we haven't "finished" this list!
     ) {
       Msg = "Changing the screening tool is allowed, but it will instantly invalidate all values in the progress graphs and tables.<br /><br />"
@@ -766,6 +765,10 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
         type: { style: "info", icon: true },
         hideAfter: 5000
       });
+      if (this.AllowEditOnStep4fs == true && this.CurrentStep == 5) {
+        this.AllowEditOnStep4 = false;
+        this.CancelEditingAllOptions();
+      }
     }
     else if (res != false) {
       this.notificationService.show({
@@ -777,9 +780,51 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
       });
     }
   }
+
+  async DeleteFSlist() {
+    if (!this.CanWrite()
+    ) return;
+    this.EditingRevInfo.screeningFSListSearchId = 0;
+    let res: string | boolean = await this.ReviewInfoService.Update(this.EditingRevInfo);
+    if (res) {
+      res = await this.PriorityScreeningService.DeleteFromSearchList();
+      if (res == true) {
+        //false: error happened, shown in the service
+        //true: it worked
+        this.notificationService.show({
+          content: 'Current "From Search" list deleted. Progress records are unaffected.',
+          animation: { type: 'slide', duration: 400 },
+          position: { horizontal: 'center', vertical: 'top' },
+          type: { style: "info", icon: true },
+          hideAfter: 5000
+        });
+        await this.ReviewInfoService.Fetch();
+        this.CancelEditingAllOptions();
+      }
+      else if (res != false) {
+        this.notificationService.show({
+          content: 'Request failed with error:' + res,
+          animation: { type: 'slide', duration: 400 },
+          position: { horizontal: 'center', vertical: 'top' },
+          type: { style: "error", icon: true },
+          hideAfter: 5000
+        });
+      }
+    }
+  }
+  public rowCallback = (context: RowClassArgs) => {
+    const row = context.dataItem as iScreeningFromSearchIteration;
+    if ( this.TrainingFromSearchList.CurrentRun.Iterations.findIndex(f=> f === row) != -1) {
+      return { 'RowShowingCurrentRun': true,};
+    } else {
+      return { 'RowShowingCurrentRun': false, };
+    }
+  };
+
+
   ChangeFSprogressFilter(event: Event) {
     const Id = parseInt((event.target as HTMLOptionElement).value);
-    this.TrainingFromSearchList.SetSearchIdFilter(Id);
+    this.TrainingFromSearchList.SetCurrentRun(Id);
   }
   FilterBySearchText(SearchId: number): string {
     const ind = this.SearchesWithScores.findIndex(f => f.searchId == SearchId);

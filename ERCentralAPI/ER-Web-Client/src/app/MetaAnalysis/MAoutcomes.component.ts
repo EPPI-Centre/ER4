@@ -24,12 +24,13 @@ import { encodeBase64, saveAs } from '@progress/kendo-file-saver';
 `
 .OutcomesTableContainer {border-top: 1px solid DarkBlue; border-bottom: 1px solid DarkBlue; max-height: 55vh; overflow:auto; max-width:95vw;}
 .OutcomesTable table { max-height: 50vh; max-width: 90vm; }
-.OutcomesTable th {border: 1px dotted Silver; min-width:3vw;}
-.OutcomesTable thead th {background-color: #fbfbfb; box-shadow: inset 0px -0.8px #222222, 0 0 #000; }
+.OutcomesTable th {border: 0 1px dotted Silver; min-width:3vw;}
+
 .OutcomesTable td {border: 1px dotted Silver;}
 .sortableTH { cursor:pointer;}
-.QuestionCol { background: Khaki !important;  cursor:pointer;}
-.AnswerCol { background: LemonChiffon !important; cursor:pointer;}
+.QuestionCol { background: Khaki !important; border: 1px dotted white !important; cursor:pointer;}
+.AnswerCol { background: LemonChiffon !important; border: 1px dotted white !important; cursor:pointer;}
+.ConstantCol{ border-left: 1px dotted silver !important;  border-right: 1px dotted silver !important;}
 .ClassifCol { background: LightGray !important; border: 1px dotted white !important; cursor:pointer;}
 .FirstQuestion, .FirstAnswer, .FirstClassif {border-left:1px solid DarkBlue !important;}
 .clickableIcon {padding: 6px 8px 8px 8px ; border: 1px solid #00000000; border-radius: 3px;}
@@ -41,7 +42,7 @@ import { encodeBase64, saveAs } from '@progress/kendo-file-saver';
 `]
 })
   //see https://stackoverflow.com/a/47923622 for how the "ticky" thing works for tableFixHead!!
-
+  //.OutcomesTable thead th { box-shadow: inset 0px -0.8px #222222, 0 0 #000; }
 export class MAoutcomesComp implements OnInit, OnDestroy {
 
   constructor(

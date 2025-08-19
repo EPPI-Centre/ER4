@@ -1,6 +1,6 @@
 import { Inject, Injectable, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { lastValueFrom, Subscription } from 'rxjs';
+import { last, lastValueFrom, Subscription } from 'rxjs';
 import { HttpClient, } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewInfo, ReviewInfoService, iReviewInfo } from './ReviewInfo.service';
@@ -269,7 +269,7 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
 
   private CheckUpdateFromSearchNumbers(screeningItem: TrainingNextItem) {
     let currentCount: number = screeningItem.rank;
-    let totalScreened = this._TrainingFromSearchList.Iterations[this._TrainingFromSearchList.Iterations.length - 1].screenedFromList;
+    let totalScreened = this._TrainingFromSearchList.AllITerations[this._TrainingFromSearchList.AllITerations.length - 1].screenedFromList;
     let NeedsDoing: boolean = false;
     if (totalScreened <= 500) {
       if (currentCount % 25 == 0) {
@@ -317,11 +317,6 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
     });
   }
   public RunNewFromSearchCommand(TriggeringItemId: number, CodeSetId: number, IsNew: boolean, SearchId = 0): Promise<boolean | string> {
-    //public int searchId { get; set; }
-      //public int codeSetId { get; set; }
-      //public Int64 triggeringItemId { get; set; }
-      //public bool createNew { get; set; } = false;
-    //public string result { get; set; } = "";
     const body = {
       searchId: SearchId,
       codeSetId: CodeSetId,
@@ -330,7 +325,7 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
       result: ""
     };
     this._BusyMethods.push("RunNewFromSearchCommand");
-    return lastValueFrom(this._httpC.post<iFromSearchCommand>(this._baseUrl + 'api/PriorirtyScreening/ScreeningFromSearchCommand', body))
+    return lastValueFrom(this._httpC.post<iFromSearchCommand>(this._baseUrl + 'api/PriorirtyScreening/RunScreeningFromSearchCommand', body))
       .then(res => {
         this.RemoveBusy("RunNewFromSearchCommand");
         if (res.result == "Done") {
@@ -349,7 +344,29 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
         return false;
       });
   }
+  public async DeleteFromSearchList(): Promise<boolean | string> {
+    this._BusyMethods.push("DeleteFromSearchList");
 
+    return lastValueFrom(this._httpC.get<iFromSearchCommand>(this._baseUrl + 'api/PriorirtyScreening/DeleteScreeningFromSearch')
+    ).then(async res => {
+      this.RemoveBusy("DeleteFromSearchList");
+      if (res.result == "Done") {
+        await this.FetchTrainingFromSearchList();
+        return true;
+      } else { return res.result; }
+      //this.Save();
+    }, error => {
+      this.RemoveBusy("DeleteFromSearchList");
+      this.modalService.SendBackHomeWithError(error);
+      return false;
+    }
+    ).catch(
+      (caught) => {
+        this.RemoveBusy("DeleteFromSearchList");
+        this.modalService.GenericError(caught);
+        return false;
+      });
+  }
   public HasPreviousItem(): boolean {
     if (this.CurrentItemIndex > 0 && this.ScreenedItemIds.length > 0) return true;
     else return false;
@@ -385,9 +402,9 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
   }
   private internalUpdateTrainingScreeningCriteria(crit: iUpdatingTrainingScreeningCriteria) {
     this._BusyMethods.push("UpdateTrainingScreeningCriteria");
-    this._httpC.post<iTrainingScreeningCriteria[]>(this._baseUrl +
+    lastValueFrom(this._httpC.post<iTrainingScreeningCriteria[]>(this._baseUrl +
       'api/PriorirtyScreening/UpdateTrainingScreeningCriteria', crit)
-      .subscribe(
+    ).then(
         (list: iTrainingScreeningCriteria[]) => {
           this.RemoveBusy("UpdateTrainingScreeningCriteria");
           this._TrainingScreeningCriteria = list;
@@ -395,7 +412,10 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
         error => {
           this.RemoveBusy("UpdateTrainingScreeningCriteria");
           this.modalService.GenericError(error);
-        });
+      }).catch (caught => {
+        this.RemoveBusy("UpdateTrainingScreeningCriteria");
+        this.modalService.GenericError(caught);
+      });
   }
   public AddTrainingScreeningCriteria(SetAtt: SetAttribute) {
     this._BusyMethods.push("AddTrainingScreeningCriteria");
@@ -408,9 +428,9 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
       , included: (SetAtt.attribute_type_id == 10)
       , deleted: false
     };
-    this._httpC.post<iTrainingScreeningCriteria[]>(this._baseUrl +
-      'api/PriorirtyScreening/AddTrainingScreeningCriteria', body)
-      .subscribe(
+    lastValueFrom( this._httpC.post<iTrainingScreeningCriteria[]>(this._baseUrl +
+      'api/PriorirtyScreening/AddTrainingScreeningCriteria', body))
+      .then(
         (list: iTrainingScreeningCriteria[]) => {
           this.RemoveBusy("AddTrainingScreeningCriteria");
           this._TrainingScreeningCriteria = list;
@@ -418,6 +438,9 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
         error => {
           this.RemoveBusy("AddTrainingScreeningCriteria");
           this.modalService.GenericError(error);
+        }).catch(caught => {
+          this.RemoveBusy("AddTrainingScreeningCriteria");
+          this.modalService.GenericError(caught);
         });
   }
   public ReplaceTrainingScreeningCriteriaList(set: ReviewSet): Promise<boolean> {
@@ -527,39 +550,140 @@ export interface iFromSearchCommand {
   result: string;
 }
 
+//export class ScreeningFromSearchIterationList {
+//  constructor(iterations: iScreeningFromSearchIteration[]) {
+//    this._Iterations = iterations.filter(f =>  f.searchId != -1 );
+//    if (iterations.length > 0 && iterations[iterations.length - 1].searchId == -1) this._ListIsStale = true;
+//    if (this._Iterations.length > 0) {
+//      this.SetSearchIdFilter(this._Iterations[this._Iterations.length - 1].searchId);
+//    } else {
+//      this.SetSearchIdFilter(0);
+//    }
+//    this._AllSearchIds = [];
+//    for (const s of this._Iterations) {
+//      if (this._AllSearchIds.findIndex(f => f == s.searchId) == -1) this._AllSearchIds.push(s.searchId);
+//    }
+//  }
+//  private _FilterBySearchId: number = 0;
+//  private _AllSearchIds: number[] = [];
+//  private _Iterations: iScreeningFromSearchIteration[] = [];
+//  private _FilteredIterations: iScreeningFromSearchIteration[] = [];
+//  private _ListIsStale: boolean = false;
+//  public get FilterBySearchId(): number {
+//    return this._FilterBySearchId;
+//  }
+//  public get AllSearchIds(): number[] {
+//    return this._AllSearchIds;
+//  }
+//  public get Iterations(): iScreeningFromSearchIteration[] {
+//    return this._Iterations;
+//  }
+//  public get FilteredIterations(): iScreeningFromSearchIteration[] {
+//    return this._FilteredIterations;
+//  }
+//  public get ListIsStale(): boolean {
+//    return this._ListIsStale;
+//  }
+//  public SetSearchIdFilter(SearchId: number) {
+//    this._FilterBySearchId = SearchId;
+//    const res = this._Iterations.filter(f => f.searchId == SearchId);
+//    this._FilteredIterations = res;
+//  }
+//}
+
 export class ScreeningFromSearchIterationList {
-  constructor(iterations: iScreeningFromSearchIteration[]) {
+  constructor(allruns: iScreeningFromSearchIteration[]) {
+    this._AllRuns = [];
+    this._AllITerations = allruns.filter(f => f.searchId != -1);
+    this._CurrentRunVirtualId = 0;
+    this._CurrentRun = new ScreeningFromSearchIterationRun(-1, []);
+    let cVid: number = 0;
+    let cSid: number = -1;
+    let lastIndex: number = allruns.length -1;
+    let runsBunch: iScreeningFromSearchIteration[] = [];
+    for (let i = 0; i <= lastIndex; i++) {
+      const run = allruns[i];
+      if (cSid != run.searchId || i == lastIndex) {//new run found, or we reached the last
+        if (i == lastIndex) {
+          if (cSid != run.searchId) {
+            //the last element and current element needs to go in the last run and will be the only iteration there
+            //so we "finish" the current run, before doing the next step
+            let toAdd = new ScreeningFromSearchIterationRun(cVid, runsBunch);
+            this._AllRuns.push(toAdd);
+            runsBunch = [];
+            cVid++;
+          }
+          runsBunch.push(run);
+        }
+        if (runsBunch.length > 0) {
+          let toAdd = new ScreeningFromSearchIterationRun(cVid, runsBunch);
+          this._AllRuns.push(toAdd);
+          runsBunch = [];
+          cSid = run.searchId;
+          cVid++;
+        }
+        if (run.searchId == -1) {//separator/dummy run, we skip it
+          if (i == lastIndex) this._ListIsStale = true;//signals that it doesn't make sense to update progress
+          continue;
+        }
+
+      }
+      cSid = run.searchId;
+      runsBunch.push(run);
+    }
+    if (this._AllRuns.length > 0) {
+      this._CurrentRun = this._AllRuns[this._AllRuns.length - 1];
+      this._CurrentRunVirtualId = this._CurrentRun.VirtualId;
+    }
+  }
+  private _AllRuns: ScreeningFromSearchIterationRun[];
+  public get AllRuns(): ScreeningFromSearchIterationRun[] {
+    return this._AllRuns;
+  }
+  private _AllITerations: iScreeningFromSearchIteration[];
+  public get AllITerations(): iScreeningFromSearchIteration[] {
+    return this._AllITerations;
+  }
+  private _CurrentRunVirtualId: number;
+  public get CurrentRunVirtualId(): number {
+    return this._CurrentRunVirtualId;
+  }
+  private _CurrentRun: ScreeningFromSearchIterationRun ;
+  public get CurrentRun(): ScreeningFromSearchIterationRun {
+    return this._CurrentRun;
+  }
+  private _ListIsStale: boolean = false;
+  public get ListIsStale(): boolean {
+    return this._ListIsStale;
+  }
+
+  public SetCurrentRun(runVirtualId: number) {
+    for (const run of this._AllRuns) {
+      if (run.VirtualId == runVirtualId) {
+        this._CurrentRun = run;
+        this._CurrentRunVirtualId = runVirtualId;
+        return;
+      }
+    }
+    this._CurrentRunVirtualId = 0;
+    this._CurrentRun = new ScreeningFromSearchIterationRun(-1, []);
+  }
+}
+export class ScreeningFromSearchIterationRun {
+  constructor(virtualId: number, iterations: iScreeningFromSearchIteration[]) {
+    this._VirtualId = virtualId;
     this._Iterations = iterations;
-    if (this._Iterations.length > 0) {
-      this.SetSearchIdFilter(this._Iterations[this._Iterations.length - 1].searchId);
-    } else {
-      this.SetSearchIdFilter(0);
-    }
-    this._AllSearchIds = [];
-    for (const s of this._Iterations) {
-      if (this._AllSearchIds.findIndex(f => f == s.searchId) == -1) this._AllSearchIds.push(s.searchId);
-    }
   }
-  private _FilterBySearchId: number = 0;
-  private _AllSearchIds: number[] = [];
-  private _Iterations: iScreeningFromSearchIteration[] = [];
-  private _FilteredIterations: iScreeningFromSearchIteration[] = []; 
-  public get FilterBySearchId(): number {
-    return this._FilterBySearchId;
+  private _VirtualId: number;
+  public get VirtualId(): number {
+    return this._VirtualId;
   }
-  public get AllSearchIds(): number[] {
-    return this._AllSearchIds;
-  }
+  private _Iterations: iScreeningFromSearchIteration[];
   public get Iterations(): iScreeningFromSearchIteration[] {
     return this._Iterations;
   }
-  public get FilteredIterations(): iScreeningFromSearchIteration[] {
-    return this._FilteredIterations;
-  }
-  //public get 
-  public SetSearchIdFilter(SearchId: number) {
-    this._FilterBySearchId = SearchId;
-    const res = this._Iterations.filter(f => f.searchId == SearchId);
-    this._FilteredIterations = res;
+  public get SearchId(): number {
+    if (this._Iterations.length > 0) return this._Iterations[0].searchId;
+    else return -1;
   }
 }

@@ -35,6 +35,11 @@ namespace BusinessLibrary.BusinessClasses
         private bool _CreateNew = false;
         private string _Result = "";
 
+        public static ScreeningFromSearchCommand GetCommandToStopCurrentFromSearchList()
+        {
+            ScreeningFromSearchCommand res = new ScreeningFromSearchCommand(-1, 0, 0, true);
+            return res;
+        }
 
         public ScreeningFromSearchCommand(int searchId, int codesetId, Int64 itemId, bool createNew)
         {
@@ -74,11 +79,12 @@ namespace BusinessLibrary.BusinessClasses
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-                if (_CreateNew)
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+                if (_CreateNew && _SearchId != -1)
                 {
                     using (SqlCommand command = new SqlCommand("st_ScreeningCreate_List_FromSearch", connection))
                     {
-                        ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                         command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
@@ -99,11 +105,32 @@ namespace BusinessLibrary.BusinessClasses
                         }
                     }
                 }
+                else if (_CreateNew && _SearchId == -1)
+                {//we're creating a spoof search that acts as a FS list stopper. In the UI, this is shown as "delete the current list"
+                    using (SqlCommand command = new SqlCommand("st_ScreeningCreate_Dummy_FromSearchList", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                        command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
+                        command.Parameters.Add(new SqlParameter("@NEW_TRAINING_FS_ID", System.Data.SqlDbType.Int));
+                        command.Parameters["@NEW_TRAINING_FS_ID"].Direction = System.Data.ParameterDirection.Output;
+                        command.ExecuteNonQuery();
+
+                        int NewId = Convert.ToInt32(command.Parameters["@NEW_TRAINING_FS_ID"].Value);
+                        if (NewId == -1)
+                        {
+                            _Result = "Nothing to delete";
+                        }
+                        else
+                        {
+                            _Result = "Done";
+                        }
+                    }
+                }
                 else
                 {
                     using (SqlCommand command = new SqlCommand("st_TrainingFromSearchRenewCounts", connection))
                     {
-                        ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                         command.CommandType = System.Data.CommandType.StoredProcedure;
 
                         command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));

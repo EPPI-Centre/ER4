@@ -18,7 +18,7 @@
   <table class="table table-sm OutcomesTable tableFixHead" id="OutcomesTable">
     <thead>
       <tr>
-        <th style="text-align: center; vertical-align: bottom;" class="sortableTH" (click)="Sort('isSelected')">
+        <th style="text-align: center; vertical-align: bottom;" class="sortableTH ConstantCol" (click)="Sort('isSelected')">
           <div class="d-inline-flex">
             <ng-container [ngSwitch]="HasSelections">
               <input *ngSwitchCase="0" type="checkbox" (click)="SelectAll($event)" class="my-auto" title="No outcomes selected" />
@@ -28,48 +28,48 @@
             <span class="mb-1" [innerHTML]="SortingSymbol('isSelected')"></span>
           </div>
         </th>
-        <th class="sortableTH" (click)="Sort('es')" id="col-es">
+        <th class="sortableTH ConstantCol" (click)="Sort('es')" id="col-es">
           ES<span [innerHTML]="SortingSymbol('es')"></span>
           <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('ESColumn')}" (click)="DoEditThisFilter('es', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
         </th>
-        <th class="sortableTH" (click)="Sort('sees')" id="col-sees">
+        <th class="sortableTH ConstantCol" (click)="Sort('sees')" id="col-sees">
           SE<span [innerHTML]="SortingSymbol('sees')"></span>
           <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('SEESColumn')}" (click)="DoEditThisFilter('sees', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
         </th>
         <!--<th>ID</th>-->
-        <th class="sortableTH" (click)="Sort('shortTitle')" id="col-shortTitle">
+        <th class="sortableTH ConstantCol" (click)="Sort('shortTitle')" id="col-shortTitle">
           Study<span [innerHTML]="SortingSymbol('shortTitle')"></span>
           <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('titleColumn')}" (click)="DoEditThisFilter('shortTitle', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
         </th>
-        <th class="sortableTH" (click)="Sort('title')" id="col-title">
+        <th class="sortableTH ConstantCol" (click)="Sort('title')" id="col-title">
           Outc. Desc.<span [innerHTML]="SortingSymbol('title')"></span>
           <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('DescColumn')}" (click)="DoEditThisFilter('title', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
         </th>
-        <th class="sortableTH" (click)="Sort('timepointDisplayValue')" id="col-timepointDisplayValue">
+        <th class="sortableTH ConstantCol" (click)="Sort('timepointDisplayValue')" id="col-timepointDisplayValue">
           Timepoint<span [innerHTML]="SortingSymbol('timepointDisplayValue')"></span>
           <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('TimepointColumn')}" (click)="DoEditThisFilter('timepointDisplayValue', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
         </th>
-        <th class="sortableTH" (click)="Sort('outcomeTypeName')" id="col-outcomeTypeName">
+        <th class="sortableTH ConstantCol" (click)="Sort('outcomeTypeName')" id="col-outcomeTypeName">
           Type<span [innerHTML]="SortingSymbol('outcomeTypeName')"></span>
           <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('OutcomeTypeName')}" (click)="DoEditThisFilter('outcomeTypeName', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
         </th>
-        <th class="sortableTH" (click)="Sort('outcomeText')" id="col-outcomeText">
+        <th class="sortableTH ConstantCol" (click)="Sort('outcomeText')" id="col-outcomeText">
           Outcome<span [innerHTML]="SortingSymbol('outcomeText')"></span>
           <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('OutcomeColumn')}" (click)="DoEditThisFilter('outcomeText', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
         </th>
-        <th class="sortableTH" (click)="Sort('interventionText')" id="col-interventionText">
+        <th class="sortableTH ConstantCol" (click)="Sort('interventionText')" id="col-interventionText">
           Intervention<span [innerHTML]="SortingSymbol('interventionText')"></span>
           <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('InterventionColumn')}" (click)="DoEditThisFilter('interventionText', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
         </th>
-        <th class="sortableTH" (click)="Sort('controlText')" id="col-controlText">
+        <th class="sortableTH ConstantCol" (click)="Sort('controlText')" id="col-controlText">
           Comparison<span [innerHTML]="SortingSymbol('controlText')"></span>
           <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('ComparisonColumn')}" (click)="DoEditThisFilter('controlText', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
         </th>
-        <th class="sortableTH" (click)="Sort('grp1ArmName')" id="col-grp1ArmName">
+        <th class="sortableTH ConstantCol" (click)="Sort('grp1ArmName')" id="col-grp1ArmName">
           Arm 1<span [innerHTML]="SortingSymbol('grp1ArmName')"></span>
           <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('Arm1Column')}" (click)="DoEditThisFilter('grp1ArmName', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
         </th>
-        <th class="sortableTH" (click)="Sort('grp2ArmName')" id="col-grp2ArmName">
+        <th class="sortableTH ConstantCol" (click)="Sort('grp2ArmName')" id="col-grp2ArmName">
           Arm 2<span [innerHTML]="SortingSymbol('grp2ArmName')"></span>
           <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('Arm2Column')}" (click)="DoEditThisFilter('grp2ArmName', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
         </th>
