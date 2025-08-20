@@ -243,27 +243,56 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
   private CheckRunTraining(screeningItem: TrainingNextItem) {
     let currentCount: number = screeningItem.rank;
     let totalScreened = this._TrainingList[0].totalN;
+    let NeedsDoing: boolean = false;
     for (let training of this._TrainingList) {
       if (training.totalN > totalScreened) totalScreened = training.totalN;
     }
-    if (totalScreened <= 1000) {
-      if ((currentCount == 25 || currentCount == 50 || currentCount == 75 || currentCount == 100 || currentCount == 150 || currentCount == 300 || currentCount == 500 ||
-        currentCount == 750 || currentCount == 1000 || currentCount == 2000 || currentCount == 3000)) {
-        this.RunNewTrainingCommand(screeningItem);
+    if (totalScreened < 250) {//trigger training when we reach the next multiple of 25
+      if (currentCount % 25 == 0) {
+        console.log("Update training PS records, every 25 items");
+        NeedsDoing = true;
       }
     }
-    else if (totalScreened > 1000 && totalScreened < 5000) {
-      if ((currentCount == 250 || currentCount == 500 || currentCount == 750 || currentCount == 1000 || currentCount == 2000 || currentCount == 3000)) {
-        this.RunNewTrainingCommand(screeningItem);
+    else if (totalScreened < 500) {//trigger training when we reach the next multiple of 50
+      if (currentCount % 50 == 0) {
+        console.log("Update training PS records, every 50 items");
+        NeedsDoing = true;
       }
     }
-    else if (totalScreened >= 5000) {
-      if ((currentCount == 500 || currentCount == 1000 || currentCount == 1500 || currentCount == 2000 || currentCount == 2500 || currentCount == 3000
-        || currentCount == 3800 || currentCount == 4800 || currentCount == 5800 || currentCount == 6800 || currentCount == 7800
-        || currentCount == 8800 || currentCount == 9800 || currentCount == 18000 || currentCount == 11800)) {
-        this.RunNewTrainingCommand(screeningItem);
+    else if (totalScreened < 1000) {//trigger training when we reach the next multiple of 100
+      if (currentCount % 100 == 0) {
+        console.log("Update training PS records, every 100 items");
+        NeedsDoing = true;
       }
     }
+    else if (totalScreened < 2000) {//trigger training when we reach the next multiple of 200
+      if (currentCount % 200 == 0) {
+        console.log("Update training PS records, every 200 items");
+        NeedsDoing = true;
+      }
+    }
+    else if (totalScreened < 5000) {//trigger training when we reach the next multiple of 500
+      if (currentCount % 500 == 0) {
+        console.log("Update training PS records, every 500 items");
+        NeedsDoing = true;
+      }
+
+    }
+    else if (totalScreened < 5000) {//trigger training when we reach the next multiple of 1000
+      if (currentCount % 1000 == 0) {
+        console.log("Update training PS records, every 1000 items");
+        NeedsDoing = true;
+      }
+
+    }
+    else {//trigger training when we reach the next multiple of 2000
+      if (currentCount % 2000 == 0) {
+        console.log("Update training PS records, every 2000 items");
+        NeedsDoing = true;
+      }
+    }
+    if (NeedsDoing) this.RunNewTrainingCommand(screeningItem);
+
     //let totalscreened = this._TrainingList
   }
 
@@ -271,13 +300,13 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
     let currentCount: number = screeningItem.rank;
     let totalScreened = this._TrainingFromSearchList.AllITerations[this._TrainingFromSearchList.AllITerations.length - 1].screenedFromList;
     let NeedsDoing: boolean = false;
-    if (totalScreened <= 500) {
+    if (totalScreened < 500) {
       if (currentCount % 25 == 0) {
         console.log("Update training FS records, every 25 items");
         NeedsDoing = true;
       }
     }
-    else if (totalScreened <= 2000) {
+    else if (totalScreened < 2000) {
       if (currentCount % 50 == 0) {
         console.log("Update training FS records, every 50 items");
         NeedsDoing = true;

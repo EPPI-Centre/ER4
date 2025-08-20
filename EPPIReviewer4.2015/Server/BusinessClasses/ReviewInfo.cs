@@ -546,33 +546,32 @@ namespace BusinessLibrary.BusinessClasses
                             if (reader.Read())
                             {
                                 LoadProperty<bool>(ScreeningFromSearchListIsGoodProperty, true);
-
-                                reader.NextResult();
-                                if (reader.Read())
-                                {
-                                    int SearchId = reader.GetInt32("SEARCH_ID");
-                                    if (SearchId > 0)
-                                    {
-                                        LoadProperty<int>(ScreeningFSListSearchIdProperty, SearchId);
-                                    }
-                                    string SearchName = reader.GetString("SEARCH_TITLE");
-                                    if (SearchName == "")
-                                    {
-                                        LoadProperty<string>(ScreeningFSListSearchNameProperty, "Unknown/deleted search");
-                                    }
-                                    else if (SearchId == 0)
-                                    {
-                                        LoadProperty<string>(ScreeningFSListSearchNameProperty, "Deleted search: " + SearchName );
-                                    }
-                                    else
-                                    {
-                                        LoadProperty<string>(ScreeningFSListSearchNameProperty, SearchName);
-                                    }
-                                }
                             }
                             else
                             {
                                 LoadProperty<bool>(ScreeningFromSearchListIsGoodProperty, false);
+                            }
+                            reader.NextResult();
+                            if (reader.Read())
+                            {
+                                int SearchId = reader.GetInt32("SEARCH_ID");
+                                if (SearchId > 0)
+                                {
+                                    LoadProperty<int>(ScreeningFSListSearchIdProperty, SearchId);
+                                }
+                                string SearchName = reader.GetString("SEARCH_TITLE");
+                                if (SearchName == "")
+                                {
+                                    LoadProperty<string>(ScreeningFSListSearchNameProperty, "Unknown/deleted search");
+                                }
+                                else if (SearchId == 0)
+                                {
+                                    LoadProperty<string>(ScreeningFSListSearchNameProperty, "Deleted search: " + SearchName);
+                                }
+                                else
+                                {
+                                    LoadProperty<string>(ScreeningFSListSearchNameProperty, SearchName);
+                                }
                             }
                         }
                     }

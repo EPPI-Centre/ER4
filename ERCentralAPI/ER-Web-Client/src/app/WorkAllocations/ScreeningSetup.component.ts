@@ -766,17 +766,16 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
         hideAfter: 5000
       });
       if (this.AllowEditOnStep4fs == true && this.CurrentStep == 5) {
-        this.AllowEditOnStep4 = false;
         this.CancelEditingAllOptions();
       }
     }
     else if (res != false) {
       this.notificationService.show({
-        content: 'Update request returned with error:' + res,
+        content: 'Update request returned with error: ' + res,
         animation: { type: 'slide', duration: 400 },
         position: { horizontal: 'center', vertical: 'top' },
         type: { style: "error", icon: true },
-        hideAfter: 5000
+        closable: true
       });
     }
   }
@@ -791,6 +790,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
       if (res == true) {
         //false: error happened, shown in the service
         //true: it worked
+        //string: we have something to show from the component
         this.notificationService.show({
           content: 'Current "From Search" list deleted. Progress records are unaffected.',
           animation: { type: 'slide', duration: 400 },
@@ -798,19 +798,20 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
           type: { style: "info", icon: true },
           hideAfter: 5000
         });
-        await this.ReviewInfoService.Fetch();
-        this.CancelEditingAllOptions();
       }
       else if (res != false) {
         this.notificationService.show({
-          content: 'Request failed with error:' + res,
+          content: 'Request failed with error: ' + res,
           animation: { type: 'slide', duration: 400 },
           position: { horizontal: 'center', vertical: 'top' },
           type: { style: "error", icon: true },
-          hideAfter: 5000
+          closable: true
         });
+        
       }
     }
+    this.CancelEditingAllOptions();
+    this.RefreshAll();
   }
   public rowCallback = (context: RowClassArgs) => {
     const row = context.dataItem as iScreeningFromSearchIteration;
