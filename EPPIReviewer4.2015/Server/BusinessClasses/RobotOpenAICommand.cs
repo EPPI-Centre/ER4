@@ -801,7 +801,8 @@ namespace BusinessLibrary.BusinessClasses
                 response = await client.PostAsync(endpoint, content, CancelToken);
             }
             catch (OperationCanceledException e)
-            {
+            {// this can happen if the CancelToken requests to cancel, or if the API call didn't get an answer within the timeout:
+                //"The request was canceled due to the configured HttpClient.Timeout of 100 seconds elapsing." is the exception message in this latter case
                 ErrorLogSink("Cancelling RobotOpenAICommand while awaiting for the OpenAI API to answer.");
                 return false; //we'll detect the cancellation request elsewhere
             }
