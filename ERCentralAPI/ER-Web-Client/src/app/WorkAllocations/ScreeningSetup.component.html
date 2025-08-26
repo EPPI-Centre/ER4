@@ -136,7 +136,7 @@
     <div *ngIf="CurrentStep==3" class="">
       <div class="row my-1 mx-0 " [ngClass]="{'DisabledStep' : !CanGoToStep2()}">
         <div class="col-7">
-          <ng-container *ngTemplateOutlet="TemplateScreeeningMode"></ng-container>
+          <ng-container *ngTemplateOutlet="TemplateScreeningMode"></ng-container>
         </div>
         <div class="col-5 rounded border border-info alert-info small">
           Use "Priority Screening" or randomise the order in which items are screened? <br />
@@ -664,7 +664,7 @@
 
                 <ng-container *ngTemplateOutlet="TemplateScreenWhat"></ng-container>
 
-                <ng-container *ngTemplateOutlet="TemplateScreeeningMode"></ng-container>
+                <ng-container *ngTemplateOutlet="TemplateScreeningMode"></ng-container>
 
                 <ng-container *ngTemplateOutlet="TemplatePeoplePerItem"></ng-container>
 
@@ -768,7 +768,7 @@
     <ng-template #TemplateScreeningTool>
       <div *ngIf="CanChangeScreeningTool" class="row m-0 p-0">
         <div class="col-3 mx-0 row p-0">
-          <div class="my-auto"><span *ngIf="CurrentStep==2">1.1 </span>Screeening Tool:</div>
+          <div class="my-auto"><span *ngIf="CurrentStep==2">1.1 </span>Screening Tool:</div>
         </div>
         <div class="row my-1 col-9 p-0">
           <div ngbDropdown class="" style="min-width:200px;">
@@ -790,7 +790,7 @@
       </div>
       <div *ngIf="!CanChangeScreeningTool" class="row m-0 p-0">
         <div class="col-3 mx-0 row p-0">
-          <div class="my-auto">Screeening Tool:</div>
+          <div class="my-auto">Screening Tool:</div>
           
         </div>
         <div class="row my-1 col-9 p-0">
@@ -848,7 +848,7 @@
       </div>
     </ng-template>
 
-    <ng-template #TemplateScreeeningMode>
+    <ng-template #TemplateScreeningMode>
       <div class="row m-0 p-0 border-info border-top">
         <div class="col-3 mx-0 row p-0">
           <div class="my-auto"><span *ngIf="CurrentStep==3">2.1 </span>Screening Mode:</div>
