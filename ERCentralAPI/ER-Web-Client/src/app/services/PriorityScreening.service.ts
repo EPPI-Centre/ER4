@@ -278,7 +278,7 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
       }
 
     }
-    else if (totalScreened < 5000) {//trigger training when we reach the next multiple of 1000
+    else if (totalScreened < 15000) {//trigger training when we reach the next multiple of 1000
       if (currentCount % 1000 == 0) {
         console.log("Update training PS records, every 1000 items");
         NeedsDoing = true;
