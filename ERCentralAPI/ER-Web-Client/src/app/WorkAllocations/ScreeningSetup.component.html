@@ -407,7 +407,7 @@
 
                   <div class="brightSwitch row float-right">
                     <div *ngIf="AllowEditOnStep4 == false" class="mt-1 mr-1">Edit all Settings?</div>
-                    <div *ngIf="AllowEditOnStep4 == true" class="mt-1 mr-1">Editing settings in PS tab</div>
+                    <div *ngIf="AllowEditOnStep4 == true" class="mt-1 mr-1">Currently editing PS settings</div>
                     <kendo-switch name="CanEditSWfs" class=""
                                   [disabled]="!CanWrite() || AllowEditOnStep4 == true"
                                   [(ngModel)]="AllowEditOnStep4fs"
@@ -601,7 +601,7 @@
 
               <div class="brightSwitch row float-right">
                 <div *ngIf="AllowEditOnStep4fs == false" class="mt-1 mr-1">Edit all Settings?</div>
-                <div *ngIf="AllowEditOnStep4fs == true" class="mt-1 mr-1">Editing settings in FS tab</div>
+                <div *ngIf="AllowEditOnStep4fs == true" class="mt-1 mr-1">Currently editing FS settings</div>
                 <kendo-switch name="CanEditSW" class=""
                               [disabled]="!CanWrite() || AllowEditOnStep4fs == true"
                               [(ngModel)]="AllowEditOnStep4"
@@ -770,7 +770,7 @@
         <div class="col-3 mx-0 row p-0">
           <div class="my-auto"><span *ngIf="CurrentStep==2">1.1 </span>Screeening Tool:</div>
         </div>
-        <div class="row my-1 col-9 p-0">
+        <div class="row my-1 mx-0 col-9 p-0">
           <div ngbDropdown class="" style="min-width:200px;">
             <button class="btn btn-outline-secondary dropdown-toggle"
                     style="min-width: 200px; max-width:720px;"
@@ -789,11 +789,11 @@
         </div>
       </div>
       <div *ngIf="!CanChangeScreeningTool" class="row m-0 p-0">
-        <div class="col-3 mx-0 row p-0">
+        <div class="col-auto mx-0 row p-0">
           <div class="my-auto">Screeening Tool:</div>
           
         </div>
-        <div class="row my-1 col-9 p-0">
+        <div class="row my-1 mx-1 col-auto p-0">
           <div class="border rounded border-success px-2 py-1">{{GetCodingToolName()}}</div>
         </div>
         <div class="col-12 p-1 mx-0">
