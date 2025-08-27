@@ -634,7 +634,7 @@ export class ScreeningFromSearchIterationList {
       const run = allruns[i];
       if (cSid != run.searchId || i == lastIndex) {//new run found, or we reached the last
         if (i == lastIndex) {
-          if (cSid != run.searchId) {
+          if (cSid != run.searchId && runsBunch.length > 0) {
             //the last element and current element needs to go in the last run and will be the only iteration there
             //so we "finish" the current run, before doing the next step
             let toAdd = new ScreeningFromSearchIterationRun(cVid, runsBunch);
@@ -644,7 +644,7 @@ export class ScreeningFromSearchIterationList {
           }
           runsBunch.push(run);
         }
-        if (runsBunch.length > 0) {
+        if (runsBunch.length > 0 && runsBunch[0].searchId != -1) {
           let toAdd = new ScreeningFromSearchIterationRun(cVid, runsBunch);
           this._AllRuns.push(toAdd);
           runsBunch = [];
