@@ -1,0 +1,40 @@
+
+<kendo-grid [data]="TrainingListData"
+            [pageSize]="TrainingList.length"
+            scrollable="virtual" [rowClass]="rowCallback"
+            [height]="280">
+  <kendo-grid-column field="hidden" [width]="2" title="Hidden?"
+                     headerClass="p-1 m-0 font-weight-bold small"
+                     class="p-1 m-0 small">
+    <ng-template kendoGridCellTemplate let-dataItem>
+      <input type="checkbox" class="larger-checkbox" [(ngModel)]="dataItem.hidden" />
+    </ng-template>
+
+  </kendo-grid-column>
+  <kendo-grid-column field="iteration" [width]="1" title="#"
+                     headerClass="p-1 m-0 font-weight-bold small"
+                     class="p-1 m-0 small"></kendo-grid-column>
+  <kendo-grid-column field="endTime" title="Date" [width]="3"
+                     headerClass="p-1 m-0 font-weight-bold small"
+                     class="p-1 m-0 small">
+    <ng-template kendoGridCellTemplate let-dataItem>
+      {{FormatDate2(dataItem.endTime)}}
+    </ng-template>
+  </kendo-grid-column>
+  <kendo-grid-column field="contactName" title="By" [width]="3"
+                     headerClass="p-1 m-0 font-weight-bold small"
+                     class="p-1 m-0 small"></kendo-grid-column>
+  <kendo-grid-column field="totalIncludes" title="Included" [width]="2"
+                     headerClass="p-1 m-0 font-weight-bold small"
+                     class="p-1 m-0 small"></kendo-grid-column>
+  <kendo-grid-column field="totalExcludes" title="Excluded" [width]="2"
+                     headerClass="p-1 m-0 font-weight-bold small"
+                     class="p-1 m-0 small"></kendo-grid-column>
+  <kendo-grid-column field="totalN" title="Total" [width]="2"
+                     headerClass="p-1 m-0 font-weight-bold small"
+                     class="p-1 m-0 small"></kendo-grid-column>
+</kendo-grid>
+<div>
+  <button (click)="SelfClose()" class="btn btn-outline-dark btn-sm py-0">Cancel</button>
+  <button (click)="SaveAndClose()" class="btn btn-outline-danger btn-sm py-0 mx-1" [disabled]="!HasChanges">Save</button>
+</div>

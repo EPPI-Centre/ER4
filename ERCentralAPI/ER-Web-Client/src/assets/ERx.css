@@ -275,6 +275,19 @@ ul.k-tabstrip-items li.k-item.k-state-active {
 .GPTJobsErrorRow td {
   border-bottom: 1px solid white;
 }
+
+
+
+.HiddenTrainingRecord {
+  color: #999999 !important;
+  background-color: #ffeeee !important;
+  border-collapse: collapse;
+}
+
+.HiddenTrainingRecord td {
+  border-bottom: 1px dotted lightpink;
+}
+
 #kgFsProgress tr.RowShowingCurrentRun {
   font-weight: bold;
   background-color: #d4edda;

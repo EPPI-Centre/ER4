@@ -76,7 +76,11 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
   private _TrainingList: Training[] = [];
   public get TrainingList(): Training[] {
     return this._TrainingList;
-  } 
+  }
+  private _UnfilteredTrainingList: Training[] = [];
+  public get UnfilteredTrainingList(): Training[] {
+    return this._UnfilteredTrainingList;
+  }
 
   private _TrainingFromSearchList: ScreeningFromSearchIterationList = new ScreeningFromSearchIterationList([]);
   public get TrainingFromSearchList(): ScreeningFromSearchIterationList {
@@ -92,7 +96,8 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
     this._BusyMethods.push("Fetch");
     
     return lastValueFrom( this._httpC.get<Training[]>(this._baseUrl + 'api/PriorirtyScreening/TrainingList')).then(tL => {
-      this._TrainingList = tL;
+      this._UnfilteredTrainingList = tL;
+      this._TrainingList = tL.filter(f => f.hidden === false);
       this.RemoveBusy("Fetch");
       return true;
       //this.Save();
@@ -501,6 +506,43 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
       }
       );
   }
+
+  public ShowHideTrainingRecords(EditedTrainingList: Training[]): Promise<boolean> {
+    this._BusyMethods.push("ShowHideTrainingRecords");
+    let Data = {
+      recordsToHide: "",
+      recordsToShow: ""
+    }
+    for (let i = 0; i < EditedTrainingList.length; i++) {
+      const PossiblyEdited = EditedTrainingList[i];
+      const Original = this.UnfilteredTrainingList.find(f => f.trainingId == PossiblyEdited.trainingId);
+      if (Original != undefined && Original.hidden !== PossiblyEdited.hidden) {
+        if (PossiblyEdited.hidden == true) Data.recordsToHide += PossiblyEdited.trainingId.toString() + ",";
+        else Data.recordsToShow += PossiblyEdited.trainingId.toString() + ",";
+      }
+    }
+    if (Data.recordsToHide.length > 0) Data.recordsToHide = Data.recordsToHide.slice(0, -1);
+    if (Data.recordsToShow.length > 0) Data.recordsToShow = Data.recordsToShow.slice(0, -1);
+    return lastValueFrom(this._httpC.post<any>(this._baseUrl +
+      'api/PriorirtyScreening/ShowHideTrainingRecords', Data)
+    ).then(
+      success => {
+        this.RemoveBusy("ShowHideTrainingRecords");
+        this.Fetch();
+        return true;
+      },
+      error => {
+        this.RemoveBusy("ShowHideTrainingRecords");
+        this.modalService.GenericError(error);
+        return false;
+      }).catch(caught => {
+        this.RemoveBusy("ShowHideTrainingRecords");
+        this.modalService.GenericError(caught);
+        return false;
+      });
+  }
+
+
   public Clear() {
     this.ScreenedItemIds = [];
     this.CurrentItem = new Item();
@@ -525,6 +567,7 @@ export interface Training {
   totalN: number;
   totalIncludes: number;
   totalExcludes: number;
+  hidden: boolean;
 }
 export interface iScreeningFromSearchIteration {
   trainingFsId: number;

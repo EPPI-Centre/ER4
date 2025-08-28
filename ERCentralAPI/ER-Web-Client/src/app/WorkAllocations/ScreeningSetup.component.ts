@@ -83,6 +83,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
   public isCollapsedDropdownAddTrainingCriteria: boolean = false;
   public ShowAddTrainingCriteria: boolean = false;
   public ShowTrainingTable: boolean = false;
+  public ShowEditTrainingTable: boolean = false;
   public ShowTrainingFSTable: boolean = false;
   private _CanChangeDataEntryMode: boolean = false;
   public ShowChangeDataEntry: boolean = false;
@@ -962,6 +963,11 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     //console.log("cancel screening");
     this.emitterCancel.emit();
   }
+
+  CancelEditTrainingTable() {
+    this.ShowEditTrainingTable = false;
+  }
+
 
   ngOnDestroy() {
     if (this.RevInfoSub) this.RevInfoSub.unsubscribe();

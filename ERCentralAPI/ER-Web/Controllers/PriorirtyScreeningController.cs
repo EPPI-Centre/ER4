@@ -354,7 +354,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (!SetCSLAUser()) return Unauthorized();
+                if (!SetCSLAUser4Writing()) return Unauthorized();
                 SingleCriteria<PriorityScreeningSimulation, string> criteria =
                     new SingleCriteria<PriorityScreeningSimulation, string>(crit);
 
@@ -370,7 +370,24 @@ namespace ERxWebClient2.Controllers
         }
 
         // ******************************* end priority screening simulation study ********************************************
-
+        
+        [HttpPost("[action]")]
+        public IActionResult ShowHideTrainingRecords([FromBody] ShowHideTrainingCommandMVC crit)
+        {
+            try
+            {
+                if (!SetCSLAUser4Writing()) return Unauthorized();
+                ShowHideTrainingCommand cmd = crit.ToCslaBO();
+                DataPortal<ShowHideTrainingCommand> dp = new DataPortal<ShowHideTrainingCommand>();
+                cmd = dp.Execute(cmd);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error in ShowHideTrainingRecords");
+                return StatusCode(500, e.Message);
+            }
+        }
     }
     public class TrainingScreeningCriteriaMVC
     {
@@ -389,6 +406,17 @@ namespace ERxWebClient2.Controllers
         public ScreeningFromSearchCommand ToCslaBO()
         {
             ScreeningFromSearchCommand res = new ScreeningFromSearchCommand(searchId, codeSetId, triggeringItemId, createNew);
+            return res;
+        }
+    }
+    public class ShowHideTrainingCommandMVC
+    {
+        public string recordsToHide { get; set; } = "";
+        public string recordsToShow { get; set; } = "";
+                      
+        public ShowHideTrainingCommand ToCslaBO()
+        {
+            ShowHideTrainingCommand res = new ShowHideTrainingCommand(recordsToHide, recordsToShow);
             return res;
         }
     }

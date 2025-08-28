@@ -729,10 +729,18 @@
                         (click)="ShowTrainingTable = !ShowTrainingTable">
                   {{ShowTrainingTableText}}
                 </button>
+                <button *ngIf="ShowTrainingTable && !ShowEditTrainingTable && CanWrite()" class="btn btn-outline-success btn-sm px-1 py-0 m-1 float-right"
+                        (click)="ShowEditTrainingTable = true">
+                  Edit
+                </button>
+                <button *ngIf="ShowTrainingTable && ShowEditTrainingTable" class="btn btn-outline-primary btn-sm px-1 py-0 m-1 float-right"
+                        (click)="CancelEditTrainingTable()">
+                  Cancel Edit
+                </button>
               </div>
             </div>
             <div *ngIf="ShowTrainingTable" class="row mx-0 my-1 p-0 ">
-              <kendo-grid [data]="TrainingListData"
+              <kendo-grid *ngIf="!ShowEditTrainingTable" [data]="TrainingListData"
                           [pageSize]="TrainingList.length"
                           scrollable="virtual"
                           [height]="300">
@@ -759,6 +767,7 @@
                                    headerClass="p-1 m-0 font-weight-bold small"
                                    class="p-1 m-0 small"></kendo-grid-column>
               </kendo-grid>
+              <EditTrainingListComp *ngIf="ShowEditTrainingTable" (PleaseCloseMe)="CancelEditTrainingTable()"></EditTrainingListComp>
             </div>
           </div>
         </div>
