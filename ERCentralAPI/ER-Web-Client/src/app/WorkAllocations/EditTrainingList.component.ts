@@ -46,7 +46,7 @@ export class EditTrainingListComp implements OnInit, OnDestroy {
 
   public get HasChanges(): boolean {
     for (let i = 0; i < this.editingProgressList.length; i++) {
-      if (this.editingProgressList[i].hidden != this.PriorityScreeningService.TrainingList[i].hidden) return true;
+      if (this.editingProgressList[i].hidden != this.PriorityScreeningService.UnfilteredTrainingList[i].hidden) return true;
     }
     return false;
   }
