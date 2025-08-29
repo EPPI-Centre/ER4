@@ -60,6 +60,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
       this.DoRefreshRevinfo();
       this.PriorityScreeningService.GetTrainingScreeningCriteriaList();
       this.PrepareSearchesList();
+      if (this.HasAdminRights == true) this.InitialDataEntryModeConsistencyCheck();
     }
   }
   public EditingRevInfo: ReviewInfo = new ReviewInfo();
@@ -409,6 +410,54 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     }
     return this.CheckDataEntryMode();    
   }
+
+  private _InitialDataEntryModeConsistencyCheckDidRun: boolean = false;
+  private InitialDataEntryModeConsistencyCheck() {
+    if (this._InitialDataEntryModeConsistencyCheckDidRun) return;
+    this._InitialDataEntryModeConsistencyCheckDidRun = true;//ensures an endless loop is impossible
+    if (this.CheckDataEntryMode() == true) {
+      return;
+    }
+    //we have a problem, we'll check for the two obvious/known problems and propose to fix them
+    const set = this.selectedCodeSetDropDown;
+    if (!set) {
+      console.log("InitialDataEntryModeConsistencyCheck can't fix anything, missing SET");
+      return;//can't work without this
+    }
+    let Case: number = 0;//0 for can't auto fix, 1 for screeningNPeople should be zero (when tool is in normal mode), 2 for when screeningNPeople should be at least 2
+    if (this.EditingRevInfo.screeningNPeople > 1 && set.codingIsFinal) Case = 1;
+    else if (this.EditingRevInfo.screeningNPeople <= 1 && set.codingIsFinal == false) Case = 2;
+    if (Case > 0) {
+      let Msg = "The current screening tool is in <strong>Normal</strong> data entry mode, but Screening is setup to let "
+        + this.EditingRevInfo.screeningNPeople.toString() + " people screen each item <br />"
+        + "These settings are contradictory. Click <strong>OK</strong> to fix this by setting \"<em>N. of people per item</em>\" to 1. <br />"
+        + "You can then check/update all settings via the normal routes.";
+      if (Case == 2) {
+        Msg = "The current screening tool is in <strong>Comparision</strong> data entry mode, but Screening is setup to have "
+          + "each item screened by one person only.<br />"
+          + "These settings are contradictory. Click <strong>OK</strong> to fix this by setting \"<em>N. of people per item</em>\" to 2. <br />"
+          + "You can then check/update all settings via the normal routes.";
+      }
+      this.ConfirmationDialogService.confirm("Fix inconsistent settings?", Msg, false, "", "OK", "Cancel").then(
+        (res: any) => {
+          if (res == true) this.AutoFix(Case);
+          else if (res == false) this.Cancel();
+        }
+      ).catch(() => { });
+    }
+  }
+  private async AutoFix(Case: number) {
+    if (Case == 1) {
+      this.ReviewInfoService.ReviewInfo.screeningNPeople = 0;
+      await this.ReviewInfoService.Update(this.ReviewInfoService.ReviewInfo);
+      this.ngAfterViewInit();
+    } else if (Case == 2) {
+      this.ReviewInfoService.ReviewInfo.screeningNPeople = 2;
+      await this.ReviewInfoService.Update(this.ReviewInfoService.ReviewInfo);
+      this.ngAfterViewInit();
+    }
+  }
+
   private CheckDataEntryMode(): boolean {
     const set = this.selectedCodeSetDropDown;
     if (set == null) return false;//uh? Chosen set isn't in review!
