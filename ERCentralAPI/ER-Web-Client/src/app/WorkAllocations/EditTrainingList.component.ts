@@ -50,6 +50,10 @@ export class EditTrainingListComp implements OnInit, OnDestroy {
     }
     return false;
   }
+  public get CanEdit(): boolean {
+    if (this.ReviewerIdentityServ.HasWriteRights == false || this.ReviewerIdentityServ.HasAdminRights == false) return false;
+    return true;
+  }
 
   private BuildLocalList() {
     this.editingProgressList = [];
@@ -104,8 +108,8 @@ export class EditTrainingListComp implements OnInit, OnDestroy {
     this.PleaseCloseMe.emit();
   }
   async SaveAndClose() {
-    await this.PriorityScreeningService.ShowHideTrainingRecords(this.editingProgressList);
-    this.SelfClose();
+    const res = await this.PriorityScreeningService.ShowHideTrainingRecords(this.editingProgressList);
+    if (res) this.SelfClose();
   }
 
 

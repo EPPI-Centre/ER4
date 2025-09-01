@@ -7,7 +7,7 @@
                      headerClass="p-1 m-0 font-weight-bold small"
                      class="p-1 m-0 small">
     <ng-template kendoGridCellTemplate let-dataItem>
-      <input type="checkbox" class="larger-checkbox" [(ngModel)]="dataItem.hidden" />
+      <input type="checkbox" class="larger-checkbox" [(ngModel)]="dataItem.hidden" [disabled]="!CanEdit" />
     </ng-template>
 
   </kendo-grid-column>
@@ -36,5 +36,5 @@
 </kendo-grid>
 <div>
   <button (click)="SelfClose()" class="btn btn-outline-dark btn-sm py-0">Cancel</button>
-  <button (click)="SaveAndClose()" class="btn btn-outline-danger btn-sm py-0 mx-1" [disabled]="!HasChanges">Save</button>
+  <button (click)="SaveAndClose()" class="btn btn-outline-danger btn-sm py-0 mx-1" [disabled]="!HasChanges || !CanEdit">Save</button>
 </div>

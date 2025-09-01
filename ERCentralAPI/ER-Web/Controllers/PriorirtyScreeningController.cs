@@ -376,11 +376,18 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (!SetCSLAUser4Writing()) return Unauthorized();
-                ShowHideTrainingCommand cmd = crit.ToCslaBO();
-                DataPortal<ShowHideTrainingCommand> dp = new DataPortal<ShowHideTrainingCommand>();
-                cmd = dp.Execute(cmd);
-                return Ok();
+                if (SetCSLAUser4Writing())
+                {
+                    if (!UserIsAdmin()) return Forbid();
+                    ShowHideTrainingCommand cmd = crit.ToCslaBO();
+                    DataPortal<ShowHideTrainingCommand> dp = new DataPortal<ShowHideTrainingCommand>();
+                    cmd = dp.Execute(cmd);
+                    return Ok();
+                }
+                else
+                {
+                    return Forbid();
+                }
             }
             catch (Exception e)
             {

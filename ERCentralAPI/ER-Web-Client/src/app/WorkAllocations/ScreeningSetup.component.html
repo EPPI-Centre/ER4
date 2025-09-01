@@ -725,15 +725,15 @@
           <div class="col-12 border border-primary rounded m-0 p-0">
             <div class="row m-0 p-0 ">
               <div class="col m-0 p-0">
-                <button class="btn btn-outline-primary btn-sm px-1 py-0 m-1 float-right"
+                <button *ngIf="!ShowEditTrainingTable" class="btn btn-outline-primary btn-sm px-1 py-0 m-1 float-right"
                         (click)="ShowTrainingTable = !ShowTrainingTable">
                   {{ShowTrainingTableText}}
                 </button>
-                <button *ngIf="ShowTrainingTable && !ShowEditTrainingTable && CanWrite()" class="btn btn-outline-success btn-sm px-1 py-0 m-1 float-right"
+                <button *ngIf="ShowTrainingTable && !ShowEditTrainingTable" class="btn btn-outline-success btn-sm px-1 py-0 m-1 float-right"
                         (click)="ShowEditTrainingTable = true">
                   Edit
                 </button>
-                <button *ngIf="ShowTrainingTable && ShowEditTrainingTable" class="btn btn-outline-primary btn-sm px-1 py-0 m-1 float-right"
+                <button *ngIf="ShowTrainingTable && ShowEditTrainingTable" class="btn btn-outline-dark btn-sm px-1 py-0 m-1 float-right"
                         (click)="CancelEditTrainingTable()">
                   Cancel Edit
                 </button>
