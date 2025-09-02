@@ -147,6 +147,7 @@ import { JobsContainer } from './Review/JobsContainer.component';
 import { ReviewJobs } from './Review/reviewJobs.component';
 import { EditorModule } from '@progress/kendo-angular-editor';
 import { EditTrainingListComp } from './WorkAllocations/EditTrainingList.component';
+import { SearchFromOpenAlexImport } from './Search/SearchFromOpenAlexImport.component';
 
 
 
@@ -300,7 +301,8 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
     RobotJobsLog,
     JobsContainer,
     ReviewJobs,
-    EditTrainingListComp
+    EditTrainingListComp,
+    SearchFromOpenAlexImport
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

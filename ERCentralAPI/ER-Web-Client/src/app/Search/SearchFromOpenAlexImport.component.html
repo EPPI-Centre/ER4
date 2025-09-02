@@ -1,0 +1,88 @@
+<div class=" bg-light border border-primary rounded m-0 p-1 container col-12" >
+  <!--<div class="row mx-1">
+    Run: {{SelectedMagAutoUpdateRun.magAutoUpdateRunId}}
+    IncEx: {{IncEx}}
+    ScoresToUse: {{ScoresToUse}}
+  </div>-->
+  <div>
+    <div  style="max-height:20vh;overflow:auto;">
+      <table class="col-12 table table-sm tableFixHead">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Description</th>
+            <th>All included?</th>
+            <th>With this code</th>
+            <th>"Study Type" classifier</th>
+            <th>User Classifier</th>
+            <th>Version</th>
+            <th>Date</th>
+            <th>Hits</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let task of MagAutoUpdateRunList">
+            <td>
+              <input type="checkbox" [checked]="task.magAutoUpdateRunId == SelectedMagAutoUpdateRun.magAutoUpdateRunId" (click)="SelectThisRun(task)" />
+            </td>
+            <td>{{task.userDescription}}</td>
+            <td>{{task.allIncluded}}</td>
+            <td>{{task.attributeName}}</td>
+            <td>{{task.studyTypeClassifier}}</td>
+            <td>{{task.userClassifierDescription}}</td>
+            <td>{{task.magVersion}}</td>
+            <td>{{FormatDate(task.dateRun)}}</td>
+            <td>{{task.nPapers}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="SelectedMagAutoUpdateRun.magAutoUpdateRunId != -1">
+      <div  class="d-flex col-auto mx-auto mb-1">
+        <div class="px-1 col-auto row mx-auto my-auto rounded border border-info bg-light">
+          <div class="my-auto">Items state/flag:</div>
+          <div class="my-auto border-info border-right py-1 px-2">
+            <input type="radio" value="included" name="sfoaIncludeOrExclude" [(ngModel)]="IncEx">&nbsp;Included
+          </div>
+          <div class="my-auto border-info border-right py-1 px-2">
+            <input type="radio" value="excluded" name="sfoaIncludeOrExclude" [(ngModel)]="IncEx">&nbsp;Excluded
+          </div>
+          <div class="my-auto py-1 px-2">
+            <input type="radio" value="bothIandE" name="sfoaIncludeOrExclude" [(ngModel)]="IncEx">&nbsp;Both
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="SelectedMagAutoUpdateRun.userClassifierModelId != 0 || SelectedMagAutoUpdateRun.studyTypeClassifier != ''" class="d-flex col-auto mx-auto">
+        <div class="px-1 col-auto row mx-auto my-auto rounded border border-info bg-light">
+          <div class="my-auto">Use/Combine Scores from:</div>
+          <div class="my-auto border-info border-right py-1 px-2">
+            <input type="checkbox" class="mr-1" [checked]="ScoresToUse.includes('A')" (click)="UseTheseScores('A', $event)">Auto-Update Model
+          </div>
+          <div class="my-auto border-info border-right py-1 px-2">
+            <input type="checkbox" class="mr-1" [checked]="ScoresToUse.includes('P')" (click)="UseTheseScores('P', $event)"
+                   [disabled]="SelectedMagAutoUpdateRun.studyTypeClassifier == ''">
+            "Study Type" classifier 
+          </div>
+          <div class="my-auto py-1 px-2">
+            <input type="checkbox" class="mr-1" [checked]="ScoresToUse.includes('U')" (click)="UseTheseScores('U', $event)"
+                   [disabled]="SelectedMagAutoUpdateRun.userClassifierModelId < 1">
+            User Classifier 
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!--<div [ngSwitch]="Phase">
+    <div *ngSwitchCase="'1'" class="row col-12">
+      Step1: pick an AutoUpdate source - this 
+    </div>
+    <div *ngSwitchCase="'2'" class="row col-12"></div>
+    <div *ngSwitchCase="'3'" class="row col-12"></div>
+    <div *ngSwitchCase="'4'" class="row col-12"></div>
+    <div *ngSwitchCase="'5'" class="row col-12"></div>
+  </div>-->
+</div>
+

@@ -74,6 +74,7 @@
               <button (click)="nextDropDownList(12,'With linked references')" class="dropdown-item">With linked references</button>
               <button (click)="nextDropDownList(13,'With duplicate references')" class="dropdown-item">With duplicate references</button>
               <button *ngIf="HasScreeningList" (click)="nextDropDownList(14,'From Current Priority Screening List')" class="dropdown-item">From Current Priority Screening List</button>
+              <button (click)="nextDropDownList(15,'From OpenAlex Auto-Update')" class="dropdown-item">From OpenAlex Auto-Update</button>
             </div>
           </div>
         </div>
@@ -154,28 +155,34 @@
               <div *ngIf="searchText.length > 1000" class="alert alert-danger p-1">
                 Your search string is long (<strong>{{searchText.length.toString()}}</strong> chars!) and might get truncated without warning when executing the search. Consider shortening it, and then combine multiple searches as/if necessary.
               </div>
-              </div>
-              <b>In:</b>
-              <!--<h3 class=" font-italic text-center p-0 m-0">IN</h3>-->
-              <div ngbDropdown class="d-inline-block col-12 p-0 m-0">
-                <button class="btn btn-primary col-12 p-1 " id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchTextDropDown}}</button>
-                <div ngbDropdownMenu aria-labelledby="dropdownBasic2">
-                  <button (click)="setSearchTextDropDown('Title and abstract')" class="dropdown-item">Title and abstract</button>
-                  <button (click)="setSearchTextDropDown('Title only')" class="dropdown-item">Title only</button>
-                  <button (click)="setSearchTextDropDown('Abstract only')" class="dropdown-item">Abstract only</button>
-                  <button (click)="setSearchTextDropDown('Additional text')" class="dropdown-item">Additional text</button>
-                  <button (click)="setSearchTextDropDown('Uploaded documents')" class="dropdown-item">Uploaded documents</button>
-                  <button (click)="setSearchTextDropDown('Authors')" class="dropdown-item">Authors</button>
-                  <button (click)="setSearchTextDropDown('Publication year')" class="dropdown-item">Publication year</button>
-                </div>
-              </div>
-
             </div>
+            <b>In:</b>
+            <!--<h3 class=" font-italic text-center p-0 m-0">IN</h3>-->
+            <div ngbDropdown class="d-inline-block col-12 p-0 m-0">
+              <button class="btn btn-primary col-12 p-1 " id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchTextDropDown}}</button>
+              <div ngbDropdownMenu aria-labelledby="dropdownBasic2">
+                <button (click)="setSearchTextDropDown('Title and abstract')" class="dropdown-item">Title and abstract</button>
+                <button (click)="setSearchTextDropDown('Title only')" class="dropdown-item">Title only</button>
+                <button (click)="setSearchTextDropDown('Abstract only')" class="dropdown-item">Abstract only</button>
+                <button (click)="setSearchTextDropDown('Additional text')" class="dropdown-item">Additional text</button>
+                <button (click)="setSearchTextDropDown('Uploaded documents')" class="dropdown-item">Uploaded documents</button>
+                <button (click)="setSearchTextDropDown('Authors')" class="dropdown-item">Authors</button>
+                <button (click)="setSearchTextDropDown('Publication year')" class="dropdown-item">Publication year</button>
+              </div>
+            </div>
+
+          </div>
 
         </div>
         <div class="col-12 col-md-3"> </div>
       </div>
-      <div class="row mx-1" *ngIf="ShowSources == false && selectedSearchDropDown != 'With duplicate references' && selectedSearchDropDown != 'From Current Priority Screening List'">
+      <div *ngIf="selectedSearchDropDown == 'From OpenAlex Auto-Update'" class="col-12 px-1">
+        <SearchFromOpenAlexImport #SearchFromOpenAlex></SearchFromOpenAlexImport>
+      </div>
+      <div class="row mx-1" *ngIf="ShowSources == false
+           && selectedSearchDropDown != 'With duplicate references'
+           && selectedSearchDropDown != 'From Current Priority Screening List'
+           && selectedSearchDropDown != 'From OpenAlex Auto-Update'">
         <div class="col-12 col-md-4 mb-1 pr-1 pl-1 "></div>
         <table class="col-md-4  p-2 mx-2 my-1">
           <tr class="col-md-4">
@@ -222,6 +229,8 @@
           </option>
         </select>
       </div>
+
+
     </div>
   </div>
 
