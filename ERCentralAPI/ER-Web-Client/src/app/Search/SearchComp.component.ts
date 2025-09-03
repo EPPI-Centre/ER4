@@ -149,7 +149,10 @@ export class SearchComp implements OnInit, OnDestroy {
     this._searchService.sortChangeSearches(sort);
   }
   //END of bridge data properties/methods for the searches Telerik grid, now all hosted in searchService
-
+  public get ReviewIsMagEnabled(): boolean {
+    if (this._reviewInfoService.ReviewInfo.magEnabled) return true;
+    return false;
+  }
 
   public ContactChoice: Contact = new Contact();
   @Output() PleaseOpenTheCodes = new EventEmitter();

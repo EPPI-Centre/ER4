@@ -74,7 +74,7 @@
               <button (click)="nextDropDownList(12,'With linked references')" class="dropdown-item">With linked references</button>
               <button (click)="nextDropDownList(13,'With duplicate references')" class="dropdown-item">With duplicate references</button>
               <button *ngIf="HasScreeningList" (click)="nextDropDownList(14,'From Current Priority Screening List')" class="dropdown-item">From Current Priority Screening List</button>
-              <button (click)="nextDropDownList(15,'From OpenAlex Auto-Update')" class="dropdown-item">From OpenAlex Auto-Update</button>
+              <button *ngIf="ReviewIsMagEnabled" (click)="nextDropDownList(15,'From OpenAlex Auto-Update')" class="dropdown-item">From OpenAlex Auto-Update</button>
             </div>
           </div>
         </div>
