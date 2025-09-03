@@ -1220,10 +1220,10 @@
             </button>
           </div>
         </div>
-        <div *ngIf="ShowTrainingFSTable" class="row mx-0 my-1 p-0  ">
+        <div *ngIf="ShowTrainingFSTable" class="row mx-0 my-1 p-0" style="overflow:auto;">
 
           <kendo-grid *ngIf="!FS_ShowListProgress" id="kgFsProgress"
-                      [data]="TrainingFromSearchList.AllITerations"
+                      [data]="TrainingFromSearchList.AllITerations" [resizable]="true"
                       [pageSize]="TrainingFromSearchList.AllITerations.length"
                       scrollable="virtual" [rowClass]="rowCallback"
                       [style.max-height.px]="300">
@@ -1259,7 +1259,7 @@
           </kendo-grid>
 
           <kendo-grid *ngIf="FS_ShowListProgress" id="kgFsProgress"
-                      [data]="TrainingFromSearchList.AllITerations"
+                      [data]="TrainingFromSearchList.AllITerations" [resizable]="true"
                       [pageSize]="TrainingFromSearchList.AllITerations.length"
                       scrollable="virtual" [rowClass]="rowCallback"
                       [style.max-height.px]="300">
