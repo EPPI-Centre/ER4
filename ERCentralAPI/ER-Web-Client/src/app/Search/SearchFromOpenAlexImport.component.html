@@ -1,11 +1,25 @@
-<div class=" bg-light border border-primary rounded m-0 p-1 container col-12" >
+<div class=" bg-light border border-primary rounded m-0 p-1 container col-12">
   <!--<div class="row mx-1">
     Run: {{SelectedMagAutoUpdateRun.magAutoUpdateRunId}}
     IncEx: {{IncEx}}
     ScoresToUse: {{ScoresToUse}}
   </div>-->
+  <div class="row mx-1 px-0">
+    <div class="alert-info border border-info rounded mx-auto my-1 px-1 col">
+      This creates search result using scores associated with the selected "Auto-Update task/run".<br />
+      Items included in the search results will be items that are <strong>already</strong> in the review and already matched with the OpenAlex "Work Id" of records present
+      in the selected Auto-Update task/run. <br />
+      Thus, search results can include items that have been imported via <strong>any route</strong>, not necessarily imported via the Auto-Update system.<br />
+      Whenever the same Open Alex "Work Id" is matched to multiple items in the review, the search result will include only the oldest of these items, to avoid listing (likely) duplicates.
+    </div>
+    <div class="mb-1 align-content-end">
+      <button class="btn btn-sm btn-outline-success mx-1 my-auto py-0 px-1 " (click)="Refresh()">
+        <span class="k-icon k-i-refresh-sm" style="font-weight:bold"></span>
+      </button>
+    </div>
+  </div>
   <div>
-    <div  style="max-height:20vh;overflow:auto;">
+    <div style="max-height:30vh;overflow:auto;">
       <table class="col-12 table table-sm tableFixHead">
         <thead>
           <tr>
@@ -20,56 +34,55 @@
             <th>Hits</th>
           </tr>
         </thead>
-        <tbody>
-          <tr *ngFor="let task of MagAutoUpdateRunList">
+        <tbody class="bg-white">
+          <tr *ngFor="let task of MagAutoUpdateRunList" [ngClass]="{'font-weight-bold' : task.magAutoUpdateRunId == SelectedMagAutoUpdateRun.magAutoUpdateRunId}">
             <td>
               <input type="checkbox" [checked]="task.magAutoUpdateRunId == SelectedMagAutoUpdateRun.magAutoUpdateRunId" (click)="SelectThisRun(task)" />
             </td>
-            <td>{{task.userDescription}}</td>
-            <td>{{task.allIncluded}}</td>
-            <td>{{task.attributeName}}</td>
-            <td>{{task.studyTypeClassifier}}</td>
-            <td>{{task.userClassifierDescription}}</td>
-            <td>{{task.magVersion}}</td>
-            <td>{{FormatDate(task.dateRun)}}</td>
-            <td>{{task.nPapers}}</td>
+            <td class="pointerCursor" (click)="SelectThisRun(task)">{{task.userDescription}}</td>
+            <td class="pointerCursor" (click)="SelectThisRun(task)">{{task.allIncluded}}</td>
+            <td class="pointerCursor" (click)="SelectThisRun(task)">{{task.attributeName}}</td>
+            <td class="pointerCursor" (click)="SelectThisRun(task)">{{task.studyTypeClassifier}}</td>
+            <td class="pointerCursor" (click)="SelectThisRun(task)">{{task.userClassifierDescription}}</td>
+            <td class="pointerCursor" (click)="SelectThisRun(task)">{{task.magVersion}}</td>
+            <td class="pointerCursor" (click)="SelectThisRun(task)">{{FormatDate(task.dateRun)}}</td>
+            <td class="pointerCursor" (click)="SelectThisRun(task)">{{task.nPapers}}</td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <div *ngIf="SelectedMagAutoUpdateRun.magAutoUpdateRunId != -1">
-      <div  class="d-flex col-auto mx-auto mb-1">
-        <div class="px-1 col-auto row mx-auto my-auto rounded border border-info bg-light">
-          <div class="my-auto">Items state/flag:</div>
-          <div class="my-auto border-info border-right py-1 px-2">
-            <input type="radio" value="included" name="sfoaIncludeOrExclude" [(ngModel)]="IncEx">&nbsp;Included
-          </div>
-          <div class="my-auto border-info border-right py-1 px-2">
-            <input type="radio" value="excluded" name="sfoaIncludeOrExclude" [(ngModel)]="IncEx">&nbsp;Excluded
-          </div>
-          <div class="my-auto py-1 px-2">
-            <input type="radio" value="bothIandE" name="sfoaIncludeOrExclude" [(ngModel)]="IncEx">&nbsp;Both
-          </div>
+    <div class="d-flex col-auto mx-auto mb-1">
+      <div class="px-1 col-auto row mx-auto my-auto rounded border border-info bg-light">
+        <div class="my-auto">Items state/flag:</div>
+        <div class="my-auto border-info border-right py-1 px-2">
+          <input type="radio" value="included" name="sfoaIncludeOrExclude" [disabled]="SelectedMagAutoUpdateRun.magAutoUpdateRunId == -1" [(ngModel)]="IncEx">&nbsp;Included
+        </div>
+        <div class="my-auto border-info border-right py-1 px-2">
+          <input type="radio" value="excluded" name="sfoaIncludeOrExclude" [disabled]="SelectedMagAutoUpdateRun.magAutoUpdateRunId == -1" [(ngModel)]="IncEx">&nbsp;Excluded
+        </div>
+        <div class="my-auto py-1 px-2">
+          <input type="radio" value="bothIandE" name="sfoaIncludeOrExclude" [disabled]="SelectedMagAutoUpdateRun.magAutoUpdateRunId == -1" [(ngModel)]="IncEx">&nbsp;Both
         </div>
       </div>
+    </div>
 
-      <div *ngIf="SelectedMagAutoUpdateRun.userClassifierModelId != 0 || SelectedMagAutoUpdateRun.studyTypeClassifier != ''" class="d-flex col-auto mx-auto">
-        <div class="px-1 col-auto row mx-auto my-auto rounded border border-info bg-light">
-          <div class="my-auto">Use/Combine Scores from:</div>
-          <div class="my-auto border-info border-right py-1 px-2">
-            <input type="checkbox" class="mr-1" [checked]="ScoresToUse.includes('A')" (click)="UseTheseScores('A', $event)">Auto-Update Model
-          </div>
-          <div class="my-auto border-info border-right py-1 px-2">
-            <input type="checkbox" class="mr-1" [checked]="ScoresToUse.includes('P')" (click)="UseTheseScores('P', $event)"
-                   [disabled]="SelectedMagAutoUpdateRun.studyTypeClassifier == ''">
-            "Study Type" classifier 
-          </div>
-          <div class="my-auto py-1 px-2">
-            <input type="checkbox" class="mr-1" [checked]="ScoresToUse.includes('U')" (click)="UseTheseScores('U', $event)"
-                   [disabled]="SelectedMagAutoUpdateRun.userClassifierModelId < 1">
-            User Classifier 
-          </div>
+    <div *ngIf="SelectedMagAutoUpdateRun.userClassifierModelId > 0 || SelectedMagAutoUpdateRun.studyTypeClassifier != ''" class="d-flex col-auto mx-auto">
+      <div class="px-1 col-auto row mx-auto my-auto rounded border border-info bg-light">
+        <div class="my-auto">Use/Combine Scores from:</div>
+        <div class="my-auto border-info border-right py-1 px-2">
+          <input type="checkbox" class="mr-1" [checked]="ScoresToUse.includes('A')" (click)="UseTheseScores('A', $event)"
+                 [disabled]="SelectedMagAutoUpdateRun.magAutoUpdateRunId == -1" >Auto-Update Model
+        </div>
+        <div class="my-auto border-info border-right py-1 px-2">
+          <input type="checkbox" class="mr-1" [checked]="ScoresToUse.includes('P')" (click)="UseTheseScores('P', $event)"
+                  [disabled]="SelectedMagAutoUpdateRun.magAutoUpdateRunId == -1 || SelectedMagAutoUpdateRun.studyTypeClassifier == ''">
+          "Study Type" classifier
+        </div>
+        <div class="my-auto py-1 px-2">
+          <input type="checkbox" class="mr-1" [checked]="ScoresToUse.includes('U')" (click)="UseTheseScores('U', $event)"
+                  [disabled]="SelectedMagAutoUpdateRun.magAutoUpdateRunId == -1 || SelectedMagAutoUpdateRun.userClassifierModelId < 1">
+          User Classifier
         </div>
       </div>
     </div>
@@ -77,7 +90,7 @@
   </div>
   <!--<div [ngSwitch]="Phase">
     <div *ngSwitchCase="'1'" class="row col-12">
-      Step1: pick an AutoUpdate source - this 
+      Step1: pick an AutoUpdate source - this
     </div>
     <div *ngSwitchCase="'2'" class="row col-12"></div>
     <div *ngSwitchCase="'3'" class="row col-12"></div>

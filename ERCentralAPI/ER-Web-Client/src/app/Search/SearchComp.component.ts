@@ -1124,9 +1124,34 @@ export class SearchComp implements OnInit, OnDestroy {
     else if (selectedSearchDropDown == "From OpenAlex Auto-Update" && this.SearchFromOpenAlex && this.SearchFromOpenAlex.SelectedMagAutoUpdateRun.magAutoUpdateRunId != -1) {
       this._searchService.cmdSearches._searchId = this.SearchFromOpenAlex.SelectedMagAutoUpdateRun.magAutoUpdateRunId;
       this._searchService.cmdSearches._logicType = this.SearchFromOpenAlex.IncEx;
-      this._searchService.cmdSearches._title = "From AutoUpdate Run on: " + this.SearchFromOpenAlex.SelectedMagAutoUpdateRun.dateRun;
+      let whatScores: string = "";
+      switch (this.SearchFromOpenAlex.ScoresToUse) {
+        //A, P, U, AP, AU, APU, PU
+        case "A": whatScores = " (Scores from Auto Update)";
+          break;
+        case "P": whatScores = " (Scores from Study Type)";
+          break;
+        case "U": whatScores = " (Scores from User Classifier)";
+          break;
+        case "AP": whatScores = " (Scores from Auto Update and Study Type)";
+          break;
+        case "AU": whatScores = " (Scores from Auto Update and User Classifier)";
+          break;
+        case "APU": whatScores = " (Scores from all 3 classifier types)";
+          break;
+        case "PU": whatScores = " (Scores from Study Type and User Classifier)";
+          break;
+        default: whatScores = " (Scores from Auto Update)";
+      }
+      this._searchService.cmdSearches._title = "From AutoUpdate Run on: " + this.SearchFromOpenAlex.SelectedMagAutoUpdateRun.dateRun + whatScores;
       this._searchService.cmdSearches._searchText = this.SearchFromOpenAlex.ScoresToUse;
       this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchFromOpenAlexImport');
+
+      //we close the "new search" panel and re-select the first option from new search.
+      //this ensures the 
+      this.nextDropDownList(1, 'With this code');
+      this.NewSearchSection = false;
+
     }
   }
 

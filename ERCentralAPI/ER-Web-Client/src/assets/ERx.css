@@ -3,7 +3,7 @@ body {
 	margin: 0;
 }
 
-.sortable {
+.pointerCursor {
     cursor: pointer;
 }
 

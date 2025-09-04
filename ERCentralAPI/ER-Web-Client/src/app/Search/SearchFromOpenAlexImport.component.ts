@@ -33,7 +33,7 @@ export class SearchFromOpenAlexImport implements OnInit, OnDestroy {
 
   @Output() PleaseCloseMe = new EventEmitter();
   ngOnInit() {
-    this.MagRelatedRunsService.GetMagAutoUpdateRunList();
+    this.Refresh();
     //setTimeout(() => {
     //  let res = this.MagRelatedRunsService.MagAutoUpdateRunList;
     //  for (let i = -100; i < -1; i++) {
@@ -59,8 +59,8 @@ export class SearchFromOpenAlexImport implements OnInit, OnDestroy {
       attributeId: -1,
       attributeName: "N/A",
       allIncluded: true,
-      studyTypeClassifier: "N/A",
-      userClassifierDescription: "N/A",
+      studyTypeClassifier: "",
+      userClassifierDescription: "",
       userClassifierModelId: -1,
       userClassifierModelReviewId: -1,
       dateRun: "N/A",
@@ -68,6 +68,9 @@ export class SearchFromOpenAlexImport implements OnInit, OnDestroy {
       magAutoUpdateId: -1,
       magVersion: "N/A",
     };
+  }
+  public Refresh() {
+    this.MagRelatedRunsService.GetMagAutoUpdateRunList();
   }
   public get HasWriteRights(): boolean {
     return this._reviewerIdentityServ.HasWriteRights;
@@ -92,6 +95,7 @@ export class SearchFromOpenAlexImport implements OnInit, OnDestroy {
       return;
     }
     this.SelectedMagAutoUpdateRun = run;
+    this.ScoresToUse = "A";//reset to using only the auto-update score whenever we changed the "run"
   }
   public UseTheseScores(flag: string, event: Event) {
     
@@ -99,7 +103,7 @@ export class SearchFromOpenAlexImport implements OnInit, OnDestroy {
     if (this.ScoresToUse.includes(flag)) {
       this.ScoresToUse = this.ScoresToUse.replace(flag, "");
       if (this.ScoresToUse == "") {
-        event.preventDefault();
+        if (flag == "A") event.preventDefault();//do not untick as we're re-ticking it!
         this.ScoresToUse = "A";
       }
       return;
