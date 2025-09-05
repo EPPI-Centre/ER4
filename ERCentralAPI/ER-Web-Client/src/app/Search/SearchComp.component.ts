@@ -1148,8 +1148,6 @@ export class SearchComp implements OnInit, OnDestroy {
       this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchFromOpenAlexImport');
 
       //we close the "new search" panel and re-select the first option from new search.
-      //this ensures the 
-      this.nextDropDownList(1, 'With this code');
       this.NewSearchSection = false;
 
     }

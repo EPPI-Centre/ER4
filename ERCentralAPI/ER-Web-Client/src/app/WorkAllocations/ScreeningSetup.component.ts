@@ -829,12 +829,19 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
       });
     }
   }
-
-  async DeleteFSlist() {
-    if (!this.CanWrite()
-    ) return;
-    this.EditingRevInfo.screeningFSListSearchId = 0;
-    let res: string | boolean = await this.ReviewInfoService.Update(this.EditingRevInfo);
+  public DeleteFSlist() {
+    if (!this.CanWrite()) return;
+    this.ConfirmationDialogService.confirm("Delete/halt FS list?", "Are you sure you want to delete the current \"From Search\" screening list? <br />"
+          + "This deletes the actual \"to be screened\" list, while retaining all current \"progress\" data points.", false, "", "OK", "Cancel").then(
+      (res: any) => {
+        if (res == true) this.DoDeleteFSlist();
+      }
+    ).catch(() => { });
+  }
+  private async DoDeleteFSlist() {
+    if (!this.CanWrite()) return;
+    this.ReviewInfoService.ReviewInfo.screeningFSListSearchId = 0;
+    let res: string | boolean = await this.ReviewInfoService.Update(this.ReviewInfoService.ReviewInfo);
     if (res) {
       res = await this.PriorityScreeningService.DeleteFromSearchList();
       if (res == true) {

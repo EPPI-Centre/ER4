@@ -147,6 +147,12 @@
             </div>
             <div class="row m-0 p-0 ">
               <div class="col row p-1 m-1 border border-info rounded bg-white">
+                <div class="font-weight-bold">Coding tool:</div>
+                <div class="mx-1 px-1" [innerHTML]="CodingToolText(dataItem)"></div>
+              </div>
+            </div>
+            <div class="row m-0 p-0 ">
+              <div class="col row p-1 m-1 border border-info rounded bg-white">
                 <div class="font-weight-bold">Item IDs:</div>
                 <div class="mx-1 px-1">{{dataItem.itemIDsList.join(', ')}}</div>
               </div>
