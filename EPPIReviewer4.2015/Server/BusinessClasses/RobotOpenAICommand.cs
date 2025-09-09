@@ -54,9 +54,10 @@ namespace BusinessLibrary.BusinessClasses
         private string _DocsList = "";
         private bool _Succeded = false;
         private int errors = 0;
+        private int _APICallTimeoutInSeconds = 100;
 
 
-        
+
 
         public bool Succeded
         {
@@ -150,6 +151,7 @@ namespace BusinessLibrary.BusinessClasses
         private int _outputTokens = 0;
         private Int64 _Item_set_id = 0;
         private bool hasSavedSomeCodes = false;
+
         private void ErrorLogSinkDetails(string Message, string Details, bool IsFatal = false)
         {
             if (_jobId != 0)
@@ -757,6 +759,12 @@ namespace BusinessLibrary.BusinessClasses
 
             // *** Create the client and submit the request to the LLM
             var client = new HttpClient();
+            if (_APICallTimeoutInSeconds != 0 && _APICallTimeoutInSeconds != 100)//defaults to 100 seconds anyway
+            {
+                client.Timeout = new TimeSpan(0, 0, _APICallTimeoutInSeconds);
+            }
+            //for debugging, set a really short timeout, to make each call timeout (if we want to)
+            //client.Timeout = new TimeSpan(200); //100 nanoseconds(one tick) * 200 = 20ms (or so I believe)
 
             string json;
             if (_UserPrivateOpenAIKey == "")
@@ -803,7 +811,14 @@ namespace BusinessLibrary.BusinessClasses
             catch (OperationCanceledException e)
             {// this can happen if the CancelToken requests to cancel, or if the API call didn't get an answer within the timeout:
                 //"The request was canceled due to the configured HttpClient.Timeout of 100 seconds elapsing." is the exception message in this latter case
-                ErrorLogSink("Cancelling RobotOpenAICommand while awaiting for the OpenAI API to answer.");
+                if (e.Message.StartsWith("The request was canceled due to the configured HttpClient.Timeout"))
+                {
+                    ErrorLogSink("Cancelling RobotOpenAICommand: timeout expired. ItemId:" + _itemId.ToString());
+                    _message = "Error: Cancelling RobotOpenAICommand, timeout expired.";
+                    return false;
+                }
+                //otherwise, it's a CancelToken
+                ErrorLogSink("Cancelling RobotOpenAICommand while awaiting for the API to answer. ItemId:" + _itemId.ToString());
                 return false; //we'll detect the cancellation request elsewhere
             }
             if (response.IsSuccessStatusCode == false)
