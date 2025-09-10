@@ -54,7 +54,6 @@ namespace BusinessLibrary.BusinessClasses
         private string _DocsList = "";
         private bool _Succeded = false;
         private int errors = 0;
-        private int _APICallTimeoutInSeconds = 100;
 
 
 
@@ -759,9 +758,9 @@ namespace BusinessLibrary.BusinessClasses
 
             // *** Create the client and submit the request to the LLM
             var client = new HttpClient();
-            if (_APICallTimeoutInSeconds != 0 && _APICallTimeoutInSeconds != 100)//defaults to 100 seconds anyway
+            if (APICallTimeoutInSeconds != 0 && APICallTimeoutInSeconds != 100)//defaults to 100 seconds anyway
             {
-                client.Timeout = new TimeSpan(0, 0, _APICallTimeoutInSeconds);
+                client.Timeout = new TimeSpan(0, 0, APICallTimeoutInSeconds);
             }
             //for debugging, set a really short timeout, to make each call timeout (if we want to)
             //client.Timeout = new TimeSpan(200); //100 nanoseconds(one tick) * 200 = 20ms (or so I believe)
