@@ -285,7 +285,7 @@
             <!--<kendo-icon name="print"></kendo-icon>-->
           </button>
           <button *ngIf="CanRunOpenAIrobot" kendoButton [icon]="'gears'" class="small my-1 ml-1"
-                  title="Auto-coding with OpenAI GPT4 - requires dedicated Coding Tool"
+                  title="Auto-coding with LLM(s) - requires dedicated Coding Tool"
                   [disabled]="!HasWriteRights" (click)="ShowRobotBatchJobs = !ShowRobotBatchJobs"></button>
         </div>
         <RobotBatchJobs *ngIf="CanRunOpenAIrobot && ShowRobotBatchJobs" (PleaseCloseMe)="ShowRobotBatchJobs = false"></RobotBatchJobs>

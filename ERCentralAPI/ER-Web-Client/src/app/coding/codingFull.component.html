@@ -33,7 +33,7 @@
                       [disabled]="!HasWriteRights" (click)="HotKeysOn=!HotKeysOn"></button>
               <kendo-splitbutton *ngIf="CanRunOpenAIrobot" class="ml-1" [icon]="'gears'" (buttonClick)="RunRobotOpenAICommand()"
                                          [data]="RobotDDData" [disabled]="!HasWriteRights"
-                                         title="Auto-coding with OpenAI GPT4 - requires dedicated Coding Tool"
+                                         title="Auto-coding with LLM(s) - requires dedicated Coding Tool"
                                          style="border-color: #04070b;background-color: #e1e4eb;"></kendo-splitbutton>
             </div>
             <div *ngIf="ShowRobotOptions" class="p-1 bg-light rounded">

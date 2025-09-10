@@ -206,7 +206,7 @@ export class RobotInvestigate implements OnInit, OnDestroy {
       //no need to handle errors here - we do that in the service as usual
       //this.confirmationDialogService..ShowInformationalModal(res.returnMessage, "GPT4 result");
       this._notificationService.show({
-        content: "GPT4 result: " + res.returnMessage,
+        content: "LLM result: " + res.returnMessage,
         position: { horizontal: 'center', vertical: 'top' },
         animation: { type: 'fade', duration: 500 },
         type: { style: 'success', icon: true },

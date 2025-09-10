@@ -768,7 +768,7 @@ namespace BusinessLibrary.BusinessClasses
             string json;
             if (_UserPrivateOpenAIKey == "")
             {
-                if (IsDeepSeekLike(RobotCoder))
+                if (AuthorisationInHeader(RobotCoder))
                 {
                     client.DefaultRequestHeaders.Add("Authorization", $"Bearer {key}");
                 }
@@ -793,6 +793,10 @@ namespace BusinessLibrary.BusinessClasses
                 //var requestBody = new { model, messages, temperature, frequency_penalty, presence_penalty, top_p };
                 var requestBody = new { model, messages };
                 json = JsonConvert.SerializeObject(requestBody);
+            }
+            if (UsesExtraParameters(RobotCoder))
+            {
+                client.DefaultRequestHeaders.Add("extra-parameters", "pass-through");
             }
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
@@ -892,21 +896,20 @@ namespace BusinessLibrary.BusinessClasses
             
             return responses;
         }
-        //internal static string BuildJsonRequestBody(string type, List<OpenAIChatClass> messages, double temperature, int frequency_penalty, int presence_penalty, double top_p)
-        //{
-        //    var response_format = new { type };
-        //    if (temperature + top_p + frequency_penalty + presence_penalty == -4)
-        //    {
-        //        var requestBody = new { response_format, messages };
-        //        return JsonConvert.SerializeObject(requestBody);
-        //    }
-        //    else
-        //    {
-        //        var requestBody = new { response_format, messages, temperature, frequency_penalty, presence_penalty, top_p };
-        //        //var requestBody = new { messages, temperature, frequency_penalty, presence_penalty, top_p };
-        //        return JsonConvert.SerializeObject(requestBody);
-        //    }
-        //}
+
+        internal static bool AuthorisationInHeader(RobotCoderReadOnly robot)
+        {
+            string lowname = robot.RobotName.ToLower();
+            if (lowname.Contains("deepseek")) return true;
+            else if (lowname.Contains("mistral")) return true;
+            else return false;
+        }
+        internal static bool UsesExtraParameters(RobotCoderReadOnly robot)
+        {
+            string lowname = robot.RobotName.ToLower();
+            if (lowname.Contains("mistral")) return true;
+            else return false;
+        }
 
         internal static bool IsDeepSeekLike(RobotCoderReadOnly robot)
         {//simple logic, for now!!
