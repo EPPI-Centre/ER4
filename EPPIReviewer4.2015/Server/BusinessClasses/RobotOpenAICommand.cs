@@ -902,6 +902,7 @@ namespace BusinessLibrary.BusinessClasses
             string lowname = robot.RobotName.ToLower();
             if (lowname.Contains("deepseek")) return true;
             else if (lowname.Contains("mistral")) return true;
+            else if (lowname.Contains("llama")) return true;
             else return false;
         }
         internal static bool UsesExtraParameters(RobotCoderReadOnly robot)
