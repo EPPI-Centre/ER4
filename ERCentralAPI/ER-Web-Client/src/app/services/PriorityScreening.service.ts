@@ -276,23 +276,23 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
         NeedsDoing = true;
       }
     }
-    else if (totalScreened < 5000) {//trigger training when we reach the next multiple of 500
-      if (currentCount % 500 == 0) {
-        console.log("Update training PS records, every 500 items");
+    else if (totalScreened < 5000) {//trigger training when we reach the next multiple of 250
+      if (currentCount % 250 == 0) {
+        console.log("Update training PS records, every 250 items");
         NeedsDoing = true;
       }
 
     }
-    else if (totalScreened < 15000) {//trigger training when we reach the next multiple of 1000
-      if (currentCount % 1000 == 0) {
-        console.log("Update training PS records, every 1000 items");
+    else if (totalScreened < 15000) {//trigger training when we reach the next multiple of 300
+      if (currentCount % 300 == 0) {
+        console.log("Update training PS records, every 300 items");
         NeedsDoing = true;
       }
 
     }
-    else {//trigger training when we reach the next multiple of 2000
-      if (currentCount % 2000 == 0) {
-        console.log("Update training PS records, every 2000 items");
+    else {//trigger training when we reach the next multiple of 400
+      if (currentCount % 400 == 0) {
+        console.log("Update training PS records, every 400 items");
         NeedsDoing = true;
       }
     }
