@@ -255,10 +255,6 @@ public partial class AssignCredit : System.Web.UI.Page
                     {
                         gvMembersOfReview.Rows[i].Cells[2].BackColor = System.Drawing.Color.Yellow;
                     }
-                    if (gvMembersOfReview.Rows[i].Cells[2].Text.Contains("Not activated"))
-                    {
-                        gvMembersOfReview.Rows[i].Cells[2].BackColor = System.Drawing.Color.Yellow;
-                    }
                     if (gvMembersOfReview.Rows[i].Cells[2].Text.Contains("Expired"))
                     {
                         gvMembersOfReview.Rows[i].Cells[2].BackColor = System.Drawing.Color.Pink;
@@ -267,6 +263,15 @@ public partial class AssignCredit : System.Web.UI.Page
                     if (gvMembersOfReview.Rows[i].Cells[2].Text.Contains("Site License"))
                     {
                         gvMembersOfReview.Rows[i].Cells[2].BackColor = System.Drawing.Color.Aquamarine;
+                        DropDownList ddl = (DropDownList)gvMembersOfReview.Rows[i].Cells[2].FindControl("ddlExtendAccount");
+                        if (ddl != null)
+                        {
+                            ddl.Enabled = false;
+                        }
+                    }
+                    if (gvMembersOfReview.Rows[i].Cells[2].Text == "&nbsp;" && gvMembersOfReview.Rows[i].Cells[1].Text == "Unactivated")
+                    {
+                        gvMembersOfReview.Rows[i].Cells[1].BackColor = System.Drawing.Color.Pink;
                         DropDownList ddl = (DropDownList)gvMembersOfReview.Rows[i].Cells[2].FindControl("ddlExtendAccount");
                         if (ddl != null)
                         {
@@ -302,19 +307,6 @@ public partial class AssignCredit : System.Web.UI.Page
         }
     }
 
-    protected void gvMembersOfReview_RowDataBound(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.DataRow)
-        {
-            DropDownList ddlExtendAccount = (DropDownList)e.Row.FindControl("ddlExtendAccount");
-            string nameColumn = e.Row.Cells[1].Text;
-            if (nameColumn == "Unactivated")
-            {
-                ddlExtendAccount.Enabled = false;
-            }
-        }
-
-    }
 
     protected void ddlExtendAccount_SelectedIndexChanged(object sender, EventArgs e)
     {
