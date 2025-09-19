@@ -247,11 +247,8 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
 
   private CheckRunTraining(screeningItem: TrainingNextItem) {
     let currentCount: number = screeningItem.rank;
-    let totalScreened = this._TrainingList[0].totalN;
+    let totalScreened = this._TrainingList[this._TrainingList.length - 1].totalN;
     let NeedsDoing: boolean = false;
-    for (let training of this._TrainingList) {
-      if (training.totalN > totalScreened) totalScreened = training.totalN;
-    }
     if (totalScreened < 250) {//trigger training when we reach the next multiple of 25
       if (currentCount % 25 == 0) {
         console.log("Update training PS records, every 25 items");
