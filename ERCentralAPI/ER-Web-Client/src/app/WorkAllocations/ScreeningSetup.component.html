@@ -510,7 +510,7 @@
                 </div>
                 <div class="col-12 row mx-0">
                   <div class="my-auto mx-1"> Filter By:</div>
-                  <select (change)="ChangeFSprogressFilter($event)" class="m-1" style="max-width: 40vw; overflow: hidden; text-overflow: ellipsis;">
+                  <select (change)="ChangeFSprogressFilter($event)" class="m-1" style="max-width: 100%; overflow: hidden; text-overflow: ellipsis;">
                     <option *ngFor="let Run of TrainingFromSearchList.AllRuns" [selected]="Run.VirtualId == TrainingFromSearchList.CurrentRunVirtualId" [value]="Run.VirtualId">
                       {{FilterBySearchText(Run.SearchId)}}
                     </option>
