@@ -44,9 +44,7 @@ export class searchService extends BusyAwareService implements OnDestroy {
   public searchToBeUpdated: string = '';//WHY string?
 
   public get SearchList(): Search[] {
-
     return this._SearchList;
-
   }
 
   public set SearchList(searches: Search[]) {
@@ -95,9 +93,9 @@ export class searchService extends BusyAwareService implements OnDestroy {
     this._SearchVisualiseData = searches;
   }
 
-  Fetch() {
+  Fetch(): Promise<boolean> {
     this._BusyMethods.push("Fetch");
-    lastValueFrom(this._httpC.get<iSearch[]>(this._baseUrl + 'api/SearchList/GetSearches'))
+    return lastValueFrom(this._httpC.get<iSearch[]>(this._baseUrl + 'api/SearchList/GetSearches'))
       .then(result => {
         let resList: Search[] = [];
         this.RemoveBusy("Fetch");
@@ -106,15 +104,18 @@ export class searchService extends BusyAwareService implements OnDestroy {
         }
         this.SearchList = resList;
         //this.searchesChanged.emit();
+        return true;
       },
         error => {
           this.RemoveBusy("Fetch");
           this.modalService.GenericError(error);
           this.Clear();
+          return false;
         }
       ).catch(caught => {
         this.RemoveBusy("Fetch");
         this.modalService.GenericError(caught);
+        return false;
       });
   }
   public Clear() {
@@ -250,7 +251,8 @@ export class Search implements iSearch {
   constructor(iSrc: iSearch | undefined) {
     if (iSrc) {
       this.searchNo = iSrc.searchNo;
-      this.selected = iSrc.selected;
+      if (iSrc.selected != undefined) this.selected = iSrc.selected;
+      else this.selected = false;
       this.searchId = iSrc.searchId;
       this.hitsNo = iSrc.hitsNo;
       this.title = iSrc.title;

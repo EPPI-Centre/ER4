@@ -6,15 +6,18 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { kvSelectFrom } from './WorkAllocationComp.component';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ModalService } from '../services/modal.service';
-import { PriorityScreeningService, Training, iTrainingScreeningCriteria } from '../services/PriorityScreening.service';
+import { PriorityScreeningService, Training, iTrainingScreeningCriteria, ScreeningFromSearchIterationList, ScreeningFromSearchIterationRun, iScreeningFromSearchIteration } from '../services/PriorityScreening.service';
 import { Helpers } from '../helpers/HelperMethods';
-import { GridDataResult } from '@progress/kendo-angular-grid';
+import { GridDataResult, RowClassArgs } from '@progress/kendo-angular-grid';
 import { ItemListService } from '../services/ItemList.service';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import 'hammerjs';
+import { Search, searchService } from '../services/search.service';
+import { NotificationService } from '@progress/kendo-angular-notification';
+import { TabStripComponent } from '@progress/kendo-angular-layout';
 
 @Component({
   selector: 'ScreeningSetupComp',
@@ -33,16 +36,22 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     private ReviewerIdentityService: ReviewerIdentityService,
     private ConfirmationDialogService: ConfirmationDialogService,
     private PriorityScreeningService: PriorityScreeningService,
-    private ItemListService: ItemListService
+    private ItemListService: ItemListService,
+    private notificationService: NotificationService,
+    private SearchService: searchService
   ) { }
 
   faArrowsRotate = faArrowsRotate;
   faSpinner = faSpinner;
 
   ngOnInit() {
-    this.PriorityScreeningService.Fetch();
+    this.PriorityScreeningService.Fetch().then(()=> this.PriorityScreeningService.FetchTrainingFromSearchList());
     this.RevInfoSub = this.ReviewInfoService.ReviewInfoChanged.subscribe(() => this.RefreshRevinfo());
-    if (!this.ReviewerIdentityService.HasAdminRights) this.CurrentStep = 4;
+    if (!this.ReviewerIdentityService.HasAdminRights) this.CurrentStep = 5;
+    
+    if (this.ReviewInfoService.ReviewInfo.reviewId == 0) {
+      this.ReviewInfoService.Fetch();
+    }
   }
   ngAfterViewInit() {
     if (this.ReviewInfoService.ReviewInfo.showScreening == false) this.Cancel();
@@ -50,21 +59,24 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
       //console.log("will clone revinfo:", this.ReviewInfoService.ReviewInfo);
       this.DoRefreshRevinfo();
       this.PriorityScreeningService.GetTrainingScreeningCriteriaList();
+      this.PrepareSearchesList();
+      if (this.HasAdminRights == true) this.InitialDataEntryModeConsistencyCheck();
     }
   }
-  public revInfo: ReviewInfo = new ReviewInfo();
+  public EditingRevInfo: ReviewInfo = new ReviewInfo();
   @Output() emitterCancel = new EventEmitter();
-  public CurrentStep: number = 0;
-  private _stepNames: string[] = ["Start", "define what to do", "define how to do it", "automation options", "Show all settings"];
-  @ViewChild('faketablerow') faketablerow!: ElementRef;
+  public CurrentStep: number =0;
+  private _stepNames: string[] = ["Start", "define what type of list to use" ,"define what to do", "define how to do it", "automation options", "show all settings"
+    , "screening tool and what search to use", "screening mode and automation"];
   @ViewChild('WithOrWithoutCode') WithOrWithoutCode!: codesetSelectorComponent;
   @ViewChild('AddTrainingCriteriaDDown') AddTrainingCriteriaDDown!: codesetSelectorComponent;
+  @ViewChild('tabstripScreening') tabstripScreening!: TabStripComponent;
 
   public DropdownWithWithoutSelectedCode: singleNode | null = null;
   public DropdownAddTrainingCriteriaSelectedCode: singleNode | null = null;
-  private subGotPriorityScreeningData: Subscription | null = null;
   private RevInfoSub: Subscription | null = null;
   public AllowEditOnStep4: boolean = false;
+  public AllowEditOnStep4fs: boolean = false;
   private _ScreenAllItems: boolean = true;
   private _ItemsWithThisAttribute: SetAttribute | null = null;
   public selectedCodeSetDropDown: ReviewSet | null = null;
@@ -72,12 +84,88 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
   public isCollapsedDropdownAddTrainingCriteria: boolean = false;
   public ShowAddTrainingCriteria: boolean = false;
   public ShowTrainingTable: boolean = false;
+  public ShowEditTrainingTable: boolean = false;
+  public ShowTrainingFSTable: boolean = false;
   private _CanChangeDataEntryMode: boolean = false;
   public ShowChangeDataEntry: boolean = false;
   public DestinationDataEntryMode: string = "";
   private _ItemsWithIncompleteCoding: number = -1;
   public ChangeDataEntryModeMessage: string = "";
   public ConfirmTrainingListIsGood: string = "";
+
+  public WizardDoPS: boolean = true;
+  public FS_ShowListProgress: boolean = false;
+  public SearchToUseForFromSearchList: Search | null = null;
+  private _SearchesWithScores: Search[] = [];
+  public get SearchesWithScores(): Search[] {
+    return this._SearchesWithScores;
+  }
+  public get TrainingFromSearchList(): ScreeningFromSearchIterationList {
+    return this.PriorityScreeningService.TrainingFromSearchList;
+  }
+
+  async PrepareSearchesList() {
+    if (this.ReviewInfoService.ReviewInfo.reviewId < 1) {
+      await this.ReviewInfoService.Fetch();
+    }
+    if (this.SearchService.SearchList.length == 0) {
+      if (this.SearchService.IsBusy) {
+        //console.log("SearchService.IsBusy, waiting...");
+        let safetyC: number = 0;
+        while (this.SearchService.IsBusy && safetyC < 350) {//not going to wait here more than ~35s
+          await Helpers.Sleep(100);
+          safetyC++;
+        }
+      }
+      if (this.SearchService.SearchList.length == 0) {
+        //console.log("Last ditch attempt to get searches list...");
+        await setTimeout(async () => {
+          //we need to delay this call, otherwise SearchComponent throws the value changed after checking it error
+          await this.SearchService.Fetch();
+          if (this.SearchService.SearchList.length > 0) {
+            //now we have some searches in the list, so we can consume it to set-up things in here.
+            this.PrepareSearchesList();
+          }
+        }, 10);
+      }
+    }
+    
+    this._SearchesWithScores = this.SearchService.SearchList.filter(f => f.isClassifierResult == true);
+    this._SearchesWithScores.sort((a, b) => b.searchNo - a.searchNo);
+    this.innerSetCurrentSearchFS();
+    
+  }
+  private innerSetCurrentSearchFS() {
+    
+    this.SearchToUseForFromSearchList = null;
+    this.EditingRevInfo.screeningFSListSearchId = this.ReviewInfoService.ReviewInfo.screeningFSListSearchId;
+    this.EditingRevInfo.screeningFSListSearchName = this.ReviewInfoService.ReviewInfo.screeningFSListSearchName;
+    if (this.ReviewInfoService.ReviewInfo.screeningFSListSearchId > 0) {
+      const foundSearch = this.SearchesWithScores.find(f => f.searchId == this.ReviewInfoService.ReviewInfo.screeningFSListSearchId);
+      if (foundSearch) {
+        this.SearchToUseForFromSearchList = foundSearch;
+        const SearchIdTouse = this.SearchToUseForFromSearchList.searchId;
+        for (let s of this._SearchesWithScores) {
+          s.selected = false;
+          if (s.searchId == SearchIdTouse) {
+            s.selected = true;
+          }
+        }
+      }
+      else {//we couldn't find the search to "select", but we still want to unselect all searches
+        for (let s of this._SearchesWithScores) {
+          s.selected = false;
+        }
+      }
+    }
+    else {//we make sure no search is selected, because nothing is configured in RevInfo. so nothing _should_ be selected
+      for (let s of this._SearchesWithScores) {
+        s.selected = false;
+      }
+    }
+  }
+
+
   private _ScreeningModeOptions: kvSelectFrom[] = [
     { key: 0, value: '[Please select]' },
     { key: 1, value: 'Priority' },
@@ -97,9 +185,9 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     return this._ReconcileOptions;
   }
   public get SelectedReconcileOptionName(): string {
-    if (this.revInfo.screeningReconcilliation == "Single") return "Single (auto completes)";
+    if (this.EditingRevInfo.screeningReconcilliation == "Single") return "Single (auto completes)";
     else {
-      let found = this._ReconcileOptions.find(f => f.key == this.revInfo.screeningReconcilliation);
+      let found = this._ReconcileOptions.find(f => f.key == this.EditingRevInfo.screeningReconcilliation);
       if (found != undefined) return found.value;
     }
     return "Not Set";
@@ -116,14 +204,26 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     else return "Show Progress Table";
   }
 
+  public get ShowTrainingFSTableText(): string {
+    if (this.ShowTrainingFSTable) return "Hide Progress Table";
+    else return "Show Progress Table";
+  }
+  public get ScreeningListIsGood(): boolean {
+    return this.ReviewInfoService.ReviewInfo.screeningListIsGood;
+  }
+
+  public get ScreeningFromSearchListIsGood(): boolean {
+    return this.ReviewInfoService.ReviewInfo.screeningFromSearchListIsGood;
+  }
+
   public get ItemsWithThisAttribute(): SetAttribute | null {
-    if (this.revInfo.screeningWhatAttributeId > 0
-      && (this._ItemsWithThisAttribute == null || this._ItemsWithThisAttribute.attribute_id != this.revInfo.screeningWhatAttributeId)) {
-      this._ItemsWithThisAttribute = this.ReviewSetsService.FindAttributeById(this.revInfo.screeningWhatAttributeId)
-    } else if (this.revInfo.screeningWhatAttributeId < 1) {
+    if (this.EditingRevInfo.screeningWhatAttributeId > 0
+      && (this._ItemsWithThisAttribute == null || this._ItemsWithThisAttribute.attribute_id != this.EditingRevInfo.screeningWhatAttributeId)) {
+      this._ItemsWithThisAttribute = this.ReviewSetsService.FindAttributeById(this.EditingRevInfo.screeningWhatAttributeId)
+    } else if (this.EditingRevInfo.screeningWhatAttributeId < 1) {
       this._ItemsWithThisAttribute = null;
     }
-    //console.log("ItemsWithThisAttribute", this.revInfo.screeningWhatAttributeId, this._ItemsWithThisAttribute);
+    //console.log("ItemsWithThisAttribute", this.EditingRevInfo.screeningWhatAttributeId, this._ItemsWithThisAttribute);
     return this._ItemsWithThisAttribute;
   }
 
@@ -150,30 +250,49 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     else return (this.CanGoToNextStep());
   }
   public CanGoToStep3(): boolean {
-    //console.log("CanGoToStep3()", this.revInfo.screeningMode, this.revInfo.screeningCodeSetId, this.selectedCodeSetDropDown == null, !this.CheckAndUpdatePeoplePerItem());
-    if (this.revInfo.screeningMode == "" || this.revInfo.screeningCodeSetId < 1 || this.selectedCodeSetDropDown == null || !this.CheckAndUpdatePeoplePerItem()) return false;
+    //console.log("CanGoToStep3()", this.EditingRevInfo.screeningMode, this.EditingRevInfo.screeningCodeSetId, this.selectedCodeSetDropDown == null, !this.CheckAndUpdatePeoplePerItem());
+    if (this.EditingRevInfo.screeningMode == "" || this.EditingRevInfo.screeningCodeSetId < 1 || this.selectedCodeSetDropDown == null || !this.CheckAndUpdatePeoplePerItem()) return false;
     //console.log("CanGoToStep3()2", this.ConfirmTrainingListIsGood);
     return (this.CanChangePeoplePerItem && this.CanGoToNextStep());
+  }
+  public CanGoToStep7(): boolean {
+    //console.log("Can go to S7:", this.SearchToUseForFromSearchList);
+    if (this.selectedCodeSetDropDown == null || this.SearchToUseForFromSearchList == null) return false;
+    else return (this.CanGoToNextStep());
   }
   public get CanChangeWhatToScreen(): boolean {
     if (this.selectedCodeSetDropDown == null) return false;
     else return true;
   }
   public get CanChangePeoplePerItem(): boolean {
-    if (this.revInfo.screeningMode == '') return false;
-    if (this.revInfo.screeningMode == "Priority") {
+    if (this.CurrentStep == 7) return this.selectedCodeSetDropDown != null;//can always change if wizard for the FS type of list
+    if (this.CurrentStep == 5 && this.AllowEditOnStep4fs == true) return this.selectedCodeSetDropDown != null;//as above
+    if (this.EditingRevInfo.screeningMode == '') return false;
+    if (this.EditingRevInfo.screeningMode == "Priority") {
       if (this.TrainingScreeningCriteriaListIsNotGoodMsg != "") return false;
-      if (this.CurrentStep != 4 && this.ConfirmTrainingListIsGood !== "I've checked") return false;
+      if (this.CurrentStep == 3 && this.ConfirmTrainingListIsGood !== "I've checked") return false;
       else return true;
     }
     else return true;
   }
   public get CanChangeAutoExcludeAndIndexing(): boolean {
-    if (this.revInfo.screeningReconcilliation == "") return false;
+    if (this.EditingRevInfo.screeningReconcilliation == "") return false;
     else return true;
   }
+
+  public get CanEditSelectedSet(): boolean {
+    return (this.CanWrite() && this.selectedCodeSetDropDown != null && this.selectedCodeSetDropDown.allowEditingCodeset);
+  }
+
+  public get CanChangeScreeningTool(): boolean {
+    if (this.CurrentStep == 5 && this.AllowEditOnStep4) return true;//editing all settings for PS
+    if (this.CurrentStep < 5) return true;//editing via the PS wizard
+    if (this.TrainingScreeningCriteriaList.length == 0) return true;//safe to change the screening tool: PS isn't learning from anything!
+    return false;//not allowed in all other cases
+  }
+
   public GoToAllinOneStep() {
-    this.CurrentStep = 4;
+    this.CurrentStep = 5;
   }
   public get ScreenAllItems(): boolean {
     return this._ScreenAllItems;
@@ -181,7 +300,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
   public set ScreenAllItems(val: boolean) {
     if (val == true) {
       if (this._ScreenAllItems == false) {
-        this.revInfo.screeningWhatAttributeId = 0;
+        this.EditingRevInfo.screeningWhatAttributeId = 0;
         this.DropdownWithWithoutSelectedCode = null;
       }
     }
@@ -209,9 +328,6 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
   }
   public get HasAdminRights(): boolean {
     return this.ReviewerIdentityService.HasAdminRights;
-  }
-  public get CanEditSelectedSet(): boolean {
-    return (this.CanWrite() && this.selectedCodeSetDropDown != null && this.selectedCodeSetDropDown.allowEditingCodeset);
   }
   public get WorkToDoSelectedCodeSetDataEntryM(): string {
     if (this.selectedCodeSetDropDown != null && this.selectedCodeSetDropDown.codingIsFinal) return "Comparison";
@@ -243,17 +359,16 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
   }
 
   FormatDate(DateSt: string): string {
+    return Helpers.FormatDate(DateSt);
+  }
+
+  FormatDate2(DateSt: string): string {
     return Helpers.FormatDate2(DateSt);
   }
   ShowAddTrainingCriteriaClick() {
     this.ShowAddTrainingCriteria = !this.ShowAddTrainingCriteria;
   }
 
-  //GetAttributeName(AttId: number): string {
-  //    const Att = this.ReviewSetsService.FindAttributeById(AttId);
-  //    if (Att != null) return Att.attribute_name;
-  //    else return "Not configured...";
-  //}
   public get CanChangeDataEntryMode(): boolean {
     //console.log("CanChangeDataEntryMode", this._CanChangeDataEntryMode, this.CanWrite(), this._ItemsWithIncompleteCoding)
     return (this._CanChangeDataEntryMode && this.CanWrite() && this._ItemsWithIncompleteCoding != -1);
@@ -261,14 +376,8 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
   public get ScreeningTools(): ReviewSet[] {
     return this.ReviewSetsService.ReviewSets.filter(found => found.setType.setTypeName == "Screening")
   }
-  public get CanSaveConfiguration(): boolean {
-    if (!this.CanWrite()) return false;
-    if (!this.ConfigurationIsValid) return false;
-    if (this.CurrentStep == 4 && this.ConfigHasChanged == false) return false;
-    return true;
-  }
   public get ConfigHasChanged(): boolean {
-    if (JSON.stringify(this.revInfo) === JSON.stringify(this.ReviewInfoService.ReviewInfo)) return false;
+    if (JSON.stringify(this.EditingRevInfo) === JSON.stringify(this.ReviewInfoService.ReviewInfo)) return false;
     else return true;
   }
   public get TrainingScreeningCriteriaListIsNotGoodMsg(): string {
@@ -283,62 +392,133 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     }
     else return "";
   }
+  public get CanSaveConfiguration(): boolean {
+    if (!this.CanWrite()) return false;
+    if (!this.ConfigurationIsValid) return false;
+    if (this.CurrentStep == 5 && this.ConfigHasChanged == false) return false;
+    return true;
+  }
   public get ConfigurationIsValid(): boolean {
-    if (this.revInfo.screeningCodeSetId < 1) return false;//don't know what to screen
-    if (this.revInfo.screeningWhatAttributeId < 0) return false; //0 if screen all items more than 0 if screen items with this code
-    if (!this.ScreenAllItems && this.revInfo.screeningWhatAttributeId < 1) return false;//screen items with this code: need a valid AttributeId
-    if (this.ScreenAllItems && this.revInfo.screeningWhatAttributeId != 0) return false;//screen all items: need this to be 0
-    if (this.revInfo.screeningMode == "Priority" && this.TrainingScreeningCriteriaListIsNotGoodMsg != "") return false;//not enough codes to learn from
-    if (this.ScreeningModeOptions.findIndex(found => found.value == this.revInfo.screeningMode) < 1) {
-      //console.log("type of list isn't set?", this.revInfo.screeningMode);
+    if (this.EditingRevInfo.screeningCodeSetId < 1) return false;//don't know what to screen against
+    if (this.EditingRevInfo.screeningWhatAttributeId < 0) return false; //0 if screen all items more than 0 if screen items with this code
+    if (!this.ScreenAllItems && this.EditingRevInfo.screeningWhatAttributeId < 1) return false;//screen items with this code: need a valid AttributeId
+    if (this.ScreenAllItems && this.EditingRevInfo.screeningWhatAttributeId != 0) return false;//screen all items: need this to be 0
+    if (this.EditingRevInfo.screeningMode == "Priority" && this.TrainingScreeningCriteriaListIsNotGoodMsg != "") return false;//not enough codes to learn from
+    if (this.ScreeningModeOptions.findIndex(found => found.value == this.EditingRevInfo.screeningMode) < 1) {
+      //console.log("type of list isn't set?", this.EditingRevInfo.screeningMode);
       return false;//type of list isn't set.
     }
-    //check data entry mode...
+    return this.CheckDataEntryMode();    
+  }
+
+  private _InitialDataEntryModeConsistencyCheckDidRun: boolean = false;
+  private InitialDataEntryModeConsistencyCheck() {
+    if (this._InitialDataEntryModeConsistencyCheckDidRun) return;
+    this._InitialDataEntryModeConsistencyCheckDidRun = true;//ensures an endless loop is impossible
+    if (this.CheckDataEntryMode() == true) {
+      return;
+    }
+    //we have a problem, we'll check for the two obvious/known problems and propose to fix them
+    const set = this.selectedCodeSetDropDown;
+    if (!set) {
+      console.log("InitialDataEntryModeConsistencyCheck can't fix anything, missing SET");
+      return;//can't work without this
+    }
+    let Case: number = 0;//0 for can't auto fix, 1 for screeningNPeople should be zero (when tool is in normal mode), 2 for when screeningNPeople should be at least 2
+    if (this.EditingRevInfo.screeningNPeople > 1 && set.codingIsFinal) Case = 1;
+    else if (this.EditingRevInfo.screeningNPeople <= 1 && set.codingIsFinal == false) Case = 2;
+    if (Case > 0) {
+      let Msg = "The current screening tool is in <strong>Normal</strong> data entry mode, but Screening is setup to let "
+        + this.EditingRevInfo.screeningNPeople.toString() + " people screen each item <br />"
+        + "These settings are contradictory. Click <strong>OK</strong> to fix this by setting \"<em>N. of people per item</em>\" to 1. <br />"
+        + "You can then check/update all settings via the normal routes.";
+      if (Case == 2) {
+        Msg = "The current screening tool is in <strong>Comparision</strong> data entry mode, but Screening is setup to have "
+          + "each item screened by one person only.<br />"
+          + "These settings are contradictory. Click <strong>OK</strong> to fix this by setting \"<em>N. of people per item</em>\" to 2. <br />"
+          + "You can then check/update all settings via the normal routes.";
+      }
+      this.ConfirmationDialogService.confirm("Fix inconsistent settings?", Msg, false, "", "OK", "Cancel").then(
+        (res: any) => {
+          if (res == true) this.AutoFix(Case);
+          else if (res == false) this.Cancel();
+        }
+      ).catch(() => { });
+    }
+  }
+  private async AutoFix(Case: number) {
+    if (Case == 1) {
+      this.ReviewInfoService.ReviewInfo.screeningNPeople = 0;
+      await this.ReviewInfoService.Update(this.ReviewInfoService.ReviewInfo);
+      this.ngAfterViewInit();
+    } else if (Case == 2) {
+      this.ReviewInfoService.ReviewInfo.screeningNPeople = 2;
+      await this.ReviewInfoService.Update(this.ReviewInfoService.ReviewInfo);
+      this.ngAfterViewInit();
+    }
+  }
+
+  private CheckDataEntryMode(): boolean {
     const set = this.selectedCodeSetDropDown;
     if (set == null) return false;//uh? Chosen set isn't in review!
-    console.log("Got here", this.revInfo);
-    if (this.revInfo.screeningReconcilliation == "") return false;//reconciliation is NOT set
-    if (this.revInfo.screeningNPeople > 1) {//multiple people per item:
+    //console.log("Got here", this.EditingRevInfo);
+    if (this.EditingRevInfo.screeningReconcilliation == "") return false;//reconciliation is NOT set
+    if (this.EditingRevInfo.screeningNPeople > 1) {//multiple people per item:
       if (set.codingIsFinal) return false;//but codeset is in "normal" data entry.
-      else if (this.revInfo.screeningReconcilliation == "Single") return false;//reconciliation set to auto complete
+      else if (this.EditingRevInfo.screeningReconcilliation == "Single") return false;//reconciliation set to auto complete
     } else {//one person per item...
       if (!set.codingIsFinal) return false;//but codeset is in "comparison" data entry.
-      else if (this.revInfo.screeningReconcilliation !== "Single") return false;//reconciliation NOT set to auto complete
+      else if (this.EditingRevInfo.screeningReconcilliation !== "Single") return false;//reconciliation NOT set to auto complete
     }
     return true;//no concern found
   }
+
+  public get CanSaveConfigurationFs(): boolean {
+    if (!this.CanWrite()) return false;
+    if (!this.ConfigurationIsValidFs) return false;
+    if (this.CurrentStep == 5 && this.ConfigHasChanged == false) return false;
+    return true;
+  }
+
+  public get ConfigurationIsValidFs(): boolean {
+    if (this.EditingRevInfo.screeningCodeSetId < 1) return false;//don't know what to screen against
+    if (this.EditingRevInfo.screeningFSListSearchId < 1 && this.SearchToUseForFromSearchList == null) return false;//search
+    return this.CheckDataEntryMode();
+  }
+
+
   public get ReconciliationModeError(): string {
     if (this.selectedCodeSetDropDown == null) return "";//we have bigger problems!
-    else if (this.revInfo.screeningReconcilliation == "") return "Please select a reconciliation mode.";
-    else if (this.selectedCodeSetDropDown.codingIsFinal && this.revInfo.screeningReconcilliation !== "Single") {
+    else if (this.EditingRevInfo.screeningReconcilliation == "") return "Please select a reconciliation mode.";
+    else if (this.selectedCodeSetDropDown.codingIsFinal && this.EditingRevInfo.screeningReconcilliation !== "Single") {
       //we'll fix this on the fly...
-      this.revInfo.screeningReconcilliation = "Single";
+      this.EditingRevInfo.screeningReconcilliation = "Single";
       return "";
     }
-    else if (!this.selectedCodeSetDropDown.codingIsFinal && this.revInfo.screeningReconcilliation == "Single") {
+    else if (!this.selectedCodeSetDropDown.codingIsFinal && this.EditingRevInfo.screeningReconcilliation == "Single") {
       return "Please select a valid reconciliation mode.";
     }
     return "";
   }
 
   public get ReconciliationModeSummary(): string {
-    //console.log("ReconciliationModeSummary...", this.revInfo.screeningReconcilliation);
+    //console.log("ReconciliationModeSummary...", this.EditingRevInfo.screeningReconcilliation);
     const warn = " Note that if many people participate in screening, you might need to create many different reconciliations, to capture all possible \"pairs\".";
     const warn2 = "<br /><strong class='alert-warning'>Warning:</strong> Auto-Completions will not appear in comparisons, which <strong>makes it hard</strong> to measure the level of agreement.<br />";
     let result: string = "";
-    if (this.revInfo.screeningReconcilliation == "Single") {
+    if (this.EditingRevInfo.screeningReconcilliation == "Single") {
       result = "";
     }
-    else if (this.revInfo.screeningReconcilliation == "no compl") {
+    else if (this.EditingRevInfo.screeningReconcilliation == "no compl") {
       result = "No \"auto reconciliations\", you will need to \"Complete\" agreements yourself." + warn;
     }
-    else if (this.revInfo.screeningReconcilliation == "auto code") {
+    else if (this.EditingRevInfo.screeningReconcilliation == "auto code") {
       result = "Agreements at the level of (each) single code will be automatically completed." + warn2 + warn;
     }
-    else if (this.revInfo.screeningReconcilliation == "auto excl") {
+    else if (this.EditingRevInfo.screeningReconcilliation == "auto excl") {
       result = "Agreements at the level of the inclusion/exclusion decision will be automatically completed." + warn2 + warn;
     }
-    else if (this.revInfo.screeningReconcilliation == "auto safet") {
+    else if (this.EditingRevInfo.screeningReconcilliation == "auto safet") {
       result = "To guarantee no possible \"Include\" will be missed, all \"Include\" decisions will be automatically completed." + warn2 + warn;
     }
     return result;
@@ -350,7 +530,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
   CloseCodeDropDownCodeWithWithout() {
     if (this.WithOrWithoutCode) {
       this.DropdownWithWithoutSelectedCode = this.WithOrWithoutCode.SelectedNodeData;
-      this.revInfo.screeningWhatAttributeId = (this.DropdownWithWithoutSelectedCode as SetAttribute).attribute_id;
+      this.EditingRevInfo.screeningWhatAttributeId = (this.DropdownWithWithoutSelectedCode as SetAttribute).attribute_id;
     }
     //this.ClearPot();
     //this.workAllocationFromWizardCommand.setIdFilter = 0;
@@ -370,12 +550,46 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
       this.ShowAddTrainingCriteriaClick();
     }
   }
+
+  //this changes what screening tool is set for the review
   setCodeSetDropDown(codeset: ReviewSet) {
+    //we need to check 2 things.
+    //(1) if we're editing PS settings and there is a FS list in place, changing the Screening tool makes the FS list potentially wrong - got to warn users.
+    //(2) if we're editing  PS settings "all at once" we have to ask what to do about training codes
+    //So, we do the 1st check here, tell people about the gotcha if needed, then proceed to DoSetCodeSetDropDown(...), where we may ask another question to users.
+    if (this.selectedCodeSetDropDown && this.selectedCodeSetDropDown.set_id == codeset.set_id) {
+      return;//nothing to change!!
+    }
+    if (this.selectedCodeSetDropDown == null) {
+      //starting from scratch, safe to proceed without warnings
+      this.DoSetCodeSetDropDown(codeset);
+      return;
+    }
+    let Msg = "Changing the screening tool is allowed, but it will instantly invalidate all values in the progress graphs and tables.<br />Proceed anyway?";
+    const iterats = this.TrainingFromSearchList.AllITerations;
+    if (iterats.length > 0 //FS is in use or has been in use
+      && this.ScreeningFromSearchListIsGood //we haven't "finished" this list!
+    ) {
+      Msg = "Changing the screening tool is allowed, but it will instantly invalidate all values in the progress graphs and tables.<br /><br />"
+        + "Moreover, it's likely to make the current 'from search' screening list <strong>invalid/nonsensical</strong>, so you should then check and possibly re-create that list too.<br />"
+        + "Proceed anyway?";
+    }
+    this.ConfirmationDialogService.confirm("Change the screening tool?"
+      , Msg, false, "", "Proceed", "Cancel"
+    ).then((res: any) => {
+      if (res == true) this.DoSetCodeSetDropDown(codeset);
+    }).catch(() => { });
+  }
+  //this changes what screening tool is set for the review
+  DoSetCodeSetDropDown(codeset: ReviewSet) {
     this.selectedCodeSetDropDown = codeset;
-    if (this.revInfo.screeningCodeSetId !== codeset.set_id) {
-      this.revInfo.screeningCodeSetId = codeset.set_id;
-      if (this.CurrentStep == 4) {
-        //user is doing the "I'll edit all my settings in one go" thing, so we'll ask what to do.
+    if (this.EditingRevInfo.screeningCodeSetId !== codeset.set_id) {
+      //we're changing the "screening tool" for the review, might need to change the Codes that PS is learning from
+      this.EditingRevInfo.screeningCodeSetId = codeset.set_id;
+      if (this.CurrentStep == 5
+        && this.AllowEditOnStep4 == true
+      ) {
+        //user is doing the "I'll edit all my settings in one go (for PS)" thing, so we'll ask what to do.
         this.ConfirmationDialogService.confirm("Update training codes?",
           "You have <em>changed</em> the screening tool.<br /> Would you like to automatically update the list of training codes?<br />Training codes are <strong>important</strong>! They define what the machine will learn from, so <strong>please check</strong> that they are correct, in any case."
           , false, "", "Yes, auto-update", "No, I'll do it myself"
@@ -385,17 +599,19 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
               this.DoResetTrainingCodes();
             }
           }).catch(() => { });
-      } else {
+      }
+      else if (this.CurrentStep < 5) {
         //we're doing this in the wizard, so we'll silently change the codes in all cases...
         this.DoResetTrainingCodes();
-      }
+      }// we don't change the training codes in other cases, because code is supposed to NOT allow other cases where a list of training codes already exists
+
       if (codeset.codingIsFinal) {
         //we picked a "normal" data entry set, people per item needs to be 0 (for some reason!)
-        this.revInfo.screeningNPeople = 0;
+        this.EditingRevInfo.screeningNPeople = 0;
       }
-      else if (!codeset.codingIsFinal && this.revInfo.screeningNPeople < 2) {
+      else if (!codeset.codingIsFinal && this.EditingRevInfo.screeningNPeople < 2) {
         //put it to 2 at least...
-        this.revInfo.screeningNPeople = 2;
+        this.EditingRevInfo.screeningNPeople = 2;
       }
     }
   }
@@ -412,9 +628,9 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     let selection = (event.target as HTMLOptionElement).value;
     let ind = this.ScreeningModeOptions.findIndex(found => found.value == selection);
     if (ind > 0) {
-      this.revInfo.screeningMode = selection;
+      this.EditingRevInfo.screeningMode = selection;
     } else {
-      this.revInfo.screeningMode = "";
+      this.EditingRevInfo.screeningMode = "";
     }
     //console.log("SetRelevantDropDownValues", selection);
   }
@@ -441,21 +657,23 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
   }
   DoRefreshRevinfo() {
     //console.log("DoRefreshRevinfo", this.ReviewInfoService.ReviewInfo.screeningReconcilliation);
-    this.revInfo = this.ReviewInfoService.ReviewInfo.Clone();
-    if (this.revInfo.screeningWhatAttributeId > 0) {
+
+    this.EditingRevInfo = this.ReviewInfoService.ReviewInfo.Clone();
+    if (this.EditingRevInfo.screeningWhatAttributeId > 0) {
       this.ScreenAllItems = false;
       if (
         this.DropdownWithWithoutSelectedCode == null ||
-        (this.DropdownWithWithoutSelectedCode as SetAttribute).attribute_id != this.revInfo.screeningWhatAttributeId
+        (this.DropdownWithWithoutSelectedCode as SetAttribute).attribute_id != this.EditingRevInfo.screeningWhatAttributeId
       ) {
         this._ItemsWithThisAttribute =
-          this.DropdownWithWithoutSelectedCode = this.ReviewSetsService.FindAttributeById(this.revInfo.screeningWhatAttributeId);
+          this.DropdownWithWithoutSelectedCode = this.ReviewSetsService.FindAttributeById(this.EditingRevInfo.screeningWhatAttributeId);
       }
     } else {
       this.ScreenAllItems = true;
       this.DropdownWithWithoutSelectedCode = null;
     }
     this.GetScreeningTool(this.ReviewInfoService.ReviewInfo.screeningCodeSetId);
+    
   }
   GetScreeningTool(setId: number) {
     const set = this.ReviewSetsService.FindSetById(setId);
@@ -465,21 +683,31 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     if (this.selectedCodeSetDropDown == null) return "Not Configured...";
     else return this.selectedCodeSetDropDown.set_name;
   }
-  StartScreening() {
-    //alert('Start Screening: not implemented');
+  GetCodingToolDEMode(): string {
+    if (this.selectedCodeSetDropDown == null) return "N/A";
+    else if (this.selectedCodeSetDropDown.codingIsFinal) return "Single data entry";
+    else return "Comparison mode"
+  }
+  async StartScreening() {
     this.ItemListService.IsInScreeningMode = true;
-    this.subGotPriorityScreeningData = this.PriorityScreeningService.gotList.subscribe(this.ContinueStartScreening());
-    this.PriorityScreeningService.Fetch();
-
+    await this.PriorityScreeningService.Fetch();
+    this.ContinueStartScreening();
   }
   ContinueStartScreening() {
-    if (this.subGotPriorityScreeningData) this.subGotPriorityScreeningData.unsubscribe();
     this.router.navigate(['itemcoding', 'PriorityScreening']);
   }
+
+
+  async StartScreeningFs() {
+    this.ItemListService.IsInScreeningMode = true;
+    await this.PriorityScreeningService.FetchTrainingFromSearchList();
+    this.router.navigate(['itemcoding', 'ScreeningFromList']);
+  }
+
   public async GenerateList() {
-    //console.log("regenerate list: ", this.revInfo.screeningMode, this.PriorityScreeningService.TrainingScreeningCriteria.length);
+    //console.log("regenerate list: ", this.EditingRevInfo.screeningMode, this.PriorityScreeningService.TrainingScreeningCriteria.length);
     if (!this.CanWrite()) return;
-    else if (this.revInfo.screeningMode == "Priority" && this.TrainingScreeningCriteriaListIsNotGoodMsg != "") {
+    else if (this.EditingRevInfo.screeningMode == "Priority" && this.TrainingScreeningCriteriaListIsNotGoodMsg != "") {
       this.modalService.GenericErrorMessage("Sorry, the current list of training codes (the codes from which the machine will learn) isn't valid, please ensure the list contains the correct codes and try again.");
     }
     else {
@@ -501,7 +729,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
             this.ConfirmationDialogService.ShowInformationalModal(msg, "Training in progress");
             break;
           case "Done (Random List)":
-            if (this.revInfo.screeningMode == "Random") {
+            if (this.EditingRevInfo.screeningMode == "Random") {
               msg = "Request to (Re)Generate list submitted and <strong>completed already</strong>.";
             }
             else {
@@ -517,43 +745,168 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     }
   }
   SaveOptions() {
-    this.ReviewInfoService.Update(this.revInfo);
+    this.ReviewInfoService.Update(this.EditingRevInfo);
     this.AllowEditOnStep4 = false;
     this.CancelEditingAllOptions();
   }
   async SaveOptionsAndCreateList() {
     this.AllowEditOnStep4 = false;
-    let res: boolean = await this.ReviewInfoService.Update(this.revInfo);
+    let res: boolean = await this.ReviewInfoService.Update(this.EditingRevInfo);
     if (res) {
       this.GenerateList();
       this.AllowEditOnStep4 = false;
       this.CancelEditingAllOptions();
-      this.CurrentStep = 4;
+      this.CurrentStep = 5;
       //this.Cancel();
     }
   }
-  async SaveOptionsAndGoToStep4() {
-    let res: boolean = await this.ReviewInfoService.Update(this.revInfo);
+  async SaveOptionsAndGoToStep5() {
+    let res: boolean = await this.ReviewInfoService.Update(this.EditingRevInfo);
     if (res) {
       this.AllowEditOnStep4 = false;
       this.CancelEditingAllOptions();
       this.GoToAllinOneStep();
     }
   }
-  RefreshAll() {
-    this.PriorityScreeningService.Fetch();
-    this.PriorityScreeningService.GetTrainingScreeningCriteriaList();
-    this.ReviewInfoService.Fetch();
+  async SaveOptionsAndCreate_FS_List() {
+    if (!this.CanWrite()
+      || this.EditingRevInfo.screeningCodeSetId < 1
+      || this.SearchToUseForFromSearchList == null
+      || this.SearchToUseForFromSearchList.searchId < 1
+    ) return;
+    let IsNew: boolean = true;
+    if (this.ReviewInfoService.ReviewInfo.screeningFSListSearchId == this.SearchToUseForFromSearchList.searchId) IsNew = false;
+    let res: boolean | string = await this.ReviewInfoService.Update(this.EditingRevInfo);
+    if (res == true) {
+      res = await this.PriorityScreeningService.RunNewFromSearchCommand(0, this.EditingRevInfo.screeningCodeSetId, IsNew, this.SearchToUseForFromSearchList.searchId);
+      if (IsNew && this.ReviewInfoService.ReviewInfo.screeningFromSearchListIsGood == false) {
+        //it's possible that we now have a screeningFromSearchList so we need to do the work of re-fetching the ReviewInfo
+        this.ReviewInfoService.Fetch();
+      }
+      this.AllowEditOnStep4 = false;
+      this.CancelEditingAllOptions();
+      this.GoToAllinOneStep();
+      let counter: number = 0;
+      if (!this.tabstripScreening) {
+        while (!this.tabstripScreening && counter < 20) {
+          //console.log("Wait for tabstripScreening", counter);
+          await Helpers.Sleep(25);
+          counter++;
+        }
+      }
+      if (this.tabstripScreening) {
+        this.tabstripScreening.selectTab(1);
+      }
+    }
   }
-  async CheckIfCancelEditAllOptions() {
+  async ReGenerateFsList() {
+    if (!this.CanWrite()
+      || this.EditingRevInfo.screeningCodeSetId < 1
+      || this.EditingRevInfo.screeningFSListSearchId < 1
+    ) return;
+    let res = await this.PriorityScreeningService.RunNewFromSearchCommand(0, this.EditingRevInfo.screeningCodeSetId, false, this.EditingRevInfo.screeningFSListSearchId);
+    if (res == true) {
+      //false: error happened, shown in the service
+      //true: it worked
+      this.notificationService.show({
+        content: 'Progress in the "from search" queue has been updated',
+        animation: { type: 'slide', duration: 400 },
+        position: { horizontal: 'center', vertical: 'top' },
+        type: { style: "info", icon: true },
+        hideAfter: 5000
+      });
+      if (this.AllowEditOnStep4fs == true && this.CurrentStep == 5) {
+        this.CancelEditingAllOptions();
+      }
+    }
+    else if (res != false) {
+      this.notificationService.show({
+        content: 'Update request returned with error: ' + res,
+        animation: { type: 'slide', duration: 400 },
+        position: { horizontal: 'center', vertical: 'top' },
+        type: { style: "error", icon: true },
+        closable: true
+      });
+    }
+  }
+  public DeleteFSlist() {
+    if (!this.CanWrite()) return;
+    this.ConfirmationDialogService.confirm("Delete/halt FS list?", "Are you sure you want to delete the current \"From Search\" screening list? <br />"
+          + "This deletes the actual \"to be screened\" list, while retaining all current \"progress\" data points.", false, "", "OK", "Cancel").then(
+      (res: any) => {
+        if (res == true) this.DoDeleteFSlist();
+      }
+    ).catch(() => { });
+  }
+  private async DoDeleteFSlist() {
+    if (!this.CanWrite()) return;
+    this.ReviewInfoService.ReviewInfo.screeningFSListSearchId = 0;
+    let res: string | boolean = await this.ReviewInfoService.Update(this.ReviewInfoService.ReviewInfo);
+    if (res) {
+      res = await this.PriorityScreeningService.DeleteFromSearchList();
+      if (res == true) {
+        //false: error happened, shown in the service
+        //true: it worked
+        //string: we have something to show from the component
+        this.notificationService.show({
+          content: 'Current "From Search" list deleted. Progress records are unaffected.',
+          animation: { type: 'slide', duration: 400 },
+          position: { horizontal: 'center', vertical: 'top' },
+          type: { style: "info", icon: true },
+          hideAfter: 5000
+        });
+      }
+      else if (res != false) {
+        this.notificationService.show({
+          content: 'Request failed with error: ' + res,
+          animation: { type: 'slide', duration: 400 },
+          position: { horizontal: 'center', vertical: 'top' },
+          type: { style: "error", icon: true },
+          closable: true
+        });
+        
+      }
+    }
+    this.CancelEditingAllOptions();
+    this.RefreshAll();
+  }
+  public rowCallback = (context: RowClassArgs) => {
+    const row = context.dataItem as iScreeningFromSearchIteration;
+    if ( this.TrainingFromSearchList.CurrentRun.Iterations.findIndex(f=> f === row) != -1) {
+      return { 'RowShowingCurrentRun': true,};
+    } else {
+      return { 'RowShowingCurrentRun': false, };
+    }
+  };
+
+
+  ChangeFSprogressFilter(event: Event) {
+    const Id = parseInt((event.target as HTMLOptionElement).value);
+    this.TrainingFromSearchList.SetCurrentRun(Id);
+  }
+  FilterBySearchText(SearchId: number): string {
+    const ind = this.SearchesWithScores.findIndex(f => f.searchId == SearchId);
+    if (ind == -1) return "Unknown/deleted search (Id:" + SearchId + ")";
+    else return this.SearchesWithScores[ind].title + " (#" + this.SearchesWithScores[ind].searchNo + ")";
+  }
+
+  RefreshAll() {
+    this.PriorityScreeningService.Fetch().then(() => this.PriorityScreeningService.FetchTrainingFromSearchList());
+    this.PriorityScreeningService.GetTrainingScreeningCriteriaList();
+    this.ReviewInfoService.Fetch().then(() => { this.PrepareSearchesList(); });
+  }
+  async CheckIfCancelEditAllOptions(Origin:string) {
     await Helpers.Sleep(80);
-    console.log("CheckIfCancelEditAllOptions:", this.AllowEditOnStep4);
-    if (this.AllowEditOnStep4 == false) this.CancelEditingAllOptions();
+    //console.log("CheckIfCancelEditAllOptions:", this.AllowEditOnStep4);
+    if (Origin == "PS" && this.AllowEditOnStep4 == false) this.CancelEditingAllOptions();
+    if (Origin == "FS" && this.AllowEditOnStep4fs == false) this.CancelEditingAllOptions();
   }
   CancelEditingAllOptions() {
     this.AllowEditOnStep4 = false;
+    this.AllowEditOnStep4fs = false;
     this.ResetAllEditFromValues();
     this.DoRefreshRevinfo();
+    this.innerSetCurrentSearchFS();
   }
   ResetAllEditFromValues() {
     this.ScreenAllItems = true;
@@ -563,23 +916,24 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     this.isCollapsedDropdownAddTrainingCriteria = false;
     this.DropdownAddTrainingCriteriaSelectedCode = null;
     this.DropdownWithWithoutSelectedCode = null;
+    this.SearchToUseForFromSearchList = null;
   }
 
 
   CheckAndUpdatePeoplePerItem(): boolean {
     //console.log("CheckAndUpdatePeoplePerItem");
     //returns true if OK, but will automatically set to 0 Npeople, if screening set is in normal mode...
-    if (this.revInfo.screeningCodeSetId < 1 || this.selectedCodeSetDropDown == null) {
+    if (this.EditingRevInfo.screeningCodeSetId < 1 || this.selectedCodeSetDropDown == null) {
       return true;//nothing is set, so nothing to check
     }
     else if (this.selectedCodeSetDropDown.codingIsFinal) {
-      if (this.revInfo.screeningReconcilliation != "Single") this.revInfo.screeningReconcilliation = "Single";
-      if (this.revInfo.screeningNPeople >= 1) {
+      if (this.EditingRevInfo.screeningReconcilliation != "Single") this.EditingRevInfo.screeningReconcilliation = "Single";
+      if (this.EditingRevInfo.screeningNPeople >= 1) {
         //set is in normal data entry, so we'll automatically set screeningNPeople to 0
-        if (this.revInfo.screeningNPeople == 1) {
+        if (this.EditingRevInfo.screeningNPeople == 1) {
           this.ngZone.run(() => setTimeout(() => {
-            console.log("screeningNPeople goes to => 0");
-            this.revInfo.screeningNPeople = 0;
+            //console.log("screeningNPeople goes to => 0");
+            this.EditingRevInfo.screeningNPeople = 0;
           }, 8));
         }
         return true;//true because we fixed it...
@@ -589,15 +943,15 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
       }
     }
     else {//set must be in comparison mode
-      if (this.revInfo.screeningReconcilliation == "Single" || this.revInfo.screeningReconcilliation == "") {
-        this.revInfo.screeningReconcilliation = "no compl";
+      if (this.EditingRevInfo.screeningReconcilliation == "Single" || this.EditingRevInfo.screeningReconcilliation == "") {
+        this.EditingRevInfo.screeningReconcilliation = "no compl";
       }
-      if (this.revInfo.screeningNPeople > 1) return true;
+      if (this.EditingRevInfo.screeningNPeople > 1) return true;
       else {//multiple screening, but n of people 1 or less
-        if (this.revInfo.screeningNPeople == 0) {
+        if (this.EditingRevInfo.screeningNPeople == 0) {
           this.ngZone.run(() => setTimeout(() => {
-            console.log("screeningNPeople goes to => 1");
-            this.revInfo.screeningNPeople = 1;
+            //console.log("screeningNPeople goes to => 1");
+            this.EditingRevInfo.screeningNPeople = 1;
           }, 8));//just avoiding to have a 0 here...
         }//we delay this so to let Angular UI to catch up...
         return false;//multiple screening, but n of people is 1...
@@ -607,7 +961,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
   SetReconciliationMode(event: Event) {
     let mode = (event.target as HTMLOptionElement).value;
     //console.log("SetReconciliationMode", mode);
-    this.revInfo.screeningReconcilliation = mode;
+    this.EditingRevInfo.screeningReconcilliation = mode;
   }
   async ShowChangeDataEntryClicked() {
     this._ItemsWithIncompleteCoding = -1;
@@ -639,15 +993,39 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     this._CanChangeDataEntryMode = false;
   }
 
+  SelectThisSearch(s: Search) {
+    //console.log("selecting search:", s.selected);
+    const list = this.SearchesWithScores;
+    const todo = s.selected;
+    if (todo == true && this.SearchToUseForFromSearchList && s.searchId == this.SearchToUseForFromSearchList.searchId) {
+      //we're un-selecting the currently selected search, which isn't allowed.
+      return;
+    }
+    for (let SS of list) { SS.selected = false; }
+    s.selected = !todo;
+    if (s.selected == true) {
+      //console.log("selecting search2:", s);
+      this.SearchToUseForFromSearchList = s;
+      this.EditingRevInfo.screeningFSListSearchId = s.searchId;
+      this.EditingRevInfo.screeningFSListSearchName = s.title;
+    } else {
+      //console.log("selecting search3:", s);
+      this.innerSetCurrentSearchFS();
+    }
 
+  }
 
   Cancel() {
-    console.log("cancel screening");
+    //console.log("cancel screening");
     this.emitterCancel.emit();
   }
 
+  CancelEditTrainingTable() {
+    this.ShowEditTrainingTable = false;
+  }
+
+
   ngOnDestroy() {
-    if (this.subGotPriorityScreeningData) this.subGotPriorityScreeningData.unsubscribe();
     if (this.RevInfoSub) this.RevInfoSub.unsubscribe();
   }
 

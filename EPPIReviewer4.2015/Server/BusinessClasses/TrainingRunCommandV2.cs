@@ -87,7 +87,8 @@ namespace BusinessLibrary.BusinessClasses
             set { LoadProperty(SimulationResultsProperty, value); }
         }
         /// <summary>
-        /// Used only by st_ScreeningCreateNonMLList to figure whether the random list really needs to be re-shuffled or not
+        /// Used to figure whether we do need to recreate the list, when the request was automatically generated
+        /// Otherwise, for manual request, TriggeringItemId is zero and gets ignored
         /// </summary>
         public long TriggeringItemId
         {
@@ -170,12 +171,15 @@ namespace BusinessLibrary.BusinessClasses
 
                 //OK, so we do want to do the training, but is a training round already running?
                 //this produces a new line in the log table and in TB_TRAINING
+                //(from Aug 2025) also check if TriggeringItemId (if supplied) has been coded already,
+                //in which case, we don't need to re-train again because the same item has been reached by one more person - it should have triggered a re-training already
                 using (SqlCommand command = new SqlCommand("st_TrainingScreeningCheckOngoingLog", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add("@revID", System.Data.SqlDbType.Int);
                     command.Parameters["@revID"].Value = ReviewID;
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
+                    command.Parameters.Add(new SqlParameter("@TRIGGERING_ITEM_ID", TriggeringItemId));
                     command.Parameters.Add(new SqlParameter("@NewJobId", System.Data.SqlDbType.Int));
                     command.Parameters["@NewJobId"].Direction = System.Data.ParameterDirection.Output;
                     command.Parameters.Add(new SqlParameter("@NewTrainingId", System.Data.SqlDbType.Int));
@@ -187,6 +191,11 @@ namespace BusinessLibrary.BusinessClasses
                     if (retVal == "-1")
                     {
                         this.ReportBack = "Already Running";
+                        return;
+                    }
+                    else if (retVal == "-2")
+                    {
+                        this.ReportBack = "Auto-trigger is not necessary";
                         return;
                     }
                     else if (retVal == "1" )

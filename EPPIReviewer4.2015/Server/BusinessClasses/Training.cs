@@ -172,6 +172,15 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 
+        public static readonly PropertyInfo<bool> HiddenProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Hidden", "Hidden"));
+        public bool Hidden
+        {
+            get
+            {
+                return GetProperty(HiddenProperty);
+            }
+        }
+
         //protected override void AddAuthorizationRules()
         //{
         //    //string[] canWrite = new string[] { "AdminUser", "RegularUser" };
@@ -225,6 +234,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<int>(TNProperty, reader.GetInt32("TRUE_NEGATIVES"));
             returnValue.LoadProperty<int>(FPProperty, reader.GetInt32("FALSE_POSITIVES"));
             returnValue.LoadProperty<int>(FNProperty, reader.GetInt32("FALSE_NEGATIVES"));
+            returnValue.LoadProperty<bool>(HiddenProperty, reader.GetBoolean("HIDDEN"));
             returnValue.MarkOld();
             return returnValue;
         }

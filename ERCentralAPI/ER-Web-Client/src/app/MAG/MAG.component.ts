@@ -116,27 +116,37 @@ export class MAGComp implements OnInit, OnDestroy {
     public IHaveImportedSomething: boolean = false;
     private subItemIDinPath: Subscription | null = null;
 
-      public get HelpAndFeebackContext(): string {
-            switch (this.Context) {
-                  case "RelatedPapers":
-                        return "openalex\\bringuptodate";
-                  case "KeepUpdated":
-                        return "openalex\\keepupdated";
-                  case "Advanced":
-                        return "openalex\\advanced";
-                  case "History":
-                        return "openalex\\history";
-                  case "matching":
-                        return "openalex\\matching";
-                  case "Admin":
-                        return "openalex\\admin";
-                  case "MagSearch":
-                        return "openalex\\search";
-                  default:
-                        // RelatedPapers
-                        return "openalex\\bringuptodate";
-            }
-      } 
+    public get HelpAndFeebackContext(): string {
+          switch (this.Context) {
+                case "RelatedPapers":
+                      return "openalex\\bringuptodate";
+                case "KeepUpdated":
+                      return "openalex\\keepupdated";
+                case "Advanced": //not used anymore
+                      return "openalex\\advanced";
+                case "History":
+                      return "openalex\\history";
+                case "matching":
+                      return "openalex\\matching";
+                case "Admin":
+                      return "openalex\\admin";
+                case "MagSearch":
+                      return "openalex\\search"; 
+                case "SelectedPapers":
+                case "PaperDetail":
+                case "MagSearchPapersList":
+                case "MagRelatedPapersRunList":
+                case "BrowseTopic":
+                case "MatchesIncluded":
+                case "MatchesExcluded":
+                case "MatchesIncludedAndExcluded":
+                case "ReviewMatchedPapersWithThisCode":
+                case "MagAutoUpdateRunPapersList":
+                      return "openalex\\PaperListings";
+                default:
+                      return "openalex\\bringuptodate";
+          }
+    } 
 
     public get Context(): string {
         if (this.NavBar2) return this.NavBar2.Context;

@@ -8,6 +8,7 @@ import { process, State } from '@progress/kendo-data-query';
 import { GridDataResult, PageChangeEvent, RowClassArgs, DataStateChangeEvent } from '@progress/kendo-angular-grid';
 import { DataForMultiSheetExcel, ExcelService } from '../services/excel.service';
 import { Helpers } from '../helpers/HelperMethods';
+import { ReviewSetsService } from '../services/ReviewSets.service';
 
 @Component({
   selector: 'RobotJobsLog',
@@ -20,12 +21,14 @@ export class RobotJobsLog implements OnInit, OnDestroy {
   constructor(private router: Router,
     @Inject('BASE_URL') private _baseUrl: string,
     private _reviewerIdentityServ: ReviewerIdentityService,
+    private reviewSetsService: ReviewSetsService,
     private robotsService: RobotsService,
     private excelService: ExcelService,
     private modalService: ModalService
   ) { }
 
   ngOnInit() {
+    if (this.reviewSetsService.ReviewSets.length == 0) this.reviewSetsService.GetReviewSets(false);
     setTimeout(() => { this.robotsService.GetPastJobs(); }, 80);
   }
   CanWrite(): boolean {
@@ -72,6 +75,19 @@ export class RobotJobsLog implements OnInit, OnDestroy {
     const diff = line.JobDurationMs;
     if (diff > 60e3) return Math.floor(diff / 60e3) + " minutes";
     else return Math.floor(diff / 1e3) + " seconds";
+  }
+
+  public CodingToolText(line: RobotOpenAiTaskReadOnly): string {
+    let res: string;
+    const ind = this.reviewSetsService.ReviewSets.findIndex(f => f.reviewSetId == line.reviewSetId);
+    if (ind == -1) {
+      res = "[Unknown/deleted coding tool.]";
+    }
+    else {
+      const tool = this.reviewSetsService.ReviewSets[ind];
+      res = "Name: \"" + tool.set_name + "\". Id: <span class='alert-dark px-1 py-0'>" + tool.set_id.toString() + "</span>";
+    }
+    return res;
   }
 
   public AllToExcel() {

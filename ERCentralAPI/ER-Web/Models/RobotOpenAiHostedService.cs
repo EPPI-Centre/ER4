@@ -427,6 +427,7 @@ namespace BusinessLibrary.BusinessClasses
                     }
                 }
                 int ApiLatency = 0; DateTime start;
+                int ApiUnresponsiveRetries = 0;
                 bool isLastinBatch = false;
                 while (done < todo && !ct.IsCancellationRequested)
                 {
@@ -497,6 +498,10 @@ namespace BusinessLibrary.BusinessClasses
                                 RT.RobotApiCallId, RT.RobotContactId, RT.ReviewId, RT.JobOwnerId,
                                 RT.OnlyCodeInTheRobotName, RT.LockTheCoding, RT.UseFullTextDocument, doclist, cmd.ReviewSetForPrompts, cmd.CachedPrompt, RT.CreditPurchaseId);
                     }
+                    if (ApiUnresponsiveRetries > 0)
+                    {
+                        cmd.APICallTimeoutInSeconds = 100 + (10 * ApiUnresponsiveRetries);
+                    }
                     LogInfo("Submitting ItemId: " + RT.ItemIDsList[done].ToString());
                     start = DateTime.Now;
                     cmd = DataPortal.Execute<LLMRobotCommand>(cmd);
@@ -535,6 +540,18 @@ namespace BusinessLibrary.BusinessClasses
                         LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork error - no credit", true, e, RT.ItemIDsList[done]);
                         break;
                     }
+                    else if (cmd.ReturnMessage == "Error: Cancelling RobotOpenAICommand, timeout expired.")
+                    {//this may or may not be a batch-ending case - we retry 5 times on the same item before giving up
+                        if (ApiUnresponsiveRetries >= 4)
+                        {
+                            Exception e = new Exception("Call to robot API timed out 5 consequtive times. Aborting the batch.");
+                            LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork error - 5 timeouts", true, e, RT.ItemIDsList[done]);
+                            break;
+                        }
+                        ApiUnresponsiveRetries++;//increase the count of failures of this type
+                        //we do not alter DelayedCallsWithoutError: don't know if we're currently counting DelayedCalls, but we sure did have an error
+                        //we do not alter "done" counter, so that we will retry to call the API using the same (current) Item (for up to 5 times)
+                    }
                     else
                     {
                         //checks for non-batch-fatal failures, batch will continue execution, but we log per-item errors here
@@ -558,8 +575,9 @@ namespace BusinessLibrary.BusinessClasses
                             Exception e = new Exception("No text could be extracted from PDF(s) uploaded to this item");
                             LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork - " + cmd.ReturnMessage, isLastinBatch, e, RT.ItemIDsList[done]);
                         }
-
                         //end of checks for non-batch-fatal failures
+
+                        ApiUnresponsiveRetries = 0;//call did not produce the timeout error so API was responsive (or some other error).
                         DelayedCallsWithoutError++;
                         done++;
                     }

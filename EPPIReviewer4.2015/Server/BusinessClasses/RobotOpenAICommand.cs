@@ -56,7 +56,7 @@ namespace BusinessLibrary.BusinessClasses
         private int errors = 0;
 
 
-        
+
 
         public bool Succeded
         {
@@ -150,6 +150,7 @@ namespace BusinessLibrary.BusinessClasses
         private int _outputTokens = 0;
         private Int64 _Item_set_id = 0;
         private bool hasSavedSomeCodes = false;
+
         private void ErrorLogSinkDetails(string Message, string Details, bool IsFatal = false)
         {
             if (_jobId != 0)
@@ -757,11 +758,17 @@ namespace BusinessLibrary.BusinessClasses
 
             // *** Create the client and submit the request to the LLM
             var client = new HttpClient();
+            if (APICallTimeoutInSeconds != 0 && APICallTimeoutInSeconds != 100)//defaults to 100 seconds anyway
+            {
+                client.Timeout = new TimeSpan(0, 0, APICallTimeoutInSeconds);
+            }
+            //for debugging, set a really short timeout, to make each call timeout (if we want to)
+            //client.Timeout = new TimeSpan(200); //100 nanoseconds(one tick) * 200 = 20ms (or so I believe)
 
             string json;
             if (_UserPrivateOpenAIKey == "")
             {
-                if (IsDeepSeekLike(RobotCoder))
+                if (AuthorisationInHeader(RobotCoder))
                 {
                     client.DefaultRequestHeaders.Add("Authorization", $"Bearer {key}");
                 }
@@ -787,6 +794,10 @@ namespace BusinessLibrary.BusinessClasses
                 var requestBody = new { model, messages };
                 json = JsonConvert.SerializeObject(requestBody);
             }
+            if (UsesExtraParameters(RobotCoder))
+            {
+                client.DefaultRequestHeaders.Add("extra-parameters", "pass-through");
+            }
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             ////code to test what happens if we send too many requests
@@ -801,8 +812,16 @@ namespace BusinessLibrary.BusinessClasses
                 response = await client.PostAsync(endpoint, content, CancelToken);
             }
             catch (OperationCanceledException e)
-            {
-                ErrorLogSink("Cancelling RobotOpenAICommand while awaiting for the OpenAI API to answer.");
+            {// this can happen if the CancelToken requests to cancel, or if the API call didn't get an answer within the timeout:
+                //"The request was canceled due to the configured HttpClient.Timeout of 100 seconds elapsing." is the exception message in this latter case
+                if (e.Message.StartsWith("The request was canceled due to the configured HttpClient.Timeout"))
+                {
+                    ErrorLogSink("Cancelling RobotOpenAICommand: timeout expired. ItemId:" + _itemId.ToString());
+                    _message = "Error: Cancelling RobotOpenAICommand, timeout expired.";
+                    return false;
+                }
+                //otherwise, it's a CancelToken
+                ErrorLogSink("Cancelling RobotOpenAICommand while awaiting for the API to answer. ItemId:" + _itemId.ToString());
                 return false; //we'll detect the cancellation request elsewhere
             }
             if (response.IsSuccessStatusCode == false)
@@ -877,21 +896,21 @@ namespace BusinessLibrary.BusinessClasses
             
             return responses;
         }
-        //internal static string BuildJsonRequestBody(string type, List<OpenAIChatClass> messages, double temperature, int frequency_penalty, int presence_penalty, double top_p)
-        //{
-        //    var response_format = new { type };
-        //    if (temperature + top_p + frequency_penalty + presence_penalty == -4)
-        //    {
-        //        var requestBody = new { response_format, messages };
-        //        return JsonConvert.SerializeObject(requestBody);
-        //    }
-        //    else
-        //    {
-        //        var requestBody = new { response_format, messages, temperature, frequency_penalty, presence_penalty, top_p };
-        //        //var requestBody = new { messages, temperature, frequency_penalty, presence_penalty, top_p };
-        //        return JsonConvert.SerializeObject(requestBody);
-        //    }
-        //}
+
+        internal static bool AuthorisationInHeader(RobotCoderReadOnly robot)
+        {
+            string lowname = robot.RobotName.ToLower();
+            if (lowname.Contains("deepseek")) return true;
+            else if (lowname.Contains("mistral")) return true;
+            else if (lowname.Contains("llama")) return true;
+            else return false;
+        }
+        internal static bool UsesExtraParameters(RobotCoderReadOnly robot)
+        {
+            string lowname = robot.RobotName.ToLower();
+            if (lowname.Contains("mistral")) return true;
+            else return false;
+        }
 
         internal static bool IsDeepSeekLike(RobotCoderReadOnly robot)
         {//simple logic, for now!!

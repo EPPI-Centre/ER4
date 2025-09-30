@@ -130,9 +130,9 @@
                                             </div>
                                             <div class="mx-1 d-inline-block"><strong class="mr-1">{{ShortColumnName(col)}}</strong></div>
                                             <div class="m-1 rounded border border-info p-1 bg-white" style="max-height:160px; overflow-y:auto;">
-                                                <div *ngFor="let code of col.codes" class="small my-1 p-1 rounded text-nowrap border border-info">
-                                                    {{ShortCodeName(code)}}
-                                                </div>
+                                              <div *ngFor="let code of col.codes" class="small my-1 p-1 rounded text-nowrap border border-info">
+                                                <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : !code.codeExists}"> {{ShortCodeName(code)}}</span>
+                                              </div>
                                             </div>
                                         </div>
                                     </td>
@@ -216,41 +216,46 @@
                             </div>
                             <div class="p-1 m-1 border border-dark">
                                 Codes in column:
-                                <div *ngFor="let code of EditingColumn.codes" class="m-1 border rounded border-info">
-                                    <div *ngIf="EditingColumnCodeId == null || EditingColumnCodeId !== code.reportColumnCodeId; else EditingColCodeTemplate" class="row mx-0 px-0">
-                                        <div class="mx-1">{{code.userDefText}}</div>
-                                        <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="EditCode(code)" title="View/Edit details">
-                                          <span class="k-icon k-i-edit k-color-success"></span>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" [disabled]="code.codeOrder == 0 || !HasWriteRights" title="Move code up (within this column)"
-                                                (click)="MoveColumnCodeUp(EditingColumn, code)">
-                                          <span class="k-icon k-i-arrow-up k-color-success"></span>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 mr-1" [disabled]="code.codeOrder >= EditingColumn.codes.length -1 || !HasWriteRights" title="Move code down (within this column)"
-                                                (click)="MoveColumnCodeDown(EditingColumn, code)">
-                                          <span class="k-icon k-i-arrow-down k-color-success"></span>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-danger my-auto px-1 py-0 ml-auto" (click)="DeleteColumnCode(code, EditingColumn)" title="Remove code from column"
-                                                [disabled]="!HasWriteRights">
-                                          <span class="k-icon k-i-trash"></span>
-                                        </button>
-                                    </div>
-                                    <ng-template #EditingColCodeTemplate>
-                                        <div class="m-1 p-1">
-                                            <div class="row mx-0 px-1">
-                                                <div class="mr-1">Display Name: </div>
-                                                <input type="text" [disabled]="!HasWriteRights" [(ngModel)]="EditingColumnCodeText" maxlength="200" class="col px-1" />
-                                            </div>
-                                            <div class="row mx-0 px-1">Code Name: {{code.parentAttributeText}} </div>
-                                            <div>Show code names: <input type="checkbox" [(ngModel)]="EditingColumnCodedisplayCode" [disabled]="!HasWriteRights" /></div>
-                                            <div>Show infobox text: <input type="checkbox" [(ngModel)]="EditingColumnNamedisplayAdditionalText" [disabled]="!HasWriteRights" /></div>
-                                            <div>Show coded text: <input type="checkbox" [(ngModel)]="EditingColumnCodedisplayCodedText" [disabled]="!HasWriteRights" /></div>
-                                            <button class="btn btn-sm btn-outline-primary my-auto px-1 py-0 mx-1" (click)="EditCode()">
-                                                Done
-                                            </button>
-                                        </div>
-                                    </ng-template>
+                              <div *ngFor="let code of EditingColumn.codes" class="m-1 border rounded border-info">
+                                <div *ngIf="EditingColumnCodeId == null || EditingColumnCodeId !== code.reportColumnCodeId; else EditingColCodeTemplate" class="row mx-0 px-0">
+                                  <div class="mx-1">
+                                    <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : !code.codeExists}"> {{code.userDefText}}</span>                          
+                                  </div>
+                                  <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="EditCode(code)" title="View/Edit details">
+                                    <span class="k-icon k-i-edit k-color-success"></span>
+                                  </button>
+                                  <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" [disabled]="code.codeOrder == 0 || !HasWriteRights" title="Move code up (within this column)"
+                                          (click)="MoveColumnCodeUp(EditingColumn, code)">
+                                    <span class="k-icon k-i-arrow-up k-color-success"></span>
+                                  </button>
+                                  <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 mr-1" [disabled]="code.codeOrder >= EditingColumn.codes.length -1 || !HasWriteRights" title="Move code down (within this column)"
+                                          (click)="MoveColumnCodeDown(EditingColumn, code)">
+                                    <span class="k-icon k-i-arrow-down k-color-success"></span>
+                                  </button>
+                                  <button class="btn btn-sm btn-outline-danger my-auto px-1 py-0 ml-auto" (click)="DeleteColumnCode(code, EditingColumn)" title="Remove code from column"
+                                          [disabled]="!HasWriteRights">
+                                    <span class="k-icon k-i-trash"></span>
+                                  </button>
+
                                 </div>
+                                <div class="row mx-1 px-0">{{CodeOrSetId(code)}}</div>
+                                <div class="row mx-1 px-0">Full path: {{FullPath(code)}}</div>
+                                <ng-template #EditingColCodeTemplate>
+                                  <div class="m-1 p-1">
+                                    <div class="row mx-0 px-1">
+                                      <div class="mr-1">Display Name: </div>
+                                      <input type="text" [disabled]="!HasWriteRights" [(ngModel)]="EditingColumnCodeText" maxlength="200" class="col px-1" />
+                                    </div>
+                                    <div class="row mx-0 px-1">Code Name: {{code.parentAttributeText}} </div>
+                                    <div>Show code names: <input type="checkbox" [(ngModel)]="EditingColumnCodedisplayCode" [disabled]="!HasWriteRights" /></div>
+                                    <div>Show infobox text: <input type="checkbox" [(ngModel)]="EditingColumnNamedisplayAdditionalText" [disabled]="!HasWriteRights" /></div>
+                                    <div>Show coded text: <input type="checkbox" [(ngModel)]="EditingColumnCodedisplayCodedText" [disabled]="!HasWriteRights" /></div>
+                                    <button class="btn btn-sm btn-outline-primary my-auto px-1 py-0 mx-1" (click)="EditCode()">
+                                      Done
+                                    </button>
+                                  </div>
+                                </ng-template>
+                              </div>
                             </div>
                         </div>
                     </div>

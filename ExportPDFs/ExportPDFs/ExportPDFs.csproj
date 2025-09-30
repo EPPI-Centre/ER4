@@ -2,12 +2,21 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
+    <PackageReadmeFile>ExportPDFs README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Include="..\..\ERCentralAPI\ER-Web\Helpers\Logger.cs" Link="Helpers\Logger.cs" />
     <Compile Include="..\..\ERCentralAPI\ER-Web\Helpers\SQLHelper.cs" Link="Helpers\SQLHelper.cs" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.7" />
+    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
+    <PackageReference Include="System.Text.Encodings.Web" Version="9.0.7" />
   </ItemGroup>
 
   <ItemGroup>
@@ -17,24 +26,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
-    <PackageReference Include="Serilog.AspNetCore" Version="2.1.1" />
-    <PackageReference Include="Serilog.Sinks.File" Version="4.0.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.6.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Reference Include="EPPIiFilter">
-      <HintPath>Dlls et al\EPPIiFilter.dll</HintPath>
+      <HintPath>..\..\ERCentralAPI\Dlls\EPPIiFilter.dll</HintPath>
     </Reference>
   </ItemGroup>
 
   <ItemGroup>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ExportPDFs README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 

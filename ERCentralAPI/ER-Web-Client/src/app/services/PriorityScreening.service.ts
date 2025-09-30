@@ -1,6 +1,6 @@
 import { Inject, Injectable, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { lastValueFrom, Subscription } from 'rxjs';
+import { last, lastValueFrom, Subscription } from 'rxjs';
 import { HttpClient, } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewInfo, ReviewInfoService, iReviewInfo } from './ReviewInfo.service';
@@ -47,6 +47,25 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
   public CurrentItem: Item = new Item();
   public CurrentItemIndex: number = 0;
   public LastItemInTheQueueIsDone: boolean = false;
+  private _UsingListFromSearch: boolean = false;
+  public get UsingListFromSearch(): boolean {
+    return this._UsingListFromSearch;
+  }
+  public set UsingListFromSearch(val: boolean) {
+    if (val != this._UsingListFromSearch) {
+      this._UsingListFromSearch = val;
+      this.ScreenedItemIds = [];
+    }
+  }
+
+  public get NextItemAPIendpoint(): string {
+    if (this.UsingListFromSearch) return 'api/PriorirtyScreening/TrainingNextItemFromList';
+    else return 'api/PriorirtyScreening/TrainingNextItem';
+  }
+  public get ScreenedItemAPIendpoint(): string {
+    if (this.UsingListFromSearch) return 'api/PriorirtyScreening/TrainingPreviousItemFromList';
+    else return 'api/PriorirtyScreening/TrainingPreviousItem';
+  }
 
   private _CurrentItemAdditionalData: iAdditionalItemDetails | null = null;
   public get CurrentItemAdditionalData(): iAdditionalItemDetails | null {
@@ -58,25 +77,54 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
   public get TrainingList(): Training[] {
     return this._TrainingList;
   }
+  private _UnfilteredTrainingList: Training[] = [];
+  public get UnfilteredTrainingList(): Training[] {
+    return this._UnfilteredTrainingList;
+  }
+
+  private _TrainingFromSearchList: ScreeningFromSearchIterationList = new ScreeningFromSearchIterationList([]);
+  public get TrainingFromSearchList(): ScreeningFromSearchIterationList {
+    return this._TrainingFromSearchList;
+  }
+
   private _TrainingScreeningCriteria: iTrainingScreeningCriteria[] = [];
   public get TrainingScreeningCriteria(): iTrainingScreeningCriteria[] {
     return this._TrainingScreeningCriteria;
   }
 
-  private subtrainingList: Subscription | null = null;
-  public Fetch() {
+  public Fetch(): Promise<boolean> {
     this._BusyMethods.push("Fetch");
     
-    lastValueFrom( this._httpC.get<Training[]>(this._baseUrl + 'api/PriorirtyScreening/TrainingList')).then(tL => {
-      this._TrainingList = tL;
+    return lastValueFrom( this._httpC.get<Training[]>(this._baseUrl + 'api/PriorirtyScreening/TrainingList')).then(tL => {
+      this._UnfilteredTrainingList = tL;
+      this._TrainingList = tL.filter(f => f.hidden === false);
       this.RemoveBusy("Fetch");
+      return true;
       //this.Save();
     }, error => {
       this.RemoveBusy("Fetch");
       this.modalService.SendBackHomeWithError(error);
+      return false;
     }
     );
   }
+
+  public FetchTrainingFromSearchList(): Promise<boolean> {
+    this._BusyMethods.push("FetchTrainingFromSearchList");
+
+    return lastValueFrom(this._httpC.get<iScreeningFromSearchIteration[]>(this._baseUrl + 'api/PriorirtyScreening/TrainingFromSearchList')).then(tL => {
+      this._TrainingFromSearchList = new ScreeningFromSearchIterationList(tL);
+      this.RemoveBusy("FetchTrainingFromSearchList");
+      return true;
+      //this.Save();
+    }, error => {
+      this.RemoveBusy("FetchTrainingFromSearchList");
+      this.modalService.SendBackHomeWithError(error);
+      return false;
+    }
+    );
+  }
+
   private DelayedFetch(waitSeconds: number) {
 
     setTimeout(() => {
@@ -98,8 +146,8 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
     //otherwise ask for "next in list", which will reserve the item (TrainingNextItem)
     //console.log(this.CurrentItem == null);
     //console.log(this.CurrentItem.itemId == 0);
-    console.log(this.ScreenedItemIds.indexOf(this.CurrentItem.itemId));
-    console.log(this.ScreenedItemIds.length, this.ScreenedItemIds);
+    //console.log(this.ScreenedItemIds.indexOf(this.CurrentItem.itemId));
+    //console.log(this.ScreenedItemIds.length, this.ScreenedItemIds);
 
     if ((this.CurrentItem == null || this.CurrentItem.itemId == 0) || (this.ScreenedItemIds.indexOf(this.CurrentItem.itemId) == this.ScreenedItemIds.length - 1)) {
       this.FetchNextItem();
@@ -115,7 +163,7 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
   private FetchNextItem() {
     this._BusyMethods.push("FetchNextItem");
     let body = JSON.stringify({ Value: this.ReviewInfoService.ReviewInfo.screeningCodeSetId });
-    lastValueFrom(this._httpC.post<TrainingNextItem>(this._baseUrl + 'api/PriorirtyScreening/TrainingNextItem',
+    lastValueFrom(this._httpC.post<TrainingNextItem>(this._baseUrl + this.NextItemAPIendpoint,
       body)).then(
         success => {
           this.RemoveBusy("FetchNextItem");
@@ -131,7 +179,8 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
           this.ScreenedItemIds.push(this.CurrentItem.itemId);
           this.CurrentItemIndex = this.ScreenedItemIds.indexOf(this.CurrentItem.itemId);
           
-          this.CheckRunTraining(success);
+          if (this.UsingListFromSearch == false) this.CheckRunTraining(success);
+          else this.CheckUpdateFromSearchNumbers(success);
           this.LastItemInTheQueueIsDone = false;
           this.gotItem.emit();
         },
@@ -146,17 +195,28 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
     let body = JSON.stringify({ Value: this.ScreenedItemIds[index] });
     //console.log("FetchScreenedItem", this.ScreenedItemIds.indexOf(this.CurrentItem.itemId));
     //console.log(this.ScreenedItemIds.length, this.ScreenedItemIds);
-    lastValueFrom(this._httpC.post<TrainingPreviousItem>(this._baseUrl + 'api/PriorirtyScreening/TrainingPreviousItem',
+    lastValueFrom(this._httpC.post<TrainingPreviousItem>(this._baseUrl + this.ScreenedItemAPIendpoint,
       body)).then(
         success => {
           this.RemoveBusy("FetchScreenedItem");
-          this.CurrentItem = success.item;
-          this.FetchAdditionalItemDetails();
-          let currentIndex = this.ScreenedItemIds.indexOf(this.CurrentItem.itemId);
-          if (currentIndex == -1) this.ScreenedItemIds.push(this.CurrentItem.itemId);//do we really need this?? If it happens, means something is wrong...
-          this.CurrentItemIndex = currentIndex;
-          //return this.CurrentItem;
-          this.gotItem.emit();
+
+          if (success.item != null) {
+            this.CurrentItem = success.item;
+            this.FetchAdditionalItemDetails();
+            let currentIndex = this.ScreenedItemIds.indexOf(this.CurrentItem.itemId);
+            if (currentIndex == -1) this.ScreenedItemIds.push(this.CurrentItem.itemId);//do we really need this?? If it happens, means something is wrong...
+            this.CurrentItemIndex = currentIndex;
+            //return this.CurrentItem;
+            this.gotItem.emit();
+          }
+          else {
+            this.modalService.GenericErrorMessage(
+              "Can't access the requested item at this time: \r\n"
+              + "This is usually because it's being screened by someone else.\r\n"
+              + "Please try again in a short while.\r\n\r\n"
+              + "[If you're trying to reach a new item to screen, you can do this immediately by clicking on \"Close/back\" and then on \"Start Screening\".]"
+            );
+          }
         },
         error => {
           this.RemoveBusy("FetchScreenedItem");
@@ -168,46 +228,103 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
     if (this.CurrentItem.itemId !== 0) {
       this._BusyMethods.push("FetchAdditionalItemDetails");
       let body = JSON.stringify({ Value: this.CurrentItem.itemId });
-      this._httpC.post<iAdditionalItemDetails>(this._baseUrl + 'api/ItemList/FetchAdditionalItemData', body)
-        .subscribe(
+      lastValueFrom(this._httpC.post<iAdditionalItemDetails>(this._baseUrl + 'api/ItemList/FetchAdditionalItemData', body))
+        .then(
           result => {
+            this.RemoveBusy("FetchAdditionalItemDetails");
             this._CurrentItemAdditionalData = result;
           }, error => {
             this.modalService.GenericError(error);
             this.RemoveBusy("FetchAdditionalItemDetails");
           }
-          , () => { this.RemoveBusy("FetchAdditionalItemDetails"); }
-        );
+        ).catch((caught) => {
+          this.RemoveBusy("FetchAdditionalItemDetails");
+          this.modalService.GenericError(caught);
+        });
     }
   }
 
 
   private CheckRunTraining(screeningItem: TrainingNextItem) {
     let currentCount: number = screeningItem.rank;
-    let totalScreened = this._TrainingList[0].totalN;
-    for (let training of this._TrainingList) {
-      if (training.totalN > totalScreened) totalScreened = training.totalN;
-    }
-    if (totalScreened <= 1000) {
-      if ((currentCount == 25 || currentCount == 50 || currentCount == 75 || currentCount == 100 || currentCount == 150 || currentCount == 300 || currentCount == 500 ||
-        currentCount == 750 || currentCount == 1000 || currentCount == 2000 || currentCount == 3000)) {
-        this.RunNewTrainingCommand(screeningItem);
+    let totalScreened = this._TrainingList[this._TrainingList.length - 1].totalN;
+    let NeedsDoing: boolean = false;
+    if (totalScreened < 250) {//trigger training when we reach the next multiple of 25
+      if (currentCount % 25 == 0) {
+        console.log("Update training PS records, every 25 items");
+        NeedsDoing = true;
       }
     }
-    else if (totalScreened > 1000 && totalScreened < 5000) {
-      if ((currentCount == 250 || currentCount == 500 || currentCount == 750 || currentCount == 1000 || currentCount == 2000 || currentCount == 3000)) {
-        this.RunNewTrainingCommand(screeningItem);
+    else if (totalScreened < 500) {//trigger training when we reach the next multiple of 50
+      if (currentCount % 50 == 0) {
+        console.log("Update training PS records, every 50 items");
+        NeedsDoing = true;
       }
     }
-    else if (totalScreened >= 5000) {
-      if ((currentCount == 500 || currentCount == 1000 || currentCount == 1500 || currentCount == 2000 || currentCount == 2500 || currentCount == 3000
-        || currentCount == 3800 || currentCount == 4800 || currentCount == 5800 || currentCount == 6800 || currentCount == 7800
-        || currentCount == 8800 || currentCount == 9800 || currentCount == 18000 || currentCount == 11800)) {
-        this.RunNewTrainingCommand(screeningItem);
+    else if (totalScreened < 1000) {//trigger training when we reach the next multiple of 100
+      if (currentCount % 100 == 0) {
+        console.log("Update training PS records, every 100 items");
+        NeedsDoing = true;
       }
     }
+    else if (totalScreened < 2000) {//trigger training when we reach the next multiple of 200
+      if (currentCount % 200 == 0) {
+        console.log("Update training PS records, every 200 items");
+        NeedsDoing = true;
+      }
+    }
+    else if (totalScreened < 5000) {//trigger training when we reach the next multiple of 250
+      if (currentCount % 250 == 0) {
+        console.log("Update training PS records, every 250 items");
+        NeedsDoing = true;
+      }
+
+    }
+    else if (totalScreened < 15000) {//trigger training when we reach the next multiple of 300
+      if (currentCount % 300 == 0) {
+        console.log("Update training PS records, every 300 items");
+        NeedsDoing = true;
+      }
+
+    }
+    else {//trigger training when we reach the next multiple of 400
+      if (currentCount % 400 == 0) {
+        console.log("Update training PS records, every 400 items");
+        NeedsDoing = true;
+      }
+    }
+    if (NeedsDoing) this.RunNewTrainingCommand(screeningItem);
+
     //let totalscreened = this._TrainingList
   }
+
+  private CheckUpdateFromSearchNumbers(screeningItem: TrainingNextItem) {
+    let currentCount: number = screeningItem.rank;
+    let totalScreened = this._TrainingFromSearchList.AllITerations[this._TrainingFromSearchList.AllITerations.length - 1].screenedFromList;
+    let NeedsDoing: boolean = false;
+    if (totalScreened < 500) {
+      if (currentCount % 25 == 0) {
+        console.log("Update training FS records, every 25 items");
+        NeedsDoing = true;
+      }
+    }
+    else if (totalScreened < 2000) {
+      if (currentCount % 50 == 0) {
+        console.log("Update training FS records, every 50 items");
+        NeedsDoing = true;
+      }
+    }
+    else {
+      if (currentCount % 100 == 0) {
+        console.log("Update training FS records, every 100 items");
+        NeedsDoing = true;
+      }
+    }
+    if (NeedsDoing) {
+      this.RunNewFromSearchCommand(screeningItem.itemId, this.ReviewInfoService.ReviewInfo.screeningCodeSetId, false, 0);
+    }
+  }
+
   public RunNewTrainingCommand(screeningItem: TrainingNextItem | null, delayedFetch: boolean = true): Promise<String|boolean> {
     this._BusyMethods.push("RunNewTrainingCommand");
     const body = JSON.stringify(screeningItem == null ? { Value: 0 } : { Value: screeningItem.itemId });
@@ -230,14 +347,64 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
       return false;
     });
   }
+  public RunNewFromSearchCommand(TriggeringItemId: number, CodeSetId: number, IsNew: boolean, SearchId = 0): Promise<boolean | string> {
+    const body = {
+      searchId: SearchId,
+      codeSetId: CodeSetId,
+      triggeringItemId: TriggeringItemId,
+      createNew: IsNew,
+      result: ""
+    };
+    this._BusyMethods.push("RunNewFromSearchCommand");
+    return lastValueFrom(this._httpC.post<iFromSearchCommand>(this._baseUrl + 'api/PriorirtyScreening/RunScreeningFromSearchCommand', body))
+      .then(res => {
+        this.RemoveBusy("RunNewFromSearchCommand");
+        if (res.result == "Done") {
+          this.FetchTrainingFromSearchList();
+          return true;
+        } else { return res.result; }
+      }, error => {
+        this.RemoveBusy("RunNewFromSearchCommand");
+        this.modalService.GenericError(error);
+        return false;
+        }
+    ).catch(
+      (caught) => {
+        this.RemoveBusy("RunNewFromSearchCommand");
+        this.modalService.GenericError(caught);
+        return false;
+      });
+  }
+  public async DeleteFromSearchList(): Promise<boolean | string> {
+    this._BusyMethods.push("DeleteFromSearchList");
 
+    return lastValueFrom(this._httpC.get<iFromSearchCommand>(this._baseUrl + 'api/PriorirtyScreening/DeleteScreeningFromSearch')
+    ).then(async res => {
+      this.RemoveBusy("DeleteFromSearchList");
+      if (res.result == "Done") {
+        await this.FetchTrainingFromSearchList();
+        return true;
+      } else { return res.result; }
+      //this.Save();
+    }, error => {
+      this.RemoveBusy("DeleteFromSearchList");
+      this.modalService.SendBackHomeWithError(error);
+      return false;
+    }
+    ).catch(
+      (caught) => {
+        this.RemoveBusy("DeleteFromSearchList");
+        this.modalService.GenericError(caught);
+        return false;
+      });
+  }
   public HasPreviousItem(): boolean {
     if (this.CurrentItemIndex > 0 && this.ScreenedItemIds.length > 0) return true;
     else return false;
   }
   public GetTrainingScreeningCriteriaList() {
     this._BusyMethods.push("GetTrainingScreeningCriteriaList");
-    this._httpC.get<iTrainingScreeningCriteria[]>(this._baseUrl + 'api/PriorirtyScreening/GetTrainingScreeningCriteriaList').subscribe(
+    lastValueFrom( this._httpC.get<iTrainingScreeningCriteria[]>(this._baseUrl + 'api/PriorirtyScreening/GetTrainingScreeningCriteriaList')).then(
       list => {
         this._TrainingScreeningCriteria = list;
         this.RemoveBusy("GetTrainingScreeningCriteriaList");
@@ -266,9 +433,9 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
   }
   private internalUpdateTrainingScreeningCriteria(crit: iUpdatingTrainingScreeningCriteria) {
     this._BusyMethods.push("UpdateTrainingScreeningCriteria");
-    this._httpC.post<iTrainingScreeningCriteria[]>(this._baseUrl +
+    lastValueFrom(this._httpC.post<iTrainingScreeningCriteria[]>(this._baseUrl +
       'api/PriorirtyScreening/UpdateTrainingScreeningCriteria', crit)
-      .subscribe(
+    ).then(
         (list: iTrainingScreeningCriteria[]) => {
           this.RemoveBusy("UpdateTrainingScreeningCriteria");
           this._TrainingScreeningCriteria = list;
@@ -276,7 +443,10 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
         error => {
           this.RemoveBusy("UpdateTrainingScreeningCriteria");
           this.modalService.GenericError(error);
-        });
+      }).catch (caught => {
+        this.RemoveBusy("UpdateTrainingScreeningCriteria");
+        this.modalService.GenericError(caught);
+      });
   }
   public AddTrainingScreeningCriteria(SetAtt: SetAttribute) {
     this._BusyMethods.push("AddTrainingScreeningCriteria");
@@ -289,9 +459,9 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
       , included: (SetAtt.attribute_type_id == 10)
       , deleted: false
     };
-    this._httpC.post<iTrainingScreeningCriteria[]>(this._baseUrl +
-      'api/PriorirtyScreening/AddTrainingScreeningCriteria', body)
-      .subscribe(
+    lastValueFrom( this._httpC.post<iTrainingScreeningCriteria[]>(this._baseUrl +
+      'api/PriorirtyScreening/AddTrainingScreeningCriteria', body))
+      .then(
         (list: iTrainingScreeningCriteria[]) => {
           this.RemoveBusy("AddTrainingScreeningCriteria");
           this._TrainingScreeningCriteria = list;
@@ -299,6 +469,9 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
         error => {
           this.RemoveBusy("AddTrainingScreeningCriteria");
           this.modalService.GenericError(error);
+        }).catch(caught => {
+          this.RemoveBusy("AddTrainingScreeningCriteria");
+          this.modalService.GenericError(caught);
         });
   }
   public ReplaceTrainingScreeningCriteriaList(set: ReviewSet): Promise<boolean> {
@@ -330,6 +503,43 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
       }
       );
   }
+
+  public ShowHideTrainingRecords(EditedTrainingList: Training[]): Promise<boolean> {
+    this._BusyMethods.push("ShowHideTrainingRecords");
+    let Data = {
+      recordsToHide: "",
+      recordsToShow: ""
+    }
+    for (let i = 0; i < EditedTrainingList.length; i++) {
+      const PossiblyEdited = EditedTrainingList[i];
+      const Original = this.UnfilteredTrainingList.find(f => f.trainingId == PossiblyEdited.trainingId);
+      if (Original != undefined && Original.hidden !== PossiblyEdited.hidden) {
+        if (PossiblyEdited.hidden == true) Data.recordsToHide += PossiblyEdited.trainingId.toString() + ",";
+        else Data.recordsToShow += PossiblyEdited.trainingId.toString() + ",";
+      }
+    }
+    if (Data.recordsToHide.length > 0) Data.recordsToHide = Data.recordsToHide.slice(0, -1);
+    if (Data.recordsToShow.length > 0) Data.recordsToShow = Data.recordsToShow.slice(0, -1);
+    return lastValueFrom(this._httpC.post<any>(this._baseUrl +
+      'api/PriorirtyScreening/ShowHideTrainingRecords', Data)
+    ).then(
+      success => {
+        this.RemoveBusy("ShowHideTrainingRecords");
+        this.Fetch();
+        return true;
+      },
+      error => {
+        this.RemoveBusy("ShowHideTrainingRecords");
+        this.modalService.GenericError(error);
+        return false;
+      }).catch(caught => {
+        this.RemoveBusy("ShowHideTrainingRecords");
+        this.modalService.GenericError(caught);
+        return false;
+      });
+  }
+
+
   public Clear() {
     this.ScreenedItemIds = [];
     this.CurrentItem = new Item();
@@ -354,6 +564,22 @@ export interface Training {
   totalN: number;
   totalIncludes: number;
   totalExcludes: number;
+  hidden: boolean;
+}
+export interface iScreeningFromSearchIteration {
+  trainingFsId: number;
+  contactId: number;
+  searchId: number;
+  date: string;
+  iteration: number;
+  contactName: string;
+  tp: number;
+  tn: number;
+  totalScreened: number;
+  localTN: number;
+  localTP: number;
+  totItemsInList: number;
+  screenedFromList: number;
 }
 export interface TrainingNextItem {
   itemId: number;
@@ -383,4 +609,150 @@ export interface iReviewTrainingRunCommand {
   reportBack: string;
   parameters: string;
   simulationResults: string;
+}
+
+export interface iFromSearchCommand {
+  searchId: number;
+  codeSetId: number;
+  triggeringItemId: number;
+  createNew: boolean;
+  result: string;
+}
+
+//export class ScreeningFromSearchIterationList {
+//  constructor(iterations: iScreeningFromSearchIteration[]) {
+//    this._Iterations = iterations.filter(f =>  f.searchId != -1 );
+//    if (iterations.length > 0 && iterations[iterations.length - 1].searchId == -1) this._ListIsStale = true;
+//    if (this._Iterations.length > 0) {
+//      this.SetSearchIdFilter(this._Iterations[this._Iterations.length - 1].searchId);
+//    } else {
+//      this.SetSearchIdFilter(0);
+//    }
+//    this._AllSearchIds = [];
+//    for (const s of this._Iterations) {
+//      if (this._AllSearchIds.findIndex(f => f == s.searchId) == -1) this._AllSearchIds.push(s.searchId);
+//    }
+//  }
+//  private _FilterBySearchId: number = 0;
+//  private _AllSearchIds: number[] = [];
+//  private _Iterations: iScreeningFromSearchIteration[] = [];
+//  private _FilteredIterations: iScreeningFromSearchIteration[] = [];
+//  private _ListIsStale: boolean = false;
+//  public get FilterBySearchId(): number {
+//    return this._FilterBySearchId;
+//  }
+//  public get AllSearchIds(): number[] {
+//    return this._AllSearchIds;
+//  }
+//  public get Iterations(): iScreeningFromSearchIteration[] {
+//    return this._Iterations;
+//  }
+//  public get FilteredIterations(): iScreeningFromSearchIteration[] {
+//    return this._FilteredIterations;
+//  }
+//  public get ListIsStale(): boolean {
+//    return this._ListIsStale;
+//  }
+//  public SetSearchIdFilter(SearchId: number) {
+//    this._FilterBySearchId = SearchId;
+//    const res = this._Iterations.filter(f => f.searchId == SearchId);
+//    this._FilteredIterations = res;
+//  }
+//}
+
+export class ScreeningFromSearchIterationList {
+  constructor(allruns: iScreeningFromSearchIteration[]) {
+    this._AllRuns = [];
+    this._AllITerations = allruns.filter(f => f.searchId != -1);
+    this._CurrentRunVirtualId = 0;
+    this._CurrentRun = new ScreeningFromSearchIterationRun(-1, []);
+    let cVid: number = 0;
+    let cSid: number = -1;
+    let lastIndex: number = allruns.length -1;
+    let runsBunch: iScreeningFromSearchIteration[] = [];
+    for (let i = 0; i <= lastIndex; i++) {
+      const run = allruns[i];
+      if (cSid != run.searchId || i == lastIndex) {//new run found, or we reached the last
+        if (i == lastIndex) {
+          if (cSid != run.searchId && runsBunch.length > 0) {
+            //the last element and current element needs to go in the last run and will be the only iteration there
+            //so we "finish" the current run, before doing the next step
+            let toAdd = new ScreeningFromSearchIterationRun(cVid, runsBunch);
+            this._AllRuns.push(toAdd);
+            runsBunch = [];
+            cVid++;
+          }
+          runsBunch.push(run);
+        }
+        if (runsBunch.length > 0 && runsBunch[0].searchId != -1) {
+          let toAdd = new ScreeningFromSearchIterationRun(cVid, runsBunch);
+          this._AllRuns.push(toAdd);
+          runsBunch = [];
+          cSid = run.searchId;
+          cVid++;
+        }
+        if (run.searchId == -1) {//separator/dummy run, we skip it
+          if (i == lastIndex) this._ListIsStale = true;//signals that it doesn't make sense to update progress
+          continue;
+        }
+
+      }
+      cSid = run.searchId;
+      runsBunch.push(run);
+    }
+    if (this._AllRuns.length > 0) {
+      this._CurrentRun = this._AllRuns[this._AllRuns.length - 1];
+      this._CurrentRunVirtualId = this._CurrentRun.VirtualId;
+    }
+  }
+  private _AllRuns: ScreeningFromSearchIterationRun[];
+  public get AllRuns(): ScreeningFromSearchIterationRun[] {
+    return this._AllRuns;
+  }
+  private _AllITerations: iScreeningFromSearchIteration[];
+  public get AllITerations(): iScreeningFromSearchIteration[] {
+    return this._AllITerations;
+  }
+  private _CurrentRunVirtualId: number;
+  public get CurrentRunVirtualId(): number {
+    return this._CurrentRunVirtualId;
+  }
+  private _CurrentRun: ScreeningFromSearchIterationRun ;
+  public get CurrentRun(): ScreeningFromSearchIterationRun {
+    return this._CurrentRun;
+  }
+  private _ListIsStale: boolean = false;
+  public get ListIsStale(): boolean {
+    return this._ListIsStale;
+  }
+
+  public SetCurrentRun(runVirtualId: number) {
+    for (const run of this._AllRuns) {
+      if (run.VirtualId == runVirtualId) {
+        this._CurrentRun = run;
+        this._CurrentRunVirtualId = runVirtualId;
+        return;
+      }
+    }
+    this._CurrentRunVirtualId = 0;
+    this._CurrentRun = new ScreeningFromSearchIterationRun(-1, []);
+  }
+}
+export class ScreeningFromSearchIterationRun {
+  constructor(virtualId: number, iterations: iScreeningFromSearchIteration[]) {
+    this._VirtualId = virtualId;
+    this._Iterations = iterations;
+  }
+  private _VirtualId: number;
+  public get VirtualId(): number {
+    return this._VirtualId;
+  }
+  private _Iterations: iScreeningFromSearchIteration[];
+  public get Iterations(): iScreeningFromSearchIteration[] {
+    return this._Iterations;
+  }
+  public get SearchId(): number {
+    if (this._Iterations.length > 0) return this._Iterations[0].searchId;
+    else return -1;
+  }
 }

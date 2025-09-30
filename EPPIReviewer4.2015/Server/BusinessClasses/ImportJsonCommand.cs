@@ -464,14 +464,24 @@ namespace BusinessLibrary.BusinessClasses
         {
             ItemIncomingData itm = new ItemIncomingData();
             itm.Title = r.Title;
+            //if (r.TypeName == "") { r.TypeName = "Journal, Article"; }
             var type = this.ItemTypes.FirstOrDefault(t => t.Value == r.TypeName);
-            if (type != null) 
+            if (type != null && type.Key > 0)
             {
                 itm.TypeId = type.Key;
             }
             else
             {
-                itm.TypeId = 14;
+                type = this.ItemTypes.FirstOrDefault(t => t.Value == "Journal, Article");
+                if (type != null && type.Key > 0)
+                {
+                    itm.TypeId = type.Key;
+                }
+                else if (ItemTypes.Count > 0 && ItemTypes[ItemTypes.Count - 1].Key > 0)
+                {
+                    itm.TypeId = ItemTypes[ItemTypes.Count - 1].Key;
+                }
+                else throw new Exception("Can't import items because there are no valid Item Types in the DB");
             }
             itm.Parent_title = r.ParentTitle;
             itm.Short_title = r.ShortTitle;

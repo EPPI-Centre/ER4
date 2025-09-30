@@ -3,7 +3,7 @@ body {
 	margin: 0;
 }
 
-.sortable {
+.pointerCursor {
     cursor: pointer;
 }
 
@@ -250,11 +250,21 @@ ul.k-tabstrip-items li.k-item.k-state-active {
   overflow: auto;
 }
 
-.tableFixHead thead th {
+.tableFixHead thead tr {
   position: sticky;
   top: 0;
   z-index: 1;
+  background-color: #f5f5f5;
 }
+
+  .tableFixHead thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    border-bottom: 0px solid black;
+    border-top: 0px solid black;
+    box-shadow: inset 0px -0.8px #222222, 0 0 #000;
+  }
 .light-yellow-bg {
   background-color: #fff3cd;
 }
@@ -264,5 +274,27 @@ ul.k-tabstrip-items li.k-item.k-state-active {
 }
 .GPTJobsErrorRow td {
   border-bottom: 1px solid white;
+}
+
+
+
+.HiddenTrainingRecord {
+  color: #999999 !important;
+  background-color: #ffeeee !important;
+  border-collapse: collapse;
+}
+
+.HiddenTrainingRecord td {
+  border-bottom: 1px dotted lightpink;
+}
+
+#kgFsProgress tr.RowShowingCurrentRun {
+  font-weight: bold;
+  background-color: #d4edda;
+  color: #155724;
+}
+
+#kgFsProgress tr.RowShowingCurrentRun td {
+  border-top: 0.1em dotted darkgreen !important
 }
 

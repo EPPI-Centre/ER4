@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnDestroy, ViewChild, Attribute, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, ViewChild, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, Criteria } from '../services/ItemList.service';
@@ -20,6 +20,7 @@ import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service'
 import { Helpers } from '../helpers/HelperMethods';
 import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import 'hammerjs';
+import { SearchFromOpenAlexImport } from './SearchFromOpenAlexImport.component';
 
 @Component({
   selector: 'SearchComp',
@@ -51,7 +52,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
   ngOnInit() {
 
-    //console.log("SearchComp init:", this.InstanceId);
+    //console.log("SearchComp init");
     if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
       this.router.navigate(['home']);
     }
@@ -61,8 +62,9 @@ export class SearchComp implements OnInit, OnDestroy {
       //this.getMembers();
       //console.log(this.Contacts);
       this.clearSub = this._eventEmitter.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); })
-
-      this._sourcesService.FetchSources();
+      this._searchService.Fetch().then(() => {
+        if (this._sourcesService.ReviewSources.length == 0 && !this._sourcesService.IsBusy) this._sourcesService.FetchSources();
+      });
     }
   }
   //getMembers() {
@@ -114,6 +116,7 @@ export class SearchComp implements OnInit, OnDestroy {
   public popUpTitle: string = '';
   public pageSizes: number[] = [10, 25, 50, 100, 200, 300];
   @Input() autoRefreshThreshold: number = 500;
+  @ViewChild("SearchFromOpenAlex") public SearchFromOpenAlex!: SearchFromOpenAlexImport;
 
   public get ClassifierServiceIsBusy(): boolean {
     return this.classifierService.IsBusy;
@@ -146,7 +149,10 @@ export class SearchComp implements OnInit, OnDestroy {
     this._searchService.sortChangeSearches(sort);
   }
   //END of bridge data properties/methods for the searches Telerik grid, now all hosted in searchService
-
+  public get ReviewIsMagEnabled(): boolean {
+    if (this._reviewInfoService.ReviewInfo.magEnabled) return true;
+    return false;
+  }
 
   public ContactChoice: Contact = new Contact();
   @Output() PleaseOpenTheCodes = new EventEmitter();
@@ -517,8 +523,12 @@ export class SearchComp implements OnInit, OnDestroy {
       this._searchService.selectedSourceDropDown.length > 0) {
       return true;
     }
-    
-
+    else if (this.selectedSearchDropDown == 'From OpenAlex Auto-Update') {
+      if (this.SearchFromOpenAlex) {
+        if (this.SearchFromOpenAlex.SelectedMagAutoUpdateRun.magAutoUpdateRunId != -1)
+          return true;
+      }
+    }
     return false;
     // 
   }
@@ -996,149 +1006,153 @@ export class SearchComp implements OnInit, OnDestroy {
   }
 
   callSearches(selectedSearchDropDown: string, selectedSearchTextDropDown: string, searchBool: boolean) {
+    if (!this.CanWrite()) { return; }
+    this.selectedSearchTextDropDown = selectedSearchTextDropDown;
+    let searchTitle: string = '';
+    let firstNum: boolean = selectedSearchDropDown.search('With this code') != -1;
+    let secNum: boolean = selectedSearchDropDown.search('Without this code') != -1
+    this._searchService.cmdSearches._included = String(searchBool);
 
-    if (this.CanWrite()) {
-      this.selectedSearchTextDropDown = selectedSearchTextDropDown;
-      let searchTitle: string = '';
-      let firstNum: boolean = selectedSearchDropDown.search('With this code') != -1;
-      let secNum: boolean = selectedSearchDropDown.search('Without this code') != -1
-      this._searchService.cmdSearches._included = String(searchBool);
+    this._searchService.cmdSearches._withCodes = String(this.withCode);
+    this._searchService.cmdSearches._searchId = 0;
 
-      this._searchService.cmdSearches._withCodes = String(this.withCode);
-      this._searchService.cmdSearches._searchId = 0;
+    if (firstNum == true || secNum == true) {
 
-      if (firstNum == true || secNum == true) {
+      if (firstNum) {
 
-        if (firstNum) {
+        this.withCode = true;
+      } else {
 
-          this.withCode = true;
-        } else {
-
-          this.withCode = false;
-        }
-
-        if (this.CurrentDropdownSelectedCode != undefined) {
-
-          let tmpID: number = this.CurrentDropdownSelectedCode.attributeSetId;
-          this.attributeNames = this.CurrentDropdownSelectedCode.name;
-          this._searchService.cmdSearches._answers = String(tmpID);
-          //alert(this.CurrentDropdownSelectedCode);
-
-          searchTitle = this.withCode == true ?
-            "Coded with: " + this.attributeNames : "Not coded with: " + this.attributeNames;
-
-
-          this._searchService.cmdSearches._title = searchTitle;
-          this._searchService.cmdSearches._withCodes = String(this.withCode);
-
-          this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodes');
-
-        }
+        this.withCode = false;
       }
 
-      else if (selectedSearchDropDown == 'With these internal IDs (comma separated)') {
+      if (this.CurrentDropdownSelectedCode != undefined) {
 
-        this._searchService.cmdSearches._IDs = this.commaIDs;
-        this._searchService.cmdSearches._title = this.commaIDs;
-        this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchIDs');
+        let tmpID: number = this.CurrentDropdownSelectedCode.attributeSetId;
+        this.attributeNames = this.CurrentDropdownSelectedCode.name;
+        this._searchService.cmdSearches._answers = String(tmpID);
+        //alert(this.CurrentDropdownSelectedCode);
 
-
-      }
-      else if (selectedSearchDropDown == 'With these imported IDs (comma separated)') {
-
-        this._searchService.cmdSearches._IDs = this.commaIDs;
-        this._searchService.cmdSearches._title = this.commaIDs;
-
-        this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchImportedIDs');
+        searchTitle = this.withCode == true ?
+          "Coded with: " + this.attributeNames : "Not coded with: " + this.attributeNames;
 
 
-      }
-      else if (selectedSearchDropDown == 'Containing this text') {
-
-        let tmpStr: string = '';
-
-        if (selectedSearchTextDropDown == 'Title and abstract') {
-          tmpStr = 'TitleAbstract'
-        } else if (selectedSearchTextDropDown == 'Title only') {
-          tmpStr = 'Title'
-        } else if (selectedSearchTextDropDown == 'Abstract only') {
-          tmpStr = 'Abstract'
-        } else if (selectedSearchTextDropDown == 'Additional text') {
-          tmpStr = 'AdditionalText'
-        } else if (selectedSearchTextDropDown == 'Uploaded documents') {
-          tmpStr = 'UploadedDocs'
-        } else if (selectedSearchTextDropDown == 'Authors') {
-          tmpStr = 'Authors'
-        } else if (selectedSearchTextDropDown == 'Publication year') {
-          tmpStr = 'PubYear'
-        }
-        this._searchService.cmdSearches._searchText = tmpStr;
-
-        this._searchService.cmdSearches._title = this.searchText;
-
-        this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchText');
-      }
-      else if (selectedSearchDropDown == 'That have at least one code from this Coding Tool') {
-
-        this._searchService.cmdSearches._withCodes = 'true';
-        this._searchService.cmdSearches._title = this.selectedSearchCodeSetDropDown;
-        if (this.SearchForPersonModel === false) {
-          this._searchService.cmdSearches._contactId = 0;
-          this._searchService.cmdSearches._contactName = "";
-        }
-        else {
-          this._searchService.cmdSearches._contactId = this.ContactChoice.contactId;
-          this._searchService.cmdSearches._contactName = this.ContactChoice.contactName;
-        }
-        this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeSetCheck');
-
-      }
-      else if (selectedSearchDropDown == "That don't have any codes from this Coding Tool") {
-
-        this._searchService.cmdSearches._withCodes = 'false';
-        this._searchService.cmdSearches._title = this.selectedSearchCodeSetDropDown;
-        this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeSetCheck');
-
-      }
-      else if (selectedSearchDropDown == 'Without an abstract') {
-
-        //alert(selectedSearchDropDown);
         this._searchService.cmdSearches._title = searchTitle;
+        this._searchService.cmdSearches._withCodes = String(this.withCode);
 
-        this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchNoAbstract');
+        this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodes');
 
-      }
-      else if (selectedSearchDropDown == 'Without any documents uploaded') {
-
-        //alert(selectedSearchDropDown);
-        this._searchService.cmdSearches._title = 'Without any documents uploaded';
-
-        this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchNoFiles');
-
-      }
-      else if (selectedSearchDropDown == 'With at least one document uploaded') {
-
-        this._searchService.cmdSearches._title = 'With at least one document uploaded.';
-        this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchOneFile');
-
-      }
-      else if (selectedSearchDropDown == 'From source(s)') {
-        if (this.MakeSearchBySourceName()) this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchSources');
-      }
-      else if (selectedSearchDropDown == 'With linked references') {
-        this._searchService.cmdSearches._title = 'With linked references';
-        this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchWithLinkedReferences');
-      }
-      else if (selectedSearchDropDown == 'With duplicate references') {
-        this._searchService.cmdSearches._title = 'With duplicate references';
-        this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchWithDuplicateReferences');
-      }
-      else if (selectedSearchDropDown == 'From Current Priority Screening List') {
-        this._searchService.cmdSearches._title = 'From Priority List as of ' + (new Date()).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-        this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchFromCurrentPriorityScreeningList');
       }
     }
+
+    else if (selectedSearchDropDown == 'With these internal IDs (comma separated)') {
+      this._searchService.cmdSearches._IDs = this.commaIDs;
+      this._searchService.cmdSearches._title = this.commaIDs;
+      this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchIDs');
+    }
+    else if (selectedSearchDropDown == 'With these imported IDs (comma separated)') {
+      this._searchService.cmdSearches._IDs = this.commaIDs;
+      this._searchService.cmdSearches._title = this.commaIDs;
+      this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchImportedIDs');
+    }
+    else if (selectedSearchDropDown == 'Containing this text') {
+      let tmpStr: string = '';
+      if (selectedSearchTextDropDown == 'Title and abstract') {
+        tmpStr = 'TitleAbstract'
+      } else if (selectedSearchTextDropDown == 'Title only') {
+        tmpStr = 'Title'
+      } else if (selectedSearchTextDropDown == 'Abstract only') {
+        tmpStr = 'Abstract'
+      } else if (selectedSearchTextDropDown == 'Additional text') {
+        tmpStr = 'AdditionalText'
+      } else if (selectedSearchTextDropDown == 'Uploaded documents') {
+        tmpStr = 'UploadedDocs'
+      } else if (selectedSearchTextDropDown == 'Authors') {
+        tmpStr = 'Authors'
+      } else if (selectedSearchTextDropDown == 'Publication year') {
+        tmpStr = 'PubYear'
+      }
+      this._searchService.cmdSearches._searchText = tmpStr;
+      this._searchService.cmdSearches._title = this.searchText;
+      this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchText');
+    }
+    else if (selectedSearchDropDown == 'That have at least one code from this Coding Tool') {
+      this._searchService.cmdSearches._withCodes = 'true';
+      this._searchService.cmdSearches._title = this.selectedSearchCodeSetDropDown;
+      if (this.SearchForPersonModel === false) {
+        this._searchService.cmdSearches._contactId = 0;
+        this._searchService.cmdSearches._contactName = "";
+      }
+      else {
+        this._searchService.cmdSearches._contactId = this.ContactChoice.contactId;
+        this._searchService.cmdSearches._contactName = this.ContactChoice.contactName;
+      }
+      this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeSetCheck');
+    }
+    else if (selectedSearchDropDown == "That don't have any codes from this Coding Tool") {
+      this._searchService.cmdSearches._withCodes = 'false';
+      this._searchService.cmdSearches._title = this.selectedSearchCodeSetDropDown;
+      this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeSetCheck');
+    }
+    else if (selectedSearchDropDown == 'Without an abstract') {
+      this._searchService.cmdSearches._title = searchTitle;
+      this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchNoAbstract');
+    }
+    else if (selectedSearchDropDown == 'Without any documents uploaded') {
+      this._searchService.cmdSearches._title = 'Without any documents uploaded';
+      this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchNoFiles');
+    }
+    else if (selectedSearchDropDown == 'With at least one document uploaded') {
+      this._searchService.cmdSearches._title = 'With at least one document uploaded.';
+      this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchOneFile');
+    }
+    else if (selectedSearchDropDown == 'From source(s)') {
+      if (this.MakeSearchBySourceName()) this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchSources');
+    }
+    else if (selectedSearchDropDown == 'With linked references') {
+      this._searchService.cmdSearches._title = 'With linked references';
+      this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchWithLinkedReferences');
+    }
+    else if (selectedSearchDropDown == 'With duplicate references') {
+      this._searchService.cmdSearches._title = 'With duplicate references';
+      this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchWithDuplicateReferences');
+    }
+    else if (selectedSearchDropDown == 'From Current Priority Screening List') {
+      this._searchService.cmdSearches._title = 'From Priority List as of ' + (new Date()).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+      this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchFromCurrentPriorityScreeningList');
+    }
+    else if (selectedSearchDropDown == "From OpenAlex Auto-Update" && this.SearchFromOpenAlex && this.SearchFromOpenAlex.SelectedMagAutoUpdateRun.magAutoUpdateRunId != -1) {
+      this._searchService.cmdSearches._searchId = this.SearchFromOpenAlex.SelectedMagAutoUpdateRun.magAutoUpdateRunId;
+      this._searchService.cmdSearches._logicType = this.SearchFromOpenAlex.IncEx;
+      let whatScores: string = "";
+      switch (this.SearchFromOpenAlex.ScoresToUse) {
+        //A, P, U, AP, AU, APU, PU
+        case "A": whatScores = " (Scores from Auto Update)";
+          break;
+        case "P": whatScores = " (Scores from Study Type)";
+          break;
+        case "U": whatScores = " (Scores from User Classifier)";
+          break;
+        case "AP": whatScores = " (Scores from Auto Update and Study Type)";
+          break;
+        case "AU": whatScores = " (Scores from Auto Update and User Classifier)";
+          break;
+        case "APU": whatScores = " (Scores from all 3 classifier types)";
+          break;
+        case "PU": whatScores = " (Scores from Study Type and User Classifier)";
+          break;
+        default: whatScores = " (Scores from Auto Update)";
+      }
+      this._searchService.cmdSearches._title = "From AutoUpdate Run on: " + this.SearchFromOpenAlex.SelectedMagAutoUpdateRun.dateRun + whatScores;
+      this._searchService.cmdSearches._searchText = this.SearchFromOpenAlex.ScoresToUse;
+      this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchFromOpenAlexImport');
+
+      //we close the "new search" panel and re-select the first option from new search.
+      this.NewSearchSection = false;
+
+    }
   }
+
   MakeSearchBySourceName(): boolean {
     //this._searchService.selectedSourceDropDown = val;
     let NameSt: string = "";
@@ -1341,7 +1355,7 @@ export class SearchComp implements OnInit, OnDestroy {
   }
   SearchGetItemList(dataItem: Search) {
     let cr: Criteria = new Criteria();
-    cr.onlyIncluded = dataItem.selected;
+    cr.onlyIncluded = null;
     cr.showDeleted = false;
     cr.pageNumber = 0;
     cr.searchId = dataItem.searchId;
@@ -1461,7 +1475,7 @@ export class SearchComp implements OnInit, OnDestroy {
     this.CurrentDropdownSelectedCode = null;
     this.SearchForPeoplesModel = 'true';
     this.classifierService.Clear();
-
+    this._searchService.Clear();
   }
 }
 

@@ -394,7 +394,7 @@ namespace ERxWebClient2.Controllers
 						cmdIn._searchType,
 						cmdIn._scoreOne,
 						cmdIn._scoreTwo,
-						cmdIn._searchId,
+						(int)cmdIn._searchId,
 						cmdIn._searchText
 						);
 					DataPortal<SearchClassifierScoresCommand> dp = new DataPortal<SearchClassifierScoresCommand>();
@@ -422,7 +422,7 @@ namespace ERxWebClient2.Controllers
 					SearchSourcesCommand cmd = new SearchSourcesCommand(
 						 cmdIn._title,
 						 cmdIn._sourceIds,
-						 cmdIn._searchId,
+						 (int)cmdIn._searchId,
 						 cmdIn._searchWhat
 						);
 					DataPortal<SearchSourcesCommand> dp = new DataPortal<SearchSourcesCommand>();
@@ -462,6 +462,34 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "SearchFromCurrentPriorityScreeningList has failed");
+                return StatusCode(500, e.Message);
+            }
+
+        }
+        //SearchFromOpenAlexImport
+        [HttpPost("[action]")]
+        public IActionResult SearchFromOpenAlexImport([FromBody] CodeCommand cmdIn)
+        {
+
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+
+                    SearchFromOpenAlexImportCommand cmd = new SearchFromOpenAlexImportCommand(cmdIn._title, cmdIn._searchId, cmdIn._logicType, cmdIn._searchText);
+                    DataPortal<SearchFromOpenAlexImportCommand> dp = new DataPortal<SearchFromOpenAlexImportCommand>();
+                    cmd = dp.Execute(cmd);
+
+                    return Ok(cmd.SearchId);
+                }
+                else
+                {
+                    return Forbid();
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "SearchFromOpenAlexImport has failed");
                 return StatusCode(500, e.Message);
             }
 
@@ -561,7 +589,7 @@ namespace ERxWebClient2.Controllers
 		public bool _included = false;
 		public bool _deleted = false;
 		public bool _withCodes = false;
-		public int _searchId = 0;
+		public Int64 _searchId = 0;
 		public string _searches = "";
 		public int _contactId = 0;
 		public string _contactName = "";

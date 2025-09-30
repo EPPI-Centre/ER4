@@ -178,7 +178,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
   }
   public RobotDDData: Array<any> = [
     {
-      text: 'GPT4 coding options...',
+      text: 'LLM coding options...',
       click:  () => {
         this.ShowRobotOptions = true;
       }
@@ -427,20 +427,38 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     if (this.itemString == 'PriorityScreening') {
       if (this.subGotScreeningItem == null) this.subGotScreeningItem = this.PriorityScreeningService.gotItem.subscribe(() => this.GotScreeningItem());
       this.IsScreening = true;
-      console.log("asking for next screening item");
+      this.PriorityScreeningService.UsingListFromSearch = false;
+      //console.log("asking for next screening item");
       this.PriorityScreeningService.NextItem();
     }
     else if (this.itemString == 'PriorityScreening2') {//we're back from editing an item
       if (this.subGotScreeningItem == null) this.subGotScreeningItem = this.PriorityScreeningService.gotItem.subscribe(() => this.GotScreeningItem());
       this.IsScreening = true;
+      this.PriorityScreeningService.UsingListFromSearch = false;
       this.itemString = 'PriorityScreening';//just for safety...
-      console.log("NOT(!) asking for next screening item");
+      //console.log("NOT(!) asking for next screening item");
+      this.GotScreeningItem();
+    }
+    else if (this.itemString == 'ScreeningFromList') {
+      if (this.subGotScreeningItem == null) this.subGotScreeningItem = this.PriorityScreeningService.gotItem.subscribe(() => this.GotScreeningItem());
+      this.IsScreening = true;
+      this.PriorityScreeningService.UsingListFromSearch = true;
+      //console.log("asking for next screening item");
+      this.PriorityScreeningService.NextItem();
+    }
+    else if (this.itemString == 'ScreeningFromList2') {//we're back from editing an item
+      if (this.subGotScreeningItem == null) this.subGotScreeningItem = this.PriorityScreeningService.gotItem.subscribe(() => this.GotScreeningItem());
+      this.IsScreening = true;
+      this.PriorityScreeningService.UsingListFromSearch = true;
+      this.itemString = 'ScreeningFromList';//just for safety...
+      //console.log("NOT(!) asking for next screening item");
       this.GotScreeningItem();
     }
     else {
       //this.itemID = +this.itemString;
       this.item = this.ItemListService.getItem(+this.itemString);
       this.IsScreening = false;
+      this.PriorityScreeningService.UsingListFromSearch = false;
       this.GetItemCoding();
       //this.ItemListService.eventChange(this.itemID);
       //console.log('fill in arms here teseroo1');
@@ -764,7 +782,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
      
     if (!this.CanRunOpenAIrobot) {
       this.notificationService.show({
-        content: "Can't run the OpenAI GPT4 robot given the current code-selection.",
+        content: "Can't run an LLM robot given the current code-selection.",
         position: { horizontal: 'center', vertical: 'top' },
         animation: { type: 'fade', duration: 500 },
         type: { style: 'error', icon: false },
@@ -817,7 +835,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     let res = await this.robotsService.RunRobotOpenAICommand(cmd);
     if (res.returnMessage.indexOf("Completed with errors") > -1) {
       this.notificationService.show({
-        content: "GPT4 result: " + res.returnMessage,
+        content: "LLM result: " + res.returnMessage,
         position: { horizontal: 'center', vertical: 'top' },
         animation: { type: 'fade', duration: 500 },
         type: { style: 'error', icon: true },
@@ -828,7 +846,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
       //no need to handle errors here - we do that in the service as usual
       //this.confirmationDialogService..ShowInformationalModal(res.returnMessage, "GPT4 result");
       this.notificationService.show({
-        content: "GPT4 result: " + res.returnMessage,
+        content: "LLM result: " + res.returnMessage,
         position: { horizontal: 'center', vertical: 'top' },
         animation: { type: 'fade', duration: 500 },
         type: { style: 'success', icon: true },

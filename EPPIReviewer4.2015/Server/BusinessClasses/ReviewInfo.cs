@@ -166,18 +166,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ScreeningModelRunningProperty, value);
             }
         }
-        //public static readonly  PropertyInfo<bool> ScreeningIndexedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ScreeningIndexed", "ScreeningIndexed Id", false));
-        //public bool ScreeningIndexed
-        //{
-        //    get
-        //    {
-        //        return GetProperty(ScreeningIndexedProperty);
-        //    }
-        //    set
-        //    {
-        //        SetProperty(ScreeningIndexedProperty, value);
-        //    }
-        //}
+
         public static readonly  PropertyInfo<bool> ScreeningListIsGoodProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ScreeningListIsGood", "ScreeningListIsGood", false));
         public bool ScreeningListIsGood
         {
@@ -190,18 +179,45 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ScreeningListIsGoodProperty, value);
             }
         }
-        //public static readonly  PropertyInfo<string> ScreeningDataFileProperty = RegisterProperty<string>(new PropertyInfo<string>("ScreeningDataFile", "ScreeningDataFile Id", ""));
-        //public string ScreeningDataFile
-        //{
-        //    get
-        //    {
-        //        return GetProperty(ScreeningDataFileProperty);
-        //    }
-        //    set
-        //    {
-        //        SetProperty(ScreeningDataFileProperty, value);
-        //    }
-        //}
+
+        public static readonly PropertyInfo<bool> ScreeningFromSearchListIsGoodProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ScreeningFromSearchListIsGood", "ScreeningFromSearchListIsGood", false));
+        public bool ScreeningFromSearchListIsGood
+        {
+            get
+            {
+                return GetProperty(ScreeningFromSearchListIsGoodProperty);
+            }
+            set
+            {
+                SetProperty(ScreeningFromSearchListIsGoodProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<int> ScreeningFSListSearchIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ScreeningFSListSearchId", "ScreeningFSListSearchId Id", 0));
+        public int ScreeningFSListSearchId
+        {
+            get
+            {
+                return GetProperty(ScreeningFSListSearchIdProperty);
+            }
+            set
+            {
+                SetProperty(ScreeningFSListSearchIdProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> ScreeningFSListSearchNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ScreeningFSListSearchName", "ScreeningFSListSearchName Id", ""));
+        public string ScreeningFSListSearchName
+        {
+            get
+            {
+                return GetProperty(ScreeningFSListSearchNameProperty);
+            }
+            set
+            {
+                SetProperty(ScreeningFSListSearchNameProperty, value);
+            }
+        }
         public static readonly  PropertyInfo<string> BL_ACCOUNT_CODEProperty = RegisterProperty<string>(new PropertyInfo<string>("BL_ACCOUNT_CODE", "BL_ACCOUNT_CODE", string.Empty));
         public string BL_ACCOUNT_CODE
         {
@@ -513,6 +529,49 @@ namespace BusinessLibrary.BusinessClasses
                             else
                             {
                                 LoadProperty<bool>(ScreeningListIsGoodProperty, false);
+                            }
+                        }
+                    }
+                    //Aug 2025 - get info about the new "From Search" screening lists
+                    using (SqlCommand command = new SqlCommand("st_TrainingNextItem", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                        command.Parameters.Add(new SqlParameter("@CONTACT_ID", ContactId));
+                        command.Parameters.Add(new SqlParameter("@TRAINING_CODE_SET_ID", ScreeningCodeSetId));
+                        command.Parameters.Add(new SqlParameter("@SIMULATE", 1));
+                        command.Parameters.Add(new SqlParameter("@USE_LIST_FROM_SEARCH", 1));
+                        using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                        {
+                            if (reader.Read())
+                            {
+                                LoadProperty<bool>(ScreeningFromSearchListIsGoodProperty, true);
+                            }
+                            else
+                            {
+                                LoadProperty<bool>(ScreeningFromSearchListIsGoodProperty, false);
+                            }
+                            reader.NextResult();
+                            if (reader.Read())
+                            {
+                                int SearchId = reader.GetInt32("SEARCH_ID");
+                                if (SearchId > 0)
+                                {
+                                    LoadProperty<int>(ScreeningFSListSearchIdProperty, SearchId);
+                                }
+                                string SearchName = reader.GetString("SEARCH_TITLE");
+                                if (SearchName == "")
+                                {
+                                    LoadProperty<string>(ScreeningFSListSearchNameProperty, "Unknown/deleted search");
+                                }
+                                else if (SearchId == 0)
+                                {
+                                    LoadProperty<string>(ScreeningFSListSearchNameProperty, "Deleted search: " + SearchName);
+                                }
+                                else
+                                {
+                                    LoadProperty<string>(ScreeningFSListSearchNameProperty, SearchName);
+                                }
                             }
                         }
                     }

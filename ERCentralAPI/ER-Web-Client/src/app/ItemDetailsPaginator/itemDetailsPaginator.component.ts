@@ -37,6 +37,9 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
     if (this.item) return this.item.itemId;
     else return -1;
   }
+  public get IsListFromSearch(): boolean {
+    return this.PriorityScreeningService.UsingListFromSearch;
+  }
 
   private subGotScreeningItem: Subscription | null = null;
   @Output() ItemChanged = new EventEmitter();

@@ -380,7 +380,7 @@ namespace BusinessLibrary.BusinessClasses
             string json;
             if (_UserPrivateOpenAIKey == "")
             {
-                if (RobotOpenAICommand.IsDeepSeekLike(RobotCoder)) 
+                if (RobotOpenAICommand.AuthorisationInHeader(RobotCoder)) 
                 {
                     client.DefaultRequestHeaders.Add("Authorization", $"Bearer {key}");
                 }
@@ -404,6 +404,10 @@ namespace BusinessLibrary.BusinessClasses
                 //var requestBody = new { model, messages, temperature, frequency_penalty, presence_penalty, top_p };
                 var requestBody = new { model, messages};
                 json = JsonConvert.SerializeObject(requestBody);
+            }
+            if (RobotOpenAICommand.UsesExtraParameters(RobotCoder))
+            {
+                client.DefaultRequestHeaders.Add("extra-parameters", "pass-through");
             }
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 

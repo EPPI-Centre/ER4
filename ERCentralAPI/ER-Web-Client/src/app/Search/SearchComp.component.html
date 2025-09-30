@@ -74,6 +74,7 @@
               <button (click)="nextDropDownList(12,'With linked references')" class="dropdown-item">With linked references</button>
               <button (click)="nextDropDownList(13,'With duplicate references')" class="dropdown-item">With duplicate references</button>
               <button *ngIf="HasScreeningList" (click)="nextDropDownList(14,'From Current Priority Screening List')" class="dropdown-item">From Current Priority Screening List</button>
+              <button *ngIf="ReviewIsMagEnabled" (click)="nextDropDownList(15,'From OpenAlex Auto-Update')" class="dropdown-item">From OpenAlex Auto-Update</button>
             </div>
           </div>
         </div>
@@ -133,21 +134,26 @@
             <input pattern="^(?!\s*$).+" [(ngModel)]="searchText"
                    #searchTextModel="ngModel"
                    id="searchTextModel" name="searchTextModel"
-                   required minlength="3"
+                   required minlength="3" maxlength="2000"
                    class="bg-light border-dark form-control"
                    type="text"
                    placeholder="search text">
 
-            <div *ngIf="searchTextModel.invalid && (searchTextModel.dirty || searchTextModel.touched)"
-                 class="alert alert-danger p-1">
-              <div *ngIf="searchTextModel.errors && searchTextModel.errors.pattern">
-                Cannot be empty
+            <div *ngIf="(searchTextModel.dirty || searchTextModel.touched)">
+              <div *ngIf="searchTextModel.invalid"
+                   class="alert alert-danger p-1">
+                <div *ngIf="searchTextModel.errors && searchTextModel.errors.pattern">
+                  Cannot be empty
+                </div>
+                <div *ngIf="searchTextModel.errors && searchTextModel.errors.required">
+                  search text is required.
+                </div>
+                <div *ngIf="searchTextModel.errors && searchTextModel.errors.minlength">
+                  search text must be at least 3 characters long.
+                </div>
               </div>
-              <div *ngIf="searchTextModel.errors && searchTextModel.errors.required">
-                search text is required.
-              </div>
-              <div *ngIf="searchTextModel.errors && searchTextModel.errors.minlength">
-                search text must be at least 3 characters long.
+              <div *ngIf="searchText.length > 1000" class="alert alert-danger p-1">
+                Your search string is long (<strong>{{searchText.length.toString()}}</strong> chars!) and might get truncated without warning when executing the search. Consider shortening it, and then combine multiple searches as/if necessary.
               </div>
             </div>
             <b>In:</b>
@@ -170,7 +176,13 @@
         </div>
         <div class="col-12 col-md-3"> </div>
       </div>
-      <div class="row mx-1" *ngIf="ShowSources == false && selectedSearchDropDown != 'With duplicate references' && selectedSearchDropDown != 'From Current Priority Screening List'">
+      <div *ngIf="selectedSearchDropDown == 'From OpenAlex Auto-Update'" class="col-12 px-1">
+        <SearchFromOpenAlexImport #SearchFromOpenAlex></SearchFromOpenAlexImport>
+      </div>
+      <div class="row mx-1" *ngIf="ShowSources == false
+           && selectedSearchDropDown != 'With duplicate references'
+           && selectedSearchDropDown != 'From Current Priority Screening List'
+           && selectedSearchDropDown != 'From OpenAlex Auto-Update'">
         <div class="col-12 col-md-4 mb-1 pr-1 pl-1 "></div>
         <table class="col-md-4  p-2 mx-2 my-1">
           <tr class="col-md-4">
@@ -217,6 +229,8 @@
           </option>
         </select>
       </div>
+
+
     </div>
   </div>
 

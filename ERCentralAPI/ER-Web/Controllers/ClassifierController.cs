@@ -80,11 +80,48 @@ namespace ERxWebClient2.Controllers
 				_logger.LogException(e, "A ClassifierCommand issue");
 				return StatusCode(500, e.Message);
 			}
-
 		}
 
+        [HttpPost("[action]")]
+        public IActionResult BuildClassifierV2([FromBody] MVCClassifierCommand MVCcmd)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+					ClassifierCommandV2 cmd = new ClassifierCommandV2(
+							MVCcmd._title
+							, MVCcmd._attributeIdOn
+							, MVCcmd._attributeIdNotOn
+							, MVCcmd._attributeIdClassifyTo
+							, MVCcmd._classifierId
+							, MVCcmd._sourceId
+							, MVCcmd._mlModelName
+						);
+                    cmd.RevInfo = MVCcmd.revInfo.ToCSLAReviewInfo();
 
-		[HttpPost("[action]")]
+                    DataPortal<ClassifierCommandV2> dp = new DataPortal<ClassifierCommandV2>();
+
+                    cmd = dp.Execute(cmd);
+
+                    return Ok(cmd);
+
+                }
+                else
+                {
+                    return Forbid();
+                }
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "A ClassifierCommand issue");
+                return StatusCode(500, e.Message);
+            }
+
+        }
+
+        [HttpPost("[action]")]
 		public IActionResult ApplyClassifier([FromBody] MVCClassifierCommand MVCcmd)
 		{
 			try
@@ -262,11 +299,12 @@ namespace ERxWebClient2.Controllers
 
         public class MVCClassifierCommand
 		{
-			public string _title { get; set; }
-			public int _attributeIdOn { get; set; }
+			public string _title { get; set; } = "";
+			public string _mlModelName { get; set; } = "oldLogReg";
+            public int _attributeIdOn { get; set; }
 			public int _attributeIdNotOn { get; set; }
-			public int _attributeIdClassifyTo { get; set; }
-			public int _sourceId { get; set; }
+            public int _attributeIdClassifyTo { get; set; }
+            public int _sourceId { get; set; }
 			public int _modelId { get; set; }
 			public int _attributeId { get; set; }
 			public int _classifierId { get; set; }

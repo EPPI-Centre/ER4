@@ -98,7 +98,7 @@ namespace BusinessLibrary.BusinessClasses
 
         }
 
-        protected void DataPortal_Fetch(SingleCriteria<TrainingPreviousItem, Int64> criteria)
+        protected void DataPortal_Fetch(ScreeningGivenItemCriteria criteria)
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -109,7 +109,8 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
-                    command.Parameters.Add(new SqlParameter("@ITEM_ID", criteria.Value));
+                    command.Parameters.Add(new SqlParameter("@ITEM_ID", criteria.ItemId));
+                    command.Parameters.Add(new SqlParameter("@USE_LIST_FROM_SEARCH", criteria.IsListFromSearch)); 
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         if (reader.Read())
@@ -118,16 +119,19 @@ namespace BusinessLibrary.BusinessClasses
                         }
                     }
                 }
-                using (SqlCommand command2 = new SqlCommand("st_Item", connection))
+                if (ItemId > 0)
                 {
-                    command2.CommandType = System.Data.CommandType.StoredProcedure;
-                    command2.Parameters.Add(new SqlParameter("@ITEM_ID", this.ItemId));
-                    command2.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                    using (Csla.Data.SafeDataReader reader2 = new Csla.Data.SafeDataReader(command2.ExecuteReader()))
+                    using (SqlCommand command2 = new SqlCommand("st_Item", connection))
                     {
-                        if (reader2.Read())
+                        command2.CommandType = System.Data.CommandType.StoredProcedure;
+                        command2.Parameters.Add(new SqlParameter("@ITEM_ID", this.ItemId));
+                        command2.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                        using (Csla.Data.SafeDataReader reader2 = new Csla.Data.SafeDataReader(command2.ExecuteReader()))
                         {
-                            this.Item = Item.GetItem(reader2);
+                            if (reader2.Read())
+                            {
+                                this.Item = Item.GetItem(reader2);
+                            }
                         }
                     }
                 }
@@ -143,6 +147,30 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 #endif
+
+    }
+    [Serializable]
+    public class ScreeningGivenItemCriteria : CriteriaBase<ScreeningGivenItemCriteria>
+    {
+        public ScreeningGivenItemCriteria(Int64 itemId, bool isListFromSearchProperty)
+        //: base(type)
+        {
+            LoadProperty(ItemIdProperty, itemId);
+            LoadProperty(IsListFromSearchProperty, isListFromSearchProperty);
+        }
+#if !SILVERLIGHT
+        public ScreeningGivenItemCriteria() { }
+#endif
+        private static PropertyInfo<Int64> ItemIdProperty = RegisterProperty<Int64>(typeof(ScreeningGivenItemCriteria), new PropertyInfo<Int64>("ItemId", "ItemId"));
+        public Int64 ItemId
+        {
+            get { return ReadProperty(ItemIdProperty); }
+        }
+        private static PropertyInfo<bool> IsListFromSearchProperty = RegisterProperty<bool>(typeof(ScreeningGivenItemCriteria), new PropertyInfo<bool>("IsListFromSearch", "IsListFromSearch"));
+        public bool IsListFromSearch
+        {
+            get { return ReadProperty(IsListFromSearchProperty); }
+        }
 
     }
 }

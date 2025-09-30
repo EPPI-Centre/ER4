@@ -264,7 +264,8 @@ export class ConfigurableReportService extends BusyAwareService {
 					reportColumnCodeId: cCode.reportColumnCodeId,
 					reportColumnId: cCode.reportColumnId,
 					setId: cCode.setId,
-					userDefText: cCode.userDefText,
+          userDefText: cCode.userDefText,
+          codeExists: cCode.codeExists,
 				}
 				codes.push(code);
 			}
@@ -324,7 +325,8 @@ export interface iReportColumnCode {
 	reportColumnCodeId: number;
 	reportColumnId: number;
 	setId: number;
-	userDefText: string;
+  userDefText: string;
+  codeExists: boolean;
 }
 
 export class ReportStandard {

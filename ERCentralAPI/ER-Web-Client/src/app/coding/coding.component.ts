@@ -336,6 +336,13 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     if (this.itemString == 'PriorityScreening') {
       if (this.subGotScreeningItem == null) this.subGotScreeningItem = this.PriorityScreeningService.gotItem.subscribe(() => this.GotScreeningItem());
       this.IsScreening = true;
+      this.PriorityScreeningService.UsingListFromSearch = false;
+      this.PriorityScreeningService.NextItem();
+    }
+    else if (this.itemString == 'ScreeningFromList') {
+      if (this.subGotScreeningItem == null) this.subGotScreeningItem = this.PriorityScreeningService.gotItem.subscribe(() => this.GotScreeningItem());
+      this.IsScreening = true;
+      this.PriorityScreeningService.UsingListFromSearch = true;
       this.PriorityScreeningService.NextItem();
     }
     else {

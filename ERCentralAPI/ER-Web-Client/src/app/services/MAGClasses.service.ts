@@ -430,7 +430,6 @@ export interface MagAutoUpdateRun {
   nPapers: number;
   magAutoUpdateId: number;
   magVersion: string;
-
 }
 export interface MagAutoUpdate {
   allIncluded: boolean;

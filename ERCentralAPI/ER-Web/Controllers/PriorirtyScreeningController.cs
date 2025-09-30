@@ -38,6 +38,23 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [HttpGet("[action]")]
+        public IActionResult TrainingFromSearchList()
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                DataPortal<ScreeningFromSearchIterationList> dp = new DataPortal<ScreeningFromSearchIterationList>();
+                ScreeningFromSearchIterationList result = dp.Fetch();
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error with TrainingFromSearchList");
+                return StatusCode(500, e.Message);
+            }
+        }
         [HttpPost("[action]")]
         public IActionResult TrainingNextItem([FromBody] SingleIntCriteria crit)
         {
@@ -46,7 +63,7 @@ namespace ERxWebClient2.Controllers
                 if (SetCSLAUser4Writing())
                 {
                     DataPortal<TrainingNextItem> dp = new DataPortal<TrainingNextItem>();
-                    TrainingNextItem result = dp.Fetch(new SingleCriteria<TrainingNextItem, int>(crit.Value));
+                    TrainingNextItem result = dp.Fetch(new ScreeningItemCriteria(crit.Value, false));
                     return Ok(result);
                 }
                 else return Forbid();
@@ -66,7 +83,7 @@ namespace ERxWebClient2.Controllers
                 if (SetCSLAUser4Writing())
                 {
                     DataPortal<TrainingPreviousItem> dp = new DataPortal<TrainingPreviousItem>();
-                    TrainingPreviousItem result = dp.Fetch(new SingleCriteria<TrainingPreviousItem, Int64>(crit.Value));
+                    TrainingPreviousItem result = dp.Fetch(new ScreeningGivenItemCriteria(crit.Value, false));
                     return Ok(result);
                 }
                 else return Forbid();
@@ -74,10 +91,53 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 string json = JsonConvert.SerializeObject(crit);
-                _logger.LogError(e, "Dataportal Error with Training of the previous item: {0}", json);
+                _logger.LogError(e, "Dataportal Error in TrainingPreviousItem: {0}", json);
                 return StatusCode(500, e.Message);
             }
         }
+
+        [HttpPost("[action]")]
+        public IActionResult TrainingNextItemFromList([FromBody] SingleIntCriteria crit)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<TrainingNextItem> dp = new DataPortal<TrainingNextItem>();
+                    TrainingNextItem result = dp.Fetch(new ScreeningItemCriteria(crit.Value, true));
+                    return Ok(result);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                string json = JsonConvert.SerializeObject(crit);
+                _logger.LogError(e, "Dataportal Error in TrainingNextItemFromList: {0}", json);
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult TrainingPreviousItemFromList([FromBody] SingleInt64Criteria crit)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<TrainingPreviousItem> dp = new DataPortal<TrainingPreviousItem>();
+                    TrainingPreviousItem result = dp.Fetch(new ScreeningGivenItemCriteria(crit.Value, true));
+                    return Ok(result);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                string json = JsonConvert.SerializeObject(crit);
+                _logger.LogError(e, "Dataportal Error in TrainingPreviousItemFromList: {0}", json);
+                return StatusCode(500, e.Message);
+            }
+        }
+
+
         [HttpPost("[action]")]
         public IActionResult TrainingRunCommand([FromBody] SingleInt64Criteria crit)
         {
@@ -107,6 +167,48 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [HttpPost("[action]")]
+        public IActionResult RunScreeningFromSearchCommand([FromBody] ScreeningFromSearchCommandMVC crit)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ScreeningFromSearchCommand res = crit.ToCslaBO();
+                    DataPortal<ScreeningFromSearchCommand> dp = new DataPortal<ScreeningFromSearchCommand>();
+                    res = dp.Execute(res);
+                    return Ok(res);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error in ScreeningFromSearchCommand!");
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpGet("[action]")]
+        public IActionResult DeleteScreeningFromSearch()
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ScreeningFromSearchCommand res = ScreeningFromSearchCommand.GetCommandToStopCurrentFromSearchList();
+                    DataPortal<ScreeningFromSearchCommand> dp = new DataPortal<ScreeningFromSearchCommand>();
+                    res = dp.Execute(res);
+                    return Ok(res);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error in DeleteScreeningFromSearch");
+                return StatusCode(500, e.Message);
+            }
+        }
+
         [HttpGet("[action]")]
         public IActionResult GetTrainingScreeningCriteriaList()
         {
@@ -252,7 +354,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (!SetCSLAUser()) return Unauthorized();
+                if (!SetCSLAUser4Writing()) return Unauthorized();
                 SingleCriteria<PriorityScreeningSimulation, string> criteria =
                     new SingleCriteria<PriorityScreeningSimulation, string>(crit);
 
@@ -268,12 +370,61 @@ namespace ERxWebClient2.Controllers
         }
 
         // ******************************* end priority screening simulation study ********************************************
-
+        
+        [HttpPost("[action]")]
+        public IActionResult ShowHideTrainingRecords([FromBody] ShowHideTrainingCommandMVC crit)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    if (!UserIsAdmin()) return Forbid();
+                    ShowHideTrainingCommand cmd = crit.ToCslaBO();
+                    DataPortal<ShowHideTrainingCommand> dp = new DataPortal<ShowHideTrainingCommand>();
+                    cmd = dp.Execute(cmd);
+                    return Ok();
+                }
+                else
+                {
+                    return Forbid();
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error in ShowHideTrainingRecords");
+                return StatusCode(500, e.Message);
+            }
+        }
     }
     public class TrainingScreeningCriteriaMVC
     {
         public long trainingScreeningCriteriaId { get; set; }
         public bool included { get; set; }
         public bool deleted { get; set; }
+    }
+    public class ScreeningFromSearchCommandMVC
+    {
+        public int searchId { get; set; }
+        public int codeSetId { get; set; }
+        public Int64 triggeringItemId { get; set; }
+        public bool createNew { get; set; } = false;
+        public string result { get; set; } = "";
+
+        public ScreeningFromSearchCommand ToCslaBO()
+        {
+            ScreeningFromSearchCommand res = new ScreeningFromSearchCommand(searchId, codeSetId, triggeringItemId, createNew);
+            return res;
+        }
+    }
+    public class ShowHideTrainingCommandMVC
+    {
+        public string recordsToHide { get; set; } = "";
+        public string recordsToShow { get; set; } = "";
+                      
+        public ShowHideTrainingCommand ToCslaBO()
+        {
+            ShowHideTrainingCommand res = new ShowHideTrainingCommand(recordsToHide, recordsToShow);
+            return res;
+        }
     }
 }

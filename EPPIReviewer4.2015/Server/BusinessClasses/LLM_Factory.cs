@@ -60,6 +60,12 @@ namespace BusinessLibrary.BusinessClasses
             get { return ReadProperty(CreditIdProperty); }
             set { LoadProperty(CreditIdProperty, value); }
         }
+        public static readonly PropertyInfo<int> APICallTimeoutInSecondsProperty = RegisterProperty<int>(new PropertyInfo<int>("APICallTimeoutInSeconds", "APICallTimeoutInSeconds", 100));
+        public int APICallTimeoutInSeconds
+        {
+            get { return ReadProperty(APICallTimeoutInSecondsProperty); }
+            set { LoadProperty(APICallTimeoutInSecondsProperty, value); }
+        }
         protected string _message = "";
         public string ReturnMessage
         {

@@ -182,10 +182,13 @@ public partial class AssignCredit : System.Web.UI.Page
                 while (idr1.Read())
                 {
                     newrow = dt.NewRow();
-                    expiryDate = idr1["expiry_date"].ToString();
 
-                    expiryDate = expiryDate.Remove(expiryDate.IndexOf(" "));
-                    /*
+                    newrow["CONTACT_ID"] = idr1["CONTACT_ID"].ToString();
+                    newrow["CONTACT_NAME"] = idr1["CONTACT_NAME"].ToString();
+
+                    expiryDate = idr1["expiry_date"].ToString();
+                    //expiryDate = expiryDate.Remove(expiryDate.IndexOf(" "));
+                    
                     if (expiryDate != "")
                     {
                         expiryDate = expiryDate.Remove(expiryDate.IndexOf(" "));
@@ -209,11 +212,16 @@ public partial class AssignCredit : System.Web.UI.Page
                             //    idr1["site_lic_id"].ToString();
                         }
                     }
-                    */
-                    newrow["CONTACT_ID"] = idr1["CONTACT_ID"].ToString();
-                    newrow["CONTACT_NAME"] = idr1["CONTACT_NAME"].ToString();
-                    
-                    
+                    else
+                    {
+                        // it's an unactivated account
+                        newrow["CONTACT_NAME"] = "Unactivated";
+
+                    }
+
+
+
+
                     newrow["EMAIL"] = idr1["EMAIL"].ToString();
 
                     if ((idr1["LAST_LOGIN"].ToString() == null) || (idr1["LAST_LOGIN"].ToString() == ""))
@@ -247,10 +255,6 @@ public partial class AssignCredit : System.Web.UI.Page
                     {
                         gvMembersOfReview.Rows[i].Cells[2].BackColor = System.Drawing.Color.Yellow;
                     }
-                    if (gvMembersOfReview.Rows[i].Cells[2].Text.Contains("Not activated"))
-                    {
-                        gvMembersOfReview.Rows[i].Cells[2].BackColor = System.Drawing.Color.Yellow;
-                    }
                     if (gvMembersOfReview.Rows[i].Cells[2].Text.Contains("Expired"))
                     {
                         gvMembersOfReview.Rows[i].Cells[2].BackColor = System.Drawing.Color.Pink;
@@ -259,6 +263,15 @@ public partial class AssignCredit : System.Web.UI.Page
                     if (gvMembersOfReview.Rows[i].Cells[2].Text.Contains("Site License"))
                     {
                         gvMembersOfReview.Rows[i].Cells[2].BackColor = System.Drawing.Color.Aquamarine;
+                        DropDownList ddl = (DropDownList)gvMembersOfReview.Rows[i].Cells[2].FindControl("ddlExtendAccount");
+                        if (ddl != null)
+                        {
+                            ddl.Enabled = false;
+                        }
+                    }
+                    if (gvMembersOfReview.Rows[i].Cells[2].Text == "&nbsp;" && gvMembersOfReview.Rows[i].Cells[1].Text == "Unactivated")
+                    {
+                        gvMembersOfReview.Rows[i].Cells[1].BackColor = System.Drawing.Color.Pink;
                         DropDownList ddl = (DropDownList)gvMembersOfReview.Rows[i].Cells[2].FindControl("ddlExtendAccount");
                         if (ddl != null)
                         {
@@ -293,6 +306,7 @@ public partial class AssignCredit : System.Web.UI.Page
                 break;
         }
     }
+
 
     protected void ddlExtendAccount_SelectedIndexChanged(object sender, EventArgs e)
     {

@@ -28,9 +28,9 @@
                           Sources <span [innerHTML]="SourcesPanelTogglingSymbol"></span>
                         </button>
                         <!--<button *ngIf="HasAdminRights" type="button" class="btn btn-outline-primary m-1" (click)="toggleReviewersPanel()"
-                                >
-                          Reviewers <span [innerHTML]="ReviewersPanelTogglingSymbol"></span>
-                        </button>-->
+              >
+        Reviewers <span [innerHTML]="ReviewersPanelTogglingSymbol"></span>
+      </button>-->
                       </div>
                       <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed" class="mt-1"
                                        style="max-height: 520px;"></readonlyreviews>
@@ -49,12 +49,24 @@
                                     style="max-height: 420px;"></reviewerList>
                     </div>
 
-                    <div *ngIf="HasSreeningList">
+                    <div *ngIf="HasSreeningList && HasWriteRights">
                       <div class="border border-primary rounded align-content-end row p-1 mx-0 mt-1">
-                        <div class="mx-1">The Screening List is <b>Enabled and Ready</b>:</div>
-                        <button (click)="StartScreening()" class="btn btn-sm btn-primary mx-0 py-0 px-1">
-                          Start Screening
-                        </button>
+                        <div>
+                          The <span class="text-primary font-weight-bold ">Priority Screening</span> List is <b>Enabled and Ready</b>:
+                          <button (click)="StartScreening()" class="btn btn-primary px-1 py-0">
+                            Start Screening
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div *ngIf="HasSreeningFromSearchList && HasWriteRights">
+                      <div class="border border-primary rounded align-content-end row p-1 mx-0 mt-1">
+                        <div>
+                          The <span class="text-info font-weight-bold ">Screening From Search</span> List is <span class="font-weight-bold">Enabled and Ready</span>:
+                          <button (click)="StartScreeningFromList()" class="btn btn-info px-1 py-0">
+                            Start Screening
+                          </button>
+                        </div>
                       </div>
                     </div>
 
@@ -273,7 +285,7 @@
             <!--<kendo-icon name="print"></kendo-icon>-->
           </button>
           <button *ngIf="CanRunOpenAIrobot" kendoButton [icon]="'gears'" class="small my-1 ml-1"
-                  title="Auto-coding with OpenAI GPT4 - requires dedicated Coding Tool"
+                  title="Auto-coding with LLM(s) - requires dedicated Coding Tool"
                   [disabled]="!HasWriteRights" (click)="ShowRobotBatchJobs = !ShowRobotBatchJobs"></button>
         </div>
         <RobotBatchJobs *ngIf="CanRunOpenAIrobot && ShowRobotBatchJobs" (PleaseCloseMe)="ShowRobotBatchJobs = false"></RobotBatchJobs>

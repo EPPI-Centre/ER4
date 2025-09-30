@@ -145,9 +145,9 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
         + "<div class='w-100 p-0 mx-0 my-1 text-center'><strong class='border mx-auto px-1 rounded border-primary d-inline-block'>"
         + this.RobotSettings.robotName + "</strong></div>"
         + "<div class='my-1 px-1 alert-warning'>The job will submit <strong>full-text documents</strong> to the LLM. This means that:"
-        + "<ol><li>The PDFs will be parsed for processing, which can take minutes (per document)</li>"
-        + "<li>Cost per item is higher (~£0.10 per document for OpenAI GPT4; less for other models)</li>"
-        + "<li>Process is much slower, as each item might take more than one minute to process</li></ol>"
+        + "<ol><li>The PDFs will be parsed for processing, which can take many minutes (per document)</li>"
+        + "<li>Cost per item is higher</li>"
+        + "<li>Processing is much slower, as each item might take more than one minute to process</li></ol>"
         + "Are you <strong>sure</strong> you want to proceed?"
         + "</div>"
         + "<span class='small'>The job will be queued on a 1st-come, 1st-served basis and might take a while to start and/or run.</span>";
