@@ -144,7 +144,7 @@ export class ReviewerIdentityService implements OnDestroy {
       || !this.reviewerIdentity.roles || this.reviewerIdentity.userId < 1) return false;
     else {
       if (this.configService.EnableGPTInvestigateGlobally == true) return true;
-      else if (this.configService.GPTinvestigateEnabledAccounts.indexOf(this.reviewerIdentity.userId) > -1) return true;
+      //else if (this.configService.GPTinvestigateEnabledAccounts.indexOf(this.reviewerIdentity.userId) > -1) return true;
       else if (this.IsTrustedMethodologist == true) return true;
     }
     return false;
