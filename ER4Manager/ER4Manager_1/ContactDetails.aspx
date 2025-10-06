@@ -177,12 +177,17 @@
             </tr>
             <tr>
                 <td style="background-color: #B6C6D6; width: 25%;">
-                    ER Role</td>
-                <td style="width: 75%; background-color: #FFFFCC"; colspan="4">
+                    ER Role(s)</td>
+                <td style="width: 50%; background-color: #FFFFCC"; colspan="2">
                     <asp:DropDownList ID="ddlERRole" runat="server">
                         <asp:ListItem Selected="True" Value="0">Reviewer</asp:ListItem>
                         <asp:ListItem Value="1">Admin</asp:ListItem>
                     </asp:DropDownList>
+                </td>
+                <td style="width: 25%; background-color: #FFFFCC"; colspan="2">
+                    &nbsp;
+                    <asp:CheckBox ID="cbMethodologist" runat="server" AutoPostBack="False" 
+                         Text="Has methodologist role" />
                 </td>
             </tr>
             <tr>
@@ -213,9 +218,9 @@
                     <asp:Label ID="lblContactID" runat="server" Text="N/A"></asp:Label>
                 </td>
                 <td style="width: 50%; background-color: #FFFFCC"; colspan="2">
-                    <asp:CheckBox ID="cbSendNewsletter" runat="server" AutoPostBack="True" 
+                    <asp:CheckBox ID="cbSendNewsletter" runat="server" AutoPostBack="True" Enabled="false"
                         oncheckedchanged="cbSendNewsletter_CheckedChanged" Text="Send newsletter" />
-                &nbsp;<b>(Don&#39;t click until account created!)</b></td>
+                </td>
             </tr>
             <tr>
                 <td style="background-color: #B6C6D6; width: 25%;">

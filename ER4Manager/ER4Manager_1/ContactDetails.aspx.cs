@@ -132,6 +132,14 @@ public partial class ContactDetails : System.Web.UI.Page
                                 cbSendNewsletter.Checked = true;
                             }
                             tbArchieID.Text = idr["ARCHIE_ID"].ToString();
+                            if (idr["IS_METHODOLOGIST"].ToString() == "True")
+                            {
+                                cbMethodologist.Checked = true;
+                            }
+                            else
+                            {
+                                cbMethodologist.Checked = false;
+                            }
                         }
                         idr.Close();
 
@@ -376,7 +384,7 @@ public partial class ContactDetails : System.Web.UI.Page
             
 
             isAdmDB = true;
-            SqlParameter[] paramList = new SqlParameter[17];
+            SqlParameter[] paramList = new SqlParameter[18];
 
             paramList[0] = new SqlParameter("@NEW_ACCOUNT", SqlDbType.NVarChar, 50, ParameterDirection.Input,
                 true, 0, 0, null, DataRowVersion.Default, newAccount);
@@ -423,16 +431,17 @@ public partial class ContactDetails : System.Web.UI.Page
                     true, 0, 0, null, DataRowVersion.Default, ddlMonthsCredit.SelectedValue);
             paramList[15] = new SqlParameter("@ARCHIE_ID", SqlDbType.NVarChar, 50, ParameterDirection.Input,
                     true, 0, 0, null, DataRowVersion.Default, tbArchieID.Text);
+            paramList[16] = new SqlParameter("@IS_METHODOLOGIST", SqlDbType.Bit, 1, ParameterDirection.Input,
+                true, 0, 0, null, DataRowVersion.Default, cbMethodologist.Checked);
 
-
-            paramList[16] = new SqlParameter("@RESULT", SqlDbType.NVarChar, 50, ParameterDirection.Output,
+            paramList[17] = new SqlParameter("@RESULT", SqlDbType.NVarChar, 50, ParameterDirection.Output,
                 true, 0, 0, null, DataRowVersion.Default, "");              
              
             //Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_ContactFullCreateOrEdit", paramList);
             Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_ContactDetailsFullCreateOrEdit", paramList);
             
 
-            if (paramList[16].Value.ToString() == "Invalid")
+            if (paramList[17].Value.ToString() == "Invalid")
             {
                 lblMissingFields.Visible = true;
                 lblMissingFields.Text = "the SQL statement has failed and has been rolled back";
@@ -448,7 +457,7 @@ public partial class ContactDetails : System.Web.UI.Page
             {
                 if (newAccount == true)
                 {
-                    Server.Transfer("ContactDetails.aspx?ID=" + paramList[16].Value.ToString());
+                    Server.Transfer("ContactDetails.aspx?ID=" + paramList[17].Value.ToString());
                 }
                 else
                 {
