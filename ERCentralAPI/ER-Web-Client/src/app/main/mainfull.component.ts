@@ -416,6 +416,60 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         return report;
       }
     }
+    else if (style == "DUPLICATE03") {
+      // we need to get a list of all of the sources involved (both the master and its duplicates)
+      for (let k = 0; k < items.length; k++) {
+        let currentItem: Item = items[k];
+        sourceList += await this.ItemListService.GetSourcesDuplicatesReport02(currentItem);
+      }
+      // remove the trailing '⌐' (this is used to separate the sources)
+      sourceList = sourceList.substring(0, sourceList.length - 1)
+      // put source list into an array
+      const sources = sourceList.split('⌐');
+      // create an array of unique sources
+      const uniqueSources = [...new Set(sources)]
+
+      // create the header for the report
+      report += "<h3>Duplicate and Source report</h3>";
+      report += "M - master source&nbsp;&nbsp;&nbsp;&nbsp;X - duplicate source<br style=\"mso-data-placement: same-cell;\">";
+      report += "<table border='1' cellspacing='0' cellpadding='2'>";
+      report += "<tr style=\"vertical-align:top;\">";
+
+      report += "<td><b>Item ID</b></td>";
+      report += "<td><b>Reference type</b></td>";
+
+      report += "<td><b>Short title</b></td>";
+      report += "<td><b>Title</b></td>";
+      report += "<td><b>Journal</b></td>";
+      report += "<td><b>Year of<br style=\"mso-data-placement: same-cell;\">publication</b></td>";
+      report += "<td><b>Master Id<br style=\"mso-data-placement: same-cell;\">(Duplicate Ids)</b></td>";
+      
+      for (let l = 0; l < uniqueSources.length; l++) {
+        if (uniqueSources[l] == "") {
+          report += "<td><b>Source</b><br style=\"mso-data-placement: same-cell;\"><br style=\"mso-data-placement: same-cell;\">Manually created</td>";
+        }
+        else {
+          report += "<td><b>Source</b><br style=\"mso-data-placement: same-cell;\"><br style=\"mso-data-placement: same-cell;\">" + uniqueSources[l] + "</td>";
+        }
+      }
+      report += "</tr>"
+
+      // now get the data for the report
+      for (let k = 0; k < items.length; k++) {
+        let currentItem: Item = items[k];
+
+        report += await this.ItemListService.GetDuplicatesReport03(currentItem, uniqueSources);
+      }
+
+      if (report == "") {
+        report = "No duplicate records to show";
+        return report;
+      }
+      else { // we should only reach this if we are done generating the table
+        report += "</table><p>&nbsp;</p>";
+        return report;
+      }
+    }
     else {
       for (var i = 0; i < items.length; i++) {
         let currentItem: Item = items[i];
@@ -602,6 +656,17 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
       click: async () => {
         let DuplicateReport2: any = await this.ShowHideExportReferences('DUPLICATE02');
         const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(DuplicateReport2, this._baseUrl, "Duplicate Table", true));
+        saveAs(dataURI, "Duplicate table.html");
+
+        // for displaying in a new tab rather than a file
+        //Helpers.OpenInNewWindow(await this.ShowHideExportReferences('LINKS'), this._baseUrl);
+      }
+    },
+    {
+      text: 'Duplicate report 3',
+      click: async () => {
+        let DuplicateReport3: any = await this.ShowHideExportReferences('DUPLICATE03');
+        const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(DuplicateReport3, this._baseUrl, "Duplicate Table", true));
         saveAs(dataURI, "Duplicate table.html");
 
         // for displaying in a new tab rather than a file
