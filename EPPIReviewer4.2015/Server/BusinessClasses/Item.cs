@@ -952,6 +952,10 @@ namespace BusinessLibrary.BusinessClasses
             {
                 return GetProperty(OldItemIdProperty);
             }
+            set
+            {
+                SetProperty(OldItemIdProperty, value);
+            }
         }
 
 
@@ -1356,6 +1360,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@DOI", ReadProperty(DOIProperty)));
                     command.Parameters.Add(new SqlParameter("@KEYWORDS", ReadProperty(KeywordsProperty)));
                     command.Parameters.Add(new SqlParameter("@SearchText", ToShortSearchText(ReadProperty(TitleProperty))));
+                    command.Parameters.Add(new SqlParameter("@OLD_ITEM_ID", ReadProperty(OldItemIdProperty)));
 
                     ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
