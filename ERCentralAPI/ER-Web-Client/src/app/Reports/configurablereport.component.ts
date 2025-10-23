@@ -150,9 +150,10 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		}
 	}
 	public ItemsChoiceChange() {
-		if (this.ReportCommonParams.itemsChoice == 'Items with this code') {
+    if (this.ReportCommonParams.itemsChoice == 'Items with this code') {
 			this.ShowCodeTree = true;
-		} else {
+    } else {
+      this.DropdownSelectedCodingTool = null;
 			this.ShowCodeTree = false;
 		}
 	}
@@ -248,8 +249,9 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public RunStandardReports(attribute: SetAttribute, reviewSet: ReviewSet) {
 
 		if (this.ReportStandard.report.reportId != 0) {
-
-			this.ReportStandard.items = this.ItemListService.SelectedItems.map(x => x.itemId.toString()).join();
+      if (this.ReportCommonParams.itemsChoice == 'All selected items')
+        this.ReportStandard.items = this.ItemListService.SelectedItems.map(x => x.itemId.toString()).join();
+      else (this.ReportStandard.items = "");
 			this.ReportStandard.orderBy = this.ReportCommonParams.orderByChoice;
 			this.ReportStandard.attributeId = this.DropdownSelectedCodingTool != null ? attribute.attribute_id : 0;
 			this.ReportStandard.setId = this.DropdownSelectedCodingTool != null ? reviewSet.set_id : 0;
@@ -280,8 +282,9 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public RunROBReports(attribute: SetAttribute, reviewSet: ReviewSet) {
 
 		if (this.ReportRiskOfBias.report.reportId) {
-
-			this.ReportRiskOfBias.items = this.ItemListService.SelectedItems.map(x => x.itemId.toString()).join();
+      if (this.ReportCommonParams.itemsChoice == 'All selected items')
+        this.ReportRiskOfBias.items = this.ItemListService.SelectedItems.map(x => x.itemId.toString()).join();
+      else (this.ReportRiskOfBias.items = "");
 			this.ReportRiskOfBias.orderBy = this.ReportCommonParams.orderByChoice;
 			this.ReportRiskOfBias.attributeId = this.DropdownSelectedCodingTool != null ? attribute.attribute_id : 0;
 			this.ReportRiskOfBias.setId = this.DropdownSelectedCodingTool != null ? reviewSet.set_id : 0;
@@ -311,9 +314,12 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public RunOutcomesReports(attribute: SetAttribute, reviewSet: ReviewSet) {
 
 		if (this.ReportOutcomes.report.reportId != 0) {
+      this.ReportOutcomes.reportId = this.ReportOutcomes.report.reportId;
 
-			this.ReportOutcomes.reportId = this.ReportOutcomes.report.reportId;
-			this.ReportOutcomes.codes = this.ItemListService.SelectedItems.map(x => x.itemId.toString()).join();
+      if (this.ReportCommonParams.itemsChoice == 'All selected items')
+        this.ReportOutcomes.codes = this.ItemListService.SelectedItems.map(x => x.itemId.toString()).join();
+      else (this.ReportOutcomes.codes = "");
+
 			this.ReportOutcomes.orderBy = this.ReportCommonParams.orderByChoice;
 			this.ReportOutcomes.attributeId = this.DropdownSelectedCodingTool != null ? attribute.attribute_id : 0;
 			this.ReportRiskOfBias.setId = this.DropdownSelectedCodingTool != null ? reviewSet.set_id : 0;
