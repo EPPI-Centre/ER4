@@ -322,7 +322,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 
 			this.ReportOutcomes.orderBy = this.ReportCommonParams.orderByChoice;
 			this.ReportOutcomes.attributeId = this.DropdownSelectedCodingTool != null ? attribute.attribute_id : 0;
-			this.ReportRiskOfBias.setId = this.DropdownSelectedCodingTool != null ? reviewSet.set_id : 0;
+      this.ReportOutcomes.setId = this.DropdownSelectedCodingTool != null ? reviewSet.set_id : 0;
 			this.ReportOutcomes.showOutcomes = true;
 
 			if (this.ReportOutcomes) {
