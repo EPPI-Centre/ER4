@@ -50,8 +50,9 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     if (!this.ReviewerIdentityService.HasAdminRights) this.CurrentStep = 5;
     
     if (this.ReviewInfoService.ReviewInfo.reviewId == 0) {
-      this.ReviewInfoService.Fetch().then(res => { this.CheckIfRAICoptionIsNeeded(res) });
+      this.ReviewInfoService.Fetch().then(res => { this.CheckIfRAICoptionIsNeeded(res); });
     }
+    else this.CheckIfRAICoptionIsNeeded(true);
   }
   ngAfterViewInit() {
     if (this.ReviewInfoService.ReviewInfo.showScreening == false) this.Cancel();
