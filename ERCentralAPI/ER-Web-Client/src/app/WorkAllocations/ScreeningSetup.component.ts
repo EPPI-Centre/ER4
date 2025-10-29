@@ -50,7 +50,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     if (!this.ReviewerIdentityService.HasAdminRights) this.CurrentStep = 5;
     
     if (this.ReviewInfoService.ReviewInfo.reviewId == 0) {
-      this.ReviewInfoService.Fetch();
+      this.ReviewInfoService.Fetch().then(res => { this.CheckIfRAICoptionIsNeeded(res) });
     }
   }
   ngAfterViewInit() {
@@ -164,7 +164,9 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
       }
     }
   }
-
+  public get UserIsTrustedMethodologist(): boolean {
+    return this.ReviewerIdentityService.IsTrustedMethodologist;
+  }
 
   private _ScreeningModeOptions: kvSelectFrom[] = [
     { key: 0, value: '[Please select]' },
@@ -179,10 +181,39 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     { key: "no compl", value: 'Multiple (no auto-completion)' },
     { key: "auto code", value: 'Multiple: auto complete (code level)' },
     { key: "auto excl", value: 'Multiple: auto complete (include / exclude level)' },
-    { key: "auto safet", value: 'Multiple: auto complete (safety first)' }
+    { key: "auto safet", value: 'Multiple: auto complete (safety first)' },
+    { key: "raic", value: 'Multiple: retain all include codes' }
   ]; //{ key: "Single", value: 'Single (auto-completes)' }, //not used, as we set it automatically.
   public get ReconcileOptions(): kvStringSelectFrom[] {
     return this._ReconcileOptions;
+  }
+
+  private CheckIfRAICoptionIsNeeded(gotRevInfo: boolean) {
+    const ind = this._ReconcileOptions.findIndex(f => f.key == "raic");
+    if (gotRevInfo == false) {
+      if (ind != -1) {
+        this._ReconcileOptions.splice(ind, 1);
+      }
+    } else {
+      const raicIsSelected: boolean = (this.ReviewInfoService.ReviewInfo.screeningReconcilliation == "raic");
+      if (!raicIsSelected) {
+        if (!this.UserIsTrustedMethodologist) {
+          if (ind != -1) {
+            this._ReconcileOptions.splice(ind, 1);
+          }
+        }
+      }
+    }
+  }
+  public DisableAutoReconcileOption(option: kvStringSelectFrom): boolean {
+    if (this.UserIsTrustedMethodologist) return false;
+    const raicIsSelected = this.ReviewInfoService.ReviewInfo.screeningReconcilliation == "raic";
+    if (raicIsSelected) {
+      return true;//user isn't trusted methodologist, can't un-select RAIC
+    } else {
+      if (option.key != "raic") return false;
+      else return true;//user isn't trusted methodologist, can't select RAIC
+    }
   }
   public get SelectedReconcileOptionName(): string {
     if (this.EditingRevInfo.screeningReconcilliation == "Single") return "Single (auto completes)";
