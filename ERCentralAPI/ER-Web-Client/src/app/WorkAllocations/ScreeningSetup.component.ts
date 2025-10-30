@@ -553,6 +553,13 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     else if (this.EditingRevInfo.screeningReconcilliation == "auto safet") {
       result = "To guarantee no possible \"Include\" will be missed, all \"Include\" decisions will be automatically completed." + warn2 + warn;
     }
+    else if (this.EditingRevInfo.screeningReconcilliation == "raic") {
+      result = "This <span class='alert-warning px-1 border border-warning'>experimental feature</span> is available only to selected individuals.<br />"
+        + "<strong>All include codes</strong> picked by any reviewer are retained and assigned to the 'Auto-complete' (dummy) user.<br />"
+        + "<strong>Exclude codes</strong> are kept only when all reviewers agree on the exclude decision.<br />"
+        + "This feature thus auto-reconciles <strong>all decisions</strong> and does not require manual reconciliations.<br />"
+        + "To evaluate inter-rater agreement level, please use the \"All coding\" reports.";
+    }
     return result;
   }
 
