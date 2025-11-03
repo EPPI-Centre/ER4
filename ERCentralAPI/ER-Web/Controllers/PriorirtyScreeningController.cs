@@ -136,8 +136,27 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-
-
+        
+        [HttpPost("[action]")]
+        public IActionResult RaicFindAndDoWorkFromSimulateNextItem([FromBody] SingleIntCriteria screeningSet)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ReviewerIdentity ri = ReviewerIdentity.GetIdentity(User);
+                    ReconcileRAICworker.FindAndDoWorkFromSimulateNextItem(screeningSet.Value, ri.ReviewId, ri.UserId);
+                    return Ok();
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                string json = JsonConvert.SerializeObject(screeningSet);
+                _logger.LogError(e, "Dataportal Error in FindAndDoWorkFromSimulateNextItem: {0}", json);
+                return StatusCode(500, e.Message);
+            }
+        }
         [HttpPost("[action]")]
         public IActionResult TrainingRunCommand([FromBody] SingleInt64Criteria crit)
         {

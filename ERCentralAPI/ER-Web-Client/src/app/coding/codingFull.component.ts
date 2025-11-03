@@ -608,6 +608,9 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     //this.GetItemCoding();
   }
   BackToMain() {
+    if (this.reviewInfoService.ReviewInfo.screeningReconcilliation == 'raic') {
+      this.PriorityScreeningService.RaicFindAndDoWorkFromSimulateNextItem();
+    }
     this.clearItemData();
     this.router.navigate(['Main']);
   }

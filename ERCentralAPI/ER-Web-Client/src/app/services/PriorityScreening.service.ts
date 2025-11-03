@@ -539,6 +539,19 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
       });
   }
 
+  public RaicFindAndDoWorkFromSimulateNextItem() {
+    this._BusyMethods.push("RaicFindAndDoWorkFromSimulateNextItem");
+    let body = JSON.stringify({ Value: this.ReviewInfoService.ReviewInfo.screeningCodeSetId });
+    lastValueFrom(this._httpC.post<TrainingNextItem>(this._baseUrl + 'api/PriorirtyScreening/RaicFindAndDoWorkFromSimulateNextItem',
+      body)).then(
+        () => {
+          this.RemoveBusy("RaicFindAndDoWorkFromSimulateNextItem");
+        },
+        error => {
+          this.RemoveBusy("RaicFindAndDoWorkFromSimulateNextItem");
+          this.modalService.SendBackHomeWithError(error);
+        });
+  }
 
   public Clear() {
     this.ScreenedItemIds = [];
