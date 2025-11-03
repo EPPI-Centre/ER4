@@ -10,6 +10,7 @@ import { BusyAwareService } from '../helpers/BusyAwareService';
 import { ReviewSet, SetAttribute } from './ReviewSets.service';
 import { EventEmitterService } from './EventEmitter.service';
 import { ConfigService } from './config.service';
+import { ItemSet } from './ItemCoding.service';
 
 
 //see: https://stackoverflow.com/questions/34031448/typescript-typeerror-myclass-myfunction-is-not-a-function
@@ -537,6 +538,16 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
         this.modalService.GenericError(caught);
         return false;
       });
+  }
+
+  public CheckForRaicWork(ItemSets: ItemSet[]) {
+    if (this.ReviewInfoService.ReviewInfo.showScreening == false
+      || this.ReviewInfoService.ReviewInfo.reviewId < 1
+      || this.ReviewInfoService.ReviewInfo.screeningReconcilliation != "raic") return;
+    else {
+      const ScreeningToolId = this.ReviewInfoService.ReviewInfo.screeningCodeSetId;
+      const SetsToLookAt = ItemSets.filter(f => f.setId == ScreeningToolId);
+    }
   }
 
   public RaicFindAndDoWorkFromSimulateNextItem() {
