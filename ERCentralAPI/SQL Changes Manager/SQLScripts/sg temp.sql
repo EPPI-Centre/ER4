@@ -371,6 +371,10 @@ DECLARE @CURRENT_TRAINING_ID INT = (select MAX(TRAINING_ID) FROM TB_TRAINING
 			AND TIME_STARTED < TIME_ENDED)
 	Declare @CURRENT_TRAINING_FS_ID int = (select MAX(TRAINING_FS_ID) FROM TB_TRAINING_FROM_SEARCH
 			WHERE REVIEW_ID = @REVIEW_ID)
+	declare @missingItems table(item_id bigint, contact_id int)
+	insert into @missingItems (item_id, contact_id) select l.ItemId, l.CONTACT_ID from @ItemsToLock l
+		
+
 	Update ti SET CONTACT_ID_CODING = itu.CONTACT_ID, WHEN_LOCKED = GETDATE() from @ItemsToLock itu
 		inner join TB_TRAINING_ITEM ti on ti.TRAINING_ID = @CURRENT_TRAINING_ID and itu.ItemId = ti.ITEM_ID 
 	Update ti SET CONTACT_ID_CODING = itu.CONTACT_ID, WHEN_LOCKED = GETDATE() from @ItemsToLock itu
