@@ -13,7 +13,7 @@ namespace BusinessLibrary.BusinessClasses
 {
     public class ReconcileRAICworker
     {
-        public static void FindAndDoWorkFromSimulateNextItem(int ScreeningCodeSetId, int ReviewId, int ContactId)
+        public static void FindAndDoWorkFromSimulateNextItem(int ScreeningCodeSetId, int ReviewId, int ContactId, long TriggeringItemId)
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -31,19 +31,23 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             if (reader.NextResult())//only happens for "auto reconcile: retain all include codes (raic)"
                             {//under RAIC, items get unlocked ONLY when user changes item or requests an item (also in "simluate" mode) and get reconciled via the below
-                                GetAndDoWork(reader, ReviewId, ContactId);
+                                GetAndDoWork(reader, ReviewId, ContactId, TriggeringItemId);
                             }
                         }
                     }
                 }
             }
         }
-        public static void GetAndDoWork(Csla.Data.SafeDataReader reader, int reviewId, int contactId)
+        public static void GetAndDoWork(Csla.Data.SafeDataReader reader, int reviewId, int contactId, long triggeringItemId = 0)
         {
             List<KeyValuePair<long, int>> itemsTocheck = new List<KeyValuePair<long, int>>();
             while (reader.Read())
             {
                 itemsTocheck.Add(new KeyValuePair<long, int>(reader.GetInt64("ItemId"), reader.GetInt32("CONTACT_ID")));
+            }
+            if (triggeringItemId > 0 && itemsTocheck.FindIndex(f=> f.Key == triggeringItemId) == -1)
+            {//the triggering item should be checked too, but doesn't appear in current screening lists, so we add it manually, which means it will be auto-reconciled
+                itemsTocheck.Add(new KeyValuePair<long, int>(triggeringItemId, contactId));
             }
             if (itemsTocheck.Count > 0)
             {

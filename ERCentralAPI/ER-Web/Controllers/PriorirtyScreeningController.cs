@@ -138,21 +138,21 @@ namespace ERxWebClient2.Controllers
         }
         
         [HttpPost("[action]")]
-        public IActionResult RaicFindAndDoWorkFromSimulateNextItem([FromBody] SingleIntCriteria screeningSet)
+        public IActionResult RaicFindAndDoWorkFromSimulateNextItem([FromBody] ScreeningFromSearchCommandMVC data)
         {
             try
             {
                 if (SetCSLAUser4Writing())
                 {
                     ReviewerIdentity ri = ReviewerIdentity.GetIdentity(User);
-                    ReconcileRAICworker.FindAndDoWorkFromSimulateNextItem(screeningSet.Value, ri.ReviewId, ri.UserId);
+                    ReconcileRAICworker.FindAndDoWorkFromSimulateNextItem(data.codeSetId, ri.ReviewId, ri.UserId, data.triggeringItemId);
                     return Ok();
                 }
                 else return Forbid();
             }
             catch (Exception e)
             {
-                string json = JsonConvert.SerializeObject(screeningSet);
+                string json = JsonConvert.SerializeObject(data);
                 _logger.LogError(e, "Error in FindAndDoWorkFromSimulateNextItem: {0}", json);
                 return StatusCode(500, e.Message);
             }

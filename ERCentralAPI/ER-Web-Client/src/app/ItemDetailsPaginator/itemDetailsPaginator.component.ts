@@ -142,9 +142,9 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
     } else this.innerGetScreeningItem();
   }
   private innerGetScreeningItem() {
-    if (this.PriorityScreeningService.CheckForRaicWork(this.ItemCodingService.ItemCodingList)) {
-      this.PriorityScreeningService.RaicFindAndDoWorkFromSimulateNextItem();
-    }
+    //if (this.PriorityScreeningService.CheckForRaicWork(this.ItemCodingService.ItemCodingList) && this.item) {
+    //  this.PriorityScreeningService.RaicFindAndDoWorkFromSimulateNextItem(this.item.itemId);
+    //}
     this.GoToNextScreeningItemClicked.emit();
   }
   hasPrevious(): boolean {
@@ -220,8 +220,8 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
   }
 
   goToItem(item: Item) {
-    if (this.PriorityScreeningService.CheckForRaicWork(this.ItemCodingService.ItemCodingList)) {
-      this.PriorityScreeningService.RaicFindAndDoWorkFromSimulateNextItem();
+    if (this.PriorityScreeningService.CheckForRaicWork(this.ItemCodingService.ItemCodingList) && this.item) {
+      this.PriorityScreeningService.RaicFindAndDoWorkFromSimulateNextItem(this.item.itemId);
     }
     //this.WipeHighlights();
     if (this.Context == 'FullUI') this.router.navigate(['itemcoding', item.itemId]);

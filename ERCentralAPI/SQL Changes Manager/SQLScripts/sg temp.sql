@@ -35,6 +35,7 @@ BEGIN
 	drop procedure dbo.st_TrainingNextItem
 	drop procedure st_TrainingPreviousItem
 	drop procedure st_TrainingUnlockTheseItems
+	drop procedure st_TrainingLockTheseItems
 	drop type dbo.ITEMS_CONTACT_INPUT_TB
 END
 
@@ -357,3 +358,22 @@ As
 	Update ti SET CONTACT_ID_CODING = 0, WHEN_LOCKED = NULL from @ItemsToUnlock itu
 		inner join TB_TRAINING_FROM_SEARCH_ITEM ti on ti.TRAINING_FS_ID = @CURRENT_TRAINING_FS_ID and itu.ItemId = ti.ITEM_ID and ti.CONTACT_ID_CODING = itu.CONTACT_ID
 GO
+Use Reviewer
+GO
+CREATE OR ALTER procedure [dbo].[st_TrainingLockTheseItems]
+(
+	@REVIEW_ID int
+	,@ItemsToLock ITEMS_CONTACT_INPUT_TB READONLY
+)
+as
+DECLARE @CURRENT_TRAINING_ID INT = (select MAX(TRAINING_ID) FROM TB_TRAINING
+			WHERE REVIEW_ID = @REVIEW_ID
+			AND TIME_STARTED < TIME_ENDED)
+	Declare @CURRENT_TRAINING_FS_ID int = (select MAX(TRAINING_FS_ID) FROM TB_TRAINING_FROM_SEARCH
+			WHERE REVIEW_ID = @REVIEW_ID)
+	Update ti SET CONTACT_ID_CODING = itu.CONTACT_ID, WHEN_LOCKED = GETDATE() from @ItemsToLock itu
+		inner join TB_TRAINING_ITEM ti on ti.TRAINING_ID = @CURRENT_TRAINING_ID and itu.ItemId = ti.ITEM_ID 
+	Update ti SET CONTACT_ID_CODING = itu.CONTACT_ID, WHEN_LOCKED = GETDATE() from @ItemsToLock itu
+		inner join TB_TRAINING_FROM_SEARCH_ITEM ti on ti.TRAINING_FS_ID = @CURRENT_TRAINING_FS_ID and itu.ItemId = ti.ITEM_ID 
+GO
+

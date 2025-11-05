@@ -549,10 +549,10 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
       || this.ReviewInfoService.ReviewInfo.reviewId < 1
       || this.ReviewInfoService.ReviewInfo.screeningReconcilliation != "raic") return false;
     else {
-      const ScreeningToolId = this.ReviewInfoService.ReviewInfo.screeningCodeSetId;
-      const SetsToLookAt = ItemSets.filter(f => f.setId == ScreeningToolId);
-      if (SetsToLookAt.length < this.ReviewInfoService.ReviewInfo.screeningNPeople) return false;
-      if (SetsToLookAt.filter(f => f.isCompleted).length > 0) return false;
+      //const ScreeningToolId = this.ReviewInfoService.ReviewInfo.screeningCodeSetId;
+      //const SetsToLookAt = ItemSets.filter(f => f.setId == ScreeningToolId);
+      //if (SetsToLookAt.length < this.ReviewInfoService.ReviewInfo.screeningNPeople) return false;
+      //if (SetsToLookAt.filter(f => f.isCompleted).length > 0) return false;
       return true;
     }
   }
@@ -573,10 +573,17 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
     }
   }
 
-  public RaicFindAndDoWorkFromSimulateNextItem() {
+  public RaicFindAndDoWorkFromSimulateNextItem(ItemId: number) {
     this._BusyMethods.push("RaicFindAndDoWorkFromSimulateNextItem");
-    let body = JSON.stringify({ Value: this.ReviewInfoService.ReviewInfo.screeningCodeSetId });
-    lastValueFrom(this._httpC.post<TrainingNextItem>(this._baseUrl + 'api/PriorirtyScreening/RaicFindAndDoWorkFromSimulateNextItem',
+    const body = {
+      searchId: 0,
+      codeSetId: this.ReviewInfoService.ReviewInfo.screeningCodeSetId,
+      triggeringItemId: ItemId,
+      createNew: false,
+      result: ""
+    };//we re-use the type we're using for RunScreeningFromSearchCommand
+    
+    lastValueFrom(this._httpC.post<void>(this._baseUrl + 'api/PriorirtyScreening/RaicFindAndDoWorkFromSimulateNextItem',
       body)).then(
         () => {
           this.RemoveBusy("RaicFindAndDoWorkFromSimulateNextItem");
