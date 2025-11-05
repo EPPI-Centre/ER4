@@ -259,8 +259,6 @@ SET NOCOUNT ON
 	declare @trainingIId int;
 	
 	Declare @ItemsToUnlock ITEMS_CONTACT_INPUT_TB
-	Declare @ReconcileMode nvarchar(10) = (select SCREENING_RECONCILLIATION from TB_REVIEW where REVIEW_ID = @REVIEW_ID);
-	if @ReconcileMode is null set @ReconcileMode = '';
 
 -- FIRST, GET THE CURRENT TRAINING 'RUN' (CAN'T SEND TO THE STORED PROC, AS IT MAY HAVE CHANGED)
 	--normal PS queue
@@ -270,6 +268,23 @@ SET NOCOUNT ON
 	--queue created from a search
 	SELECT @CURRENT_TRAINING_FS_ID = MAX(TRAINING_FS_ID) FROM TB_TRAINING_FROM_SEARCH
 			WHERE REVIEW_ID = @REVIEW_ID
+	
+	Declare @ReconcileMode nvarchar(10) = (select SCREENING_RECONCILLIATION from TB_REVIEW where REVIEW_ID = @REVIEW_ID);
+	if @ReconcileMode is null set @ReconcileMode = '';
+	else if @ReconcileMode = 'raic'
+	BEGIN
+		--we include all items from the current user, as they don't get unlocked when they get coded
+		Insert into @ItemsToUnlock
+		SELECT ITEM_ID, CONTACT_ID_CODING from TB_TRAINING_ITEM 
+			where TRAINING_ID = @CURRENT_TRAINING_ID
+			AND (CONTACT_ID_CODING > 0 and WHEN_LOCKED < DATEADD(hour, -8, GETDATE())
+				OR (CONTACT_ID_CODING = @CONTACT_ID))
+		UNION --exluding duplicates!
+		SELECT ITEM_ID, CONTACT_ID_CODING from TB_TRAINING_FROM_SEARCH_ITEM 
+			where TRAINING_FS_ID = @CURRENT_TRAINING_FS_ID 
+			AND (CONTACT_ID_CODING > 0 and WHEN_LOCKED < DATEADD(hour, -8, GETDATE())
+				OR (CONTACT_ID_CODING = @CONTACT_ID))
+	END
 
 	-- NEXT, TRY TO LOCK THE ITEM WE'RE GOING TO SEND BACK (BUT WE WON'T OVERRIDE SOMEONE ELSE'S LOCK)
 	--[SG Edit: Feb 2023] we now unlock ALL OTHER items currently locked by the present user
@@ -277,27 +292,11 @@ SET NOCOUNT ON
 	BEGIN
 		 set @trainingIId = (select top 1 TRAINING_ITEM_ID from TB_TRAINING_ITEM 
 									where ITEM_ID = @ITEM_ID AND CONTACT_ID_CODING = 0 AND TRAINING_ID = @CURRENT_TRAINING_ID)
-		--if @trainingIId is not null and @trainingIId > 0
-		--BEGIN
-		--	UPDATE TB_TRAINING_ITEM
-		--		SET CONTACT_ID_CODING = @CONTACT_ID, WHEN_LOCKED = CURRENT_TIMESTAMP
-		--		WHERE TRAINING_ITEM_ID = @trainingIId
-		
-		--	IF @@ROWCOUNT > 0 set @DoneSomething = 1;
-		--END
 	END
 	ELSE
 	BEGIN
 		set @trainingIId  = (select top 1 TRAINING_FS_ITEM_ID from TB_TRAINING_FROM_SEARCH_ITEM 
 									where ITEM_ID = @ITEM_ID AND CONTACT_ID_CODING = 0 AND TRAINING_FS_ID = @CURRENT_TRAINING_FS_ID)
-		--if @trainingFSId is not null and @trainingFSId > 0
-		--BEGIN
-		--	UPDATE TB_TRAINING_FROM_SEARCH_ITEM
-		--		SET CONTACT_ID_CODING = @CONTACT_ID, WHEN_LOCKED = CURRENT_TIMESTAMP
-		--		WHERE TRAINING_FS_ITEM_ID = @trainingIId
-		
-		--	IF @@ROWCOUNT > 0 set @DoneSomething = 1;
-		--END
 	END
 
 
@@ -320,23 +319,8 @@ SET NOCOUNT ON
 			Update TB_TRAINING_FROM_SEARCH_ITEM SET CONTACT_ID_CODING = 0, WHEN_LOCKED = NULL
 				WHERE CONTACT_ID_CODING = @CONTACT_ID AND TRAINING_FS_ID = @CURRENT_TRAINING_FS_ID and ITEM_ID != @ITEM_ID
 		END
-		ELSE
-		BEGIN
-			--we include all items from the current user, as they don't get unlocked when they get coded
-			Insert into @ItemsToUnlock
-			SELECT ITEM_ID, CONTACT_ID_CODING from TB_TRAINING_ITEM 
-				where TRAINING_ID = @CURRENT_TRAINING_ID
-				AND (CONTACT_ID_CODING > 0 and WHEN_LOCKED < DATEADD(hour, -8, GETDATE())
-					OR (CONTACT_ID_CODING = @CONTACT_ID))
-			UNION --exluding duplicates!
-			SELECT ITEM_ID, CONTACT_ID_CODING from TB_TRAINING_FROM_SEARCH_ITEM 
-				where TRAINING_FS_ID = @CURRENT_TRAINING_FS_ID 
-				AND (CONTACT_ID_CODING > 0 and WHEN_LOCKED < DATEADD(hour, -8, GETDATE())
-					OR (CONTACT_ID_CODING = @CONTACT_ID))
-		END
-
-
-
+		else DELETE from @ItemsToUnlock where ItemId = @ITEM_ID and CONTACT_ID = @CONTACT_ID --this can happen, at least in theory, don't want to unlock what we're supposed to lock
+		
 		-- FINALLY, SEND IT BACK, if we did manage to lock it for the current user.
 		IF @USE_LIST_FROM_SEARCH = 0
 		BEGIN
