@@ -608,7 +608,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     //this.GetItemCoding();
   }
   BackToMain() {
-    if (this.reviewInfoService.ReviewInfo.screeningReconcilliation == 'raic') {
+    if (this.PriorityScreeningService.CheckForRaicWork(this.ItemCodingService.ItemCodingList)) {
       this.PriorityScreeningService.RaicFindAndDoWorkFromSimulateNextItem();
     }
     this.clearItemData();
@@ -724,6 +724,10 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
       }
 
       this.SetCoding();
+      if (this.PriorityScreeningService.CheckForNeedOfLockingThisItem(this.ItemCodingService.ItemCodingList, this.IsScreening, cmdResult)) {
+        this.PriorityScreeningService.PleaseLockThisItem(this.itemID);
+      }
+      //else { console.log("We should NOT lock this item: " + this.itemID); }
       console.log('set dest');
       SubSuccess.unsubscribe();
       SubError.unsubscribe();

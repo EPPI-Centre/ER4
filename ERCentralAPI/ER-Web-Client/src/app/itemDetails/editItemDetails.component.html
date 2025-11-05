@@ -44,32 +44,32 @@
         </div>
       </div>
       <div class="row w-100 p-0 m-0">
-        <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">Title </div>
+        <div class="p-1 ml-1 font-weight-bold my-auto" style="min-width:90px;">Title </div>
         <div class="col p-0 m-1">
           <input class="p-1 w-100" type="text" [(ngModel)]="item.title" />
         </div>
       </div>
       <div class="row w-100 p-0 m-0 ">
-        <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">Abstract </div>
+        <div class="p-1 ml-1 font-weight-bold my-auto" style="min-width:90px;">Abstract </div>
         <div class="col p-0 m-1">
           <textarea class="p-1 w-100" rows="6" type="text" [(ngModel)]="item.abstract"></textarea>
         </div>
       </div>
       <div class="row w-100 p-0 m-0 ">
-        <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">Author(s) </div>
+        <div class="p-1 ml-1 font-weight-bold my-auto" style="min-width:90px;">Author(s) </div>
         <div class="col p-0 m-1">
           <input class="p-1 w-100" type="text" [(ngModel)]="item.authors" />
         </div>
       </div>
       <div *ngIf="!FieldsByType(item.typeId).parentTitle.optional || showOptionalFields"
            class="row w-100 p-0 m-0">
-        <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">{{FieldsByType(item.typeId).parentTitle.txt}}</div>
+        <div class="p-1 ml-1 font-weight-bold my-auto" style="min-width:90px;">{{FieldsByType(item.typeId).parentTitle.txt}}</div>
         <div class="col p-0 m-1">
           <input class="p-1 w-100" type="text" [(ngModel)]="item.parentTitle" />
         </div>
       </div>
       <div *ngIf="!FieldsByType(item.typeId).parentAuthors.optional || showOptionalFields"
-           class="row w-100 p-0 m-0">
+           class="row w-100 p-0 m-0 my-auto">
         <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">{{FieldsByType(item.typeId).parentAuthors.txt}}</div>
         <div class="col p-0 m-1">
           <input class="p-1 w-100" type="text" [(ngModel)]="item.parentAuthors" />
@@ -77,13 +77,13 @@
       </div>
       <div class="row w-100 p-0 m-0">
         <div class="w-50 row p-0 m-0">
-          <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">Year</div>
+          <div class="p-1 ml-1 font-weight-bold my-auto" style="min-width:90px;">Year</div>
           <div class="col p-0 m-1">
             <input class="p-1 w-100" type="text" [(ngModel)]="item.year" />
           </div>
         </div>
         <div *ngIf="!FieldsByType(item.typeId).standardNumber.optional || showOptionalFields"
-             class="w-50 row p-0 m-0">
+             class="w-50 row p-0 m-0 my-auto">
           <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">{{FieldsByType(item.typeId).standardNumber.txt}}</div>
           <div class="col p-0 m-1">
             <input class="p-1 w-100" type="text" [(ngModel)]="item.standardNumber" />
@@ -92,13 +92,13 @@
       </div>
       <div class="row w-100 p-0 m-0">
         <div class="w-50 row p-0 m-0">
-          <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">Short Title</div>
+          <div class="p-1 ml-1 font-weight-bold my-auto" style="min-width:90px;">Short Title</div>
           <div class="col p-0 m-1">
             <input class="p-1 w-100" type="text" [(ngModel)]="item.shortTitle" />
           </div>
         </div>
         <div class="w-50 row p-0 m-0">
-          <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">Pages</div>
+          <div class="p-1 ml-1 font-weight-bold my-auto" style="min-width:90px;">Pages</div>
           <div class="col p-0 m-1">
             <input class="p-1 w-100" type="text" [(ngModel)]="item.pages" />
           </div>
@@ -106,33 +106,33 @@
       </div>
       <div class="row w-100 p-0 m-0">
         <div class="w-50 row p-0 m-0">
-          <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">Volume</div>
+          <div class="p-1 ml-1 font-weight-bold my-auto" style="min-width:90px;">Volume</div>
           <div class="col p-0 m-1">
             <input class="p-1 w-100" type="text" [(ngModel)]="item.volume" />
           </div>
         </div>
         <div class="w-50 row p-0 m-0">
-          <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">Issue</div>
+          <div class="p-1 ml-1 font-weight-bold my-auto" style="min-width:90px;">Issue</div>
           <div class="col p-0 m-1">
             <input class="p-1 w-100" type="text" [(ngModel)]="item.issue" />
           </div>
         </div>
       </div>
       <div class="row w-100 p-0 m-0 ">
-        <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">Url</div>
+        <div class="p-1 ml-1 font-weight-bold my-auto" style="min-width:90px;">Url</div>
         <div class="col p-0 m-1">
           <input class="p-1 w-100" type="text" [(ngModel)]="item.url" />
         </div>
       </div>
       <div class="row w-100 p-0 m-0">
         <div class="w-50 row p-0 m-0">
-          <div class="p-1 ml-1 font-weight-bold" style="min-width:90px;">DOI</div>
+          <div class="p-1 ml-1 font-weight-bold my-auto" style="min-width:90px;">DOI</div>
           <div class="col p-0 m-1">
             <input class="p-1 w-100" type="text" [(ngModel)]="item.doi" />
           </div>
         </div>
         <div class="w-50 row p-0 m-0">
-          <div class="p-1 ml-1" style="min-width:90px;">Availability</div>
+          <div class="p-1 ml-1 my-auto" style="min-width:90px;">Availability</div>
           <div class="col p-0 m-1">
             <input class="p-1 w-100" type="text" [(ngModel)]="item.availability" />
           </div>
@@ -140,13 +140,13 @@
       </div>
       <div class="row w-100 p-0 m-0">
         <div class="w-50 row p-0 m-0">
-          <div class="p-1 ml-1 " style="min-width:90px;">Edition</div>
+          <div class="p-1 ml-1 my-auto" style="min-width:90px;">Edition</div>
           <div class="col p-0 m-1">
             <input class="p-1 w-100" type="text" [(ngModel)]="item.edition" />
           </div>
         </div>
         <div class="w-50 row p-0 m-0">
-          <div class="p-1 ml-1 " style="min-width:90px;">Publisher</div>
+          <div class="p-1 ml-1 my-auto" style="min-width:90px;">Publisher</div>
           <div class="col p-0 m-1">
             <input class="p-1 w-100" type="text" [(ngModel)]="item.publisher" />
           </div>
@@ -154,13 +154,13 @@
       </div>
       <div class="row w-100 p-0 m-0">
         <div class="w-50 row p-0 m-0">
-          <div class="p-1 ml-1 " style="min-width:90px;">Month</div>
+          <div class="p-1 ml-1 my-auto" style="min-width:90px;">Month</div>
           <div class="col p-0 m-1">
             <input class="p-1 w-100" type="text" [(ngModel)]="item.month" />
           </div>
         </div>
         <div class="w-50 row p-0 m-0">
-          <div class="p-1 ml-1 " style="min-width:90px;">City</div>
+          <div class="p-1 ml-1 my-auto" style="min-width:90px;">City</div>
           <div class="col p-0 m-1">
             <input class="p-1 w-100" type="text" [(ngModel)]="item.city" />
           </div>
@@ -168,13 +168,13 @@
       </div>
       <div class="row w-100 p-0 m-0">
         <div class="w-50 row p-0 m-0">
-          <div class="p-1 ml-1 " style="min-width:90px;">Country</div>
+          <div class="p-1 ml-1 my-auto" style="min-width:90px;">Country</div>
           <div class="col p-0 m-1">
             <input class="p-1 w-100" type="text" [(ngModel)]="item.country" />
           </div>
         </div>
         <div class="w-50 row p-0 m-0">
-          <div class="p-1 ml-1 " style="min-width:90px;">Institution</div>
+          <div class="p-1 ml-1 my-auto" style="min-width:90px;">Institution</div>
           <div class="col p-0 m-1">
             <input class="p-1 w-100" type="text" [(ngModel)]="item.institution" />
           </div>
@@ -197,43 +197,38 @@
 
       <div class="row w-100 p-0 m-0">
 
-        <div class="w-50 row p-0 m-0">
-          <div class="p-1 ml-1 " style="min-width:90px;">Item ID</div>
-          <div class="col p-0 m-1">
+        <div class="col-6 col-md-4 col-lg-3 row p-0 m-0">
+          <div class="p-1 ml-1 my-auto" style="min-width:90px;">Item ID</div>
+          <div class="col p-0 m-1 my-auto">
             {{item.itemId}}
           </div>
         </div>
-        <div class="w-50 row p-0 m-0">
-          <div class="p-1 ml-1 " style="min-width:90px;">Imported ID</div>
+        <div class="row col-6 col-md-4 col-lg-3 p-0 m-0">
+          <div *ngIf="item.isDupilcate" class="row p-0 mx-0 my-auto small">
+            Item is duplicate of {{item.masterItemId}}
+          </div>
+          <div *ngIf="item.itemStatus == 'I' || item.itemStatus == 'E'" class="row p-0 m-0">
+            <div class="p-1 ml-1 my-auto" style="min-width:90px;">Item state:</div>
+            <select (change)="SetItemFlagStatus($event)" id="stateOfeditingItem" class="my-auto">
+              <option *ngFor="let kvp of ItemFlagOptions" [value]="kvp.key" [selected]="kvp.key == item.itemStatus">{{kvp.value}}</option>
+            </select>
+          </div>
+          <div *ngIf="item.itemStatus == 'D'" class="row p-0 mx-0 my-auto font-weight-bold">
+            Item is Deleted
+          </div>
+          <div *ngIf="item.itemStatus == 'S' && ! item.isDupilcate" class="row p-0 mx-0 font-weight-bold small my-auto">
+            Item is part of a Deleted Source
+          </div>
+        </div>
+        <div class="col-12 col-md-4 col-lg-6 row p-0 m-0">
+          <div class="p-1 ml-1 my-auto" style="min-width:90px;">Imported ID</div>
           <div class="col p-0 m-1">
             <input class="p-1 w-100" type="text" [(ngModel)]="item.oldItemId" />
           </div>
         </div>
       </div>
 
-      <div class="row w-100 p-0 m-0 small">
-        <!--<div class="col-4 row p-0 m-0 font-weight-bold">
-          Item ID: {{item.itemId}}
-        </div>
-        <div class="col-4 row p-0 m-0">
-          Imported ID: {{item.oldItemId}}
-        </div>-->
-        <div *ngIf="item.isDupilcate" class="col-4 row p-0 m-0">
-          Item is duplicate of {{item.masterItemId}}
-        </div>
-        <div *ngIf="item.itemStatus == 'I' || item.itemStatus == 'E'" class="col-4 row p-0 m-0">
-          <select (change)="SetItemFlagStatus($event)">
-            Item state:
-            <option *ngFor="let kvp of ItemFlagOptions" [value]="kvp.key" [selected]="kvp.key == item.itemStatus">{{kvp.value}}</option>
-          </select>
-        </div>
-        <div *ngIf="item.itemStatus == 'D'" class="col-4 row p-0 m-0 font-weight-bold">
-          Item is Deleted
-        </div>
-        <div *ngIf="item.itemStatus == 'S' && ! item.isDupilcate" class="col-4 row p-0 m-0 font-weight-bold">
-          Item is part of a Deleted Source
-        </div>
-      </div>
+      
       <div class="row w-100 p-0 m-0 small">
         <div class="col-3 row p-0 m-0 font-weight-bold">
           Created by: {{item.createdBy}}

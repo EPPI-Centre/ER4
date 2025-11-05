@@ -7,7 +7,7 @@ import { ReviewInfo, ReviewInfoService, iReviewInfo } from './ReviewInfo.service
 import { Item, iAdditionalItemDetails } from './ItemList.service';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { ReviewSet, SetAttribute } from './ReviewSets.service';
+import { ItemAttributeSaveCommand, ReviewSet, SetAttribute } from './ReviewSets.service';
 import { EventEmitterService } from './EventEmitter.service';
 import { ConfigService } from './config.service';
 import { ItemSet } from './ItemCoding.service';
@@ -540,13 +540,36 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
       });
   }
 
-  public CheckForRaicWork(ItemSets: ItemSet[]) {
+  public CheckForRaicWork(ItemSets: ItemSet[]): boolean {
+    if (this.currentItemMightBeLocked) {//WARNING - this is fragile, only works if the assumption that this method is called ONLY when changing item does hold
+      this.currentItemMightBeLocked = false;
+      return true;
+    }
     if (this.ReviewInfoService.ReviewInfo.showScreening == false
       || this.ReviewInfoService.ReviewInfo.reviewId < 1
-      || this.ReviewInfoService.ReviewInfo.screeningReconcilliation != "raic") return;
+      || this.ReviewInfoService.ReviewInfo.screeningReconcilliation != "raic") return false;
     else {
       const ScreeningToolId = this.ReviewInfoService.ReviewInfo.screeningCodeSetId;
       const SetsToLookAt = ItemSets.filter(f => f.setId == ScreeningToolId);
+      if (SetsToLookAt.length < this.ReviewInfoService.ReviewInfo.screeningNPeople) return false;
+      if (SetsToLookAt.filter(f => f.isCompleted).length > 0) return false;
+      return true;
+    }
+  }
+  private currentItemMightBeLocked = false;
+  public CheckForNeedOfLockingThisItem(ItemSets: ItemSet[], isScreening: boolean, cmdResult: ItemAttributeSaveCommand): boolean {
+    if (isScreening == true) return false;
+    else if (this.ReviewInfoService.ReviewInfo.showScreening == false
+      || this.ReviewInfoService.ReviewInfo.reviewId < 1
+      || this.ReviewInfoService.ReviewInfo.screeningReconcilliation != "raic") {
+      return false;
+    } else {
+      const ScreeningToolId = this.ReviewInfoService.ReviewInfo.screeningCodeSetId;
+      if (cmdResult.setId != ScreeningToolId) return false;
+      const SetsToLookAt = ItemSets.filter(f => f.setId == ScreeningToolId);
+      if (SetsToLookAt.filter(f => f.isCompleted).length > 0) return false;
+      this.currentItemMightBeLocked = true;
+      return true;
     }
   }
 
@@ -560,6 +583,19 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
         },
         error => {
           this.RemoveBusy("RaicFindAndDoWorkFromSimulateNextItem");
+          this.modalService.SendBackHomeWithError(error);
+        });
+  }
+  public PleaseLockThisItem(ItemId: number) {
+    this._BusyMethods.push("PleaseLockThisItem");
+    let body = JSON.stringify({ Value: ItemId });
+    lastValueFrom(this._httpC.post<TrainingNextItem>(this._baseUrl + 'api/PriorirtyScreening/PleaseLockThisItem',
+      body)).then(
+        () => {
+          this.RemoveBusy("PleaseLockThisItem");
+        },
+        error => {
+          this.RemoveBusy("PleaseLockThisItem");
           this.modalService.SendBackHomeWithError(error);
         });
   }

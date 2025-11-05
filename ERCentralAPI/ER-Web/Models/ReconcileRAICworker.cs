@@ -51,6 +51,32 @@ namespace BusinessLibrary.BusinessClasses
                 Task.Run(() => rec.DoRAICreconcileWork());
             }
         }
+        public static void TrainingLockTheseItems(List<long> ItemsToWorkOn, int ReviewId, int ContactId)
+        {
+            DataTable InputTable = new DataTable();
+            InputTable.Columns.Add(new DataColumn("ItemId", Int64.MaxValue.GetType()));
+            InputTable.Columns.Add(new DataColumn("CONTACT_ID", int.MaxValue.GetType()));
+            foreach (long ItemId in ItemsToWorkOn)
+            {
+                DataRow dr = InputTable.NewRow();
+                dr["ItemId"] = ItemId;
+                dr["CONTACT_ID"] = ContactId;
+                InputTable.Rows.Add(dr);
+            }
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_TrainingLockTheseItems", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                    SqlParameter tvpParam = command.Parameters.AddWithValue("@ItemsToLock", InputTable);
+                    tvpParam.SqlDbType = SqlDbType.Structured;
+                    tvpParam.TypeName = "dbo.ITEMS_CONTACT_INPUT_TB";
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
         private int ReviewID;
         private int ContactId;
         private List<KeyValuePair<Int64, int>> ItemsToWorkOn;

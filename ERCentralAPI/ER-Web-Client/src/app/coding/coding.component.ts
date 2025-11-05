@@ -487,6 +487,9 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     //this.GetItemCoding();
   }
   BackToMain() {
+    if (this.PriorityScreeningService.CheckForRaicWork(this.ItemCodingService.ItemCodingList)) {
+      this.PriorityScreeningService.RaicFindAndDoWorkFromSimulateNextItem();
+    }
     this.clearItemData();
     this.router.navigate(['MainCodingOnly']);
   }
@@ -599,6 +602,11 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
       }
 
       this.SetCoding();
+      if (this.PriorityScreeningService.CheckForNeedOfLockingThisItem(this.ItemCodingService.ItemCodingList, this.IsScreening, cmdResult)) {
+        //console.log("We should lock this item: " + this.itemID);
+        this.PriorityScreeningService.PleaseLockThisItem(this.itemID);
+      }
+      //else { console.log("We should NOT lock this item: " + this.itemID); }
       this.ReviewSetsService.ItemCodingItemAttributeSaveCommandHandled();
       console.log('set dest');
       SubSuccess.unsubscribe();

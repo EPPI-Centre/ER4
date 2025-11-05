@@ -153,7 +153,30 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 string json = JsonConvert.SerializeObject(screeningSet);
-                _logger.LogError(e, "Dataportal Error in FindAndDoWorkFromSimulateNextItem: {0}", json);
+                _logger.LogError(e, "Error in FindAndDoWorkFromSimulateNextItem: {0}", json);
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpPost("[action]")]
+        public IActionResult PleaseLockThisItem([FromBody] SingleInt64Criteria crit)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ReviewerIdentity ri = ReviewerIdentity.GetIdentity(User);
+                    List<long> items = new List<long>();
+                    items.Add(crit.Value);
+                    ReconcileRAICworker.TrainingLockTheseItems(items, ri.ReviewId, ri.UserId);
+                    return Ok();
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                string json = JsonConvert.SerializeObject(crit);
+                _logger.LogError(e, "Error in PleaseLockThisItem: {0}", json);
                 return StatusCode(500, e.Message);
             }
         }
