@@ -13,7 +13,7 @@ namespace BusinessLibrary.BusinessClasses
 {
     public class ReconcileRAICworker
     {
-        public static void FindAndDoWorkFromSimulateNextItem(int ScreeningCodeSetId, int ReviewId, int ContactId, long TriggeringItemId)
+        public static void FindAndDoWorkFromUITrigger(int ScreeningCodeSetId, int ReviewId, int ContactId, long TriggeringItemId)
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {

@@ -138,14 +138,14 @@ namespace ERxWebClient2.Controllers
         }
         
         [HttpPost("[action]")]
-        public IActionResult RaicFindAndDoWorkFromSimulateNextItem([FromBody] ScreeningFromSearchCommandMVC data)
+        public IActionResult RaicFindAndDoWorkFromUITrigger([FromBody] ScreeningFromSearchCommandMVC data)
         {
             try
             {
                 if (SetCSLAUser4Writing())
                 {
                     ReviewerIdentity ri = ReviewerIdentity.GetIdentity(User);
-                    ReconcileRAICworker.FindAndDoWorkFromSimulateNextItem(data.codeSetId, ri.ReviewId, ri.UserId, data.triggeringItemId);
+                    ReconcileRAICworker.FindAndDoWorkFromUITrigger(data.codeSetId, ri.ReviewId, ri.UserId, data.triggeringItemId);
                     return Ok();
                 }
                 else return Forbid();

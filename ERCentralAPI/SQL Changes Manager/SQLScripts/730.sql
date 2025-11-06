@@ -32,10 +32,14 @@ GO
 
 IF TYPE_ID(N'ITEMS_CONTACT_INPUT_TB') IS not NULL 
 BEGIN
-	drop procedure dbo.st_TrainingNextItem
-	drop procedure st_TrainingPreviousItem
-	drop procedure st_TrainingUnlockTheseItems
-	drop procedure st_TrainingLockTheseItems
+	IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_TrainingNextItem]') AND type in (N'P', N'PC'))
+		DROP PROCEDURE [dbo].[st_TrainingNextItem]
+	IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_TrainingPreviousItem]') AND type in (N'P', N'PC'))
+		DROP PROCEDURE [dbo].[st_TrainingPreviousItem]
+	IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_TrainingUnlockTheseItems]') AND type in (N'P', N'PC'))
+		DROP PROCEDURE [dbo].[st_TrainingUnlockTheseItems]
+	IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_TrainingLockTheseItems]') AND type in (N'P', N'PC'))
+		DROP PROCEDURE [dbo].[st_TrainingLockTheseItems]
 	drop type dbo.ITEMS_CONTACT_INPUT_TB
 END
 
@@ -277,14 +281,10 @@ SET NOCOUNT ON
 		--we include all items from the current user, as they don't get unlocked when they get coded
 		Insert into @ItemsToUnlock
 		SELECT ITEM_ID, CONTACT_ID_CODING from TB_TRAINING_ITEM 
-			where TRAINING_ID = @CURRENT_TRAINING_ID
-			AND (CONTACT_ID_CODING > 0 and WHEN_LOCKED < DATEADD(hour, -8, GETDATE())
-				OR (CONTACT_ID_CODING = @CONTACT_ID))
+			where TRAINING_ID = @CURRENT_TRAINING_ID AND CONTACT_ID_CODING = @CONTACT_ID and ITEM_ID != @ITEM_ID
 		UNION --exluding duplicates!
 		SELECT ITEM_ID, CONTACT_ID_CODING from TB_TRAINING_FROM_SEARCH_ITEM 
-			where TRAINING_FS_ID = @CURRENT_TRAINING_FS_ID 
-			AND (CONTACT_ID_CODING > 0 and WHEN_LOCKED < DATEADD(hour, -8, GETDATE())
-				OR (CONTACT_ID_CODING = @CONTACT_ID))
+			where TRAINING_FS_ID = @CURRENT_TRAINING_FS_ID and CONTACT_ID_CODING = @CONTACT_ID and ITEM_ID != @ITEM_ID
 	END
 
 	-- NEXT, TRY TO LOCK THE ITEM WE'RE GOING TO SEND BACK (BUT WE WON'T OVERRIDE SOMEONE ELSE'S LOCK)
@@ -370,10 +370,7 @@ DECLARE @CURRENT_TRAINING_ID INT = (select MAX(TRAINING_ID) FROM TB_TRAINING
 			WHERE REVIEW_ID = @REVIEW_ID
 			AND TIME_STARTED < TIME_ENDED)
 	Declare @CURRENT_TRAINING_FS_ID int = (select MAX(TRAINING_FS_ID) FROM TB_TRAINING_FROM_SEARCH
-			WHERE REVIEW_ID = @REVIEW_ID)
-	declare @missingItems table(item_id bigint, contact_id int)
-	insert into @missingItems (item_id, contact_id) select l.ItemId, l.CONTACT_ID from @ItemsToLock l
-		
+			WHERE REVIEW_ID = @REVIEW_ID)		
 
 	Update ti SET CONTACT_ID_CODING = itu.CONTACT_ID, WHEN_LOCKED = GETDATE() from @ItemsToLock itu
 		inner join TB_TRAINING_ITEM ti on ti.TRAINING_ID = @CURRENT_TRAINING_ID and itu.ItemId = ti.ITEM_ID 

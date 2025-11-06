@@ -540,7 +540,7 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
       });
   }
 
-  public CheckForRaicWork(ItemSets: ItemSet[]): boolean {
+  public ShouldCheckForRaicWork(ItemSets: ItemSet[]): boolean {
     if (this.currentItemMightBeLocked) {//WARNING - this is fragile, only works if the assumption that this method is called ONLY when changing item does hold
       this.currentItemMightBeLocked = false;
       return true;
@@ -573,8 +573,8 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
     }
   }
 
-  public RaicFindAndDoWorkFromSimulateNextItem(ItemId: number) {
-    this._BusyMethods.push("RaicFindAndDoWorkFromSimulateNextItem");
+  public RaicFindAndDoWorkFromUITrigger(ItemId: number) {
+    this._BusyMethods.push("RaicFindAndDoWorkFromUITrigger");
     const body = {
       searchId: 0,
       codeSetId: this.ReviewInfoService.ReviewInfo.screeningCodeSetId,
@@ -583,13 +583,13 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
       result: ""
     };//we re-use the type we're using for RunScreeningFromSearchCommand
     
-    lastValueFrom(this._httpC.post<void>(this._baseUrl + 'api/PriorirtyScreening/RaicFindAndDoWorkFromSimulateNextItem',
+    lastValueFrom(this._httpC.post<void>(this._baseUrl + 'api/PriorirtyScreening/RaicFindAndDoWorkFromUITrigger',
       body)).then(
         () => {
-          this.RemoveBusy("RaicFindAndDoWorkFromSimulateNextItem");
+          this.RemoveBusy("RaicFindAndDoWorkFromUITrigger");
         },
         error => {
-          this.RemoveBusy("RaicFindAndDoWorkFromSimulateNextItem");
+          this.RemoveBusy("RaicFindAndDoWorkFromUITrigger");
           this.modalService.SendBackHomeWithError(error);
         });
   }

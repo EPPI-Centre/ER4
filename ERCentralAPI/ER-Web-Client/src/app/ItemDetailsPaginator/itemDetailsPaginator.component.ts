@@ -220,8 +220,8 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
   }
 
   goToItem(item: Item) {
-    if (this.PriorityScreeningService.CheckForRaicWork(this.ItemCodingService.ItemCodingList) && this.item) {
-      this.PriorityScreeningService.RaicFindAndDoWorkFromSimulateNextItem(this.item.itemId);
+    if (this.PriorityScreeningService.ShouldCheckForRaicWork(this.ItemCodingService.ItemCodingList) && this.item) {
+      this.PriorityScreeningService.RaicFindAndDoWorkFromUITrigger(this.item.itemId);
     }
     //this.WipeHighlights();
     if (this.Context == 'FullUI') this.router.navigate(['itemcoding', item.itemId]);
