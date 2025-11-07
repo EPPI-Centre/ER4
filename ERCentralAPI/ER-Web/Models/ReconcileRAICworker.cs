@@ -84,13 +84,13 @@ namespace BusinessLibrary.BusinessClasses
         private int ReviewID;
         private int ContactId;
         private List<KeyValuePair<Int64, int>> ItemsToWorkOn;
-        public ReconcileRAICworker(List<KeyValuePair<long, int>> itemsToWorkOn, int reviewId, int contactId)
+        private ReconcileRAICworker(List<KeyValuePair<long, int>> itemsToWorkOn, int reviewId, int contactId)
         {
             ReviewID = reviewId;
             ContactId = contactId;
             ItemsToWorkOn = itemsToWorkOn;
         }
-        public void DoRAICreconcileWork()
+        private void DoRAICreconcileWork()
         {
             try
             {
@@ -180,6 +180,7 @@ namespace BusinessLibrary.BusinessClasses
                             ErrorLogSink("AutoReconcile - Retain All Include Codes:");
                             ErrorLogSink("Skipping item: " + kvp.Key.ToString() + " in review: " + ReviewID.ToString() + ", got no codes to complete.");
                             ErrorLogSink("");
+                            continue;
                         }
                         
                         Int64 ItemSetId = 0;
