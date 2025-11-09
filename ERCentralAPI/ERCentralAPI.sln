@@ -6,8 +6,8 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2BFF9400-FE9B-47B3-9FDA-BB40CD18E5EB}"
 	ProjectSection(SolutionItems) = preProject
 		Dlls\EPPIiFilter.dll = Dlls\EPPIiFilter.dll
-		ERCentralAPI-README.md = ERCentralAPI-README.md
 		ER6-README.md = ER6-README.md
+		ERCentralAPI-README.md = ERCentralAPI-README.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQLScripts", "SQLScripts", "{72D8A03E-A086-4C56-944C-3D84567226AA}"
