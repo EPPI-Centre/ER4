@@ -117,6 +117,10 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             LoadProperty<Int64>(ItemIdProperty, reader.GetInt64("ITEM_ID"));
                         }
+                        if (reader.NextResult())//only happens for "auto reconcile: retain all include codes (raic)"
+                        {//under RAIC, items get unlocked ONLY when user changes item or requests an item (also in "simluate" mode) and get reconciled via the below
+                            ReconcileRAICworker.GetAndDoWork(reader, ri.ReviewId, ri.UserId);
+                        }
                     }
                 }
                 if (ItemId > 0)

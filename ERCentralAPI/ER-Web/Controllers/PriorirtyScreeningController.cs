@@ -136,8 +136,50 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+        
+        [HttpPost("[action]")]
+        public IActionResult RaicFindAndDoWorkFromUITrigger([FromBody] ScreeningFromSearchCommandMVC data)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ReviewerIdentity ri = ReviewerIdentity.GetIdentity(User);
+                    ReconcileRAICworker.FindAndDoWorkFromUITrigger(data.codeSetId, ri.ReviewId, ri.UserId, data.triggeringItemId);
+                    return Ok();
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                string json = JsonConvert.SerializeObject(data);
+                _logger.LogError(e, "Error in FindAndDoWorkFromSimulateNextItem: {0}", json);
+                return StatusCode(500, e.Message);
+            }
+        }
 
-
+        [HttpPost("[action]")]
+        public IActionResult PleaseLockThisItem([FromBody] SingleInt64Criteria crit)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ReviewerIdentity ri = ReviewerIdentity.GetIdentity(User);
+                    List<long> items = new List<long>();
+                    items.Add(crit.Value);
+                    ReconcileRAICworker.TrainingLockTheseItems(items, ri.ReviewId, ri.UserId);
+                    return Ok();
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                string json = JsonConvert.SerializeObject(crit);
+                _logger.LogError(e, "Error in PleaseLockThisItem: {0}", json);
+                return StatusCode(500, e.Message);
+            }
+        }
         [HttpPost("[action]")]
         public IActionResult TrainingRunCommand([FromBody] SingleInt64Criteria crit)
         {

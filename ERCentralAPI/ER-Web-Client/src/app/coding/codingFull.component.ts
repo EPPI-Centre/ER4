@@ -608,6 +608,9 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     //this.GetItemCoding();
   }
   BackToMain() {
+    if (this.PriorityScreeningService.ShouldCheckForRaicWork(this.ItemCodingService.ItemCodingList) && this.item) {
+      this.PriorityScreeningService.RaicFindAndDoWorkFromUITrigger(this.item.itemId);
+    }
     this.clearItemData();
     this.router.navigate(['Main']);
   }
@@ -721,6 +724,10 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
       }
 
       this.SetCoding();
+      if (this.PriorityScreeningService.CheckForNeedOfLockingThisItem(this.ItemCodingService.ItemCodingList, this.IsScreening, cmdResult)) {
+        this.PriorityScreeningService.PleaseLockThisItem(this.itemID);
+      }
+      //else { console.log("We should NOT lock this item: " + this.itemID); }
       console.log('set dest');
       SubSuccess.unsubscribe();
       SubError.unsubscribe();

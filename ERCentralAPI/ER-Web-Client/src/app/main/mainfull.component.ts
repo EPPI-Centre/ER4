@@ -644,8 +644,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
       text: 'Duplicate report 1',
       click: async () => {
         let DuplicateReport1: any = await this.ShowHideExportReferences('DUPLICATE01');
-        const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(DuplicateReport1, this._baseUrl, "Duplicate Table", true));
-        saveAs(dataURI, "Duplicate table.html");
+        const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(DuplicateReport1, this._baseUrl, "Duplicate Table (type 1)", true));
+        saveAs(dataURI, "Duplicate table (type 1).html");
 
         // for displaying in a new tab rather than a file
         //Helpers.OpenInNewWindow(await this.ShowHideExportReferences('LINKS'), this._baseUrl);
@@ -655,8 +655,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
       text: 'Duplicate report 2',
       click: async () => {
         let DuplicateReport2: any = await this.ShowHideExportReferences('DUPLICATE02');
-        const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(DuplicateReport2, this._baseUrl, "Duplicate Table", true));
-        saveAs(dataURI, "Duplicate table.html");
+        const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(DuplicateReport2, this._baseUrl, "Duplicate Table (type 2)", true));
+        saveAs(dataURI, "Duplicate table (type 2).html");
 
         // for displaying in a new tab rather than a file
         //Helpers.OpenInNewWindow(await this.ShowHideExportReferences('LINKS'), this._baseUrl);
@@ -666,8 +666,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
       text: 'Duplicate report 3',
       click: async () => {
         let DuplicateReport3: any = await this.ShowHideExportReferences('DUPLICATE03');
-        const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(DuplicateReport3, this._baseUrl, "Duplicate Table", true));
-        saveAs(dataURI, "Duplicate table.html");
+        const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(DuplicateReport3, this._baseUrl, "Duplicate Table (type 3)", true));
+        saveAs(dataURI, "Duplicate table (type 3).html");
 
         // for displaying in a new tab rather than a file
         //Helpers.OpenInNewWindow(await this.ShowHideExportReferences('LINKS'), this._baseUrl);
