@@ -385,6 +385,10 @@ export class SearchComp implements OnInit, OnDestroy {
     this.router.navigate(['PriorityScreeningSim']);
   }
 
+  OpenLlmPromptEvaluation() {
+    this.router.navigate(['LlmPromptEvaluation']);
+  }
+
   CanCreateClassifierCodes(): boolean {
     // logic for enabling visualise button
     if (this.selectedNode == null) return false;
