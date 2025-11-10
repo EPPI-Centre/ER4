@@ -161,18 +161,18 @@ namespace BusinessLibrary.BusinessClasses
             return tokenCache;
         }
 
-        public static AdlsClient ConnectToClient(ServiceClientCredentials adlCreds)
-        {
+        //public static AdlsClient ConnectToClient(ServiceClientCredentials adlCreds)
+        //{
 
 
-            string dataLakeAccount = AzureSettings.MagDataLakeDataLakeAccount;
+        //    string dataLakeAccount = AzureSettings.MagDataLakeDataLakeAccount;
 
-            string _adlsg1AccountName = dataLakeAccount + ".azuredatalakestore.net";
+        //    string _adlsg1AccountName = dataLakeAccount + ".azuredatalakestore.net";
 
-            AdlsClient client = AdlsClient.CreateClient(_adlsg1AccountName, adlCreds);
+        //    AdlsClient client = AdlsClient.CreateClient(_adlsg1AccountName, adlCreds);
 
-            return client;
-        }
+        //    return client;
+        //}
 
         public static void CreateAFile(AdlsClient client, string fileName)
         {
