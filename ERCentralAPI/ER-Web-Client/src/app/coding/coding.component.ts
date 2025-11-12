@@ -487,8 +487,12 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     //this.GetItemCoding();
   }
   BackToMain() {
-    if (this.PriorityScreeningService.ShouldCheckForRaicWork(this.ItemCodingService.ItemCodingList) && this.item) {
-      this.PriorityScreeningService.RaicFindAndDoWorkFromUITrigger(this.item.itemId);
+    if (this.item) {
+      if (
+        this.IsScreening
+        || this.PriorityScreeningService.ShouldCheckForRaicWork(this.ItemCodingService.ItemCodingList)
+      )
+        this.PriorityScreeningService.RaicFindAndDoWorkFromUITrigger(this.item.itemId);
     }
     this.clearItemData();
     this.router.navigate(['MainCodingOnly']);
