@@ -96,17 +96,89 @@
           <table>
             <tr>
               <td style="vertical-align:top">
-                <select class="btn btn-outline-primary mt-3" id="dropdownBasicHelpPages"
+                <select class="btn btn-outline-primary mt-3" style="text-align:left;" id="dropdownBasicHelpPages"
                         [(ngModel)]="selected" (change)="RetrieveHelpNew($event)">
+                  <option [value]="0" [selected]=true>Select a context</option>
                   <option [ngValue]="item" *ngFor="let item of HelpPages">
                     {{DisplayFriendlyHelpPageNames(item)}}
                   </option>
                 </select>
               </td>
-              <td style="vertical-align:top;padding-top:15px">
-                &nbsp;&nbsp;&nbsp;Select the help page from the dropdown then click <b>Edit</b>. Text can be edited in the WYSIWYG editor.<br />
-                &nbsp;&nbsp;&nbsp;The editor does not recognise most bootstrap classes but they can be edited manually under <b>Source</b>.<br />
-                &nbsp;&nbsp;&nbsp;New images must be manually uploaded to the server (for now).
+              <td style="vertical-align:top;padding-top:15px;padding-left:10px">
+                <p>
+                  Select the help page from the dropdown then click <b>Edit</b>. Text can be edited in the WYSIWYG editor.
+                  The editor does not recognise most bootstrap classes but they can be edited manually under <b>Source</b>.
+                  New images must be manually uploaded to a location you can link to. There is a page on the ER gateway
+                  (https://eppi.ioe.ac.uk/cms/portals/35/) that I have been using.
+                </p>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="vertical-align:top">
+                User friendly name<br />
+                <input class="mb-1 px-1 col" type="text" id="sectionName" name="SectionName"
+                       [(ngModel)]="EditingSectionName" />
+              </td>
+              <td style="vertical-align: top;padding-left: 10px">
+                <p>
+                  You can edit the user-friendly name that will appear in the help dropdown.
+                  It will be saved when you save the help content. (i.e. you need to edit the help content in some way)
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <div *ngIf="!basicPanel">
+                  <a class="btn btn-dark btn-sm text-white" data-toggle="collapse" (click)="basicPanel = !basicPanel"
+                     href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
+                    Context extensions<span class="k-icon k-i-arrow-chevron-down"></span>
+                  </a>
+                </div>
+                <div *ngIf="basicPanel">
+                  <a class="btn btn-dark btn-sm text-white" data-toggle="collapse" (click)="basicPanel = !basicPanel"
+                     href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
+                    hide <span class="k-icon k-i-arrow-chevron-up"></span>
+                  </a>
+                </div>
+                <div class="collapse multi-collapse" id="collapseExample1">
+                  <div class="card card-footer">
+                    <p>
+                      Select a 'parent' context (has an * prefix) from the dropdown above to add a context extension to it. You can add an extension
+                      to any ''parent' context. (ex. if the parent context is 'main\reviewhome' then the extension could be
+                      'main\reviewhome\codingprogress'.) The 'user-friendly name' is what will appear in the help dropdown.
+                    </p>
+                    <table>
+                      <tr>
+                        <td>
+                          Parent context name<br />
+                          <input class="mb-1 px-1 col" type="text" id="sectionName" name="SectionName" contenteditable="false"
+                                 [(ngModel)]="FullContextExtensionName" [disabled]="parentIsDisabled"/>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          Full context extension name (use \ separators) <br />
+                          <input class="mb-1 px-1 col" type="text" id="sectionName" name="SectionName"
+                                 [(ngModel)]="FullContextExtensionName" [disabled]="addingExtensionIsDisable"/>
+                        </td>
+                        <td>
+                          User-friendly name<br />
+                          <input class="mb-1 px-1 col" type="text" id="sectionName" name="SectionName"
+                                 [(ngModel)]="ContextExtensionUserFriendlyName" [disabled]="addingExtensionIsDisable"/>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <button *ngIf="CanAddExtension" [disabled]="addingExtensionIsDisable" class="btn btn-outline-primary btn-sm ml-1 mb-1" (click)="AddContextExtension()">Add extension</button>
+                          <button *ngIf="CanAddExtension" [disabled]="deletingExtensionIsDisable" class="btn btn-outline-primary btn-sm ml-1 mb-1"
+                                  (click)="removeWarning() ">Delete extension</button>
+                        </td>
+                      </tr>
+                    </table>
+
+                  </div>
+                </div>
               </td>
             </tr>
           </table>

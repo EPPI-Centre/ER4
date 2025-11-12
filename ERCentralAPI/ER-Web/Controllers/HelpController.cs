@@ -11,6 +11,7 @@ using Csla;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using EPPIDataServices.Helpers;
+using System.Runtime.Intrinsics.Arm;
 
 namespace ERxWebClient2.Controllers
 {
@@ -22,14 +23,15 @@ namespace ERxWebClient2.Controllers
         public HelpController(ILogger<ReviewController> logger) : base(logger)
         { }
 
-        [HttpGet("[action]")]
-        public IActionResult GetHelpPageList()
+        [HttpPost("[action]")]
+        public IActionResult GetHelpPageList([FromBody] SingleStringCriteria crit)
         {
             try
             {
                 if (!SetCSLAUser()) return Unauthorized();
+
                 DataPortal<ReadOnlyHelpPageList> dp = new DataPortal<ReadOnlyHelpPageList>();
-                ReadOnlyHelpPageList result = dp.Fetch();
+                ReadOnlyHelpPageList result = dp.Fetch(new OnlineHelpCriteria(crit.Value));
 
                 return Ok(result);
             }
@@ -65,11 +67,10 @@ namespace ERxWebClient2.Controllers
         [HttpPost("[action]")]
         public IActionResult UpdateHelpcontent([FromBody] HelpContentJSON crit)
         {
-
             try
             {
                 if (!SetCSLAUser()) return Unauthorized();
-                OnlineHelpContent res = OnlineHelpContent.UpdateHelpContent(crit.context, crit.helpHTML);
+                OnlineHelpContent res = OnlineHelpContent.UpdateHelpContent(crit.context, crit.sectionName, crit.helpHTML, crit.parentContext);
                 res = res.Save();
                 return Ok(res);
             }
@@ -78,9 +79,29 @@ namespace ERxWebClient2.Controllers
                 _logger.LogException(e, "CreateFeedbackMessage data portal error");
                 return StatusCode(500, e.Message);
             }
-
         }
-        
+
+        [HttpPost("[action]")]
+        public IActionResult DeleteHelpcontent([FromBody] HelpContentJSON crit)
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+
+                DataPortal<OnlineHelpContent> dp = new DataPortal<OnlineHelpContent>();
+                OnlineHelpContent res = dp.Fetch(new OnlineHelpCriteria(crit.context));
+                res.Delete();
+                res = res.Save();
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "CreateFeedbackMessage data portal error");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+
         [HttpPost("[action]")]
         public IActionResult CreateFeedbackMessage([FromBody] FeedbackAndClientErrorJSON crit)
         {
@@ -131,7 +152,9 @@ namespace ERxWebClient2.Controllers
     public class HelpContentJSON
     {
         public string context;
+        public string sectionName;
         public string helpHTML;
+        public string parentContext;
     }
     
 }
