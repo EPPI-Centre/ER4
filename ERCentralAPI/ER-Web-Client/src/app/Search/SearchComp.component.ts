@@ -102,7 +102,6 @@ export class SearchComp implements OnInit, OnDestroy {
   public withCode: boolean = false;
   public attributeNames: string = '';
   public commaIDs: string = '';
-  public email: string = '';
   public searchText: string = '';
   public searchTextModel: string = '';
   public CurrentDropdownSelectedCode: singleNode | null = null;
@@ -322,9 +321,6 @@ export class SearchComp implements OnInit, OnDestroy {
     };
   }
 
-  CombineSearches() {
-    alert("Not implemented!");
-  }
 
   public mode: string = '1';
 
@@ -383,6 +379,10 @@ export class SearchComp implements OnInit, OnDestroy {
 
   OpenPriorityScreening() {
     this.router.navigate(['PriorityScreeningSim']);
+  }
+
+  OpenLlmPromptEvaluation() {
+    this.router.navigate(['LlmPromptEvaluation']);
   }
 
   CanCreateClassifierCodes(): boolean {
@@ -494,14 +494,14 @@ export class SearchComp implements OnInit, OnDestroy {
     }
     // Codes in set options next: ''
     else if (this.selectedSearchDropDown == 'That have at least one code from this Coding Tool'
-      && this.selectedSearchCodeSetDropDown != '' && this.SearchForPeoplesModel == 'true') {
+      && this.selectedSearchCodeSetDropDown  && this.SearchForPeoplesModel == 'true') {
       return true;
     }
     else if (this.selectedSearchDropDown == 'That have at least one code from this Coding Tool'
-      && this.selectedSearchCodeSetDropDown != '' && this.SearchForPeoplesModel == 'false' && this.ContactChoice.contactId > 0) {
+      && this.selectedSearchCodeSetDropDown && this.SearchForPeoplesModel == 'false' && this.ContactChoice.contactId > 0) {
       return true;
     }
-    else if (this.selectedSearchDropDown == "That don't have any codes from this Coding Tool" && this.selectedSearchCodeSetDropDown != '') {
+    else if (this.selectedSearchDropDown == "That don't have any codes from this Coding Tool" && this.selectedSearchCodeSetDropDown ) {
       return true;
     }// hard ones based on code selected from tree first : CurrentDropdownSelectedCode
     else if (this.selectedSearchDropDown == 'With this code' && this.CurrentDropdownSelectedCode != null && this.CurrentDropdownSelectedCode != undefined) {
@@ -879,12 +879,13 @@ export class SearchComp implements OnInit, OnDestroy {
     }
   }
 
-  public dropDownList: any = null;
+  public get ReviewSets(): ReviewSet[] {
+    return this._reviewSetsService.ReviewSets;
+  }
   public showTextBox: boolean = false;
   public selectedSearchDropDown: string = 'With this code';
   public selectedSearchTextDropDown: string = '';
-  public selectedSearchCodeSetDropDown: string = '';
-  public CodeSets: any[] = [];
+  public selectedSearchCodeSetDropDown: ReviewSet|null = null;
 
   CanWrite(): boolean {
 
@@ -1076,9 +1077,10 @@ export class SearchComp implements OnInit, OnDestroy {
       this._searchService.cmdSearches._title = this.searchText;
       this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchText');
     }
-    else if (selectedSearchDropDown == 'That have at least one code from this Coding Tool') {
+    else if (selectedSearchDropDown == 'That have at least one code from this Coding Tool' && this.selectedSearchCodeSetDropDown) {
       this._searchService.cmdSearches._withCodes = 'true';
-      this._searchService.cmdSearches._title = this.selectedSearchCodeSetDropDown;
+      this._searchService.cmdSearches._setID = this.selectedSearchCodeSetDropDown.set_id;
+      this._searchService.cmdSearches._title = this.selectedSearchCodeSetDropDown.set_name;
       if (this.SearchForPersonModel === false) {
         this._searchService.cmdSearches._contactId = 0;
         this._searchService.cmdSearches._contactName = "";
@@ -1089,9 +1091,10 @@ export class SearchComp implements OnInit, OnDestroy {
       }
       this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeSetCheck');
     }
-    else if (selectedSearchDropDown == "That don't have any codes from this Coding Tool") {
+    else if (selectedSearchDropDown == "That don't have any codes from this Coding Tool" && this.selectedSearchCodeSetDropDown) {
       this._searchService.cmdSearches._withCodes = 'false';
-      this._searchService.cmdSearches._title = this.selectedSearchCodeSetDropDown;
+      this._searchService.cmdSearches._setID = this.selectedSearchCodeSetDropDown.set_id;
+      this._searchService.cmdSearches._title = this.selectedSearchCodeSetDropDown.set_name;
       this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeSetCheck');
     }
     else if (selectedSearchDropDown == 'Without an abstract') {
@@ -1217,14 +1220,9 @@ export class SearchComp implements OnInit, OnDestroy {
     switch (num) {
 
       case 1: {
-
-        this.dropDownList = this._reviewSetsService.ReviewSets;
-
         break;
       }
       case 2: {
-        this.dropDownList = this._reviewSetsService.ReviewSets;
-
         break;
       }
       case 3: {
@@ -1236,28 +1234,12 @@ export class SearchComp implements OnInit, OnDestroy {
         break;
       }
       case 5: {
-
-        this.CodeSets = this._reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')
-          .map(
-            (y: ReviewSet) => {
-              return y.name;
-            }
-          );
-        this.dropDownList = this._reviewSetsService.ReviewSets;
         this.ShowSearchForAnyone = true;
         this.SearchForPersonDropDown = 'true';
         this.SearchForPersonModel = false;
         break;
       }
       case 6: {
-        this.CodeSets = this._reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')
-          .map(
-            (y: ReviewSet) => {
-              return y.name;
-            }
-          );
-        this.dropDownList = this._reviewSetsService.ReviewSets;
-
         break;
       }
       case 11: {
@@ -1274,16 +1256,8 @@ export class SearchComp implements OnInit, OnDestroy {
     }
   }
 
-  public setSearchCodeSetDropDown(codeSetName: string) {
-
-    this.selectedSearchCodeSetDropDown = this._reviewSetsService.ReviewSets.filter(x => x.name == codeSetName)
-      .map(
-        (y: ReviewSet) => {
-
-          this._searchService.cmdSearches._setID = y.set_id;
-          return y.name;
-        }
-      )[0];
+  public setSearchCodeSetDropDown(codeSet:ReviewSet) {
+    this.selectedSearchCodeSetDropDown = codeSet;
   }
 
   public setSearchTextDropDown(heading: string) {
@@ -1447,7 +1421,7 @@ export class SearchComp implements OnInit, OnDestroy {
   Clear() {
     console.log("clear in search component.");
     this.CurrentDropdownSelectedCode = null;
-    this.selectedSearchCodeSetDropDown = '';
+    this.selectedSearchCodeSetDropDown = null;
     this.selectedSearchDropDown = 'With this code';
     this.commaIDs = '';
     this.searchText = '';
@@ -1469,7 +1443,6 @@ export class SearchComp implements OnInit, OnDestroy {
     this.withCode = false;
     this.attributeNames = '';
     this.commaIDs = '';
-    this.email = '';
     this.searchText = '';
     this.searchTextModel = '';
     this.CurrentDropdownSelectedCode = null;

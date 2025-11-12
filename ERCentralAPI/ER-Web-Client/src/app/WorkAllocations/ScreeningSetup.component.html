@@ -1091,7 +1091,7 @@
         <div *ngIf="selectedCodeSetDropDown && !selectedCodeSetDropDown.codingIsFinal" class="row mx-0 mb-1 mt-0 col-12 p-0">
           <select class="rounded small btn border border-info dropdonw-toggle" name="ScreeningModeOptionsSelect"
                   style="min-width: 200px; max-width:720px;" (change)="SetReconciliationMode($event)">
-            <option *ngFor="let item of ReconcileOptions" [value]="item.key" class="small"
+            <option *ngFor="let item of ReconcileOptions" [value]="item.key" class="small" [disabled]="DisableAutoReconcileOption(item)"
                     [selected]="item.key == EditingRevInfo.screeningReconcilliation">
               {{item.value}}
             </option>

@@ -18,7 +18,7 @@ using Csla.Core;
 using AuthorsHandling;
 using System.Security.Cryptography;
 using System.Collections.Generic;
-using Microsoft.VisualStudio.Web.CodeGeneration.Contracts.Messaging;
+
 using System.Diagnostics;
 using System.Linq.Expressions;
 using ER_Web.Zotero;

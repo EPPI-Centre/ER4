@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <RootNamespace>ER_Web</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -28,19 +28,20 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.5" />
     <PackageReference Include="CSLA-ASPNETCORE-MVC" Version="4.7.200" />
-    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="7.5.0" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.5.0" />
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.14.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
     <PackageReference Include="CsvHelper" Version="12.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="6.0.5" />
     <PackageReference Include="Microsoft.Azure.DataLake.Store" Version="1.1.19" />
-    <PackageReference Include="Microsoft.Azure.Management.DataFactory" Version="6.1.0" />
+    <PackageReference Include="Microsoft.Azure.Management.DataFactory" Version="9.3.0" />
     <PackageReference Include="Microsoft.Azure.Management.DataLake.Analytics" Version="3.0.1" />
     <PackageReference Include="Microsoft.Azure.Management.DataLake.Store" Version="2.2.1" />
     <PackageReference Include="Microsoft.Azure.Management.ResourceManager" Version="3.17.4-preview" />
     <PackageReference Include="Microsoft.Azure.Search" Version="10.1.0" />
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.43.2" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.78.0" />
     <PackageReference Include="Microsoft.Rest.ClientRuntime.Azure.Authentication" Version="2.4.1" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.3" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
   </ItemGroup>
 

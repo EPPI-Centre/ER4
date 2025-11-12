@@ -67,9 +67,9 @@ namespace IntegrationTests.By_Controller_Tests
             //every [Fact] should start with this line, so to ensure authentication is done (once, for the whole class).
             (await AuthenticationDone()).Should().Be(true);
 
-            var contact_Id = 6;
+            var contact_Id = 7;
             Contact? contactDetails = await GetUserAccountDetails(contact_Id);
-            contactDetails.ContactId.Should().Be(6);
+            contactDetails.ContactId.Should().Be(7);
             contactDetails.contactName.Should().Be("Bob Fake");
         }
 
@@ -81,7 +81,7 @@ namespace IntegrationTests.By_Controller_Tests
             (await AuthenticationDone()).Should().Be(true);
 
             // get the contact object
-            var contact_Id = 6;
+            var contact_Id = 7;
             Contact? contactDetails = await GetUserAccountDetails(contact_Id);
 
             // update the name

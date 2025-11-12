@@ -50,8 +50,9 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     if (!this.ReviewerIdentityService.HasAdminRights) this.CurrentStep = 5;
     
     if (this.ReviewInfoService.ReviewInfo.reviewId == 0) {
-      this.ReviewInfoService.Fetch();
+      this.ReviewInfoService.Fetch().then(res => { this.CheckIfRAICoptionIsNeeded(res); });
     }
+    else this.CheckIfRAICoptionIsNeeded(true);
   }
   ngAfterViewInit() {
     if (this.ReviewInfoService.ReviewInfo.showScreening == false) this.Cancel();
@@ -164,7 +165,9 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
       }
     }
   }
-
+  public get UserIsTrustedMethodologist(): boolean {
+    return this.ReviewerIdentityService.IsTrustedMethodologist;
+  }
 
   private _ScreeningModeOptions: kvSelectFrom[] = [
     { key: 0, value: '[Please select]' },
@@ -179,10 +182,39 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     { key: "no compl", value: 'Multiple (no auto-completion)' },
     { key: "auto code", value: 'Multiple: auto complete (code level)' },
     { key: "auto excl", value: 'Multiple: auto complete (include / exclude level)' },
-    { key: "auto safet", value: 'Multiple: auto complete (safety first)' }
+    { key: "auto safet", value: 'Multiple: auto complete (safety first)' },
+    { key: "raic", value: 'Multiple: retain all include codes' }
   ]; //{ key: "Single", value: 'Single (auto-completes)' }, //not used, as we set it automatically.
   public get ReconcileOptions(): kvStringSelectFrom[] {
     return this._ReconcileOptions;
+  }
+
+  private CheckIfRAICoptionIsNeeded(gotRevInfo: boolean) {
+    const ind = this._ReconcileOptions.findIndex(f => f.key == "raic");
+    if (gotRevInfo == false) {
+      if (ind != -1) {
+        this._ReconcileOptions.splice(ind, 1);
+      }
+    } else {
+      const raicIsSelected: boolean = (this.ReviewInfoService.ReviewInfo.screeningReconcilliation == "raic");
+      if (!raicIsSelected) {
+        if (!this.UserIsTrustedMethodologist) {
+          if (ind != -1) {
+            this._ReconcileOptions.splice(ind, 1);
+          }
+        }
+      }
+    }
+  }
+  public DisableAutoReconcileOption(option: kvStringSelectFrom): boolean {
+    if (this.UserIsTrustedMethodologist) return false;
+    const raicIsSelected = this.ReviewInfoService.ReviewInfo.screeningReconcilliation == "raic";
+    if (raicIsSelected) {
+      return true;//user isn't trusted methodologist, can't un-select RAIC
+    } else {
+      if (option.key != "raic") return false;
+      else return true;//user isn't trusted methodologist, can't select RAIC
+    }
   }
   public get SelectedReconcileOptionName(): string {
     if (this.EditingRevInfo.screeningReconcilliation == "Single") return "Single (auto completes)";
@@ -520,6 +552,13 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     }
     else if (this.EditingRevInfo.screeningReconcilliation == "auto safet") {
       result = "To guarantee no possible \"Include\" will be missed, all \"Include\" decisions will be automatically completed." + warn2 + warn;
+    }
+    else if (this.EditingRevInfo.screeningReconcilliation == "raic") {
+      result = "This <span class='alert-warning px-1 border border-warning'>experimental feature</span> is available only to selected individuals.<br />"
+        + "<strong>All include codes</strong> picked by any reviewer are retained and assigned to the 'Auto-complete' (dummy) user.<br />"
+        + "<strong>Exclude codes</strong> are kept only when all reviewers agree on the exclude decision.<br />"
+        + "This feature thus auto-reconciles <strong>all decisions</strong> and does not require manual reconciliations.<br />"
+        + "To evaluate inter-rater agreement level, please use the \"All coding\" reports.";
     }
     return result;
   }
