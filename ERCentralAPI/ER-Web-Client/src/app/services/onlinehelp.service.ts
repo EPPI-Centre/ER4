@@ -30,6 +30,11 @@ export class OnlineHelpService extends BusyAwareService implements OnDestroy {
         console.log("Destroy search service");
         if (this.clearSub != null) this.clearSub.unsubscribe();
     }
+    public _ShowHelpDropDown: boolean = false;
+    public _Index0SectionName: string = "none";
+    public _EditingSectionName: string = "";
+    public _FullContextExtensionName: string = "";
+    public _ContextExtensionUserFriendlyName: string = "";
     private clearSub: Subscription | null = null;
     private _CurrentHTMLHelp: string = "";
     public get CurrentHTMLHelp(): string {
@@ -44,8 +49,10 @@ export class OnlineHelpService extends BusyAwareService implements OnDestroy {
     public get FeedbackMessageList(): FeedbackAndClientError[] {
         return this._FeedbackMessageList;
     }
-
-    public FetchHelpContent(context: string) {
+    public ClearCurrentContext() {
+      this._CurrentContext = "";
+  }
+  public FetchHelpContent(context: string, fistContext: boolean) {
         if (this._CurrentContext == context) return; //no need to re-fetch the help we have already.
         else {
             this._BusyMethods.push("FetchHelpContent");
@@ -54,10 +61,24 @@ export class OnlineHelpService extends BusyAwareService implements OnDestroy {
             this._http.post<OnlineHelpContent>(this._baseUrl + 'api/Help/FetchHelpContent',
                 body)
                 .subscribe(result => {
-                    //console.log("gethelp:", body, result);
-                    this._CurrentContext = result.context;
-                    this._CurrentHTMLHelp = result.helpHTML;
-                    this.RemoveBusy("FetchHelpContent");
+                  //console.log("gethelp:", body, result);
+                  if ((result.parentContext == null) || (result.parentContext == "")) {
+                    this._CurrentContext = result.context;                   
+                  }
+                  else {
+                    this._CurrentContext = result.parentContext;
+                  }
+                  this._FullContextExtensionName = result.context;
+
+                  this._EditingSectionName = result.sectionName.trim();
+                  this._ContextExtensionUserFriendlyName = result.sectionName.trim();
+
+                  //this._Index0SectionName = result.sectionName;
+                  if (fistContext == true) {
+                    this._Index0SectionName = result.sectionName;
+                  }
+                  this._CurrentHTMLHelp = result.helpHTML;
+                  this.RemoveBusy("FetchHelpContent");
                 },
                     (error) => {
                         console.log("FetchHelpContent error:", error);
@@ -66,9 +87,11 @@ export class OnlineHelpService extends BusyAwareService implements OnDestroy {
                     }
                 );
         }
-    }
+  }
 
-  public UpdateHelpContent(message: OnlineHelpContent1) {
+
+
+  public UpdateHelpContent(message: OnlineHelpContent1, ) {
 
     this._BusyMethods.push("UpdateHelpContent");
 
@@ -84,38 +107,69 @@ export class OnlineHelpService extends BusyAwareService implements OnDestroy {
         );
     }
 
+  public AddContextExtension(message: OnlineHelpContent1,) {
 
+    this._BusyMethods.push("UpdateHelpContent");
+    // note!! UpdateHelpcontent is actually a Create or Edit routine so we can that 
+    this._http.post<OnlineHelpContent>(this._baseUrl + 'api/Help/UpdateHelpcontent', message)
+      .subscribe(result => {
+        this.RemoveBusy("UpdateHelpContent");
+      },
+        (error) => {
+          console.log("UpdateHelpContent error:", error);
+          this.RemoveBusy("UpdateHelpContent");
+          this.modalService.GenericError(error);
+        }
+      );
+  }
+
+  public DeleteContextExtension(message: OnlineHelpContent1,) {
+
+    this._BusyMethods.push("DeleteHelpContent");
+    // note!! UpdateHelpcontent is actually a Create or Edit routine so we can that 
+    this._http.post<OnlineHelpContent>(this._baseUrl + 'api/Help/DeleteHelpcontent', message)
+      .subscribe(result => {
+        this.RemoveBusy("DeleteHelpContent");
+        //reload the list of context
+        this.FetchHelpPageList("0")
+      },
+        (error) => {
+          console.log("DeleteHelpContent error:", error);
+          this.RemoveBusy("DeleteHelpContent");
+          this.modalService.GenericError(error);
+        }
+      );
+  }
 
   private _OnlineHelpPages: ReadOnlyHelpPage[] = [];
   public get HelpPages(): ReadOnlyHelpPage[] {
     return this._OnlineHelpPages;
   }
 
-  public FetchHelpPageList() {
-    this._BusyMethods.push("FetchHelpPageList");
-    return this._httpC.get<ReadOnlyHelpPageList>(this._baseUrl + 'api/Help/GetHelpPageList').subscribe(result => {
-      this._OnlineHelpPages = result.helpPages;
-      this.RemoveBusy("FetchHelpPageList");
-    }, error => {
-      this.RemoveBusy("FetchHelpPageList");
-      this.modalService.GenericError(error);
+ 
+  public FetchHelpPageList(context: string) {
+    if ((this._CurrentContext == context) && (context != "0")) return;
+    else {
+      this._BusyMethods.push("FetchHelpPageList");
+      let body = { Value: context };
+      this._http.post<ReadOnlyHelpPageList>(this._baseUrl + 'api/Help/GetHelpPageList',
+        body)
+        .subscribe(result => {
+          this._OnlineHelpPages = result.helpPages;
+          this._ShowHelpDropDown = false;
+          if (result.helpPages.length > 0) {
+            this._ShowHelpDropDown = true;
+          }
+        this.RemoveBusy("FetchHelpPageList");
+      }, error => {
+        this.RemoveBusy("FetchHelpPageList");
+        this.modalService.GenericError(error);
+      }
+      );
     }
-    );
   }
-/*
-  public FetchSources() {
-    this._BusyMethods.push("FetchSources");
-    return this._httpC.get<ReadOnlySourcesList>(this._baseUrl + 'api/Sources/GetSources').subscribe(result => {
-      this._ReviewSources = result.sources;
-      this._SomeSourceIsBeingDeleted = result.someSourceIsBeingDeleted;
-      this.RemoveBusy("FetchSources");
-    }, error => {
-      this.RemoveBusy("FetchSources");
-      this.modalService.GenericError(error);
-    }
-    );
-  }
-*/
+
+
     public CreateFeedbackMessage(message: FeedbackAndClientError4Create) {
 
         this._BusyMethods.push("CreateFeedbackMessage");
@@ -149,17 +203,22 @@ export class OnlineHelpService extends BusyAwareService implements OnDestroy {
         );
     }
     public Clear() {
-        this._FeedbackMessageList = [];
+      this._FeedbackMessageList = [];
+      this.ClearCurrentContext();
     }
 }
 export interface OnlineHelpContent{
-    context: string;
-    helpHTML: string;
+  context: string;
+  helpHTML: string; 
+  sectionName: string;
+  parentContext: string;
 }
 
 export class OnlineHelpContent1 {
   public context: string = "";
+  public sectionName: string = "";
   public helpHTML: string = "";
+  public parentContext: string = "";
 }
 
 export class FeedbackAndClientError4Create {
@@ -180,6 +239,7 @@ export interface ReadOnlyHelpPage {
   isSelected: boolean;
   helpPage_ID: number;
   context_Name: string;
+  context_SectionName: string;
 }
 
 export interface ReadOnlyHelpPageList {

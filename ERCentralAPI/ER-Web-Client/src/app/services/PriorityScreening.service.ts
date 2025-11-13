@@ -545,16 +545,18 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
       this.currentItemMightBeLocked = false;
       return true;
     }
-    if (this.ReviewInfoService.ReviewInfo.showScreening == false
-      || this.ReviewInfoService.ReviewInfo.reviewId < 1
-      || this.ReviewInfoService.ReviewInfo.screeningReconcilliation != "raic") return false;
-    else {
-      //const ScreeningToolId = this.ReviewInfoService.ReviewInfo.screeningCodeSetId;
-      //const SetsToLookAt = ItemSets.filter(f => f.setId == ScreeningToolId);
-      //if (SetsToLookAt.length < this.ReviewInfoService.ReviewInfo.screeningNPeople) return false;
-      //if (SetsToLookAt.filter(f => f.isCompleted).length > 0) return false;
-      return true;
-    }
+    return false;
+    //if (!deepCheck
+    //  || this.ReviewInfoService.ReviewInfo.showScreening == false
+    //  || this.ReviewInfoService.ReviewInfo.reviewId < 1
+    //  || this.ReviewInfoService.ReviewInfo.screeningReconcilliation != "raic") return false;
+    //else {
+    //  const ScreeningToolId = this.ReviewInfoService.ReviewInfo.screeningCodeSetId;
+    //  const SetsToLookAt = ItemSets.filter(f => f.setId == ScreeningToolId);
+    //  if (SetsToLookAt.length == 0) return false;
+    //  if (SetsToLookAt.filter(f => f.isCompleted).length > 0) return false;
+    //  return true;
+    //}
   }
   private currentItemMightBeLocked = false;
   public CheckForNeedOfLockingThisItem(ItemSets: ItemSet[], isScreening: boolean, cmdResult: ItemAttributeSaveCommand): boolean {

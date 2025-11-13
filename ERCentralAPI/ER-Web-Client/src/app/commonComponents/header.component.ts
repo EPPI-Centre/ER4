@@ -81,10 +81,9 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 
 export class HeaderComponent implements OnInit {
 
-   
 
     constructor(private router: Router,
-                @Inject('BASE_URL') private _baseUrl: string,
+        @Inject('BASE_URL') private _baseUrl: string,
         public ReviewerIdentityServ: ReviewerIdentityService,
         private OnlineHelpService: OnlineHelpService,
         private ReviewSetsService: ReviewSetsService,
@@ -93,34 +92,45 @@ export class HeaderComponent implements OnInit {
         private notificationService: NotificationService
     ) {    }
 
+
     @Input() PageTitle: string | undefined;
     @Input() Context: string | undefined;
+
+    public TmpContext: string = "";
     private _ActivePanel: string = "";
     public set ActivePanel(val: string) {
         this._ActivePanel = val;
     }
     public get ActivePanel(): string {
-        //console.log("closing help?:", this.OnlineHelpService.CurrentContext, this.Context);
-        if (this._ActivePanel == "Help" && !this.IsServiceBusy && this.OnlineHelpService.CurrentContext != this.Context) {
+      //console.log("closing help?:", this.OnlineHelpService.CurrentContext, this.Context);
+      if (this._ActivePanel == "Help" && !this.IsServiceBusy && this.OnlineHelpService.CurrentContext != this.Context) {
             
-            this._ActivePanel = "";
-        }
-        return this._ActivePanel;
+          this._ActivePanel = "";
+      }
+      return this._ActivePanel;
     }
     public UserFeedback: string = "";
+    public firstContext: boolean = false;
 
+    public ShowDropDown: boolean = false;
+
+    public get ShowHelpDropDown(): boolean {
+        return this.OnlineHelpService._ShowHelpDropDown;
+    }
+  
     public get NameOfUser(): string {
         return this.ReviewerIdentityServ.reviewerIdentity.name;
     }
+
     public get IsReadOnly(): boolean {
-        if (this.ReviewerIdentityServ.reviewerIdentity.isAuthenticated && this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0
-            && this.ReviewerIdentityServ.reviewerIdentity.roles.indexOf('ReadOnlyUser') == -1) {
-            //special case: user is authenticated, but not in a review and does not have the ReadOnlyUser role
-            return false;
-        }
-        else {
-            return !this.ReviewerIdentityServ.HasWriteRights;
-        }
+      if (this.ReviewerIdentityServ.reviewerIdentity.isAuthenticated && this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0
+          && this.ReviewerIdentityServ.reviewerIdentity.roles.indexOf('ReadOnlyUser') == -1) {
+          //special case: user is authenticated, but not in a review and does not have the ReadOnlyUser role
+          return false;
+      }
+      else {
+          return !this.ReviewerIdentityServ.HasWriteRights;
+      }
     }
     public get IsServiceBusy() : boolean {
         if (this.OnlineHelpService.IsBusy) return true;
@@ -150,22 +160,28 @@ export class HeaderComponent implements OnInit {
         if (this.ActivePanel == "Feedback"
             || !this.Context
             || this.Context == '') {
-            this._ActivePanel = "";
+          this._ActivePanel = "";        
         }
         else if (this.Context && this.Context !== '') {
             //console.log("Feedback");
-            this._ActivePanel = "Feedback";
+          this._ActivePanel = "Feedback";
         }
     }
     ShowHideHelp() {
         if (this.ActivePanel == "Help"
             || !this.Context
             || this.Context == '') {
-            this._ActivePanel = "";
+          this.ActivePanel = "";
+          this.ShowDropDown = false;
+          this.firstContext = false;
         }
         else if (this.Context && this.Context !== '') {
-            this._ActivePanel = "Help";
-            this.OnlineHelpService.FetchHelpContent(this.Context);
+          this._ActivePanel = "Help";        
+          this.firstContext = true;
+          this.OnlineHelpService.FetchHelpPageList(this.Context);
+          this.OnlineHelpService.FetchHelpContent(this.Context, this.firstContext);
+          this.firstContext = false; // we only want it to be true the first time we open help
+          this.ShowDropDown = true;    
         }
     }
     SendFeedback() {
@@ -192,7 +208,46 @@ export class HeaderComponent implements OnInit {
             + this.ReviewerIdentityServ.reviewerIdentity.reviewId
             + ")&Body=Hello,%0D%0A[Please type your message here]%0D%0A %0D%0A %0D%0A[Context details, please do not edit]: %0D%0APage: "
             + this.Context + "%0D%0AReview Id: " + this.ReviewerIdentityServ.reviewerIdentity.reviewId + "%0D%0A";
+  }
+
+  public selectedContext: string = "Select a topic";
+
+  DisplayFriendlyHelpPageNames(helpPageItem: ReadOnlyHelpPage): string {
+      this.selectedContext = helpPageItem.context_Name;
+    //return helpPageItem.context_Name;
+    return helpPageItem.context_SectionName;
+  }
+
+  DisplayFriendlyIndex0Name(): string {
+    return this.OnlineHelpService._Index0SectionName;
+  }
+
+  public get HelpPages(): ReadOnlyHelpPage[] {
+    return this.OnlineHelpService.HelpPages;
+  }
+  public selected?: ReadOnlyHelpPage;
+
+  
+  public RetrieveHelpNew(event: Event) {
+    //if (this.selected) {
+    //this.TmpContext = this.selected.context_Name;
+    this.TmpContext = (event.target as HTMLOptionElement).value;
+      if (this.TmpContext) {
+        this.OnlineHelpService.FetchHelpContent(this.TmpContext.replace("--> ", ""), this.firstContext);
+        this._ActivePanel = "Help";
+        var test = this.ActivePanel;
+
+      }
+    //}
+  }
+
+
+  ngOnInit() {
     }
-    ngOnInit() {
-    }
+}   
+
+export interface ReadOnlyHelpPage {
+  helpPage_ID: number;
+  context_Name: string;
+  context_SectionName: string;
 }

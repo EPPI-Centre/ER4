@@ -15,16 +15,22 @@ namespace BusinessLibrary.BusinessClasses
     {
         public OnlineHelpContent() { }
 
-        public static OnlineHelpContent UpdateHelpContent(string Context, string HelpContent)
+        public static OnlineHelpContent UpdateHelpContent(string Context, string SectionName, string HelpContent, string ParentContext)
         {
-            OnlineHelpContent res = new OnlineHelpContent(Context, HelpContent);
+            OnlineHelpContent res = new OnlineHelpContent(Context, SectionName, HelpContent, ParentContext);
             return res;
         }
-
-        private OnlineHelpContent(string context, string helpContent)
+        public static OnlineHelpContent DeleteHelpContent(string Context, string SectionName, string HelpContent, string ParentContext)
+        {
+            OnlineHelpContent res = new OnlineHelpContent(Context, SectionName, HelpContent, ParentContext);
+            return res;
+        }
+        private OnlineHelpContent(string context, string sectionName, string helpContent, string parentContext)
         {
             SetProperty(ContextProperty, context);
+            SetProperty(SectionNameProperty, sectionName);
             SetProperty(HelpHTMLProperty, helpContent);
+            SetProperty(ParentContextProperty, parentContext);
         }
 
         public static readonly PropertyInfo<int> OnlineHelpContentIdProperty = RegisterProperty<int>(new PropertyInfo<int>("OnlineHelpContentId", "OnlineHelpContentId"));
@@ -46,6 +52,32 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(ContextProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> ParentContextProperty = RegisterProperty<string>(new PropertyInfo<string>("ParentContext", "ParentContext", string.Empty));
+        public string ParentContext
+        {
+            get
+            {
+                return GetProperty(ParentContextProperty);
+            }
+            set
+            {
+                SetProperty(ParentContextProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> SectionNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SectionName", "SectionName", string.Empty));
+        public string SectionName
+        {
+            get
+            {
+                return GetProperty(SectionNameProperty);
+            }
+            set
+            {
+                SetProperty(SectionNameProperty, value);
             }
         }
 
@@ -93,8 +125,10 @@ namespace BusinessLibrary.BusinessClasses
                         if (reader.Read())
                         {
                             LoadProperty<int>(OnlineHelpContentIdProperty, reader.GetInt32("ONLINE_HELP_ID"));
-                            
                             LoadProperty<string>(HelpHTMLProperty, reader.GetString("HELP_HTML"));
+                            LoadProperty<string>(ContextProperty, reader.GetString("CONTEXT"));
+                            LoadProperty<string>(SectionNameProperty, reader.GetString("SECTION_NAME"));
+                            LoadProperty<string>(ParentContextProperty, reader.GetString("PARENT_CONTEXT"));
                         }
                     }
                 }
@@ -117,7 +151,9 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@CONTEXT", ReadProperty(ContextProperty)));
+                    command.Parameters.Add(new SqlParameter("@SECTION_NAME", ReadProperty(SectionNameProperty)));
                     command.Parameters.Add(new SqlParameter("@HELP_HTML", ReadProperty(HelpHTMLProperty)));
+                    command.Parameters.Add(new SqlParameter("@PARENT_CONTEXT", ReadProperty(ParentContextProperty)));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();
@@ -134,10 +170,23 @@ namespace BusinessLibrary.BusinessClasses
 
         //}
 
-        //protected override void DataPortal_DeleteSelf()
-        //{
-
-        //}
+        protected override void DataPortal_DeleteSelf()
+        {
+            using (SqlConnection connection = new SqlConnection(DataConnection.AdmConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_OnlineHelpDelete", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@CONTEXT", ReadProperty(ContextProperty)));
+                    command.Parameters.Add(new SqlParameter("@SECTION_NAME", ReadProperty(SectionNameProperty)));
+                    command.Parameters.Add(new SqlParameter("@HELP_HTML", ReadProperty(HelpHTMLProperty)));
+                    command.Parameters.Add(new SqlParameter("@PARENT_CONTEXT", ReadProperty(ParentContextProperty)));
+                    command.ExecuteNonQuery();
+                }
+                connection.Close();
+            }
+        }
 
 #endif
 
