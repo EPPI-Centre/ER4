@@ -172,7 +172,7 @@
                       </tr>
                       <tr>
                         <td>
-                          <button [disabled]="!EditingHelp.IsValid" class="btn btn-outline-primary btn-sm ml-1 my-auto" (click)="AddHelp()">Add extension</button>
+                          <button [disabled]="disableCreateNew"  class="btn btn-outline-primary btn-sm ml-1 my-auto" (click)="AddHelp()">Add extension</button>
                           <button class="btn btn-outline-dark btn-sm ml-1 my-auto" (click)="HideCreateHelp()">Cancel</button>
                         </td>
                       </tr>
@@ -235,8 +235,7 @@
             </div>
             <div class="mx-1 px-1 col-auto border-right">
               <div>Context extension name:</div>
-              <input class="mb-1 px-1 col" type="text" id="sectionName" name="SectionName"
-                     [(ngModel)]="EditingHelp.leafContext" />
+              <div class="alert-dark p-1 border border-dark">{{EditingHelp.leafContext}}</div>
             </div>
             <div class="mx-1 px-1 col-auto border-right">
               <div>User-friendly name:</div>
@@ -250,7 +249,7 @@
           </div>
 
 
-          <kendo-editor [(ngModel)]="EditingHelp.helpHTML" [iframe]="false" [pasteCleanupSettings]="pasteCleanupSettings">
+          <kendo-editor [(ngModel)]="EditingHelp.helpHTML" [iframe]="false" style="max-height:65vh;" [pasteCleanupSettings]="pasteCleanupSettings">
             <kendo-toolbar>
               <kendo-toolbar-buttongroup>
                 <kendo-toolbar-button kendoEditorBoldButton></kendo-toolbar-button>

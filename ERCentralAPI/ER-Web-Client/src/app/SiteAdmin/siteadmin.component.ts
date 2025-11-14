@@ -160,7 +160,6 @@ export class SiteAdminComponent implements OnInit, OnDestroy  {
     if (this.EditingHelp.helpHTML.trim() == "") return true;
     if (!this.EditingHelp.IsValid ) return true;
     if (this.EditingHelp.helpHTML != this.OrigCurrentHelp.helpHTML) return false;
-    if (this.EditingHelp.context != this.OrigCurrentHelp.context) return false;
     if (this.EditingHelp.sectionName != this.OrigCurrentHelp.sectionName) return false;
     return true;
   }
@@ -195,6 +194,7 @@ export class SiteAdminComponent implements OnInit, OnDestroy  {
       this.EditingHelp = new OnlineHelpContent();
     }
     this.OrigCurrentHelp = this.EditingHelp.clone();
+    this.ShowEdit = false;
     this.ShowCreateHelpPanel = true;
   }
   public HideCreateHelp() {
