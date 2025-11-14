@@ -165,10 +165,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             UpdateOrInsert();
         }
-        //protected override void DataPortal_Update()
-        //{
-
-        //}
+        
 
         protected override void DataPortal_DeleteSelf()
         {
@@ -179,9 +176,6 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@CONTEXT", ReadProperty(ContextProperty)));
-                    command.Parameters.Add(new SqlParameter("@SECTION_NAME", ReadProperty(SectionNameProperty)));
-                    command.Parameters.Add(new SqlParameter("@HELP_HTML", ReadProperty(HelpHTMLProperty)));
-                    command.Parameters.Add(new SqlParameter("@PARENT_CONTEXT", ReadProperty(ParentContextProperty)));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();

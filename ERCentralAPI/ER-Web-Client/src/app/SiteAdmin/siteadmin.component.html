@@ -91,7 +91,7 @@
 
     <kendo-tabstrip-tab [selected]="false" [title]="'Help'" >
       <ng-template kendoTabContent>
-        
+
         <div>
           <table>
             <tr>
@@ -114,35 +114,38 @@
               </td>
             </tr>
 
-            <tr>
-              <td style="vertical-align:top">
-                User friendly name<br />
-                <input class="mb-1 px-1 col" type="text" id="sectionName" name="SectionName"
-                       [(ngModel)]="EditingSectionName" />
-              </td>
-              <td style="vertical-align: top;padding-left: 10px">
-                <p>
-                  You can edit the user-friendly name that will appear in the help dropdown.
-                  It will be saved when you save the help content. (i.e. you need to edit the help content in some way)
-                </p>
-              </td>
-            </tr>
+            <!--<tr>
+        <td style="vertical-align:top">
+          User friendly name<br />
+          <div class="bg-white border border-dark">{{EditingSectionName}}</div>
+        </td>
+        <td style="vertical-align: top;padding-left: 10px">
+          <p>
+            You can edit the user-friendly name that will appear in the help dropdown.
+            It will be saved when you save the help content.
+          </p>
+        </td>
+      </tr>-->
             <tr>
               <td colspan="2">
-                <div *ngIf="!basicPanel">
-                  <a class="btn btn-dark btn-sm text-white" data-toggle="collapse" (click)="basicPanel = !basicPanel"
-                     href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
-                    Context extensions<span class="k-icon k-i-arrow-chevron-down"></span>
-                  </a>
+                <div class="row px-0 mx-1 my-1">
+                  <button class="btn btn-outline-primary btn-sm ml-1 mb-1" (click)="ShowCreateHelp(false)">Add Regular/root help page</button>
                 </div>
-                <div *ngIf="basicPanel">
-                  <a class="btn btn-dark btn-sm text-white" data-toggle="collapse" (click)="basicPanel = !basicPanel"
-                     href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
-                    hide <span class="k-icon k-i-arrow-chevron-up"></span>
-                  </a>
+                <div *ngIf="canShowAddExtension" class="row px-0 mx-1">
+                  <div *ngIf="!ShowCreateHelpPanel">
+                    <button class="btn btn-dark btn-sm text-white" (click)="ShowCreateHelp(true)">
+                      Context extensions<span class="k-icon k-i-arrow-chevron-down"></span>
+                    </button>
+                  </div>
+                  <div *ngIf="ShowCreateHelpPanel">
+                    <button class="btn btn-dark btn-sm text-white" (click)="HideCreateHelp()">
+                      Hide <span class="k-icon k-i-arrow-chevron-up"></span>
+                    </button>
+                  </div>
+                  <div class="my-auto ml-1">Please select a root help page (has an * prefix) to add an extension to it. After creating it you'll be able to add content for it</div>
                 </div>
-                <div class="collapse multi-collapse" id="collapseExample1">
-                  <div class="card card-footer">
+                <div *ngIf="ShowCreateHelpPanel" class="">
+                  <div *ngIf="EditingHelp.IsExtension" class="card card-footer">
                     <p>
                       Select a 'parent' context (has an * prefix) from the dropdown above to add a context extension to it. You can add an extension
                       to any ''parent' context. (ex. if the parent context is 'main\reviewhome' then the extension could be
@@ -152,59 +155,102 @@
                       <tr>
                         <td>
                           Parent context name<br />
-                          <input class="mb-1 px-1 col" type="text" id="sectionName" name="SectionName" contenteditable="false"
-                                 [(ngModel)]="FullContextExtensionName" [disabled]="parentIsDisabled"/>
+                          <div class="border border-dark alert-dark">{{EditingHelp.parentContext}}</div>
                         </td>
                       </tr>
                       <tr>
                         <td>
-                          Full context extension name (use \ separators) <br />
+                          Context extension name (just the additional part!): <br />
                           <input class="mb-1 px-1 col" type="text" id="sectionName" name="SectionName"
-                                 [(ngModel)]="FullContextExtensionName" [disabled]="addingExtensionIsDisable"/>
+                                 [(ngModel)]="EditingHelp.leafContext" />
                         </td>
                         <td>
-                          User-friendly name<br />
+                          User-friendly name:<br />
                           <input class="mb-1 px-1 col" type="text" id="sectionName" name="SectionName"
-                                 [(ngModel)]="ContextExtensionUserFriendlyName" [disabled]="addingExtensionIsDisable"/>
+                                 [(ngModel)]="EditingHelp.sectionName" />
                         </td>
                       </tr>
                       <tr>
                         <td>
-                          <button *ngIf="CanAddExtension" [disabled]="addingExtensionIsDisable" class="btn btn-outline-primary btn-sm ml-1 mb-1" (click)="AddContextExtension()">Add extension</button>
-                          <button *ngIf="CanAddExtension" [disabled]="deletingExtensionIsDisable" class="btn btn-outline-primary btn-sm ml-1 mb-1"
-                                  (click)="removeWarning() ">Delete extension</button>
+                          <button [disabled]="!EditingHelp.IsValid" class="btn btn-outline-primary btn-sm ml-1 my-auto" (click)="AddHelp()">Add extension</button>
+                          <button class="btn btn-outline-dark btn-sm ml-1 my-auto" (click)="HideCreateHelp()">Cancel</button>
                         </td>
                       </tr>
                     </table>
 
+                  </div>
+                  <div *ngIf="!EditingHelp.IsExtension" class="row mx-1 px-1 mb-1">
+                    <div class="row mx-1 px-1">
+                      <div class="my-auto">Context:</div>
+                      <input class="mb-1 px-1 my-auto" type="text" id="contextbox" name="contextbox"
+                             [(ngModel)]="EditingHelp.context" />
+                    </div>
+                    <div class="row mx-1 px-1">
+                      <button [disabled]="disableCreateNew" class="btn btn-outline-primary btn-sm ml-1 my-auto" (click)="AddHelp()">Add Help</button>
+                      <button class="btn btn-outline-dark btn-sm ml-1 my-auto" (click)="HideCreateHelp()">Cancel</button>
+                    </div>
+                    <div class="my-auto mx-1 px-1">
+                      You can create a help page with placeholder content, and then edit the content afterwards.
+                    </div>
                   </div>
                 </div>
               </td>
             </tr>
           </table>
         </div>
-        
 
-        <div [@PanelAppear]="ActivePanel=='Help' ? 'visible' : 'hidden'"
-             class="card card-body alert alert-info border border-dark p-0 mb-0 " style="max-height:400px;overflow-y:auto;overflow-x:hidden; max-width:98%; width:98%; margin-right:auto;margin-left:auto;font-size:16px">
-          <div *ngIf="ActivePanel=='Help'&& IsServiceBusy">Loading help...</div>
-          <div *ngIf="ActivePanel=='Help' && CurrentContextHelp.length == 0"
+
+
+
+        <div class="card card-body alert alert-info border border-info p-0 mb-0 " style="max-height:400px;overflow-y:auto;overflow-x:hidden; max-width:98%; width:98%; margin-right:auto;margin-left:auto;font-size:16px">
+          <div *ngIf="IsServiceBusy">Loading help...</div>
+          <div *ngIf="CurrentContextHelp.length == 0"
                class="m-0 p-1">
             Apologies, there currently is no help for this page/activity.<br />
             Please check this help page later: we are adding new Help content regularly.
           </div>
-          <div [@HelpAppear]="ActivePanel=='Help' && !IsServiceBusy && CurrentContextHelp.length > 0 ? 'visible' : 'hidden'"
-               class="m-0 p-1"
-               [innerHTML]=GetText()>
+
+          <div class="m-0 p-1" [innerHTML]=GetText()></div>
+        </div>
+
+        <div class="row mx-0 p-1">
+          <button *ngIf="CurrentContextHelp.length > 0" class="btn btn-outline-primary btn-sm mx-1" (click)="Edit()"><span>{{ShowEdit ? 'Cancel' : 'Edit'}}</span></button>
+          <div *ngIf="ShowEdit">
+            <button [disabled]="disableSave" class="btn btn-outline-danger btn-sm mx-1" (click)="Save()">Save</button>
+            <button class="btn btn-outline-danger btn-sm my-auto mx-1" (click)="removeWarning() ">
+              Delete Help Page
+            </button>
           </div>
         </div>
 
-        <button *ngIf="CurrentContextHelp.length > 0" class="btn btn-outline-primary btn-sm ml-1 mb-1" (click)="Edit()"><span>{{ShowEdit ? 'Cancel' : 'Edit'}}</span></button>
-        <button *ngIf="ShowEdit" [disabled]="!CanSaveHelp()" class="btn btn-outline-primary btn-sm ml-1 mb-1" (click)="Save()">Save</button>
+        <div *ngIf="ShowEdit" class="rounded border border-primary col w-100">
+          <div *ngIf="CurrentHelp.IsExtension" class="row px-0 mx-1">
+            <div class="mx-1 px-1 col-auto border-right">
+              <div>Parent context name:</div>
+              <div class="alert-dark p-1 border border-dark">{{EditingHelp.parentContext}}</div>
+            </div>
+            <div class="mx-1 px-1 col-auto border-right">
+              <div>Full path/context:</div>
+              <div class="alert-dark p-1 border border-dark">{{EditingHelp.context}}</div>
+            </div>
+            <div class="mx-1 px-1 col-auto border-right">
+              <div>Context extension name:</div>
+              <input class="mb-1 px-1 col" type="text" id="sectionName" name="SectionName"
+                     [(ngModel)]="EditingHelp.leafContext" />
+            </div>
+            <div class="mx-1 px-1 col-auto border-right">
+              <div>User-friendly name:</div>
+              <input class="mb-1 px-1 col" type="text" id="sectionName" name="SectionName"
+                     [(ngModel)]="EditingHelp.sectionName" />
+            </div>
+            <!--<button class="btn btn-outline-danger btn-sm my-auto"
+                    (click)="removeWarning() ">
+              Delete Help Page
+            </button>-->
+          </div>
 
 
-        <div *ngIf="ShowEdit" class="rounded col w-100">
-          <kendo-editor [(ngModel)]="model.editorData" (valueChange)="valueChange($event)" [iframe]="false" [pasteCleanupSettings]="pasteCleanupSettings">
+          <kendo-editor [(ngModel)]="EditingHelp.helpHTML" [iframe]="false" [pasteCleanupSettings]="pasteCleanupSettings">
             <kendo-toolbar>
               <kendo-toolbar-buttongroup>
                 <kendo-toolbar-button kendoEditorBoldButton></kendo-toolbar-button>
@@ -217,11 +263,11 @@
                 <kendo-toolbar-button kendoEditorSuperscriptButton></kendo-toolbar-button>
               </kendo-toolbar-buttongroup>
               <!--<kendo-toolbar-buttongroup>
-                <kendo-toolbar-button kendoEditorAlignLeftButton></kendo-toolbar-button>
-                <kendo-toolbar-button kendoEditorAlignCenterButton></kendo-toolbar-button>
-                <kendo-toolbar-button kendoEditorAlignRightButton></kendo-toolbar-button>
-                <kendo-toolbar-button kendoEditorAlignJustifyButton></kendo-toolbar-button>
-              </kendo-toolbar-buttongroup>-->
+          <kendo-toolbar-button kendoEditorAlignLeftButton></kendo-toolbar-button>
+          <kendo-toolbar-button kendoEditorAlignCenterButton></kendo-toolbar-button>
+          <kendo-toolbar-button kendoEditorAlignRightButton></kendo-toolbar-button>
+          <kendo-toolbar-button kendoEditorAlignJustifyButton></kendo-toolbar-button>
+        </kendo-toolbar-buttongroup>-->
               <kendo-toolbar-dropdownlist kendoEditorFormat></kendo-toolbar-dropdownlist>
               <!--<kendo-toolbar-dropdownlist kendoEditorFontSize></kendo-toolbar-dropdownlist>-->
               <!--<kendo-toolbar-dropdownlist kendoEditorFontFamily></kendo-toolbar-dropdownlist>-->
@@ -262,8 +308,8 @@
             </kendo-toolbar>
           </kendo-editor>
           <!--<ckeditor [(ngModel)]="model.editorData" editorUrl="https://cdn.ckeditor.com/4.15.1/standard/ckeditor.js"
-                    [config]="{extraAllowedContent:'div(*);p(*)'}" (change)="onDataChange($event)">
-          </ckeditor>-->
+              [config]="{extraAllowedContent:'div(*);p(*)'}" (change)="onDataChange($event)">
+    </ckeditor>-->
 
         </div>
 

@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { FeedbackAndClientError, OnlineHelpContent, OnlineHelpContent1, OnlineHelpService } from '../services/onlinehelp.service';
+import { FeedbackAndClientError, OnlineHelpContent, OnlineHelpService } from '../services/onlinehelp.service';
 import { GridDataResult, PageChangeEvent, DataStateChangeEvent } from '@progress/kendo-angular-grid';
 import { SortDescriptor, process, CompositeFilterDescriptor, State } from '@progress/kendo-data-query';
 import { Subscription } from 'rxjs';
@@ -53,7 +53,6 @@ export class SiteAdminComponent implements OnInit, OnDestroy  {
     public Pw: string = "";
     public revId: string = "";
     public LogTypeSelection: number = 0;
-  public basicPanel: boolean = false;
 
   public pasteCleanupSettings = {
     convertMsLists: true,
@@ -65,7 +64,7 @@ export class SiteAdminComponent implements OnInit, OnDestroy  {
     removeInvalidHTML: true,
   };
 
-    private _ActivePanel: string = "Help";
+    
     public ActivePanel: string = "Help";
 
 
@@ -110,7 +109,7 @@ export class SiteAdminComponent implements OnInit, OnDestroy  {
     
     ShowDBSettingById(event: Event) {
       let helpId = parseInt((event.target as HTMLOptionElement).value);
-      this.OnlineHelpService.FetchHelpContent(helpId.toString(), this.firstContext);
+      this.OnlineHelpService.FetchHelpContent(helpId.toString());
     }
     
     public get IsSiteAdmin(): boolean {
@@ -147,16 +146,61 @@ export class SiteAdminComponent implements OnInit, OnDestroy  {
 
 /////////////////////////////////////////////////////////////////////////
 
-  
-  public TmpCurrentContextName: string = "";
-  public OrigCurrentContextHelp: string = "";
-  public enableSave: boolean = false;
 
+  public ShowCreateHelpPanel: boolean = false;
+  public EditingHelp: OnlineHelpContent = new OnlineHelpContent();
+  public OrigCurrentHelp: OnlineHelpContent = new OnlineHelpContent();
 
-  CanSaveHelp() {
-    if (this.enableSave) {
-      return true;
-    } else return false;
+  public get CurrentHelp(): OnlineHelpContent {
+    return this.OnlineHelpService.CurrentHelp;
+  }
+
+  public get disableSave(): boolean {
+    if (this.EditingHelp.context.trim() == "") return true;
+    if (this.EditingHelp.helpHTML.trim() == "") return true;
+    if (!this.EditingHelp.IsValid ) return true;
+    if (this.EditingHelp.helpHTML != this.OrigCurrentHelp.helpHTML) return false;
+    if (this.EditingHelp.context != this.OrigCurrentHelp.context) return false;
+    if (this.EditingHelp.sectionName != this.OrigCurrentHelp.sectionName) return false;
+    return true;
+  }
+  public get disableCreateNew(): boolean {
+    //we want to prevent the creation of help pages that have no context, or have the same context as some other page
+    if (this.EditingHelp.context == "") return true; //we dont' have context
+    if (this.EditingHelp.IsExtension && !this.EditingHelp.IsValid) return true; //we don't have section name for the dropdown
+      
+    for (let hp of this.HelpPages) {
+      let sanitzedContext: string;
+      if (hp.context_Name.startsWith("*")) sanitzedContext = hp.context_Name.substring(1);
+      else sanitzedContext = hp.context_Name;
+      if (this.EditingHelp.context == sanitzedContext) return true;
+    }
+    return false;
+  }
+
+  public get canShowAddExtension(): boolean {
+    if (this.ShowEdit) return false;
+    if (this.CurrentHelp.IsExtension) return false;
+    if (this.ShowCreateHelpPanel == false) return true;
+    else if (this.EditingHelp.IsExtension) return true;
+    else return false;
+  }
+
+  public ShowCreateHelp(addExtension: boolean) {
+    if (addExtension) {
+      this.EditingHelp = this.OnlineHelpService.CurrentHelp.clone();
+      this.EditingHelp.helpHTML = "";
+      this.EditingHelp.parentContext = this.EditingHelp.context;
+    } else {
+      this.EditingHelp = new OnlineHelpContent();
+    }
+    this.OrigCurrentHelp = this.EditingHelp.clone();
+    this.ShowCreateHelpPanel = true;
+  }
+  public HideCreateHelp() {
+    this.EditingHelp = new OnlineHelpContent();
+    this.OrigCurrentHelp = new OnlineHelpContent();
+    this.ShowCreateHelpPanel = false;
   }
 
 
@@ -169,133 +213,92 @@ export class SiteAdminComponent implements OnInit, OnDestroy  {
   }
 
 
-  public model = {
-    editorData: "",
-  };
-
-
   public helpContent: string | null = null;
   public context = "";
-  public editingHelp = "";
   public firstContext: boolean = false;
-  public parentIsDisabled: boolean = true;
-  public addingExtensionIsDisable: boolean = true;
-  public deletingExtensionIsDisable: boolean = true;
 
   public RetrieveHelpNew(event: Event) {
+
+    if (this.ShowCreateHelpPanel) this.HideCreateHelp();
+    if (this.ShowEdit) this.Edit();
     if (this.selected != null) {
-      if (this.showEdit == true) {
-        // we shouldn't be changing selection while editing so treat it like a cancel
-        this.enableSave = false;
-        this.showEdit = false;
-        this.OnlineHelpService.FetchHelpContent(this.selected.context_Name.replace('*', ''), this.firstContext);
-        if (this.selected.context_Name.startsWith("*")) {
-          this.addingExtensionIsDisable = false;
-          this.deletingExtensionIsDisable = true;
-        }
-        else { // it is an extension
-          this.deletingExtensionIsDisable = false;
-          this.addingExtensionIsDisable = true;
-        }
+      if (this.selected.context_Name == "Select help context") {
+        this.OnlineHelpService.FetchHelpContent("");
       }
       else {
-        if (this.selected.context_Name == "Select help context") {
-          // user selected '0' again so no data
-          this.OnlineHelpService.FetchHelpContent("", this.firstContext);
-        }
-        else {
-          this.OnlineHelpService.FetchHelpContent(this.selected.context_Name.replace('*', ''), this.firstContext);
-          this.addingExtensionIsDisable = true;
-          if (this.selected.context_Name.startsWith("*")) {
-            this.addingExtensionIsDisable = false;
-            this.deletingExtensionIsDisable = true;
-          }
-          else {            
-            this.deletingExtensionIsDisable = false;
-            this.addingExtensionIsDisable = true;
-          }
-
-          if (this.CurrentContextHelp == null) {
-            // there is no data
-            this.OnlineHelpService.FetchHelpContent("", this.firstContext);
-          }
-        }
+        this.OnlineHelpService.FetchHelpContent(this.selected.context_Name.replace('*', ''), );
       }
+      //if (this.showEdit == true) {
+      //  // we shouldn't be changing selection while editing so treat it like a cancel
+      //  this.showEdit = false;
+      //  this.OnlineHelpService.FetchHelpContent(this.selected.context_Name.replace('*', ''), this.firstContext);
+      //  if (this.selected.context_Name.startsWith("*")) {
+      //    this.addingExtensionIsDisable = false;
+      //    this.deletingExtensionIsDisable = true;
+      //  }
+      //  else { // it is an extension
+      //    this.deletingExtensionIsDisable = false;
+      //    this.addingExtensionIsDisable = true;
+      //  }
+      //}
+      //else {
+      //  if (this.selected.context_Name == "Select help context") {
+      //    // user selected '0' again so no data
+      //    this.OnlineHelpService.FetchHelpContent("", this.firstContext);
+      //  }
+      //  else {
+      //    this.OnlineHelpService.FetchHelpContent(this.selected.context_Name.replace('*', ''), this.firstContext);
+      //    this.addingExtensionIsDisable = true;
+      //    if (this.selected.context_Name.startsWith("*")) {
+      //      this.addingExtensionIsDisable = false;
+      //      this.deletingExtensionIsDisable = true;
+      //    }
+      //    else {            
+      //      this.deletingExtensionIsDisable = false;
+      //      this.addingExtensionIsDisable = true;
+      //    }
+
+      //    if (this.CurrentContextHelp == null) {
+      //      // there is no data
+      //      this.OnlineHelpService.FetchHelpContent("", this.firstContext);
+      //    }
+      //  }
+      //}
     }
   }
 
 
   public get EditingSectionName(): string {
-    return this.OnlineHelpService._EditingSectionName;
+    return this.EditingHelp.sectionName;
   }
-  public set EditingSectionName(val: string) {
-    this.OnlineHelpService._EditingSectionName = val;
-  }
-  /*
-  public get ContextExtensionName(): string {
-    return this.OnlineHelpService._EditingSectionName;
-  }
-  public set ContextExtensionName(val: string) {
-    this.OnlineHelpService._EditingSectionName = val;
-  }
-  */
-
-  public get FullContextExtensionName(): string {
-    return this.OnlineHelpService._FullContextExtensionName;
-  }
-  public set FullContextExtensionName(val: string) {
-    this.OnlineHelpService._FullContextExtensionName = val;
-  }
-  public get ContextExtensionUserFriendlyName(): string {
-    return this.OnlineHelpService._ContextExtensionUserFriendlyName;
-  }
-  public set ContextExtensionUserFriendlyName(val: string) {
-    this.OnlineHelpService._ContextExtensionUserFriendlyName = val;
-  }
-
-  //public onDataChange(event: CKEditor4.EventInfo) {
-  //  var test = event.editor.getData();
-  //  this.TmpCurrentContextHelp = event.editor.getData();
-  //  if (this.OrigCurrentContextHelp == event.editor.getData()) {
-  //    // things are unchanged from origninal...
-  //    this.enableSave = false;
-  //  }
-  //  else {
-  //    // things are different...
-  //    this.enableSave = true;
-  //  }
+  //public set EditingSectionName(val: string) {
+  //  this.OnlineHelpService._EditingSectionName = val;
   //}
-  public valueChange(value: string) {
-    console.log("editor val changed:", value, this.OrigCurrentContextHelp == value);
-    if (this.OrigCurrentContextHelp == value) {
-      this.enableSave = false;
-    } else {
-      this.enableSave = true;
-    }
-  }
+  
+
+
 
   Edit() {
-    if (this.showEdit == true) {
+    if (this.ShowEdit == true) {
       // this is a 'cancel'
-      this.showEdit = false;
+      this.ShowEdit = false;
       //this.TmpCurrentContextHelp = "";
-      this.OrigCurrentContextHelp = "";
-      this.showEdit = false;
+      this.EditingHelp = new OnlineHelpContent();
+      this.OrigCurrentHelp = new OnlineHelpContent();
     }
     else {
       // this is an 'edit'
-      this.enableSave = false;
-      this.showEdit = true;     
-      this.OrigCurrentContextHelp = this.CurrentContextHelp;
-      this.model.editorData = this.CurrentContextHelp;
-      //this.TmpCurrentContextHelp = this.model.editorData;
+      if (this.ShowCreateHelpPanel) this.HideCreateHelp();
+      this.ShowEdit = true;     
+      this.OrigCurrentHelp = this.OnlineHelpService.CurrentHelp.clone();
+      this.EditingHelp = this.OrigCurrentHelp.clone();
     }    
   }
 
 
   public GetText(): string {
-    if (this.showEdit == true) {
-      return this.model.editorData;
+    if (this.ShowEdit == true) {
+      return this.EditingHelp.helpHTML;
     }
     else {
       return this.CurrentContextHelp;
@@ -305,56 +308,28 @@ export class SiteAdminComponent implements OnInit, OnDestroy  {
 
   Save() {
     if (this.selected != null) {
-      let help: OnlineHelpContent1 = new OnlineHelpContent1();
-      help.context = this.selected.context_Name.replace('*', '');
-      help.helpHTML = this.model.editorData;
-      help.sectionName = this.EditingSectionName.trim();
-      this.OnlineHelpService.UpdateHelpContent(help);
-      this.showEdit = false;
-
-      // reset the dropdown
-      this.OnlineHelpService.FetchHelpPageList("0");
-      this.OnlineHelpService.FetchHelpContent("", this.firstContext);
-
-      // don't reset the dropdown (can't get this to work yet)
-      //this.OnlineHelpService.FetchHelpPageList();
-      //this.OnlineHelpService.FetchHelpContent(this.selected.context_Name);
+      this.OnlineHelpService.UpdateHelpContent(this.EditingHelp);
+      this.ShowEdit = false;
     }
   }
 
-  AddContextExtension() {
-    if (this.selected != null) {
-      let help: OnlineHelpContent1 = new OnlineHelpContent1();
-      help.context = this.FullContextExtensionName.trim();
-      help.helpHTML = "";
-      help.sectionName = this.ContextExtensionUserFriendlyName.trim();
-      help.parentContext = this.selected.context_Name.replace('*', '');
-      //help.parentContext = this.OnlineHelpService._FullContextExtensionName.trim();
-      this.OnlineHelpService.AddContextExtension(help);
-
-      // hide the context panel
-      this.basicPanel = false;
-
-      // reset the dropdown
-      this.OnlineHelpService.FetchHelpPageList("0");
-      this.OnlineHelpService.FetchHelpContent("", this.firstContext);
-    }
+  AddHelp() {
+    
+    this.OnlineHelpService.AddEmptyHelpPage(this.EditingHelp);
+    // hide the create panel
+    this.HideCreateHelp();
+    
   }
 
-  DeleteContextExtension() {
-    if (this.selected != null) {
-      let help: OnlineHelpContent1 = new OnlineHelpContent1();
-      help.context = this.FullContextExtensionName.trim();
-      help.helpHTML = "";
-      help.sectionName = this.ContextExtensionUserFriendlyName.trim();
-      help.parentContext = this.OnlineHelpService._FullContextExtensionName.trim();
-      this.OnlineHelpService.DeleteContextExtension(help);
-    }
-  }
 
 
   removeWarning() {
-    this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to delete this context extension and all of the help content associated with it?', false, '')
+    this.confirmationDialogService.confirm('Please confirm',
+      'Are you sure you wish to delete this context extension and all of the help content associated with it?'
+      + "<div class='row mx-auto'><div class='col-auto'>Context:</div><div class='col font-weight-bold mx-1 px-1 border border-danger rounded'>"
+      + this.OrigCurrentHelp.context
+      +"</div></div>",
+      false, '')
       .then(
         (confirmed: any) => {
           //console.log('User confirmed:', confirmed);
@@ -369,17 +344,15 @@ export class SiteAdminComponent implements OnInit, OnDestroy  {
       .catch(() => { });
   }
 
-
-
-  public showEdit: boolean = false;
-  public get ShowEdit(): boolean {
-    return this.showEdit;
+  DeleteContextExtension() {
+    this.OnlineHelpService.DeleteContextExtension(this.OrigCurrentHelp);
+    if (this.ShowCreateHelpPanel== true) this.HideCreateHelp();
+    if (this.ShowEdit == true) this.Edit();//cancels the edit
   }
 
-  public canAddExtension: boolean = true;
-  public get CanAddExtension(): boolean {
-    return this.canAddExtension;
-  }
+
+  public ShowEdit: boolean = false;
+
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -394,9 +367,9 @@ export class SiteAdminComponent implements OnInit, OnDestroy  {
   onTabSelect(e: SelectEvent) {
 
     if (e.title == 'Help') {
-      this.OnlineHelpService.FetchHelpContent("0", this.firstContext);
+      this.OnlineHelpService.FetchHelpContent("0");
       this.OnlineHelpService.FetchHelpPageList("0");
-      this.basicPanel = false;
+      this.ShowCreateHelpPanel = false;
     }
     else {
     }

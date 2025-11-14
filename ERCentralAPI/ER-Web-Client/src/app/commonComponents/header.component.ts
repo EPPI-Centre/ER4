@@ -96,7 +96,6 @@ export class HeaderComponent implements OnInit {
     @Input() PageTitle: string | undefined;
     @Input() Context: string | undefined;
 
-    public TmpContext: string = "";
     private _ActivePanel: string = "";
     public set ActivePanel(val: string) {
         this._ActivePanel = val;
@@ -110,12 +109,11 @@ export class HeaderComponent implements OnInit {
       return this._ActivePanel;
     }
     public UserFeedback: string = "";
-    public firstContext: boolean = false;
 
     public ShowDropDown: boolean = false;
 
     public get ShowHelpDropDown(): boolean {
-        return this.OnlineHelpService._ShowHelpDropDown;
+        return this.OnlineHelpService.ShowHelpDropDown;
     }
   
     public get NameOfUser(): string {
@@ -173,14 +171,11 @@ export class HeaderComponent implements OnInit {
             || this.Context == '') {
           this.ActivePanel = "";
           this.ShowDropDown = false;
-          this.firstContext = false;
         }
         else if (this.Context && this.Context !== '') {
-          this._ActivePanel = "Help";        
-          this.firstContext = true;
+          this._ActivePanel = "Help";
           this.OnlineHelpService.FetchHelpPageList(this.Context);
-          this.OnlineHelpService.FetchHelpContent(this.Context, this.firstContext);
-          this.firstContext = false; // we only want it to be true the first time we open help
+          this.OnlineHelpService.FetchHelpContent(this.Context);
           this.ShowDropDown = true;    
         }
     }
@@ -219,7 +214,7 @@ export class HeaderComponent implements OnInit {
   }
 
   DisplayFriendlyIndex0Name(): string {
-    return this.OnlineHelpService._Index0SectionName;
+    return this.OnlineHelpService.CurrentContext;
   }
 
   public get HelpPages(): ReadOnlyHelpPage[] {
@@ -229,16 +224,17 @@ export class HeaderComponent implements OnInit {
 
   
   public RetrieveHelpNew(event: Event) {
-    //if (this.selected) {
-    //this.TmpContext = this.selected.context_Name;
-    this.TmpContext = (event.target as HTMLOptionElement).value;
-      if (this.TmpContext) {
-        this.OnlineHelpService.FetchHelpContent(this.TmpContext.replace("--> ", ""), this.firstContext);
-        this._ActivePanel = "Help";
-        var test = this.ActivePanel;
 
+    let TmpContext = (event.target as HTMLOptionElement).value;
+    if (TmpContext) {
+      if (TmpContext.indexOf("--> ") != -1) {
+        const pageToGet = this.OnlineHelpService.HelpPages.find(f => f.context_SectionName == TmpContext.replace("--> ", ""));
+        if (pageToGet) TmpContext = pageToGet.context_Name;
+        else return;
       }
-    //}
+      this.OnlineHelpService.FetchHelpContent(TmpContext);
+      this._ActivePanel = "Help";
+    }
   }
 
 
