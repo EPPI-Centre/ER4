@@ -44,7 +44,7 @@
       <kendo-toolbar-button [text]="'Classify'" (click)="Classify()" [disabled]="!HasWriteRights" [selected]="ModelSection"></kendo-toolbar-button>
       <kendo-toolbar-button [text]="'Check Screening'" (click)="OpenCheckScreening()" [disabled]="!HasWriteRights" [selected]="CheckScreeningSection"></kendo-toolbar-button>
       <kendo-toolbar-button [text]="'Priority screening simulation'" (click)="OpenPriorityScreening()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-      <!--<kendo-toolbar-button [text]="'LLM prompt evaluation'" (click)="OpenLlmPromptEvaluation()" [disabled]="!HasWriteRights"></kendo-toolbar-button>-->
+      <kendo-toolbar-button [text]="'LLM prompt evaluation'" (click)="OpenLlmPromptEvaluation()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
     </kendo-toolbar>
   </div>
   <div id="NewSearchSection" [ngbCollapse]="!NewSearchSection" class="col-12 p-0 mb-1">
