@@ -42,6 +42,7 @@ namespace BusinessLibrary.BusinessClasses
 #endif
             }
         }
+        public List<KeyValuePair<string, object>> resumeInfo = new List<KeyValuePair<string, object>>();
 
         public static bool RunDataFactoryProcess(string pipelineName, Dictionary<string, object> parameters, bool doLogging, int ContactId,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -263,6 +264,8 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         try
                         {
+                            HttpClient c = new HttpClient();
+                            var res = c.GetAsync("https://management.azure.com").GetAwaiter().GetResult();
                             await Task.Delay(15000, CT);//15 seconds: we don't know why this happens!!
                         }
                         catch
@@ -294,7 +297,8 @@ namespace BusinessLibrary.BusinessClasses
             {
                 if (AppIsShuttingDown || CT.IsCancellationRequested)
                 {
-                    UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "DF RunId: " + DFrunId, Origin, true, false);
+                    string resumeInfoString = Newtonsoft.Json.JsonConvert.SerializeObject(resumeInfo, Newtonsoft.Json.Formatting.None);
+                    UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "DF RunId: " + DFrunId, Origin, true, false, resumeInfoString);
                     return false;
                 }
                 //Mini block to cause exceptions on purpose, so to check error handling works, should be commented out!
@@ -391,7 +395,7 @@ namespace BusinessLibrary.BusinessClasses
         /// </param>
         /// <param name="SuccessValue">In the table, this value should be NULL if we're not finished. TRUE if we finished and it worked, FALSE if it failed/got interrupted</param>
         public static void UpdateReviewJobLog(int LogId, int ReviewID, string Status, string Message,
-            string Origin, bool SetSuccess = false, bool SuccessValue = true)
+            string Origin, bool SetSuccess = false, bool SuccessValue = true, string ResumeInfo = "")
         {
             if (LogId > 0)
             {
@@ -409,6 +413,7 @@ namespace BusinessLibrary.BusinessClasses
                             command.Parameters.Add(new SqlParameter("@JobMessage", Message));
                             if (SetSuccess) command.Parameters.Add(new SqlParameter("@Success", SuccessValue));
                             else command.Parameters.Add(new SqlParameter("@Success", System.DBNull.Value));
+                            if(ResumeInfo != "") command.Parameters.Add(new SqlParameter("@ResumeParams", ResumeInfo));
                             command.ExecuteNonQuery();
                         }
                     }
