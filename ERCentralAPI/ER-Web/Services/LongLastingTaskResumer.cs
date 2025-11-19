@@ -180,7 +180,7 @@ namespace ER_Web.Services
             {
                 if (s.StartsWith("DF RunId: "))
                 {
-                    DataFactoryRunId = s.Substring(9);
+                    DataFactoryRunId = s.Substring(10);
                     break;
                 }
             }

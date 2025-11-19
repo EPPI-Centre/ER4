@@ -832,36 +832,7 @@ namespace BusinessLibrary.BusinessClasses
             bool DFresult = await RunDataFactoryJobAsync(ReviewId, LogId, parameters);
             if (DFresult) //if DF didn't work, we trust the reason was logged appropriately either in DFHelper or in RunDataFactoryJobAsync
             {
-                switch (RunType)// ADF has completed, so we now process results
-                {
-                    case "TrainClassifier":
-                        //IMPORTANT! We do NOT delete training data as having it allows to rebuild models at ANY time, and it did save the day already once in the past
-                        DownloadTrainClassifierResults(ReviewId, LogId);
-                        break;
-                    case "ApplyClassifier":
-                        DownloadApplyClassifierResults(LogId, ContactId, ReviewId);//will "cleanup" data uploaded
-                        break;
-                    case "PrioS":
-                        // We literally do fire and forget here, as we don't need to do anything with the results
-                        //we do delete the uploaded file, though
-                        try
-                        {
-                            BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", DataFile);
-                        }
-                        catch (Exception ex)
-                        {
-                            DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to delete uploaded file", "", "ClassifierCommandV2", true, false);
-                            DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
-                            break;
-                        }
-                        DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Ended", "", "ClassifierCommandV2", true, true);
-                        break;
-                    case "ChckS":
-                        DownloadApplyClassifierResults(LogId, ContactId, ReviewId);//will "cleanup" data uploaded                        
-                        break;
-                    default: // should never hit this
-                        break;
-                }
+                AfterDataFactory(ReviewId, LogId, ContactId);
             }
             else //DF did not work
             {
@@ -869,6 +840,39 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     UndoChangesToClassifierRecord(LogId, true);
                 }
+            }
+        }
+        private void AfterDataFactory(int ReviewId, int LogId, int ContactId)
+        {
+            switch (RunType)// ADF has completed, so we now process results
+            {
+                case "TrainClassifier":
+                    //IMPORTANT! We do NOT delete training data as having it allows to rebuild models at ANY time, and it did save the day already once in the past
+                    DownloadTrainClassifierResults(ReviewId, LogId);
+                    break;
+                case "ApplyClassifier":
+                    DownloadApplyClassifierResults(LogId, ContactId, ReviewId);//will "cleanup" data uploaded
+                    break;
+                case "PrioS":
+                    // We literally do fire and forget here, as we don't need to do anything with the results
+                    //we do delete the uploaded file, though
+                    try
+                    {
+                        BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", DataFile);
+                    }
+                    catch (Exception ex)
+                    {
+                        DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to delete uploaded file", "", "ClassifierCommandV2", true, false);
+                        DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
+                        break;
+                    }
+                    DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Ended", "", "ClassifierCommandV2", true, true);
+                    break;
+                case "ChckS":
+                    DownloadApplyClassifierResults(LogId, ContactId, ReviewId);//will "cleanup" data uploaded                        
+                    break;
+                default: // should never hit this
+                    break;
             }
         }
         private bool UploadTempFileToBlob(int ReviewId, int LogId)
@@ -1232,7 +1236,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.CommandTimeout = 300;
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", RevInfo.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ContactId));
                     command.Parameters.Add(new SqlParameter("@SEARCH_TITLE", SearchTitle));
                     command.Parameters.Add(new SqlParameter("@HITS_NO", dt.Rows.Count));
@@ -1452,6 +1456,10 @@ namespace BusinessLibrary.BusinessClasses
             {
                 res = ResumeAtDataFactoryRunning(rttr);
             }
+            if (res == true)
+            {
+                AfterDataFactory(rttr.ReviewId, rttr.JobId, rttr.ContactId);
+            }
         }
         private bool ResumeAtDataFactoryRunning(ER_Web.Services.RawTaskToResume rttr)
         {
@@ -1488,13 +1496,7 @@ namespace BusinessLibrary.BusinessClasses
                         break;
                     default: break;
                 }
-                //if (BatchGuid != "") resumeInfo.Add(new KeyValuePair<string, object>("BatchGuid", BatchGuid));
-                //if (_classifierId != 0) resumeInfo.Add(new KeyValuePair<string, object>("ClassifierId", _classifierId));
-                //if (_title != "") resumeInfo.Add(new KeyValuePair<string, object>("Title", _title));
-                //if (DataFile != "") resumeInfo.Add(new KeyValuePair<string, object>("DataFile", DataFile));
-                //if (VecFile != "") resumeInfo.Add(new KeyValuePair<string, object>("VecFile", VecFile));
-                //if (ClfFile != "") resumeInfo.Add(new KeyValuePair<string, object>("ClfFile", ClfFile));
-                //if (ScoresFile != "") resumeInfo.Add(new KeyValuePair<string, object>("ScoresFile", ScoresFile));
+                
             }
             if (rttr.JobType == "Apply Classifier")
             {
@@ -1525,7 +1527,7 @@ namespace BusinessLibrary.BusinessClasses
             else return false;
             DataFactoryHelper DFH = new DataFactoryHelper();
             DFH.resumeInfo = paramsToResume;
-            var a = this.GetAdfParameters(RunType);
+            //var a = this.GetAdfParameters(RunType);
             bool res = (DFH.ResumeDataFactoryProcessV2(
                     pipelineName, rttr.DataFactoryRunId, rttr.ReviewId, rttr.JobId, "ClassifierCommandV2", this.CancelToken)
                 ).GetAwaiter().GetResult();
