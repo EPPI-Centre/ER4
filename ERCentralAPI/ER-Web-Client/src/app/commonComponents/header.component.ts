@@ -102,11 +102,21 @@ export class HeaderComponent implements OnInit {
     }
     public get ActivePanel(): string {
       //console.log("closing help?:", this.OnlineHelpService.CurrentContext, this.Context);
+
+      //if (this._ActivePanel == "Help" && !this.IsServiceBusy && this.OnlineHelpService.CurrentContext != this.Context) {
+      //  this._ActivePanel = "";
+      //}
+      //return this._ActivePanel;
+
+
       if (this._ActivePanel == "Help" && !this.IsServiceBusy && this.OnlineHelpService.CurrentContext != this.Context) {
-            
-          this._ActivePanel = "";
-      }
+        this._ActivePanel = "";
+        if (this.OnlineHelpService.ShowHelpDropDown == true) {
+          this._ActivePanel = "Help";
+        }
+      }        
       return this._ActivePanel;
+
     }
     public UserFeedback: string = "";
 

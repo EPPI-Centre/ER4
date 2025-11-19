@@ -247,7 +247,13 @@
               Delete Help Page
             </button>-->
           </div>
-
+          <div *ngIf="!CurrentHelp.IsExtension" class="row px-0 mx-1">
+            <div class="mx-1 px-1 col-auto border-right">
+              <div>User-friendly name:</div>
+              <input class="mb-1 px-1 col" type="text" id="sectionName" name="SectionName"
+                     [(ngModel)]="EditingHelp.sectionName" />
+            </div>
+          </div>
 
           <kendo-editor [(ngModel)]="EditingHelp.helpHTML" [iframe]="false" style="max-height:65vh;" [pasteCleanupSettings]="pasteCleanupSettings">
             <kendo-toolbar>
