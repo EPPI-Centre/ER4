@@ -40,17 +40,8 @@ export class OnlineHelpService extends BusyAwareService implements OnDestroy {
     else return this._CurrentHelp.helpHTML;
   }
   public get CurrentContext(): string {
-    if (this._CurrentHelp.IsExtension) {
-      return this._CurrentHelp.parentContext;
-    }
-    else {
-      //return this._CurrentHelp.context;
-      if (this.ShowHelpDropDown) {
-        return this._CurrentHelp.sectionName
-      }
-      else
-        return this._CurrentHelp.context;
-    }
+    if (this._CurrentHelp.IsExtension) return this._CurrentHelp.parentContext;
+    else return this._CurrentHelp.context;
   }
   
   private _FeedbackMessageList: FeedbackAndClientError[] = [];
