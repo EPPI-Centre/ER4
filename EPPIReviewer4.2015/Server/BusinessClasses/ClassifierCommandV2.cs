@@ -1316,11 +1316,15 @@ namespace BusinessLibrary.BusinessClasses
             List<KeyValuePair<string, object>> resumeInfo = new List<KeyValuePair<string, object>>();
             if (BatchGuid != "") resumeInfo.Add(new KeyValuePair<string, object>("BatchGuid", BatchGuid));
             if (_classifierId != 0) resumeInfo.Add(new KeyValuePair<string, object>("ClassifierId", _classifierId));
+            if (_sourceId != 0) resumeInfo.Add(new KeyValuePair<string, object>("SourceId", _sourceId));
+            if (ModelReviewId != -1) resumeInfo.Add(new KeyValuePair<string, object>("ModelReviewId", ModelReviewId));
             if (_title != "") resumeInfo.Add(new KeyValuePair<string, object>("Title", _title));
             if (DataFile != "") resumeInfo.Add(new KeyValuePair<string, object>("DataFile", DataFile));
             if (VecFile != "") resumeInfo.Add(new KeyValuePair<string, object>("VecFile", VecFile));
             if (ClfFile != "") resumeInfo.Add(new KeyValuePair<string, object>("ClfFile", ClfFile));
             if (ScoresFile != "") resumeInfo.Add(new KeyValuePair<string, object>("ScoresFile", ScoresFile));
+            if (RemoteFolder != "") resumeInfo.Add(new KeyValuePair<string, object>("RemoteFolder", RemoteFolder));
+            if (OpenAlexAutoUpdate == true) resumeInfo.Add(new KeyValuePair<string, object>("OpenAlexAutoUpdate", OpenAlexAutoUpdate));
             dfh.resumeInfo = resumeInfo;
             
         }
@@ -1476,6 +1480,12 @@ namespace BusinessLibrary.BusinessClasses
                     case "ClassifierId":
                         int.TryParse(kvp.Value.ToString(), out _classifierId);
                         break;
+                    case "SourceId":
+                        int.TryParse(kvp.Value.ToString(), out _sourceId);
+                        break;
+                    case "ModelReviewId":
+                        int.TryParse(kvp.Value.ToString(), out ModelReviewId);
+                        break;
                     case "Title":
                         _title = kvp.Value.ToString();
                         break;
@@ -1493,6 +1503,12 @@ namespace BusinessLibrary.BusinessClasses
                         break;
                     case "pipelineName":
                         pipelineName = kvp.Value.ToString();
+                        break;
+                    case "RemoteFolder":
+                        RemoteFolder = kvp.Value.ToString();
+                        break;
+                    case "OpenAlexAutoUpdate":
+                        OpenAlexAutoUpdate = kvp.Value.ToString() == "True" ? true : false;
                         break;
                     default: break;
                 }

@@ -264,8 +264,7 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         try
                         {
-                            HttpClient c = new HttpClient();
-                            var res = c.GetAsync("https://management.azure.com").GetAwaiter().GetResult();
+                            
                             await Task.Delay(15000, CT);//15 seconds: we don't know why this happens!!
                         }
                         catch
