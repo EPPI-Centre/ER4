@@ -58,7 +58,9 @@ namespace BusinessLibrary.BusinessClasses
             ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             int revid= ri.ReviewId;//checking the ticket is valid
             ReviewSet source = ReviewSet.GetReviewSet(_ReviewSetId);
-            Dest = ReviewSet.GetReviewSet(ri.ReviewId, source.SetTypeId, source.AllowCodingEdits, source.SetName, source.CodingIsFinal, _SetOrder, source.SetDescription, source.SetId);
+            int OldestKnownId = source.SetId;
+            if (source.OldestKnownId > 0) OldestKnownId = source.OldestKnownId;
+            Dest = ReviewSet.GetReviewSet(ri.ReviewId, source.SetTypeId, source.AllowCodingEdits, source.SetName, source.CodingIsFinal, _SetOrder, source.SetDescription, source.SetId, OldestKnownId);
             Dest = Dest.Save();
             //Dest = Dest.Save(true);
             foreach (AttributeSet aSet in source.Attributes)
@@ -94,6 +96,11 @@ namespace BusinessLibrary.BusinessClasses
             destAtt.AttributeDescription = SourceAtt.AttributeDescription;
             destAtt.ContactId = ri.UserId;
             destAtt.OriginalAttributeID = SourceAtt.AttributeId;
+
+            Int64 OldestKnownId = SourceAtt.AttributeId;
+            if (SourceAtt.OldestKnownId > 0) OldestKnownId = SourceAtt.OldestKnownId;
+            destAtt.OldestKnownId = OldestKnownId;
+
             destAtt = destAtt.Save(true);
             foreach (AttributeSet aSet in SourceAtt.Attributes)
             {

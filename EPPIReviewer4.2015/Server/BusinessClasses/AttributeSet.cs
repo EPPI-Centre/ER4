@@ -394,6 +394,21 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<Int64> OldestKnownIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("OldestKnownId", "OldestKnownId", (long)0));
+        [JsonProperty]
+        public Int64 OldestKnownId
+        {
+            get
+            {
+                return GetProperty(OldestKnownIdProperty);
+            }
+            set
+            {
+                SetProperty(OldestKnownIdProperty, value);
+            }
+        }
+
+
         public static readonly PropertyInfo<Int64> ParentAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ParentAttributeId", "ParentAttributeId"));
 #if (CSLA_NETCORE)
         [JsonProperty]
@@ -772,6 +787,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@Ext_Type", ReadProperty(ExtTypeProperty)));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ReadProperty(ContactIdProperty)));
                     command.Parameters.Add(new SqlParameter("@ORIGINAL_ATTRIBUTE_ID", OriginalAttributeID));
+                    if (OldestKnownId > 0)command.Parameters.Add(new SqlParameter("@OLDEST_KNOWN_ATTRIBUTE_ID", OldestKnownId));
                     command.Parameters.Add(new SqlParameter("@NEW_ATTRIBUTE_SET_ID", 0));
                     command.Parameters["@NEW_ATTRIBUTE_SET_ID"].Direction = System.Data.ParameterDirection.Output;
                     command.Parameters.Add(new SqlParameter("@NEW_ATTRIBUTE_ID", 0));
@@ -803,6 +819,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@Ext_Type", NewAttributeSet.ReadProperty(ExtTypeProperty)));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", NewAttributeSet.ReadProperty(ContactIdProperty)));
                     command.Parameters.Add(new SqlParameter("@ORIGINAL_ATTRIBUTE_ID", NewAttributeSet.OriginalAttributeID));
+                    if (NewAttributeSet.OldestKnownId > 0) command.Parameters.Add(new SqlParameter("@OLDEST_KNOWN_ATTRIBUTE_ID", NewAttributeSet.OldestKnownId));
                     command.Parameters.Add(new SqlParameter("@NEW_ATTRIBUTE_SET_ID", 0));
                     command.Parameters["@NEW_ATTRIBUTE_SET_ID"].Direction = System.Data.ParameterDirection.Output;
                     command.Parameters.Add(new SqlParameter("@NEW_ATTRIBUTE_ID", 0));
@@ -916,6 +933,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<int>(SetIdProperty, reader.GetInt32("SET_ID"));
             returnValue.LoadProperty<Int64>(AttributeIdProperty, reader.GetInt64("ATTRIBUTE_ID"));
             returnValue.LoadProperty<Int64>(OriginalAttributeIdProperty, reader.GetInt64("ORIGINAL_ATTRIBUTE_ID"));
+            returnValue.LoadProperty<Int64>(OldestKnownIdProperty, reader.GetInt64("OLDEST_KNOWN_ATTRIBUTE_ID"));
             returnValue.LoadProperty<Int64>(ParentAttributeIdProperty, reader.GetInt64("PARENT_ATTRIBUTE_ID"));
             returnValue.LoadProperty<int>(AttributeTypeIdProperty, reader.GetInt32("ATTRIBUTE_TYPE_ID"));
             returnValue.LoadProperty<string>(AttributeSetDescriptionProperty, reader.GetString("ATTRIBUTE_SET_DESC"));
@@ -945,6 +963,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<int>(SetIdProperty, reader.GetInt32("SET_ID"));
             returnValue.LoadProperty<Int64>(AttributeIdProperty, reader.GetInt64("ATTRIBUTE_ID"));
             returnValue.LoadProperty<Int64>(OriginalAttributeIdProperty, reader.GetInt64("ORIGINAL_ATTRIBUTE_ID"));
+            returnValue.LoadProperty<Int64>(OldestKnownIdProperty, reader.GetInt64("OLDEST_KNOWN_ATTRIBUTE_ID")); 
             returnValue.LoadProperty<Int64>(ParentAttributeIdProperty, reader.GetInt64("PARENT_ATTRIBUTE_ID"));
             returnValue.LoadProperty<int>(AttributeTypeIdProperty, reader.GetInt32("ATTRIBUTE_TYPE_ID"));
             returnValue.LoadProperty<string>(AttributeSetDescriptionProperty, reader.GetString("ATTRIBUTE_SET_DESC"));

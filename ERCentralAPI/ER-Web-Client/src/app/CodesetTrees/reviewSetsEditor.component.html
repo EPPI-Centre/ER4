@@ -52,12 +52,32 @@
             </div>
             <div *ngIf="CurrentNode.nodeType == 'ReviewSet'" class=" mx-0 px-0">
               <div class="mr-1 col-auto px-0">Coding tool type: <strong>{{CurrentNode.subTypeName}}</strong></div>
-              <div class="mr-1 col-auto px-0">Tool Id: <code class="alert-dark p-1">{{CurrentNodeId}}</code></div>
+              <div class="mx-0 col-auto px-0 row">
+                <div class="my-auto">Tool Id:</div>
+                <code class="alert-dark p-1">{{CurrentNodeId}}</code>
+                <ng-container *ngTemplateOutlet="OldIds"></ng-container>
+              </div>
+              
             </div>
             <div *ngIf="CurrentNode.nodeType == 'SetAttribute'" class="mx-0 px-0">
               <div class="mr-1 col-auto px-0">Code type: <strong>{{CurrentNode.subTypeName}}</strong></div>
-              <div class="mr-1 col-auto px-0">Code Id: <code class="alert-dark p-1">{{CurrentNodeId}}</code></div>
+              <div class="mx-0 col-auto px-0 row">
+                <div class="my-auto">Code Id:</div>
+                <code class="alert-dark p-1">{{CurrentNodeId}}</code>
+                <ng-container *ngTemplateOutlet="OldIds"></ng-container>
+              </div>
             </div>
+
+            <ng-template #OldIds>
+              <div *ngIf="CurrentNodeOldId || CurrentNodeOldestKnownId" class="mx-1 px-1 row  rounded border col-auto">
+                  <div *ngIf="CurrentNodeOldId" class="mr-1 my-auto col-auto px-0">
+                    Original Id: <code class="alert-dark px-1 py-0">{{CurrentNodeOldId}}</code>
+                  </div>
+                  <div *ngIf="CurrentNodeOldestKnownId" class="mr-1 my-auto col-auto px-0">
+                    Oldest known Id: <code class="alert-dark px-1 py-0">{{CurrentNodeOldestKnownId}}</code>
+                  </div>
+              </div>
+            </ng-template>
           </div>
         </div>
         <div *ngIf="ActivityPanelName == 'AddCodeSet'" class="container card card-body bg-light">

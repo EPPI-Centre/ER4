@@ -540,7 +540,9 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 			setOrder: rs.set_order,
 			codingIsFinal: rs.codingIsFinal,
 			allowCodingEdits: rs.allowEditingCodeset,
-			userCanEditURLs: rs.userCanEditURLs,
+      userCanEditURLs: rs.userCanEditURLs,
+      originalSetId: rs.originalSetId,
+      oldestKnownId: rs.oldestKnownId,
 			attributes: {
 				attributesList: []
 			}

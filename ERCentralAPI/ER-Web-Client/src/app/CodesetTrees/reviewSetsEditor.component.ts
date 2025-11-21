@@ -108,6 +108,24 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
     }
     return null;
   }
+  public get CurrentNodeOldId(): number | null {
+    if (!this.CurrentNode) return null;
+    else if (this.CurrentNode.nodeType == 'ReviewSet') {
+      return (this.CurrentNode as ReviewSet).originalSetId;
+    } else if (this.CurrentNode.nodeType == 'SetAttribute') {
+      return (this.CurrentNode as SetAttribute).originalAttributeID;
+    }
+    return null;
+  }
+  public get CurrentNodeOldestKnownId(): number | null {
+    if (!this.CurrentNode) return null;
+    else if (this.CurrentNode.nodeType == 'ReviewSet') {
+      return (this.CurrentNode as ReviewSet).oldestKnownId;
+    } else if (this.CurrentNode.nodeType == 'SetAttribute') {
+      return (this.CurrentNode as SetAttribute).oldestKnownId;
+    }
+    return null;
+  }
   public get CurrentNodeAsReviewSet(): ReviewSet | null {
     return this.ReviewSetsService.selectedNode as ReviewSet;
   }

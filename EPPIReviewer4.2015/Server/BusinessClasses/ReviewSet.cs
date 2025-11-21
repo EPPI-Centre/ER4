@@ -265,6 +265,20 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(OriginalSetIdProperty, value);
             }
         }
+
+        public static readonly PropertyInfo<int> OldestKnownIdProperty = RegisterProperty<int>(new PropertyInfo<int>("OldestKnownId", "OldestKnownId", 0));
+        [JsonProperty]
+        public int OldestKnownId
+        {
+            get
+            {
+                return GetProperty(OldestKnownIdProperty);
+            }
+            set
+            {
+                SetProperty(OldestKnownIdProperty, value);
+            }
+        }
         public static readonly PropertyInfo<int> ReviewIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewId", "ReviewId", 0));
         public int ReviewId
         {
@@ -687,7 +701,10 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         command.Parameters.Add(new SqlParameter("@ORIGINAL_SET_ID", ReadProperty(OriginalSetIdProperty)));
                     }
-
+                    if (ReadProperty(OldestKnownIdProperty) != null && ReadProperty(OldestKnownIdProperty) != 0)
+                    {
+                        command.Parameters.Add(new SqlParameter("@OLDEST_KNOWN_SET_ID", ReadProperty(OldestKnownIdProperty)));
+                    }
                     SqlParameter par = new SqlParameter("@NEW_REVIEW_SET_ID", System.Data.SqlDbType.Int);
                     par.Value = 0;
                     command.Parameters.Add(par); 
@@ -774,6 +791,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.Attributes = AttributeSetList.NewAttributeSetList();
             returnValue.LoadProperty<int>(ReviewSetIdProperty, reader.GetInt32("REVIEW_SET_ID"));
             returnValue.LoadProperty<int>(OriginalSetIdProperty, reader.GetInt32("ORIGINAL_SET_ID"));
+            returnValue.LoadProperty<int>(OldestKnownIdProperty, reader.GetInt32("OLDEST_KNOWN_SET_ID"));
             returnValue.LoadProperty<int>(ReviewIdProperty, reader.GetInt32("REVIEW_ID"));
             returnValue.LoadProperty<int>(SetIdProperty, reader.GetInt32("SET_ID"));
             returnValue.LoadProperty<bool>(AllowCodingEditsProperty, reader.GetBoolean("ALLOW_CODING_EDITS"));
@@ -793,11 +811,12 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
-        internal static ReviewSet GetReviewSet(int RevID, int setTypeID, bool allowCodingEdits, string name, bool codingIsFinal, int setOrder, string setDescription, int originalSetID)
+        internal static ReviewSet GetReviewSet(int RevID, int setTypeID, bool allowCodingEdits, string name, bool codingIsFinal, int setOrder, string setDescription, int originalSetID, int oldestKnownId)
         {//used on server side to copy codesets (destination)
             ReviewSet returnValue = new ReviewSet();
             returnValue.Attributes = AttributeSetList.NewAttributeSetList();
             returnValue.LoadProperty<int>(OriginalSetIdProperty, originalSetID);
+            returnValue.LoadProperty<int>(OldestKnownIdProperty, oldestKnownId);
             returnValue.LoadProperty<int>(ReviewIdProperty, RevID);
             returnValue.LoadProperty<bool>(AllowCodingEditsProperty, allowCodingEdits);
             returnValue.LoadProperty<bool>(UserCanEditProperty, allowCodingEdits);
