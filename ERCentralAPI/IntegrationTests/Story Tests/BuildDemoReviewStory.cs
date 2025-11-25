@@ -386,62 +386,71 @@ namespace IntegrationTests.Story_Tests
 
 
             ReviewInfo? Res = await GetReviewInfo();
+
+            //get our 20 items
+            JsonNode? ItemList = await FetchIncludedItems();
+            int itemCount = (int)ItemList["totalItemCount"];
+            itemCount.Should().BeGreaterThanOrEqualTo(20);
+            JsonArray? items = (JsonArray?)ItemList["items"];
+            items.Should().NotBeNull();
+
+
             // assign a screening code to 20 items (match the demo review)  
             var additionalText = "";
             JsonNode? item;
             // itemId = 1 is a seed item so start with itemId = 2
-            var itemId = 2; // Include 1
+            int itemId = (int)items[0]["itemId"]; // Include 1
             item = await AddItemAttribute(Res, setIdTA, attributeIdInc1TA, itemId, additionalText);          
-            itemId = 3;  // Include 1
+            itemId = (int)items[1]["itemId"];  // Include 1
             item = await AddItemAttribute(Res, setIdTA, attributeIdInc1TA, itemId, additionalText);
-            itemId = 4; // Exclude 1
+            itemId = (int)items[2]["itemId"]; // Exclude 1
             item = await AddItemAttribute(Res, setIdTA, attributeIdExc1TA, itemId, additionalText);
-            itemId = 5; // Exclude 4
+            itemId = (int)items[3]["itemId"]; // Exclude 4
             item = await AddItemAttribute(Res, setIdTA, attributeIdExc4TA, itemId, additionalText);
-            itemId = 6;  // Exclude 2
+            itemId = (int)items[4]["itemId"];  // Exclude 2
             item = await AddItemAttribute(Res, setIdTA, attributeIdExc2TA, itemId, additionalText);
-            itemId = 7;  // Exclude 3
+            itemId = (int)items[5]["itemId"];  // Exclude 3
             item = await AddItemAttribute(Res, setIdTA, attributeIdExc3TA, itemId, additionalText);
-            itemId = 8;  // Include 1
+            itemId = (int)items[6]["itemId"];  // Include 1
             item = await AddItemAttribute(Res, setIdTA, attributeIdInc1TA, itemId, additionalText);
-            itemId = 9;  // Exclude 2
+            itemId = (int)items[7]["itemId"];  // Exclude 2
             item = await AddItemAttribute(Res, setIdTA, attributeIdExc2TA, itemId, additionalText);
-            itemId = 10;  // Include 1
+            itemId = (int)items[8]["itemId"];  // Include 1
             item = await AddItemAttribute(Res, setIdTA, attributeIdInc1TA, itemId, additionalText);
-            itemId = 11;  // Exclude 3
+            itemId = (int)items[9]["itemId"];  // Exclude 3
             item = await AddItemAttribute(Res, setIdTA, attributeIdExc3TA, itemId, additionalText);
-            itemId = 12;  // Include 1
+            itemId = (int)items[10]["itemId"];  // Include 1
             item = await AddItemAttribute(Res, setIdTA, attributeIdInc1TA, itemId, additionalText);
-            itemId = 13;  // Include 1
+            itemId = (int)items[11]["itemId"];  // Include 1
             item = await AddItemAttribute(Res, setIdTA, attributeIdInc1TA, itemId, additionalText);
-            itemId = 14;  // Exclude 2
+            itemId = (int)items[12]["itemId"];  // Exclude 2
             item = await AddItemAttribute(Res, setIdTA, attributeIdExc2TA, itemId, additionalText);
-            itemId = 15;  // Exclude 3
+            itemId = (int)items[13]["itemId"];  // Exclude 3
             item = await AddItemAttribute(Res, setIdTA, attributeIdExc3TA, itemId, additionalText);
-            itemId = 16;  // Exclude 1
+            itemId = (int)items[14]["itemId"];  // Exclude 1
             item = await AddItemAttribute(Res, setIdTA, attributeIdExc1TA, itemId, additionalText);
-            itemId = 17;  // Include 1
+            itemId = (int)items[15]["itemId"];  // Include 1
             item = await AddItemAttribute(Res, setIdTA, attributeIdInc1TA, itemId, additionalText);
-            itemId = 18;  // Exclude 3
+            itemId = (int)items[16]["itemId"];  // Exclude 3
             item = await AddItemAttribute(Res, setIdTA, attributeIdExc3TA, itemId, additionalText);
-            itemId = 19;  // Exclude 1
+            itemId = (int)items[17]["itemId"];  // Exclude 1
             item = await AddItemAttribute(Res, setIdTA, attributeIdExc1TA, itemId, additionalText);
-            itemId = 20;  // Include 1
+            itemId = (int)items[18]["itemId"];  // Include 1
             item = await AddItemAttribute(Res, setIdTA, attributeIdInc1TA, itemId, additionalText);
-            itemId = 21;  // Exclude 2
+            itemId = (int)items[19]["itemId"];  // Exclude 2
             item = await AddItemAttribute(Res, setIdTA, attributeIdExc2TA, itemId, additionalText);
 
 
             // get items with 'Inc1' code AND 'Exc1' code
             // there should be 8 + 3 = 11
-            JsonNode?  ItemList = await FetchItemsWithThisCode(attributeIdInc1TA.ToString() + "," + attributeIdExc1TA.ToString());
-            var itemCount = ItemList["totalItemCount"].ToString();
+            ItemList = await FetchItemsWithThisCode(attributeIdInc1TA.ToString() + "," + attributeIdExc1TA.ToString());
+            itemCount = (int)ItemList["totalItemCount"];
             ItemList["totalItemCount"].ToString().Should().Be("11");
 
             // get items with the Inc1 code...
             // there should be 8 items with attributeIdInc1
             ItemList = await FetchItemsWithThisCode(attributeIdInc1TA.ToString());
-            itemCount = ItemList["totalItemCount"].ToString();
+            itemCount = (int)ItemList["totalItemCount"];
             ItemList["totalItemCount"].ToString().Should().Be("8");
             //ItemList["totalItemCount"].Should().Be(8); // this throws an error. Why????
 
@@ -478,7 +487,7 @@ namespace IntegrationTests.Story_Tests
             // get items with the Inc1 code...
             // there should be 3 items with attributeIdInc1FR
             ItemList = await FetchItemsWithThisCode(attributeIdInc1FR.ToString());
-            itemCount = ItemList["totalItemCount"].ToString();
+            itemCount = (int)ItemList["totalItemCount"];
             ItemList["totalItemCount"].ToString().Should().Be("3");
 
             // create a visual list of the items marked as 'include'
@@ -539,88 +548,6 @@ namespace IntegrationTests.Fixtures
             JsonNode? res = await client.PostAndDeserialize("api/ItemSetList/ExcecuteItemAttributeSaveCommand", abc);
             res.Should().NotBeNull();
             return res;
-        }
-
-        public async Task<JsonNode?> FetchItemsWithThisCode(string attributeSetIdList)
-        {
-
-            /*
-            bool showDeleted;
-            int sourceId;
-            int searchId;
-            Int64 xAxisSetId;
-            Int64 xAxisAttributeId;
-            Int64 yAxisSetId;
-            Int64 yAxisAttributeId;
-            Int64 filterSetId;
-            Int64 filterAttributeId;
-            string attributeSetIdList;
-            string listType;
-            int pageNumber;
-            int pageSize;
-            int totalItems;
-            int startPage;
-            int endPage;
-            int startIndex;
-            int endIndex;
-            int workAllocationId;
-            int comparisonId;
-
-            int magSimulationId;
-            string description;
-            int contactId;
-            int setId;
-            bool showInfoColumn;
-            bool showScoreColumn;
-
-            string withOutAttributesIdsList;
-            string withAttributesIds;
-            string withSetIdsList;
-            string withOutSetIdsList;
-            */
-
-            SelCritMVC crit = new SelCritMVC();
-            crit.onlyIncluded = true;
-            crit.showDeleted = false;
-            crit.sourceId = 0;
-            crit.searchId = 0;
-            crit.xAxisSetId = 0;
-            crit.xAxisAttributeId = 0;
-            crit.yAxisSetId = 0;
-            crit.yAxisAttributeId = 0;
-            crit.filterSetId = 0;
-            crit.filterAttributeId = 0;
-            crit.attributeSetIdList = attributeSetIdList; // this is what to search for. It can be a list of items.
-            crit.listType = "StandardItemList";  
-            crit.pageNumber = 0;
-            crit.pageSize = 100;
-            crit.totalItems = 0;
-            crit.startPage = 0;
-            crit.endPage = 0;
-            crit.startIndex = 0;
-            crit.endIndex = 0;
-            crit.workAllocationId = 0;
-            crit.comparisonId = 0;
-
-            crit.magSimulationId = 0;
-            crit.description = "";
-            crit.contactId = 0;
-            crit.setId = 0;
-            crit.showInfoColumn = true;
-            crit.showScoreColumn = false;
-
-            crit.withOutAttributesIdsList = "";
-            crit.withAttributesIds = "";
-            crit.withSetIdsList = "";
-            crit.withOutSetIdsList = "";
-
-
-
-            JsonNode? res = await client.PostAndDeserialize("api/ItemList/Fetch", crit);
-            res.Should().NotBeNull();
-            return res;
-
-
         }
 
     }
