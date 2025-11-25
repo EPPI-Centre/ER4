@@ -334,7 +334,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@Ext_Type", a.ExtType));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ContactId));
                     command.Parameters.Add(new SqlParameter("@ORIGINAL_ATTRIBUTE_ID", a.AttributeId));
-                    command.Parameters.Add(new SqlParameter("@OLDEST_KNOWN_ATTRIBUTE_ID", a.OldestKnownId));
+                    command.Parameters.Add(new SqlParameter("@OLDEST_KNOWN_ATTRIBUTE_ID", NewAttributeSet.OldestKnownId));
                     command.Parameters.Add(new SqlParameter("@NEW_ATTRIBUTE_SET_ID", 0));
                     command.Parameters["@NEW_ATTRIBUTE_SET_ID"].Direction = System.Data.ParameterDirection.Output;
                     command.Parameters.Add(new SqlParameter("@NEW_ATTRIBUTE_ID", 0));
