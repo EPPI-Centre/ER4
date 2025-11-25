@@ -858,6 +858,7 @@ namespace BusinessLibrary.BusinessClasses
                             returnValue.Attributes = AttributeSetList.NewAttributeSetList();
                             returnValue.LoadProperty<int>(ReviewSetIdProperty, reader.GetInt32("REVIEW_SET_ID"));
                             returnValue.LoadProperty<int>(OriginalSetIdProperty, reader.GetInt32("ORIGINAL_SET_ID"));
+                            returnValue.LoadProperty<int>(OldestKnownIdProperty, reader.GetInt32("OLDEST_KNOWN_SET_ID"));
                             returnValue.LoadProperty<int>(ReviewIdProperty, reader.GetInt32("REVIEW_ID"));
                             returnValue.LoadProperty<int>(SetIdProperty, reader.GetInt32("SET_ID"));
                             returnValue.LoadProperty<bool>(AllowCodingEditsProperty, reader.GetBoolean("ALLOW_CODING_EDITS"));

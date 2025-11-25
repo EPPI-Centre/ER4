@@ -274,7 +274,10 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@SET_ORDER", 0));
                     command.Parameters.Add(new SqlParameter("@SET_DESCRIPTION", cs.SetDescription));
                     command.Parameters.Add(new SqlParameter("@ORIGINAL_SET_ID", cs.SetId));
-
+                    if (cs.OldestKnownId != null && cs.OldestKnownId > 0)
+                    {
+                        command.Parameters.Add(new SqlParameter("@OLDEST_KNOWN_SET_ID", cs.OldestKnownId));
+                    } else command.Parameters.Add(new SqlParameter("@OLDEST_KNOWN_SET_ID", cs.SetId));
                     SqlParameter par = new SqlParameter("@NEW_REVIEW_SET_ID", System.Data.SqlDbType.Int);
                     par.Value = 0;
                     command.Parameters.Add(par);
@@ -852,6 +855,7 @@ namespace BusinessLibrary.BusinessClasses
             public string SetDescription { get; set; }
             public Attributes Attributes { get; set; }
             public int OriginalSetId { get; set; }
+            public int OldestKnownId { get; set; }
         }
 
         public class Settype
