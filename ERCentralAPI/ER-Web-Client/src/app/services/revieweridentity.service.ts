@@ -132,13 +132,20 @@ export class ReviewerIdentityService implements OnDestroy {
     if (!this.reviewerIdentity || !this.reviewerIdentity.reviewId || this.reviewerIdentity.reviewId == 0 || !this.reviewerIdentity.roles) return false;
     return this.reviewerIdentity.roles.indexOf('AdminUser') != -1;
   }
+  public get IsTrustedMethodologist(): boolean {
+    if (!this.reviewerIdentity || !this.reviewerIdentity.reviewId || this.reviewerIdentity.reviewId == 0 || !this.reviewerIdentity.roles) return false;
+    if (this.reviewerIdentity.roles.indexOf('TrustedMethodologist') != -1) return true;
+    if (this.reviewerIdentity.isSiteAdmin == true) return true;
+    return false;
+  }
 
   public get UserCanGPTinvestigate(): boolean {
     if (!this.reviewerIdentity || !this.reviewerIdentity.reviewId || this.reviewerIdentity.reviewId == 0
       || !this.reviewerIdentity.roles || this.reviewerIdentity.userId < 1) return false;
     else {
       if (this.configService.EnableGPTInvestigateGlobally == true) return true;
-      else if (this.configService.GPTinvestigateEnabledAccounts.indexOf(this.reviewerIdentity.userId) > -1) return true;
+      //else if (this.configService.GPTinvestigateEnabledAccounts.indexOf(this.reviewerIdentity.userId) > -1) return true;
+      else if (this.IsTrustedMethodologist == true) return true;
     }
     return false;
   }

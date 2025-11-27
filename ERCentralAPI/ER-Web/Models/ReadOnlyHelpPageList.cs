@@ -32,6 +32,17 @@ namespace BusinessLibrary.BusinessClasses
 
         }
 
+        public static readonly PropertyInfo<string> ContextProperty = RegisterProperty<string>(new PropertyInfo<string>("Context", "Context", string.Empty));
+        public string Context
+        {
+            get
+            {
+                return GetProperty(ContextProperty);
+            }
+        }
+
+
+
 #if SILVERLIGHT
     public ReadOnlySourceList() { }
 #else
@@ -51,14 +62,16 @@ namespace BusinessLibrary.BusinessClasses
 
 #if !SILVERLIGHT
 
-        private void DataPortal_Fetch()
+        private void DataPortal_Fetch(OnlineHelpCriteria crit)
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.AdmConnectionString))
             {
-                connection.Open();
+                LoadProperty<string>(ContextProperty, crit.Context);//we do this in all cases...               
                 using (SqlCommand command = new SqlCommand("st_OnlineHelpPages", connection))
                 {
+                    connection.Open();
                     command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@CONTEXT", crit.Context));
                     using (Csla.Data.SafeDataReader reader1 = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         while (reader1.Read())

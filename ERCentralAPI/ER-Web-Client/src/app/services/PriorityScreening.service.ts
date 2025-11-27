@@ -7,9 +7,10 @@ import { ReviewInfo, ReviewInfoService, iReviewInfo } from './ReviewInfo.service
 import { Item, iAdditionalItemDetails } from './ItemList.service';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { ReviewSet, SetAttribute } from './ReviewSets.service';
+import { ItemAttributeSaveCommand, ReviewSet, SetAttribute } from './ReviewSets.service';
 import { EventEmitterService } from './EventEmitter.service';
 import { ConfigService } from './config.service';
+import { ItemSet } from './ItemCoding.service';
 
 
 //see: https://stackoverflow.com/questions/34031448/typescript-typeerror-myclass-myfunction-is-not-a-function
@@ -539,6 +540,74 @@ export class PriorityScreeningService extends BusyAwareService implements OnDest
       });
   }
 
+  public ShouldCheckForRaicWork(ItemSets: ItemSet[]): boolean {
+    if (this.currentItemMightBeLocked) {//WARNING - this is fragile, only works if the assumption that this method is called ONLY when changing item does hold
+      this.currentItemMightBeLocked = false;
+      return true;
+    }
+    return false;
+    //if (!deepCheck
+    //  || this.ReviewInfoService.ReviewInfo.showScreening == false
+    //  || this.ReviewInfoService.ReviewInfo.reviewId < 1
+    //  || this.ReviewInfoService.ReviewInfo.screeningReconcilliation != "raic") return false;
+    //else {
+    //  const ScreeningToolId = this.ReviewInfoService.ReviewInfo.screeningCodeSetId;
+    //  const SetsToLookAt = ItemSets.filter(f => f.setId == ScreeningToolId);
+    //  if (SetsToLookAt.length == 0) return false;
+    //  if (SetsToLookAt.filter(f => f.isCompleted).length > 0) return false;
+    //  return true;
+    //}
+  }
+  private currentItemMightBeLocked = false;
+  public CheckForNeedOfLockingThisItem(ItemSets: ItemSet[], isScreening: boolean, cmdResult: ItemAttributeSaveCommand): boolean {
+    if (isScreening == true) return false;
+    else if (this.ReviewInfoService.ReviewInfo.showScreening == false
+      || this.ReviewInfoService.ReviewInfo.reviewId < 1
+      || this.ReviewInfoService.ReviewInfo.screeningReconcilliation != "raic") {
+      return false;
+    } else {
+      const ScreeningToolId = this.ReviewInfoService.ReviewInfo.screeningCodeSetId;
+      if (cmdResult.setId != ScreeningToolId) return false;
+      const SetsToLookAt = ItemSets.filter(f => f.setId == ScreeningToolId);
+      if (SetsToLookAt.filter(f => f.isCompleted).length > 0) return false;
+      this.currentItemMightBeLocked = true;
+      return true;
+    }
+  }
+
+  public RaicFindAndDoWorkFromUITrigger(ItemId: number) {
+    this._BusyMethods.push("RaicFindAndDoWorkFromUITrigger");
+    const body = {
+      searchId: 0,
+      codeSetId: this.ReviewInfoService.ReviewInfo.screeningCodeSetId,
+      triggeringItemId: ItemId,
+      createNew: false,
+      result: ""
+    };//we re-use the type we're using for RunScreeningFromSearchCommand
+    
+    lastValueFrom(this._httpC.post<void>(this._baseUrl + 'api/PriorirtyScreening/RaicFindAndDoWorkFromUITrigger',
+      body)).then(
+        () => {
+          this.RemoveBusy("RaicFindAndDoWorkFromUITrigger");
+        },
+        error => {
+          this.RemoveBusy("RaicFindAndDoWorkFromUITrigger");
+          this.modalService.SendBackHomeWithError(error);
+        });
+  }
+  public PleaseLockThisItem(ItemId: number) {
+    this._BusyMethods.push("PleaseLockThisItem");
+    let body = JSON.stringify({ Value: ItemId });
+    lastValueFrom(this._httpC.post<TrainingNextItem>(this._baseUrl + 'api/PriorirtyScreening/PleaseLockThisItem',
+      body)).then(
+        () => {
+          this.RemoveBusy("PleaseLockThisItem");
+        },
+        error => {
+          this.RemoveBusy("PleaseLockThisItem");
+          this.modalService.SendBackHomeWithError(error);
+        });
+  }
 
   public Clear() {
     this.ScreenedItemIds = [];

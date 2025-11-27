@@ -170,8 +170,8 @@ namespace BusinessLibrary.BusinessClasses
                         _itemSetId = (Int64)command.Parameters["@NEW_ITEM_SET_ID"].Value;
                     }
 
-                    // auto reconcile / include/exclude for screening
-                    if (RevInfo.ShowScreening && SetId == RevInfo.ScreeningCodeSetId) // i.e. we're screening using screening 'rules'
+                    // auto reconcile / include/exclude for screening, excluding "Retain all include codes" mode
+                    if (RevInfo.ShowScreening && SetId == RevInfo.ScreeningCodeSetId && RevInfo.ScreeningReconcilliation != "raic") // i.e. we're screening using screening 'rules'
                     {
                         if (_saveType == "Insert")
                         {

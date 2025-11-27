@@ -1760,6 +1760,8 @@ class ReviewSet4ER4Json {
     this.SetDescription = rs.description;
     this.SetType = new SetType4ER4Json(rs.setType);
     this.Attributes = new AttributesList4ER4Json(rs.attributes);
+    this.OldestKnownId = rs.oldestKnownId;
+    this.OriginalSetId = rs.originalSetId;
   }
   SetName: string;
   ReviewSetId: number;
@@ -1767,6 +1769,8 @@ class ReviewSet4ER4Json {
   SetType: SetType4ER4Json;
   SetDescription: string;
   Attributes: AttributesList4ER4Json;
+  OldestKnownId: number;
+  OriginalSetId: number;
 }
 class SetType4ER4Json {
   constructor(type: iSetType) {
@@ -1777,6 +1781,7 @@ class SetType4ER4Json {
   SetTypeName: string;
   SetTypeId: number;
   SetTypeDescription: string;
+
 }
 class AttributesList4ER4Json {
   constructor(atts: SetAttribute[]) {
@@ -1799,6 +1804,7 @@ class SetAttribute4ER4Json {
     this.ExtURL = att.extURL;
     this.ExtType = att.extType;
     this.OriginalAttributeID = att.originalAttributeID;
+    this.OldestKnownId = att.oldestKnownId;
     this.Attributes = new AttributesList4ER4Json(att.attributes);
   }
   AttributeSetId: number;
@@ -1812,6 +1818,7 @@ class SetAttribute4ER4Json {
   ExtType: string = "";
   OriginalAttributeID: number = 0;
   Attributes: AttributesList4ER4Json;
+  OldestKnownId: number = 0;
 }
 class Item4ER4Json {
   constructor(item: Item) {

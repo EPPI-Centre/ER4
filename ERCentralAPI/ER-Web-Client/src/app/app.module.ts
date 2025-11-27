@@ -142,6 +142,7 @@ import { RobotBatchJobs } from './Robots/robotBatchJobs.component';
 import { RobotInvestigate } from './Robots/robotInvestigate.component';
 import { CheckScreening } from './Search/CheckScreening.component';
 import { PriorityScreeningSim } from './Search/PriorityScreeningSim.component';
+import { LlmPromptEvaluation } from './Search/LlmPromptEvaluation.component';
 import { RobotJobsLog } from './Robots/RobotJobsLog.component';
 import { JobsContainer } from './Review/JobsContainer.component';
 import { ReviewJobs } from './Review/reviewJobs.component';
@@ -297,6 +298,7 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
     RobotBatchJobs,
     RobotInvestigate,
     PriorityScreeningSim,
+    LlmPromptEvaluation,
     CheckScreening,
     RobotJobsLog,
     JobsContainer,
@@ -365,6 +367,7 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
       { path: 'MetaAnalysis', component: MetaAnalysisComp },
       { path: 'Investigate', component: RobotInvestigate },
       { path: 'PriorityScreeningSim', component: PriorityScreeningSim },
+      { path: 'LlmPromptEvaluation', component: LlmPromptEvaluation },
       { path: 'JobsRecord', component: JobsContainer },
       { path: '**', redirectTo: 'home' }
     ]),

@@ -24,27 +24,27 @@ namespace ERxWebClient2.Zotero
 				erWebItem.Item.IsIncluded = true;
                 if (!string.IsNullOrWhiteSpace(_genericItem.data.publisher)) erWebItem.Item.ParentTitle = _genericItem.data.publisher.Trim();
                 if (_genericItem.data.itemType == "case" 
-                    && erWebItem.Item.Title.IsNullOrEmpty() 
-                    && !_genericItem.data.caseName.IsNullOrEmpty()) erWebItem.Item.Title = _genericItem.data.caseName;
+                    &&  String.IsNullOrEmpty(erWebItem.Item.Title) 
+                    && !String.IsNullOrEmpty(_genericItem.data.caseName)) erWebItem.Item.Title = _genericItem.data.caseName;
                 else if(_genericItem.data.itemType == "statute"
-                    && erWebItem.Item.Title.IsNullOrEmpty()
-                    && !_genericItem.data.nameOfAct.IsNullOrEmpty()) erWebItem.Item.Title = _genericItem.data.nameOfAct; 
+                    && String.IsNullOrEmpty(erWebItem.Item.Title)
+                    && !String.IsNullOrEmpty(_genericItem.data.nameOfAct)) erWebItem.Item.Title = _genericItem.data.nameOfAct; 
 
                 if (_genericItem.data.itemType == "case"
-                    && !_genericItem.data.dateDecided.IsNullOrEmpty()
-                    && erWebItem.Item.Year.IsNullOrEmpty())
+                    && !String.IsNullOrEmpty(_genericItem.data.dateDecided)
+                    && String.IsNullOrEmpty(erWebItem.Item.Year))
                 {
                     SetYearAndMonth(erWebItem.Item, _genericItem.data.dateDecided);
                 }
                 else if (_genericItem.data.itemType == "patent"
-                    && !_genericItem.data.issueDate.IsNullOrEmpty()
-                    && erWebItem.Item.Year.IsNullOrEmpty())
+                    && !String.IsNullOrEmpty(_genericItem.data.issueDate)
+                    && String.IsNullOrEmpty(erWebItem.Item.Year))
                 {
                     SetYearAndMonth(erWebItem.Item, _genericItem.data.issueDate);
                 }
                 else if (_genericItem.data.itemType == "statute"
-                    && !_genericItem.data.dateEnacted.IsNullOrEmpty()
-                    && erWebItem.Item.Year.IsNullOrEmpty())
+                    && !String.IsNullOrEmpty(_genericItem.data.dateEnacted)
+                    && String.IsNullOrEmpty(erWebItem.Item.Year))
                 {
                     SetYearAndMonth(erWebItem.Item, _genericItem.data.dateEnacted);
                 }

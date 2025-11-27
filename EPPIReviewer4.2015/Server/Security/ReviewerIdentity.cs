@@ -669,7 +669,11 @@ namespace BusinessLibrary.Security
                             if (ReviewExp == new DateTime(1, 1, 1)) ReviewExp = new DateTime(3000, 1, 1);
                             LoadProperty<int>(ReviewIdProperty, criteria.ReviewId);
                             LoadProperty<bool>(IsSiteAdminProperty, reader2.GetBoolean("IS_SITE_ADMIN"));
-                            //if (check == new DateTime(1, 1, 1)) check = DateTime.Now.AddDays(1);
+
+                            //added Oct 2025: people labelled as TrustedMethodologist get access to experimental/risky features
+                            bool TrustedMethodologist = reader2.GetBoolean("IS_METHODOLOGIST");
+                            if (TrustedMethodologist) Roles.Add("TrustedMethodologist");
+
                             check = ContactExp < ReviewExp ? ContactExp : ReviewExp;
                             if (check < DateTime.Today && (reader2.GetInt32("FUNDER_ID") != UserId || ContactExp < DateTime.Today))
                             {//if either the account or the review are expired and (this is not the review owner, or the current account is expired) then we 
@@ -683,6 +687,8 @@ namespace BusinessLibrary.Security
                             {
                                 Roles.Add(reader2.GetString("Role"));
                             }
+
+
                             //Roles.Add("AdminUser");// ADDED BY JAMES TEMPORARILY!!!
 
                         }

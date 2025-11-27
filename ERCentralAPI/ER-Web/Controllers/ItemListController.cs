@@ -188,6 +188,7 @@ namespace ERxWebClient2.Controllers
             CSLAItem.Authors = item.authors;
             CSLAItem.ParentAuthors = item.parentAuthors;
             CSLAItem.Abstract = item.@abstract;
+            CSLAItem.OldItemId = item.oldItemId;
             CSLAItem.ApplyEdit();
         }
 
@@ -409,6 +410,7 @@ namespace ERxWebClient2.Controllers
         public string isLocal;
 
         public string quickCitation;
+        public string oldItemId;
     }
     public class AdditionalItemData
     {

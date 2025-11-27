@@ -525,6 +525,12 @@ namespace BusinessLibrary.BusinessClasses
                             if (reader.Read())
                             {
                                 LoadProperty<bool>(ScreeningListIsGoodProperty, true);
+#if !WEBDB && !ER4
+                                if (reader.NextResult())//only happens for "auto reconcile: retain all include codes (raic)"
+                                {//under RAIC, items get unlocked ONLY when user changes item or requests an item (also in "simluate" mode) and get reconciled via the below
+                                    ReconcileRAICworker.GetAndDoWork(reader, ReviewId, ContactId);
+                                }
+#endif
                             }
                             else
                             {

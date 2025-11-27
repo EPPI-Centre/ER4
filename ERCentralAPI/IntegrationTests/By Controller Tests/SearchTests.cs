@@ -65,14 +65,24 @@ namespace IntegrationTests.By_Controller_Tests
             SOres.totalReferences.Should().Be(20);
             SOres.incomingItems.Count.Should().Be(0);
 
+            //get our 20 (or more) items
+            JsonNode? ItemList = await FetchIncludedItems();
+            int itemCount = (int)ItemList["totalItemCount"];
+            itemCount.Should().BeGreaterThanOrEqualTo(20);
+            JsonArray? items = (JsonArray?)ItemList["items"];
+            items.Should().NotBeNull();
+
+            //get one itemId
+            int itemId = (int)items[10]["itemId"];
+
             // set up the initial search parameters
             var search1 = new CodeCommand();
             search1._searches = "";
             search1._logicType = "";
             search1._setID = 0;
             search1._searchText = "";
-            search1._IDs = "10";  // to be set
-            search1._title = "10";  // to be set
+            search1._IDs = itemId.ToString();  // to be set
+            search1._title = itemId.ToString();  // to be set
             search1._answers = "";
             search1._included = true;
             search1._withCodes = false;
@@ -92,11 +102,14 @@ namespace IntegrationTests.By_Controller_Tests
             JsonNode? ASRes = await GetSearches();
             ASRes.AsArray().Count().Should().Be(1);
             ASRes[0]["hitsNo"].ToString().Should().Be("1");
-            
+
+            int itemId2 = (int)items[11]["itemId"];
+            int itemId3 = (int)items[12]["itemId"];
+
 
             // try comma separated IDs
-            search1._IDs = "10,11,12";
-            search1._title = "10,11,12";
+            search1._IDs = itemId.ToString() + "," + itemId2.ToString() + "," + itemId3.ToString();
+            search1._title = search1._IDs;
 
             // run the search
             SRes = await SearchInternalIDs(search1);

@@ -100,7 +100,7 @@ namespace ER_Web.Zotero
             newERWebItem.Country = collectionType.place;
             //newERWebItem.ParentTitle = collectionType.parentTitle;
             newERWebItem.DOI = collectionType.DOI;
-            if (!collectionType.date.IsNullOrEmpty())
+            if (!String.IsNullOrEmpty(collectionType.date))
             {
                 SetYearAndMonth(newERWebItem, collectionType.date);
             }
@@ -118,9 +118,9 @@ namespace ER_Web.Zotero
         protected void SetYearAndMonth(IItem newERWebItem, string Date)
         {
             string[] tmpParsedDate = ImportRefs.getDate(Date);
-            if (tmpParsedDate[0].IsNullOrEmpty()) newERWebItem.Year = "";
+            if (String.IsNullOrEmpty(tmpParsedDate[0])) newERWebItem.Year = "";
             else newERWebItem.Year = tmpParsedDate[0];
-            if (tmpParsedDate[1].IsNullOrEmpty()) newERWebItem.Month = "";
+            if (String.IsNullOrEmpty(tmpParsedDate[1])) newERWebItem.Month = "";
             else newERWebItem.Month = tmpParsedDate[1];
         }
 

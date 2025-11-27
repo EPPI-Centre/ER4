@@ -47,7 +47,12 @@ namespace IntegrationTests.By_Controller_Tests {
             _ = ParsedResponse["token"].ToString().Should().NotBeNullOrEmpty();
             string token = ParsedResponse["token"].ToString();
             SetCookieHeaderVal(token);
-            SingleIntCriteria rc = new SingleIntCriteria() { Value = 6};
+            JsonNode? res = await ReadOnlyReviews();
+            JsonArray? JA = res as JsonArray;
+            JA[0].Should().NotBeNull();
+            var meh = JA[0]["reviewId"];
+
+            SingleIntCriteria rc = new SingleIntCriteria() { Value = (int)JA[0]["reviewId"] };
             ParsedResponse = await client.PostAndDeserialize("api/Login/LoginToReview", rc);
             _ = ((bool)ParsedResponse["isAuthenticated"]).Should().Be(true);
             _ = ParsedResponse["token"].ToString().Should().NotBeNullOrEmpty();

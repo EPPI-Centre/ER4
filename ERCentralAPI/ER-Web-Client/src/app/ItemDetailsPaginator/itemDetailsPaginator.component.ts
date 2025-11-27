@@ -136,12 +136,17 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
       this.ConfirmationDialogService.confirm(this.OutcomeDiscardChangesTitle, this.OutcomeDiscardChangesContent, false, '')
         .then((confirm: any) => {
           if (confirm) {
-            this.GoToNextScreeningItemClicked.emit();
+            this.innerGetScreeningItem();
           }
         });
-    } else this.GoToNextScreeningItemClicked.emit();
+    } else this.innerGetScreeningItem();
   }
-  private _hasPrevious: boolean | null = null;
+  private innerGetScreeningItem() {
+    //if (this.PriorityScreeningService.CheckForRaicWork(this.ItemCodingService.ItemCodingList) && this.item) {
+    //  this.PriorityScreeningService.RaicFindAndDoWorkFromSimulateNextItem(this.item.itemId);
+    //}
+    this.GoToNextScreeningItemClicked.emit();
+  }
   hasPrevious(): boolean {
 
     return this.ItemListService.hasPrevious(this.itemID);
@@ -215,6 +220,9 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
   }
 
   goToItem(item: Item) {
+    if (this.PriorityScreeningService.ShouldCheckForRaicWork(this.ItemCodingService.ItemCodingList) && this.item) {
+      this.PriorityScreeningService.RaicFindAndDoWorkFromUITrigger(this.item.itemId);
+    }
     //this.WipeHighlights();
     if (this.Context == 'FullUI') this.router.navigate(['itemcoding', item.itemId]);
     else if (this.Context == 'CodingOnly') this.router.navigate(['itemcodingOnly', item.itemId]);

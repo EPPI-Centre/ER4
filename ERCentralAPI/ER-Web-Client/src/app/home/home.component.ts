@@ -1,11 +1,9 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService, ReviewerIdentity } from '../services/revieweridentity.service';
 import { Helpers } from '../helpers/HelperMethods';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { ConfigService } from '../services/config.service';
+import { ConfigService, versionInfo } from '../services/config.service';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
@@ -26,26 +24,38 @@ export class HomeComponent implements OnInit {
   constructor(private router: Router,
     private ReviewerIdentityServ: ReviewerIdentityService,
     //@Inject('BASE_URL') private _baseUrl: string,
-    configService: ConfigService,
+    private configService: ConfigService,
     protected EventEmitterService: EventEmitterService,
-    private _httpC: HttpClient,
+    
   ) {
     this.ReviewerIdentityServ.LoginFailed.subscribe(() => this.LoginFailed());
     this._baseUrl = configService.baseUrl;
   }
-  vInfo: versionInfo = new versionInfo();
+  public get vInfo(): versionInfo {
+    return this.configService.vInfo;
+  }
+  public set vInfo(val: versionInfo) {
+    this.configService.vInfo = val;
+  }
+  public get versionIsNew(): boolean {
+    return this.configService.versionIsNew;
+  }
+
   private _baseUrl = "";
   public ShowLoginFailed: boolean = false;
   public ShowUsernameRequired: boolean = false;
   public ShowPasswordRequired: boolean = false;
   public showCochraneHelp: boolean = false;
-  public HasConnectionError: boolean = false;
   public IsBusy: boolean = false;
-  public IsGettingVersionInfo: boolean = false;
   public faSpinner = faSpinner;
-  public versionIsNew: boolean = false;
   public get baseUrl(): string {
     return this._baseUrl;
+  }
+  public get HasConnectionError(): boolean{
+    return this.configService.HasConnectionError;
+  }
+  public get IsGettingVersionInfo(): boolean {
+    return this.configService.IsGettingVersionInfo;
   }
  
   onLogin(u: string, p: string) {
@@ -84,47 +94,11 @@ export class HomeComponent implements OnInit {
     this.getVinfo();
   }
   getVinfo() {
-    this.HasConnectionError = false;
-    this.IsGettingVersionInfo = true;
-    this._httpC.get<versionInfo>(this._baseUrl + 'api/Login/VersionInfo').subscribe(
-      result => {
-        this.IsGettingVersionInfo = false;
-        this.vInfo = result;
-        if (this.vInfo.versionN.startsWith("4.")) {
-          this.vInfo.versionN = "6" + this.vInfo.versionN.substring(1);
-        }
-        this.CheckIfVersionIsNew();
-      }, error => {
-        this.HasConnectionError = true;
-        this.IsGettingVersionInfo = false;
-        console.error(error);
-      }
-    );
+    this.configService.getVinfo();
   }
   FormatDate(DateSt: string): string {
     return Helpers.FormatDate(DateSt);
   }
-  private CheckIfVersionIsNew() {
-    const date = new Date();
-    date.setDate(date.getDate() - 10);
-    const vDT = this.vInfo.date.split(' ');
-    if (!vDT || vDT.length != 2) {
-      this.versionIsNew = false;
-      return;
-    }
-    const dmy = vDT[0].split('/');
-    if (!dmy || dmy.length != 3) {
-      this.versionIsNew = false;
-      return;
-    }
-    const vD = new Date(parseInt(dmy[2]), parseInt(dmy[1]) - 1, parseInt(dmy[0]));
-    if (vD > date) this.versionIsNew = true;
-    else this.versionIsNew = false;
-  }
+  
 }
-class versionInfo {
-  date: string = "";
-  description: string = "";
-  url: string = "";
-  versionN: string = "";
-}
+
