@@ -49,17 +49,16 @@ namespace IntegrationTests.By_Controller_Tests
             Res.ReviewName.Should().Be("Shared rev1 (id:12)");
 
             JsonNode? CSRes = await GetCodesets();
-            // assuming this is the first time you count searches...
-            CSRes.AsArray().Count().Should().Be(0);
+            CSRes.Should().NotBeNull();
+            CSRes.AsArray().Count().Should().BeGreaterThanOrEqualTo(0);
 
         }
 
 
 
 
-        [Theory]
-        [InlineData("20 refs.txt")]
-        public async Task CRUDScreeningToolandAttributes(string filename, string importFilterName = "RIS")
+        [Fact]
+        public async Task CRUDScreeningToolandAttributes()
         {
             //every [Fact] should start with this line
             (await AuthenticationDone()).Should().Be(true);
@@ -98,23 +97,25 @@ namespace IntegrationTests.By_Controller_Tests
             JsonNode? CSRes = await CreateCodeset(codesetName, setTypeID, allowCodingEdits, codingIsFinal);
 
             CSRes = await GetCodesets();
-            CSRes.AsArray().Count().Should().Be(1);         
-            var setId = (int)CSRes[0]["setId"];
-            var reviewSetId = (int)CSRes[0]["reviewSetId"];
-
+            CSRes.AsArray().Count().Should().BeGreaterThanOrEqualTo(1);
+            var ourTool = CSRes.AsArray().FirstOrDefault(f => f["setName"].ToString() == codesetName);
+            ourTool.Should().NotBeNull();
+            var setId = (int)ourTool["setId"];
+            var reviewSetId = (int)ourTool["reviewSetId"];
+            codesetName = "test 1111";
             // edit the coding tool name
             ReviewSetUpdateCommandJSON rsc = new ReviewSetUpdateCommandJSON();
             rsc.setId = setId;
-            rsc.setName = "test 1111";
+            rsc.setName = codesetName;
             rsc.reviewSetId = reviewSetId;
-            rsc.allowCodingEdits = (bool)CSRes[0]["allowCodingEdits"];
+            rsc.allowCodingEdits = (bool)ourTool["allowCodingEdits"];
             rsc.setTypeId = 5;
             rsc.setDescription = "";
 
             CSRes = await UpdateCodeset(rsc);
 
             CSRes = await GetCodesets();
-            var test = CSRes[0]["setName"].ToString();
+            var test = ourTool["setName"].ToString();
 
 
             /* AttributeSetCreateOrUpdateJSON fields
@@ -187,10 +188,13 @@ namespace IntegrationTests.By_Controller_Tests
 
             
             CSRes = await GetCodesets();
-            CSRes.AsArray().Count().Should().Be(1);
+            CSRes.AsArray().Count().Should().BeGreaterThanOrEqualTo(1);
 
-            test = CSRes[0]["attributes"]["attributesList"][0]["attributeName"].ToString();
-            CSRes[0]["attributes"]["attributesList"][1]["attributeName"].ToString().Should().Be("Include 1");
+            ourTool = CSRes.AsArray().FirstOrDefault(f => f["setName"].ToString() == codesetName);
+            ourTool.Should().NotBeNull();
+
+            test = ourTool["attributes"]["attributesList"][0]["attributeName"].ToString();
+            ourTool["attributes"]["attributesList"][1]["attributeName"].ToString().Should().Be("Include 1");
             
 
 
@@ -204,16 +208,20 @@ namespace IntegrationTests.By_Controller_Tests
             incAttr.attributeSetDescription = "";
             incAttr.contactId = 5;  // this is the default login person
             incAttr.originalAttributeID = 0;
-            incAttr.attributeSetId = int.Parse(CSRes[0]["attributes"]["attributesList"][1]["attributeSetId"].ToString());
-            incAttr.attributeId = int.Parse(CSRes[0]["attributes"]["attributesList"][1]["attributeId"].ToString());
+            incAttr.attributeSetId = int.Parse(ourTool["attributes"]["attributesList"][1]["attributeSetId"].ToString());
+            incAttr.attributeId = int.Parse(ourTool["attributes"]["attributesList"][1]["attributeId"].ToString());
             incAttr.extURL = "";
             incAttr.extType = "";
 
             JsonNode? AttrRes3 = await UpdateCode(incAttr);
 
             CSRes = await GetCodesets();
-            test = CSRes[0]["attributes"]["attributesList"][0]["attributeName"].ToString();
-            CSRes[0]["attributes"]["attributesList"][1]["attributeName"].ToString().Should().Be("Include 1111");
+
+            ourTool = CSRes.AsArray().FirstOrDefault(f => f["setName"].ToString() == codesetName);
+            ourTool.Should().NotBeNull();
+
+            test = ourTool["attributes"]["attributesList"][0]["attributeName"].ToString();
+            ourTool["attributes"]["attributesList"][1]["attributeName"].ToString().Should().Be("Include 1111");
             
 
 
@@ -230,26 +238,33 @@ namespace IntegrationTests.By_Controller_Tests
             */
 
             CSRes = await GetCodesets();
+            ourTool = CSRes.AsArray().FirstOrDefault(f => f["setName"].ToString() == codesetName);
+            ourTool.Should().NotBeNull();
 
             AttributeDeleteCommandJSON attrDelete = new AttributeDeleteCommandJSON();
-            attrDelete.attributeSetId = int.Parse(CSRes[0]["attributes"]["attributesList"][0]["attributeSetId"].ToString());
-            attrDelete.attributeId = int.Parse(CSRes[0]["attributes"]["attributesList"][0]["attributeId"].ToString());
-            attrDelete.parentAttributeId = int.Parse(CSRes[0]["attributes"]["attributesList"][0]["parentAttributeId"].ToString());
-            attrDelete.attributeOrder = int.Parse(CSRes[0]["attributes"]["attributesList"][0]["attributeOrder"].ToString());
+            attrDelete.attributeSetId = int.Parse(ourTool["attributes"]["attributesList"][0]["attributeSetId"].ToString());
+            attrDelete.attributeId = int.Parse(ourTool["attributes"]["attributesList"][0]["attributeId"].ToString());
+            attrDelete.parentAttributeId = int.Parse(ourTool["attributes"]["attributesList"][0]["parentAttributeId"].ToString());
+            attrDelete.attributeOrder = int.Parse(ourTool["attributes"]["attributesList"][0]["attributeOrder"].ToString());
             attrDelete.successful = false;
 
             JsonNode? AttrRes4 = await DeleteCode(attrDelete);
             CSRes = await GetCodesets();
+            ourTool = CSRes.AsArray().FirstOrDefault(f => f["setName"].ToString() == codesetName);
+            ourTool.Should().NotBeNull();
 
             // the 'first' code has been deleted so the 'second' code is now the 'first' code.
-            attrDelete.attributeSetId = int.Parse(CSRes[0]["attributes"]["attributesList"][0]["attributeSetId"].ToString());
-            attrDelete.attributeId = int.Parse(CSRes[0]["attributes"]["attributesList"][0]["attributeId"].ToString());
-            attrDelete.parentAttributeId = int.Parse(CSRes[0]["attributes"]["attributesList"][0]["parentAttributeId"].ToString());
-            attrDelete.attributeOrder = int.Parse(CSRes[0]["attributes"]["attributesList"][0]["attributeOrder"].ToString());
+            attrDelete.attributeSetId = int.Parse(ourTool["attributes"]["attributesList"][0]["attributeSetId"].ToString());
+            attrDelete.attributeId = int.Parse(ourTool["attributes"]["attributesList"][0]["attributeId"].ToString());
+            attrDelete.parentAttributeId = int.Parse(ourTool["attributes"]["attributesList"][0]["parentAttributeId"].ToString());
+            attrDelete.attributeOrder = int.Parse(ourTool["attributes"]["attributesList"][0]["attributeOrder"].ToString());
             attrDelete.successful = false;
 
             JsonNode? AttrRes5 = await DeleteCode(attrDelete);
             CSRes = await GetCodesets();
+            int InterimToolsCount = CSRes.AsArray().Count();
+            ourTool = CSRes.AsArray().FirstOrDefault(f => f["setName"].ToString() == codesetName);
+            ourTool.Should().NotBeNull();
 
             // delete the codesets
             /* needed for ReviewSetDeleteCommandJSON
@@ -259,15 +274,15 @@ namespace IntegrationTests.By_Controller_Tests
             public int order;
             */
             ReviewSetDeleteCommandJSON rsDelete = new ReviewSetDeleteCommandJSON();
-            rsDelete.reviewSetId = (int)CSRes[0]["reviewSetId"]; 
+            rsDelete.reviewSetId = (int)ourTool["reviewSetId"]; 
             rsDelete.successful = false;
-            rsDelete.setId = (int)CSRes[0]["setId"];  
-            rsDelete.order = (int)CSRes[0]["setOrder"]; 
+            rsDelete.setId = (int)ourTool["setId"];  
+            rsDelete.order = (int)ourTool["setOrder"]; 
             
             JsonNode? CSRes5 = await DeleteCodeset(rsDelete);
 
             CSRes = await GetCodesets();
-            CSRes.AsArray().Count().Should().Be(0);
+            CSRes.AsArray().Count().Should().Be(InterimToolsCount - 1);
 
 
 

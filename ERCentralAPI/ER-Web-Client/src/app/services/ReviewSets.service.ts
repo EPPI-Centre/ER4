@@ -219,6 +219,8 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
       newSet.description = iReviewSet.setDescription;
       newSet.setType = iReviewSet.setType;
       newSet.userCanEditURLs = iReviewSet.userCanEditURLs;
+      newSet.originalSetId = iReviewSet.originalSetId;
+      newSet.oldestKnownId = iReviewSet.oldestKnownId;
       newSet.attributes = ReviewSetsService.childrenFromJSONarray(iReviewSet.attributes.attributesList);
       result.push(newSet);
     }
@@ -243,6 +245,8 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
       newSet.description = newSet.description;
       newSet.setType = Itemset.setType;
       newSet.userCanEditURLs = Itemset.userCanEditURLs;
+      newSet.originalSetId = Itemset.originalSetId;
+      newSet.oldestKnownId = Itemset.oldestKnownId;
       newSet.attributes = ReviewSetsService.childrenFromLocalJSONarray(Itemset.attributes);
       result.push(newSet);
     }
@@ -266,6 +270,7 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
       newAtt.extURL = iAtt.extURL;
       newAtt.extType = iAtt.extType;
       newAtt.originalAttributeID = iAtt.originalAttributeID;
+      newAtt.oldestKnownId = iAtt.oldestKnownId;
       newAtt.attributes = ReviewSetsService.childrenFromJSONarray(iAtt.attributes.attributesList);
       result.push(newAtt);
     }
@@ -285,6 +290,8 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
         newAtt.attributeSetId = iAtt.attributeSetId;
         newAtt.attribute_set_desc = iAtt.attribute_set_desc;
         newAtt.attribute_desc = iAtt.attribute_desc;
+        newAtt.originalAttributeID = iAtt.originalAttributeID;
+        newAtt.oldestKnownId = iAtt.oldestKnownId;
         newAtt.set_id = iAtt.set_id;
         newAtt.extURL = iAtt.extURL;
         newAtt.extType = iAtt.extType;
@@ -703,6 +710,8 @@ export class ReviewSet implements singleNode {
   armTitle: string = "";
   codingComplete: boolean = false;
   userCanEditURLs: boolean = false;
+  originalSetId: number = 0;
+  oldestKnownId: number = 0;
 
   public get NumberOfChildren(): number {
     let countSoFar: number = 0;
@@ -750,9 +759,10 @@ export class SetAttribute implements singleNode {
     }
     return false;
   }
-  parent_attribute_id: number = -1;;
-  attribute_type_id: number = -1;;
+  parent_attribute_id: number = -1;
+  attribute_type_id: number = -1;
   originalAttributeID: number = -1;
+  oldestKnownId: number = 0;
   attributes: SetAttribute[] = [];
 
   allowEditingCodeset: boolean = false;//not used for attributes
@@ -789,6 +799,8 @@ export interface iReviewSet {
   allowCodingEdits: boolean;//despite the name, this refers to whether the codeset is editable
   userCanEditURLs: boolean;
   attributes: iAttributesList;
+  originalSetId: number;
+  oldestKnownId: number;
 }
 export interface iAttributesList {
   attributesList: iAttributeSet[];
@@ -809,6 +821,7 @@ export interface iAttributeSet {
   extURL: string;
   extType: string;
   originalAttributeID: number;
+  oldestKnownId: number;
 }
 export interface iSetType {
   setTypeId: number;

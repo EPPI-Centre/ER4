@@ -274,7 +274,10 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@SET_ORDER", 0));
                     command.Parameters.Add(new SqlParameter("@SET_DESCRIPTION", cs.SetDescription));
                     command.Parameters.Add(new SqlParameter("@ORIGINAL_SET_ID", cs.SetId));
-
+                    if (cs.OldestKnownId != null && cs.OldestKnownId > 0)
+                    {
+                        command.Parameters.Add(new SqlParameter("@OLDEST_KNOWN_SET_ID", cs.OldestKnownId));
+                    } else command.Parameters.Add(new SqlParameter("@OLDEST_KNOWN_SET_ID", cs.SetId));
                     SqlParameter par = new SqlParameter("@NEW_REVIEW_SET_ID", System.Data.SqlDbType.Int);
                     par.Value = 0;
                     command.Parameters.Add(par);
@@ -311,6 +314,7 @@ namespace BusinessLibrary.BusinessClasses
             NewAttributeSet.ExtType = a.ExtType;
             NewAttributeSet.ExtURL = a.ExtURL;
             NewAttributeSet.OriginalAttributeID = a.AttributeId;
+            NewAttributeSet.OldestKnownId = a.OldestKnownId == 0 ? a.AttributeId : a.OldestKnownId;
             NewAttributeSet.ParentAttributeId = aset == null ? 0 : aset.AttributeId;
             NewAttributeSet.SetId = rs.SetId;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
@@ -330,6 +334,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@Ext_Type", a.ExtType));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ContactId));
                     command.Parameters.Add(new SqlParameter("@ORIGINAL_ATTRIBUTE_ID", a.AttributeId));
+                    command.Parameters.Add(new SqlParameter("@OLDEST_KNOWN_ATTRIBUTE_ID", NewAttributeSet.OldestKnownId));
                     command.Parameters.Add(new SqlParameter("@NEW_ATTRIBUTE_SET_ID", 0));
                     command.Parameters["@NEW_ATTRIBUTE_SET_ID"].Direction = System.Data.ParameterDirection.Output;
                     command.Parameters.Add(new SqlParameter("@NEW_ATTRIBUTE_ID", 0));
@@ -850,6 +855,7 @@ namespace BusinessLibrary.BusinessClasses
             public string SetDescription { get; set; }
             public Attributes Attributes { get; set; }
             public int OriginalSetId { get; set; }
+            public int OldestKnownId { get; set; }
         }
 
         public class Settype
@@ -869,6 +875,7 @@ namespace BusinessLibrary.BusinessClasses
             public Int64 AttributeSetId { get; set; }
             public Int64 AttributeId { get; set; }
             public Int64 OriginalAttributeID { get; set; }
+            public Int64 OldestKnownId { get; set; }
             public string AttributeSetDescription { get; set; }
             public string AttributeType { get; set; }
             public int AttributeTypeId { get; set; } = 0;
