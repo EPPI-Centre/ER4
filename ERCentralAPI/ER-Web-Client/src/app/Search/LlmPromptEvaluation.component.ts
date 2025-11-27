@@ -114,7 +114,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
       this._eventEmitterService.nodeSelected = undefined;
     }
     else {
-      this.selectedModelDropDown2 = "";
+      this.selectedModelDropDown3 = "";
       this.SelectedTrainTestBelowHereAttribute = 0;
     }
   }
