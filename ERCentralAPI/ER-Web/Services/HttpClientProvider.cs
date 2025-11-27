@@ -1,5 +1,5 @@
 ﻿
-namespace ERxWebClient2.Services
+namespace ER_Web.Services
 {
     public class HttpClientProvider : IHttpClientProvider
     {

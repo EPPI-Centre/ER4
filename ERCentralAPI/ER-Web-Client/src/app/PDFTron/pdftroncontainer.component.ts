@@ -88,7 +88,7 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
         while ((!this.viewerInstance ||!this.ItemDocsService.CurrentDoc) && counter < 1 * 60) {
             counter++;
             await Helpers.Sleep(200);
-            console.log("waiting, cycle n: " + counter);
+            //console.log("waiting, cycle n: " + counter);
         }
         if (this.ItemDocsService.CurrentDoc) {
             this.AvoidHandlingAnnotationChanges = true;
@@ -101,7 +101,7 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
                     while (!this.docViewer && counter < 1 * 60) {
                         counter++;
                         await Helpers.Sleep(200);
-                        console.log("waiting, cycle2 n: " + counter);
+                        //console.log("waiting, cycle2 n: " + counter);
                     }
                 }
                 this.docViewer.on('annotationsLoaded', () => this.wvAnnotationsLoaded());
@@ -109,7 +109,7 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
             }
             this.LoadingNewDoc = true;
 
-            console.log("asking for the doc- - viewerInstance.loadDocument...", this.LoadingNewDoc);
+            //console.log("asking for the doc- - viewerInstance.loadDocument...", this.LoadingNewDoc);
             this.viewerInstance.loadDocument(this.ItemDocsService.CurrentDoc);
         }
         else console.log("I'm giving up :-(");
@@ -170,7 +170,7 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
             //'AnnotationCreateTextUnderline',
             //'AnnotationCreateTextSquiggly',
             //'AnnotationCreateTextStrikeout',
-            //'AnnotationCreateFreeText',
+            'AnnotationCreateFreeText',
             //'AnnotationCreateCallout',
             //'AnnotationCreateSignature',
             //'AnnotationCreateLine',

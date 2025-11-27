@@ -45,11 +45,11 @@ export class WebViewerComponent implements AfterViewInit {
         //catch (e) { console.log(e); }
     }
     public async GetReader() {
-        let aaa = this.viewer.nativeElement.querySelector('iframe');
-        let bb = this.viewer.nativeElement;
-        let ccc = this.viewer.nativeElement.querySelector('iframe').contentWindow;
-        let ddd = this.myWebViewer.getInstance();
-        console.log(aaa, bb, ccc);
+        //let aaa = this.viewer.nativeElement.querySelector('iframe');
+        //let bb = this.viewer.nativeElement;
+        //let ccc = this.viewer.nativeElement.querySelector('iframe').contentWindow;
+        //let ddd = this.myWebViewer.getInstance();
+        //console.log(aaa, bb, ccc);
         return await this.viewer.nativeElement.querySelector('iframe').PDFNet.ElementReader.create();
     }
     getPDFNet() {
@@ -71,7 +71,7 @@ export class WebViewerComponent implements AfterViewInit {
             //}
             
             if (PDFNet) {
-                console.log("got PDFNet :-)\n\n\n\n\n");
+                //console.log("got PDFNet :-)\n\n\n\n\n");
                 //await PDFNet.initialize();
                 
                 return PDFNet;

@@ -64,4 +64,10 @@ namespace BusinessLibrary.BusinessClasses
         }
 #endif
     }
+    public interface iResumableLongLastingTask
+    {
+#if !SILVERLIGHT
+        public void ResumeJob(ER_Web.Services.RawTaskToResume rtrs);
+#endif
+    }
 }

@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 using System.Net;
 using System.Text;
 
-namespace ERxWebClient2.Services
+namespace ER_Web.Services
 {
 	public sealed class ZoteroService : IZoteroService
     {

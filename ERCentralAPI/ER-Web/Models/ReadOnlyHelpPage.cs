@@ -35,6 +35,15 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<string> Context_SectionNameProperty = RegisterProperty<string>(new PropertyInfo<string>("Context_SectionName", "Context_SectionName"));
+        public string Context_SectionName
+        {
+            get
+            {
+                return GetProperty(Context_SectionNameProperty);
+            }
+        }
+
         public static readonly PropertyInfo<int> OnlineHelp_IDProperty = RegisterProperty<int>(new PropertyInfo<int>("OnlineHelp_ID", "OnlineHelp_ID"));
         public int OnlineHelp_ID
         {
@@ -55,6 +64,7 @@ namespace BusinessLibrary.BusinessClasses
         private void Child_Fetch(SafeDataReader reader)
         {
             LoadProperty<string>(Context_NameProperty, reader.GetString("tv_context"));
+            LoadProperty<string>(Context_SectionNameProperty, reader.GetString("tv_section_name"));
             LoadProperty<int>(OnlineHelp_IDProperty, reader.GetInt32("tv_online_help_id"));
         }
 
