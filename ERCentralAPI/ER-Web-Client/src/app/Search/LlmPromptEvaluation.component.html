@@ -84,7 +84,7 @@
           </div>
           <div class="mx-0 px-1 col-12 col-sm-6 col-md-4 my-auto text-sm-right">Create below here</div>
           <div ngbDropdown class="d-inline-block my-auto mx-0 px-1 col-12 col-sm-6 col-md-8 ">
-            <button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree2" (click)="isCollapsedSetSelectedTrainTestBelowHereAttribute = !isCollapsedSetSelectedTrainTestBelowHereAttribute; isCollapsed2SetSelectedTrainTestBelowHereAttribute=false" [attr.aria-expanded]="!isCollapsedSetSelectedTrainTestBelowHereAttribute" aria-controls="collapseCodeTree">{{selectedModelDropDown3}}&nbsp;</button>
+            <button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree3" (click)="isCollapsedSetSelectedTrainTestBelowHereAttribute = !isCollapsedSetSelectedTrainTestBelowHereAttribute; isCollapsed2SetSelectedTrainTestBelowHereAttribute=false" [attr.aria-expanded]="!isCollapsedSetSelectedTrainTestBelowHereAttribute" aria-controls="collapseCodeTree">{{selectedModelDropDown3}}&nbsp;</button>
             <div (click)="SetSelectedTrainTestBelowHereAttribute(nodeSelected)" class="dropdown-menu" id="collapseCodeTree3" [ngbCollapse]="!isCollapsedSetSelectedTrainTestBelowHereAttribute">
               <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown3()" [rootsOnly]=false></codesetSelector>
             </div>
