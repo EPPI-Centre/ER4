@@ -64,6 +64,16 @@ namespace BusinessLibrary.BusinessClasses
         }
 #endif
     }
+    /// <summary>
+    /// LongLastingFireAndForgetCommand (or other long-lasting task workers) can implement this interface to signal that they can be resumed.
+    /// LongLastingTaskResumer object runs at app startup and looks for tasks to resume (as List<RawTaskToResume>, populated from tb_REVIEW_JOB)
+    /// If the class used to run a given task implements LongLastingTaskResumer, it then calls its ResumeJob(...) method and moves onto the next task in the list
+    /// Therefore, iResumableLongLastingTask object need to:
+    ///     - Implement logic to shutdown gracefully, and in doing so, save to tb_REVIEW_JOB all the data it needs to resume correctly.
+    ///         [The interface itself doesn't specify this, hence this Summary!]
+    ///     - In ResumeJob(...) implement all the logic needed to actually resume. 
+    ///         LongLastingTaskResumer will "fire and forget" the ResumeJob(...) method, so knows nothing of what happens therein.
+    /// </summary>
     public interface iResumableLongLastingTask
     {
 #if !SILVERLIGHT

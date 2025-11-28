@@ -12,6 +12,19 @@ using System.Reflection;
 
 namespace ER_Web.Services
 {
+    /// <summary>
+    /// Responsibilities of this object:
+    /// 1. Work in a separate thread: it's triggered by the startup routine, which needs to continue unhindered
+    /// 2. After a delay, to make sure the app-pool recycle is complete (old instance of ER6 is now dead):
+    ///     Find list of jobs that got cancelled by an app-pool recycle, represent it as a "RawTaskToResume" class
+    /// 3. For each RawTaskToResume, use reflection to instantiate an instance of the object responsible for running the long-lasting task that got cancelled
+    ///     This should happen ONLY IF the class in question implements iResumableLongLastingTask, otherwise the task is skipped as it can't be resumed.
+    /// 4. Call the (iResumableLongLastingTask.)ResumeJob(rawTaskToResume) method.
+    ///     That's it, all the "resume" logic NEEDS TO BE in the actual long-lasting task class. The "Resumer" class needs to know nothing about it.
+    /// Thus, iResumableLongLastingTask need to:
+    ///     - Have logic to "shut down gracefully" which must save all the data needed to resume to tb_REVIEW_JOB
+    ///     - Include the logic needed to resume in the appropriate way inside its ResumeJob(ER_Web.Services.RawTaskToResume rtrs) method
+    /// </summary>
     public class LongLastingTaskResumer
     {
         private readonly Serilog.ILogger Logger;
@@ -49,9 +62,11 @@ namespace ER_Web.Services
                             if (instance != null)
                             {
                                 LogInfoMessage("LongLastingTaskResumer instantiated an object of type: " + taskToResume.ClassName);
-                                //var pars = taskToResume.GetParamsList();
-                                LogInfoMessage("LongLastingTaskResumer instantiated an object of type: " + taskToResume.ClassName);
-                                Task.Run(() => instance.ResumeJob(taskToResume));
+
+                                //should we do
+                                //Task.Run(() => instance.ResumeJob(taskToResume));?
+                                //I'm not sure! We can/should expect all ResumeJob(...) methods to eventually do some fire and forget of their own...
+                                instance.ResumeJob(taskToResume);
                             }
                             else
                             {
@@ -83,7 +98,7 @@ namespace ER_Web.Services
             using (SqlConnection connection = new SqlConnection(BusinessLibrary.Data.DataConnection.ConnectionString))
             {
                 connection.Open();
-                string SQLcmd = "SELECT * from TB_REVIEW_JOB where (SUCCESS = 0 OR SUCCESS is null) AND END_TIME > DATEADD(hour, -15,  GETDATE()) and CURRENT_STATE like 'Cancelled%'";
+                string SQLcmd = "SELECT * from TB_REVIEW_JOB where (SUCCESS = 0 OR SUCCESS is null) AND END_TIME > DATEADD(hour, -5,  GETDATE()) and CURRENT_STATE like 'Cancelled%'";
                 using (SqlCommand command = new SqlCommand(SQLcmd, connection))
                 {
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
@@ -96,12 +111,6 @@ namespace ER_Web.Services
                     }
                 }
             }
-
-            //KeyValuePair<string, object> t = new KeyValuePair<string, object>("RunType", "ApplyClassifier");
-            //List<KeyValuePair<string, object>> pps = new List<KeyValuePair<string, object>>();
-            //pps.Add(t);
-            //res.Add(new RawTaskToResume(7, 1214, 1085, "ClassifierCommandV2", "Apply Classifier", "Cancelled during DF", "26b48927-046f-4b2e-bf42-a701a1dbb1b6", Newtonsoft.Json.JsonConvert.SerializeObject(pps)));
-            //res.Add(new RawTaskToResume(7, 1214, 112, "TrainingRunCommandV2", "bbb", "Cancelled during DF"));
             return res;
         }
 

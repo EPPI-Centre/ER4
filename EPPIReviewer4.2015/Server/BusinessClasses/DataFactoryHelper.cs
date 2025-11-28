@@ -187,7 +187,8 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             if (AppIsShuttingDown || CT.IsCancellationRequested)//if CT requests a cancellation during the Delay, we get a 
                             {
-                                UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "No DF RunId yet", Origin, true, false);
+                                string resumeInfoString = Newtonsoft.Json.JsonConvert.SerializeObject(resumeInfo, Newtonsoft.Json.Formatting.None);
+                                UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled before DF", "No DF RunId yet", Origin, true, false, resumeInfoString);
                                 return false;
                             }
                         }
@@ -271,7 +272,8 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             if (AppIsShuttingDown || CT.IsCancellationRequested)//if CT requests a cancellation during the Delay, we get a 
                             {
-                                UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "", Origin, true, false);
+                                string resumeInfoString = Newtonsoft.Json.JsonConvert.SerializeObject(resumeInfo, Newtonsoft.Json.Formatting.None);
+                                UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "DF RunId: " + DFrunId, Origin, true, false, resumeInfoString);
                                 return false;
                             }
                         }
@@ -322,7 +324,8 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     if (AppIsShuttingDown || CT.IsCancellationRequested)//checking again, because we just paused 500ms or more!
                     {
-                        UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "DF RunId: " + DFrunId, Origin, true, false);
+                        string resumeInfoString = Newtonsoft.Json.JsonConvert.SerializeObject(resumeInfo, Newtonsoft.Json.Formatting.None);
+                        UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "DF RunId: " + DFrunId, Origin, true, false, resumeInfoString);
                         return false;
                     }
                 }

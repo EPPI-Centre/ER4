@@ -700,7 +700,8 @@ namespace BusinessLibrary.BusinessClasses
             }
             if (AppIsShuttingDown)
             {
-                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled before data-fetch", "", "ClassifierCommandV2", true, false);
+                string resumeInfoString = Newtonsoft.Json.JsonConvert.SerializeObject(MakeResumeInfo(), Newtonsoft.Json.Formatting.None);
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled before data-fetch", "", "ClassifierCommandV2", true, false, resumeInfoString);
                 return false;
             }
             try
@@ -762,8 +763,9 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 if (AppIsShuttingDown)
                 {//now we can delete the file!
-                    DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled during data-fetch", "", "ClassifierCommandV2", true, false);
-                    File.Delete(LocalFileName);                     
+                    try { File.Delete(LocalFileName); } catch { }
+                    string resumeInfoString = Newtonsoft.Json.JsonConvert.SerializeObject(MakeResumeInfo(), Newtonsoft.Json.Formatting.None);
+                    DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled during data-fetch", "", "ClassifierCommandV2", true, false, resumeInfoString);
                     return false;
                 }
             }
@@ -879,7 +881,8 @@ namespace BusinessLibrary.BusinessClasses
         {
             if (AppIsShuttingDown)
             {
-                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled before upload", "", "ClassifierCommandV2", true, false);
+                string resumeInfoString = Newtonsoft.Json.JsonConvert.SerializeObject(MakeResumeInfo(), Newtonsoft.Json.Formatting.None);
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled before upload", "", "ClassifierCommandV2", true, false, resumeInfoString);
                 return false;
             }
             try
@@ -889,7 +892,6 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     BlobOperations.UploadStream(blobConnection, "eppi-reviewer-data", DataFile, fileStream);
                 }
-                File.Delete(LocalFileName);
             }
             catch (Exception ex)
             {
@@ -908,9 +910,15 @@ namespace BusinessLibrary.BusinessClasses
             }
             if (AppIsShuttingDown)
             {
-                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled after upload", "", "TrainingRunCommandV2", true, false);
+                string resumeInfoString = Newtonsoft.Json.JsonConvert.SerializeObject(MakeResumeInfo(), Newtonsoft.Json.Formatting.None);
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled after upload", "", "TrainingRunCommandV2", true, false, resumeInfoString);
                 return false;
             }
+            try
+            {
+                File.Delete(LocalFileName);
+            }
+            catch { }
             return true;
         }
 
@@ -1023,7 +1031,8 @@ namespace BusinessLibrary.BusinessClasses
             {
                 if (AppIsShuttingDown)//DF will log if ER signalled to shut down while DF is running, so here we're only checking if the shut down signal happened After DF last checked
                 {
-                    DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled after DF", "", "ClassifierCommandV2", true, false);
+                    string resumeInfoString = Newtonsoft.Json.JsonConvert.SerializeObject(MakeResumeInfo(), Newtonsoft.Json.Formatting.None);
+                    DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled after DF", "", "ClassifierCommandV2", true, false, resumeInfoString);
                     return false;
                 }
                 return true;
@@ -1099,7 +1108,8 @@ namespace BusinessLibrary.BusinessClasses
                 Scores = LoadResultsIntoDatatable(ReviewId);
                 if (AppIsShuttingDown)//Last "graceful shutdown" chance
                 {
-                    DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled after Downloading results", "", "ClassifierCommandV2", true, false);
+                    string resumeInfoString = Newtonsoft.Json.JsonConvert.SerializeObject(MakeResumeInfo(), Newtonsoft.Json.Formatting.None);
+                    DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled after Downloading results", "", "ClassifierCommandV2", true, false, resumeInfoString);
                     return false;
                 }
                 // some classifiers just return a single value; others return multiple ones, with each category in 'PredictedLabel'
@@ -1311,7 +1321,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private void AddResumeInfoToDFH(DataFactoryHelper dfh)
+        private List<KeyValuePair<string, object>> MakeResumeInfo()
         {
             List<KeyValuePair<string, object>> resumeInfo = new List<KeyValuePair<string, object>>();
             if (BatchGuid != "") resumeInfo.Add(new KeyValuePair<string, object>("BatchGuid", BatchGuid));
@@ -1320,13 +1330,20 @@ namespace BusinessLibrary.BusinessClasses
             if (ModelReviewId != -1) resumeInfo.Add(new KeyValuePair<string, object>("ModelReviewId", ModelReviewId));
             if (_title != "") resumeInfo.Add(new KeyValuePair<string, object>("Title", _title));
             if (DataFile != "") resumeInfo.Add(new KeyValuePair<string, object>("DataFile", DataFile));
+            if (LocalFileName != "") resumeInfo.Add(new KeyValuePair<string, object>("LocalFileName", LocalFileName));
+            if (RunType != "") resumeInfo.Add(new KeyValuePair<string, object>("RunType", RunType)); 
             if (VecFile != "") resumeInfo.Add(new KeyValuePair<string, object>("VecFile", VecFile));
             if (ClfFile != "") resumeInfo.Add(new KeyValuePair<string, object>("ClfFile", ClfFile));
             if (ScoresFile != "") resumeInfo.Add(new KeyValuePair<string, object>("ScoresFile", ScoresFile));
             if (RemoteFolder != "") resumeInfo.Add(new KeyValuePair<string, object>("RemoteFolder", RemoteFolder));
             if (OpenAlexAutoUpdate == true) resumeInfo.Add(new KeyValuePair<string, object>("OpenAlexAutoUpdate", OpenAlexAutoUpdate));
+            return resumeInfo;
+        }
+
+        private void AddResumeInfoToDFH(DataFactoryHelper dfh)
+        {
+            List<KeyValuePair<string, object>> resumeInfo = MakeResumeInfo();
             dfh.resumeInfo = resumeInfo;
-            
         }
         /*************************************************************************************************
          * *********************************** END NEW REFACTORED VERSION ********************************
@@ -1453,27 +1470,47 @@ namespace BusinessLibrary.BusinessClasses
         public void ResumeJob(ER_Web.Services.RawTaskToResume rttr)
         {
             List<string> supportedResumePoints = new List<string>();
-            supportedResumePoints.Add("Cancelled during DF");
-            if (!supportedResumePoints.Contains(rttr.CancelState)) return;
-            bool res = false;
-            if (rttr.DataFactoryRunId != null)
-            {
-                res = ResumeAtDataFactoryRunning(rttr);
+            supportedResumePoints.Add("Cancelled before data-fetch");//apply job, on OA auto update feed
+            supportedResumePoints.Add("Cancelled during data-fetch");//apply job, on OA auto update feed
+            supportedResumePoints.Add("Cancelled before upload");//any
+            supportedResumePoints.Add("Cancelled after upload");//any
+            supportedResumePoints.Add("Cancelled during DF");//any
+            supportedResumePoints.Add("Cancelled after DF");//any
+            supportedResumePoints.Add("Cancelled after Downloading results");//any - files should still be in the blob)
+
+            int index = supportedResumePoints.FindIndex(f => f == rttr.CancelState);
+            if (index == -1) return;//cancelled at a not-supported stage
+            List<KeyValuePair<string, object>> paramsToResume = DigestParameters(rttr);
+            if (index <= 3)
+            {//resume from before DF, we didn't trigger the DF job
+                
+                ResumeFromBeforeDataFactory(rttr);
             }
-            if (res == true)
-            {
+            else if (index == 4)
+            {//resume from monitoring the DF job
+                bool res = false;
+                if (rttr.DataFactoryRunId != null)
+                {
+                    res = ResumeAtDataFactoryRunning(rttr, paramsToResume);
+                }
+                if (res == true)
+                {
+                    AfterDataFactory(rttr.ReviewId, rttr.JobId, rttr.ContactId);
+                }
+            }
+            else
+            {//after DF, resume from there
                 AfterDataFactory(rttr.ReviewId, rttr.JobId, rttr.ContactId);
-            }
+            }                
         }
-        private bool ResumeAtDataFactoryRunning(ER_Web.Services.RawTaskToResume rttr)
+        private List<KeyValuePair<string, object>> DigestParameters(ER_Web.Services.RawTaskToResume rttr)
         {
             List<KeyValuePair<string, object>> paramsToResume = rttr.GetParamsList();
             string pipelineName = "";
-            foreach(KeyValuePair<string, object> kvp in paramsToResume)
+            foreach (KeyValuePair<string, object> kvp in paramsToResume)
             {
-                switch(kvp.Key)
+                switch (kvp.Key)
                 {
-
                     case "BatchGuid":
                         BatchGuid = kvp.Value.ToString();
                         break;
@@ -1492,6 +1529,12 @@ namespace BusinessLibrary.BusinessClasses
                     case "DataFile":
                         DataFile = kvp.Value.ToString();
                         break;
+                    case "LocalFileName":
+                        LocalFileName = kvp.Value.ToString();
+                        break;
+                    case "RunType":
+                        RunType = kvp.Value.ToString();
+                        break;//
                     case "VecFile":
                         VecFile = kvp.Value.ToString();
                         break;
@@ -1512,8 +1555,15 @@ namespace BusinessLibrary.BusinessClasses
                         break;
                     default: break;
                 }
-                
             }
+            return paramsToResume;
+        }
+        private void ResumeFromBeforeDataFactory(ER_Web.Services.RawTaskToResume rttr)
+        {
+            Task.Run(() => FireAndForget(rttr.ReviewId, rttr.JobId, rttr.ContactId));
+        }
+        private bool ResumeAtDataFactoryRunning(ER_Web.Services.RawTaskToResume rttr, List<KeyValuePair<string, object>> paramsToResume)
+        {
             if (rttr.JobType == "Apply Classifier")
             {
                 RunType = "ApplyClassifier";
@@ -1541,6 +1591,11 @@ namespace BusinessLibrary.BusinessClasses
                 SetLocalTempFilename(rttr.ReviewId, rttr.ContactId, "PrioS");
             }
             else return false;
+            string pipelineName = "";
+            var found = paramsToResume.Find(f => f.Key == "pipelineName");
+            if (found.Key != "") pipelineName = found.Value.ToString();
+            else return false;
+            
             DataFactoryHelper DFH = new DataFactoryHelper();
             DFH.resumeInfo = paramsToResume;
             //var a = this.GetAdfParameters(RunType);
