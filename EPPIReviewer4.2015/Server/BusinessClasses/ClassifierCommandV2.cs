@@ -812,11 +812,7 @@ namespace BusinessLibrary.BusinessClasses
                 DataFile = DataFile.Replace("DataForTraining.tsv", "DataForTrainingEvaluation.tsv");
                 if (!UploadTempFileToBlob(ReviewId, LogId))
                 {
-                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-                    {
-                        connection.Open();
-                        UndoChangesToClassifierRecord(LogId, true);
-                    }
+                    UndoChangesToClassifierRecord(LogId, true);
                     return;
                 }
                 LocalFileName = LocalFileName.Replace("Apply4Build.tsv", "Build.tsv");//set the filenames back to what it usually is
@@ -1469,39 +1465,39 @@ namespace BusinessLibrary.BusinessClasses
 
         public void ResumeJob(ER_Web.Services.RawTaskToResume rttr)
         {
-            List<string> supportedResumePoints = new List<string>();
-            supportedResumePoints.Add("Cancelled before data-fetch");//apply job, on OA auto update feed
-            supportedResumePoints.Add("Cancelled during data-fetch");//apply job, on OA auto update feed
-            supportedResumePoints.Add("Cancelled before upload");//any
-            supportedResumePoints.Add("Cancelled after upload");//any
-            supportedResumePoints.Add("Cancelled during DF");//any
-            supportedResumePoints.Add("Cancelled after DF");//any
-            supportedResumePoints.Add("Cancelled after Downloading results");//any - files should still be in the blob)
+            try
+            {
+                List<string> supportedResumePoints = new List<string>();
+                supportedResumePoints.Add("Cancelled before data-fetch");//apply job, on OA auto update feed
+                supportedResumePoints.Add("Cancelled during data-fetch");//apply job, on OA auto update feed
+                supportedResumePoints.Add("Cancelled before upload");//any
+                supportedResumePoints.Add("Cancelled after upload");//any
+                supportedResumePoints.Add("Cancelled during DF");//any
+                supportedResumePoints.Add("Cancelled after DF");//any
+                supportedResumePoints.Add("Cancelled after Downloading results");//any - files should still be in the blob)
 
-            int index = supportedResumePoints.FindIndex(f => f == rttr.CancelState);
-            if (index == -1) return;//cancelled at a not-supported stage
-            List<KeyValuePair<string, object>> paramsToResume = DigestParameters(rttr);
-            if (index <= 3)
-            {//resume from before DF, we didn't trigger the DF job
-                
-                ResumeFromBeforeDataFactory(rttr);
-            }
-            else if (index == 4)
-            {//resume from monitoring the DF job
-                bool res = false;
-                if (rttr.DataFactoryRunId != null)
-                {
-                    res = ResumeAtDataFactoryRunning(rttr, paramsToResume);
+                int index = supportedResumePoints.FindIndex(f => f == rttr.CancelState);
+                if (index == -1) return;//cancelled at a not-supported stage
+                List<KeyValuePair<string, object>> paramsToResume = DigestParameters(rttr);
+                if (index <= 3)
+                {//resume from before DF, we didn't trigger the DF job
+                    ResumeFromBeforeDataFactory(rttr);
                 }
-                if (res == true)
-                {
+                else if (index == 4)
+                {//resume from monitoring the DF job
+                    Task.Run(() => ResumeAtDataFactoryRunning(rttr, paramsToResume));
+                }
+                else
+                {//after DF, resume from there
                     AfterDataFactory(rttr.ReviewId, rttr.JobId, rttr.ContactId);
                 }
             }
-            else
-            {//after DF, resume from there
-                AfterDataFactory(rttr.ReviewId, rttr.JobId, rttr.ContactId);
-            }                
+            catch (Exception ex)
+            {
+                DataFactoryHelper.UpdateReviewJobLog(rttr.JobId, rttr.ReviewId, "Failed to ResumeJob", "", "ClassifierCommandV2", true, false);
+                DataFactoryHelper.LogExceptionToFile(ex, rttr.ReviewId, rttr.JobId, "ClassifierCommandV2");
+                return;
+            }
         }
         private List<KeyValuePair<string, object>> DigestParameters(ER_Web.Services.RawTaskToResume rttr)
         {
@@ -1562,7 +1558,19 @@ namespace BusinessLibrary.BusinessClasses
         {
             Task.Run(() => FireAndForget(rttr.ReviewId, rttr.JobId, rttr.ContactId));
         }
-        private bool ResumeAtDataFactoryRunning(ER_Web.Services.RawTaskToResume rttr, List<KeyValuePair<string, object>> paramsToResume)
+        private void ResumeAtDataFactoryRunning(ER_Web.Services.RawTaskToResume rttr, List<KeyValuePair<string, object>> paramsToResume)
+        {
+            bool res = false;
+            if (rttr.DataFactoryRunId != null)
+            {
+                res = innerResumeAtDataFactoryRunning(rttr, paramsToResume);
+            }
+            if (res == true)
+            {
+                AfterDataFactory(rttr.ReviewId, rttr.JobId, rttr.ContactId);
+            }
+        }
+        private bool innerResumeAtDataFactoryRunning(ER_Web.Services.RawTaskToResume rttr, List<KeyValuePair<string, object>> paramsToResume)
         {
             if (rttr.JobType == "Apply Classifier")
             {

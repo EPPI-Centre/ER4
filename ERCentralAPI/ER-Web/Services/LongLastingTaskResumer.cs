@@ -42,14 +42,26 @@ namespace ER_Web.Services
             LogInfoMessage("LongLastingTaskResumer is returning");
         }
 
-        private void ActuallyResumeWithDelay()
+        private async void ActuallyResumeWithDelay()
         { //use  Log.Error(...) to log exceptions to file
             try
             {
-                int delay = 1000 * 1;//will wait this delay in ms
+                int delay = 1000 * AzureSettings.ResumeTasksStartupDelayInSeconds;//will wait this delay in ms
 
                 LogInfoMessage("LongLastingTaskResumer fired and forgotten task is about to sleep for " + delay.ToString() + "ms.");
-                Thread.Sleep(delay);
+                try
+                {//need to make sure we stop this task promptly if we're shutting down, i.e. when an admin triggers 2 recycles in short succession
+                    //Taks.Delay allows to respect cancel-token requests to shutdown, albeit at the cost of triggering a "cancelled" exception...
+                    await Task.Delay(delay, Program.TokenSource.Token);
+                }
+                catch (Exception e)
+                {
+                    LogErrorMessage("");
+                    LogErrorMessage("LongLastingTaskResumer startup wait halted in Task.Delay");
+                    LogException(e);
+                    LogErrorMessage("--------------------------------------------------------");
+                }
+                
                 List<RawTaskToResume> pausedTasks = GetTasksToResume();
                 foreach (RawTaskToResume taskToResume in pausedTasks)
                 {
@@ -63,10 +75,10 @@ namespace ER_Web.Services
                             {
                                 LogInfoMessage("LongLastingTaskResumer instantiated an object of type: " + taskToResume.ClassName);
 
-                                //should we do
-                                //Task.Run(() => instance.ResumeJob(taskToResume));?
-                                //I'm not sure! We can/should expect all ResumeJob(...) methods to eventually do some fire and forget of their own...
-                                instance.ResumeJob(taskToResume);
+                                //we do Task.Run(() => instance.ResumeJob(taskToResume));
+                                //because the task resumer should know NOTHING about logging errors about what happens inside "instance"
+                                //so we call ResumeJob deliberately as "fire and forget" and force ERROR Handling to be done therein
+                                Task.Run(() => instance.ResumeJob(taskToResume));
                             }
                             else
                             {
@@ -82,8 +94,30 @@ namespace ER_Web.Services
                     {
                         LogException(ex);
                     }
+                    if (pausedTasks.Count > 1)
+                    {// we wait 100ms between starting tasks, just to make sure we don't overwhelm ER while it's starting
+                        try
+                        {//need to make sure we stop this task promptly if we're shutting down, i.e. when an admin triggers 2 recycles in short succession
+                            await Task.Delay(100, Program.TokenSource.Token);
+                        }
+                        catch(Exception e)
+                        {
+                            LogErrorMessage("");
+                            LogErrorMessage("LongLastingTaskResumer halted while resuming tasks");
+                            LogException(e);
+                            LogErrorMessage("--------------------------------------------------------");
+                            break;
+                        }
+                    }
+                    if (Program.AppIsShuttingDown || Program.TokenSource.Token.IsCancellationRequested)
+                    {
+                        LogErrorMessage("");
+                        LogErrorMessage("LongLastingTaskResumer halted while resuming tasks (2)");
+                        LogErrorMessage("--------------------------------------------------------");
+                        break;
+                    }
                 }
-                LogInfoMessage("LongLastingTaskResumer fired and forgotten task is done.");
+                LogInfoMessage("LongLastingTaskResumer has finished resuming tasks.");
             } 
             catch(Exception ex)
             {

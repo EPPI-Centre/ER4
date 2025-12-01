@@ -163,6 +163,15 @@ namespace BusinessLibrary.BusinessClasses
         public static string CochraneAPIBaseAddress { get { return AppSettings["CochraneAPIBaseAddress"]; } }
         public static string CochraneoAuthBaseAddress { get { return AppSettings["CochraneoAuthBaseAddress"]; } }
         public static string CochraneAccountBaseAddress { get { return AppSettings["CochraneAccountBaseAddress"]; } }
+        public static int ResumeTasksStartupDelayInSeconds
+        { 
+            get {
+                string? tmp = AppSettings["ResumeTasksStartupDelayInSeconds"];
+                int res;
+                if (int.TryParse(tmp, out res)) return res;
+                else return 60;
+            } 
+        }
 
 
 
