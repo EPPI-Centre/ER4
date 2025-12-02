@@ -228,7 +228,7 @@ namespace BusinessLibrary.BusinessClasses
             string resourceGroup = AzureSettings.resourceGroup;
             string dataFactoryName = AzureSettings.dataFactoryName;
 
-            UpdateReviewJobLog(ReviewJobId, ReviewId, "Starting DF", "", Origin);
+            UpdateReviewJobLog(ReviewJobId, ReviewId, "Resuming DF", "", Origin);
 
             var context = new AuthenticationContext("https://login.windows.net/" + tenantID);
             ClientCredential cc = new ClientCredential(appClientId, appClientSecret);

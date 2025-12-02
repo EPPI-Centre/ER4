@@ -38,7 +38,6 @@ namespace ER_Web.Services
         {
             LogInfoMessage("LongLastingTaskResumer is starting the resume task");
             Task.Run(()=>ActuallyResumeWithDelay());
-
             LogInfoMessage("LongLastingTaskResumer is returning");
         }
 
@@ -60,6 +59,7 @@ namespace ER_Web.Services
                     LogErrorMessage("LongLastingTaskResumer startup wait halted in Task.Delay");
                     LogException(e);
                     LogErrorMessage("--------------------------------------------------------");
+                    return;
                 }
                 
                 List<RawTaskToResume> pausedTasks = GetTasksToResume();
