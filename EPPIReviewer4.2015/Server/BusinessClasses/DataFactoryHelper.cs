@@ -397,7 +397,7 @@ namespace BusinessLibrary.BusinessClasses
         /// </param>
         /// <param name="SuccessValue">In the table, this value should be NULL if we're not finished. TRUE if we finished and it worked, FALSE if it failed/got interrupted</param>
         public static void UpdateReviewJobLog(int LogId, int ReviewID, string Status, string Message,
-            string Origin, bool SetSuccess = false, bool SuccessValue = true, string ResumeInfo = "")
+            string Origin, bool SetSuccess = false, bool SuccessValue = true, string ResumeInfoInJSON = "")
         {
             if (LogId > 0)
             {
@@ -415,7 +415,7 @@ namespace BusinessLibrary.BusinessClasses
                             command.Parameters.Add(new SqlParameter("@JobMessage", Message));
                             if (SetSuccess) command.Parameters.Add(new SqlParameter("@Success", SuccessValue));
                             else command.Parameters.Add(new SqlParameter("@Success", System.DBNull.Value));
-                            if(ResumeInfo != "") command.Parameters.Add(new SqlParameter("@ResumeParams", ResumeInfo));
+                            if(ResumeInfoInJSON != "") command.Parameters.Add(new SqlParameter("@ResumeParams", ResumeInfoInJSON));
                             command.ExecuteNonQuery();
                         }
                     }

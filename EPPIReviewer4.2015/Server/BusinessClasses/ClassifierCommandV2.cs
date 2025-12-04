@@ -1468,22 +1468,23 @@ namespace BusinessLibrary.BusinessClasses
             try
             {
                 List<string> supportedResumePoints = new List<string>();
-                supportedResumePoints.Add("Cancelled before data-fetch");//apply job, on OA auto update feed
-                supportedResumePoints.Add("Cancelled during data-fetch");//apply job, on OA auto update feed
-                supportedResumePoints.Add("Cancelled before upload");//any
-                supportedResumePoints.Add("Cancelled after upload");//any
-                supportedResumePoints.Add("Cancelled during DF");//any
-                supportedResumePoints.Add("Cancelled after DF");//any
-                supportedResumePoints.Add("Cancelled after Downloading results");//any - files should still be in the blob)
+                supportedResumePoints.Add("Cancelled before data-fetch");//apply job, on OA auto update feed - index = 0
+                supportedResumePoints.Add("Cancelled during data-fetch");//apply job, on OA auto update feed - index = 1
+                supportedResumePoints.Add("Cancelled before upload");//any - index = 2
+                supportedResumePoints.Add("Cancelled after upload");//any - index = 3
+                supportedResumePoints.Add("Cancelled before DF");//any - index = 4
+                supportedResumePoints.Add("Cancelled during DF");//any - index = 5
+                supportedResumePoints.Add("Cancelled after DF");//any - index = 6
+                supportedResumePoints.Add("Cancelled after Downloading results");//any - files should still be in the blob  - index = 7
 
                 int index = supportedResumePoints.FindIndex(f => f == rttr.CancelState);
                 if (index == -1) return;//cancelled at a not-supported stage
                 List<KeyValuePair<string, object>> paramsToResume = DigestParameters(rttr);
-                if (index <= 3)
+                if (index <= 4)
                 {//resume from before DF, we didn't trigger the DF job
                     ResumeFromBeforeDataFactory(rttr);
                 }
-                else if (index == 4)
+                else if (index == 5)
                 {//resume from monitoring the DF job
                     Task.Run(() => ResumeAtDataFactoryRunning(rttr, paramsToResume));
                 }
@@ -1502,7 +1503,7 @@ namespace BusinessLibrary.BusinessClasses
         private List<KeyValuePair<string, object>> DigestParameters(ER_Web.Services.RawTaskToResume rttr)
         {
             List<KeyValuePair<string, object>> paramsToResume = rttr.GetParamsList();
-            string pipelineName = "";
+            //string pipelineName = "";
             foreach (KeyValuePair<string, object> kvp in paramsToResume)
             {
                 switch (kvp.Key)
@@ -1540,9 +1541,9 @@ namespace BusinessLibrary.BusinessClasses
                     case "ScoresFile":
                         ScoresFile = kvp.Value.ToString();
                         break;
-                    case "pipelineName":
-                        pipelineName = kvp.Value.ToString();
-                        break;
+                    //case "pipelineName":
+                    //    pipelineName = kvp.Value.ToString();
+                    //    break;
                     case "RemoteFolder":
                         RemoteFolder = kvp.Value.ToString();
                         break;
@@ -1572,33 +1573,6 @@ namespace BusinessLibrary.BusinessClasses
         }
         private bool innerResumeAtDataFactoryRunning(ER_Web.Services.RawTaskToResume rttr, List<KeyValuePair<string, object>> paramsToResume)
         {
-            if (rttr.JobType == "Apply Classifier")
-            {
-                RunType = "ApplyClassifier";
-                SetLocalTempFilename(rttr.ReviewId, rttr.ContactId, "Apply");
-            }
-            else if (rttr.JobType == "Apply Classifier to OA run")
-            {
-                RunType = "ApplyClassifier";
-                OpenAlexAutoUpdate = true;
-                SetLocalTempFilename(rttr.ReviewId, rttr.ContactId, "Apply");
-            }
-            else if (rttr.JobType == "Build Classifier")
-            {
-                RunType = "TrainClassifier";
-                SetLocalTempFilename(rttr.ReviewId, rttr.ContactId, "Build");
-            }
-            else if (rttr.JobType == "Check Screening")
-            {
-                RunType = "ChckS";
-                SetLocalTempFilename(rttr.ReviewId, rttr.ContactId, "ChckS");
-            }
-            else if (rttr.JobType == "Priority screening simulation")
-            {
-                RunType = "PrioS";
-                SetLocalTempFilename(rttr.ReviewId, rttr.ContactId, "PrioS");
-            }
-            else return false;
             string pipelineName = "";
             var found = paramsToResume.Find(f => f.Key == "pipelineName");
             if (found.Key != "") pipelineName = found.Value.ToString();
