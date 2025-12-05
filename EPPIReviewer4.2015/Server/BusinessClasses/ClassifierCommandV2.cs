@@ -1480,9 +1480,13 @@ namespace BusinessLibrary.BusinessClasses
                 int index = supportedResumePoints.FindIndex(f => f == rttr.CancelState);
                 if (index == -1) return;//cancelled at a not-supported stage
                 List<KeyValuePair<string, object>> paramsToResume = DigestParameters(rttr);
-                if (index <= 4)
+                if (index <= 3)
                 {//resume from before DF, we didn't trigger the DF job
                     ResumeFromBeforeDataFactory(rttr);
+                }
+                else if (index == 4)
+                {//resume from monitoring the DF job
+                    Task.Run(() => ResumeAtDataFactory(rttr, paramsToResume));
                 }
                 else if (index == 5)
                 {//resume from monitoring the DF job
@@ -1559,6 +1563,22 @@ namespace BusinessLibrary.BusinessClasses
         {
             Task.Run(() => FireAndForget(rttr.ReviewId, rttr.JobId, rttr.ContactId));
         }
+        private async void ResumeAtDataFactory(ER_Web.Services.RawTaskToResume rttr, List<KeyValuePair<string, object>> paramsToResume)
+        {
+            Dictionary<string, object> parameters = GetAdfParameters(RunType);
+            bool DFresult = await RunDataFactoryJobAsync(rttr.ReviewId, rttr.JobId, parameters);
+            if (DFresult) //if DF didn't work, we trust the reason was logged appropriately either in DFHelper or in RunDataFactoryJobAsync
+            {
+                AfterDataFactory(rttr.ReviewId, rttr.JobId, rttr.ContactId);
+            }
+            else //DF did not work
+            {
+                if (RunType == "TrainClassifier")
+                {
+                    UndoChangesToClassifierRecord(rttr.JobId, true);
+                }
+            }
+        }
         private void ResumeAtDataFactoryRunning(ER_Web.Services.RawTaskToResume rttr, List<KeyValuePair<string, object>> paramsToResume)
         {
             bool res = false;
@@ -1569,6 +1589,13 @@ namespace BusinessLibrary.BusinessClasses
             if (res == true)
             {
                 AfterDataFactory(rttr.ReviewId, rttr.JobId, rttr.ContactId);
+            }
+            else //DF did not work
+            {
+                if (RunType == "TrainClassifier")
+                {
+                    UndoChangesToClassifierRecord(rttr.JobId, true);
+                }
             }
         }
         private bool innerResumeAtDataFactoryRunning(ER_Web.Services.RawTaskToResume rttr, List<KeyValuePair<string, object>> paramsToResume)
