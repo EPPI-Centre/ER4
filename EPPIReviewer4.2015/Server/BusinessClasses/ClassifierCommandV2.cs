@@ -281,7 +281,7 @@ namespace BusinessLibrary.BusinessClasses
                 Task.Run(() => FireAndForget(ReviewId, NewJobId, ContactId));
             }
         }
-        private void UndoChangesToClassifierRecord(int JobId, bool Leave_a_trace = true)
+        private void UndoChangesToClassifierRecord(int JobId, bool Leave_a_trace = true, bool DeleteLocalFile = true)
         {
             try
             {
@@ -329,7 +329,7 @@ namespace BusinessLibrary.BusinessClasses
                         }
                     }
                 }
-                if (File.Exists(LocalFileName)) File.Delete(LocalFileName);
+                if (DeleteLocalFile && File.Exists(LocalFileName)) File.Delete(LocalFileName);
 
             }
             catch (Exception ex)
@@ -797,11 +797,8 @@ namespace BusinessLibrary.BusinessClasses
             {
                 if (RunType == "TrainClassifier")
                 {
-                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-                    {
-                        connection.Open();
-                        UndoChangesToClassifierRecord(LogId, true);
-                    }
+                    bool DeleteLocalFile = !AppIsShuttingDown;
+                    UndoChangesToClassifierRecord(LogId, true, DeleteLocalFile);
                 }
                 return;
             }
