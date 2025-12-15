@@ -96,9 +96,10 @@ namespace BusinessLibrary.BusinessClasses
         {
             RaiseListChangedEvents = false;
             IsReadOnly = false;
+            List<RobotCoderReadOnly> RobotsList = new List<RobotCoderReadOnly>();
             while (reader.Read())
             {
-                Add(DataPortal.FetchChild<RobotOpenAiTaskReadOnly>(reader, !IsSiteAdmin, rid, cid));
+                Add(DataPortal.FetchChild<RobotOpenAiTaskReadOnly>(reader, !IsSiteAdmin, RobotsList, rid, cid));
             }
             IsReadOnly = true;
             RaiseListChangedEvents = true;

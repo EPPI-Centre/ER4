@@ -253,9 +253,10 @@ namespace BusinessLibrary.BusinessClasses
         {
             LoadProperty(ErrorsProperty, new MobileList<RobotOpenAiTaskError>());
             //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            List<RobotCoderReadOnly> RobotsList = new List<RobotCoderReadOnly>();
             if (criteria.NextCreditTask)
             {
-                List<RobotOpenAiTaskReadOnly> JobsToConsider = new List<RobotOpenAiTaskReadOnly>();
+                List<RobotOpenAiTaskReadOnly> JobsToConsider = new List<RobotOpenAiTaskReadOnly>();            
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
                     connection.Open();
@@ -267,7 +268,7 @@ namespace BusinessLibrary.BusinessClasses
                             while (reader.Read())
                             {
                                 RobotOpenAiTaskReadOnly job = new RobotOpenAiTaskReadOnly();
-                                job.Child_Fetch(reader, false);
+                                job.Child_Fetch(reader, false, RobotsList);
                                 JobsToConsider.Add(job);
                             }
                         }
@@ -308,7 +309,7 @@ namespace BusinessLibrary.BusinessClasses
                                     LineJobId = reader.GetInt32("ROBOT_API_CALL_ID");
                                     if (ChosenJobId == LineJobId)
                                     {
-                                        Child_Fetch(reader, false);
+                                        Child_Fetch(reader, false, RobotsList);
                                     }
                                     
                                 }
@@ -322,8 +323,9 @@ namespace BusinessLibrary.BusinessClasses
             
         }
 
-        private void Child_Fetch(SafeDataReader reader, bool isPrivate, int ReviewId = 0, int ContactId = 0 )
+        private void Child_Fetch(SafeDataReader reader, bool isPrivate, List<RobotCoderReadOnly> robotsList, int ReviewId = 0, int ContactId = 0 )
         {
+            string tName = reader.GetString("ROBOT_NAME");
             LoadProperty(ErrorsProperty, new MobileList<RobotOpenAiTaskError>());
             if (isPrivate)
             {
@@ -331,7 +333,17 @@ namespace BusinessLibrary.BusinessClasses
                 else Child_FetchFilteredDetails(reader);
             }
             else Child_FetchAllDetails(reader);
-            LoadProperty<RobotCoderReadOnly>(RobotProperty, DataPortal.Fetch<RobotCoderReadOnly>(new SingleCriteria<RobotCoderReadOnly, string>(reader.GetString("ROBOT_NAME"))));
+            RobotCoderReadOnly gotTheRobot = robotsList.FirstOrDefault(f => f.RobotName == tName);
+            if (gotTheRobot == null)
+            {
+                RobotCoderReadOnly tRobot = DataPortal.Fetch<RobotCoderReadOnly>(new SingleCriteria<RobotCoderReadOnly, string>(tName));
+                robotsList.Add(tRobot);
+                LoadProperty<RobotCoderReadOnly>(RobotProperty, tRobot);
+            }
+            else
+            {
+                LoadProperty<RobotCoderReadOnly>(RobotProperty, gotTheRobot);
+            }
         }
         private void Child_FetchAllDetails(SafeDataReader reader)
         { 
