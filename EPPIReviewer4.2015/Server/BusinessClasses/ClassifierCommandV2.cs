@@ -804,12 +804,13 @@ namespace BusinessLibrary.BusinessClasses
             }
             //but for new classifier system, we upload also a file to apply the new model to
             if (RunType == "TrainClassifier" && _mlModelName != "oldLogReg")
-            {
+            { ///ALERT: this may need SIGNIFICANT revising to make resuming of (new) build jobs work!!
                 LocalFileName = LocalFileName.Replace("Build.tsv", "Apply4Build.tsv");
                 DataFile = DataFile.Replace("DataForTraining.tsv", "DataForTrainingEvaluation.tsv");
                 if (!UploadTempFileToBlob(ReviewId, LogId))
                 {
-                    UndoChangesToClassifierRecord(LogId, true);
+                    bool DeleteLocalFile = !AppIsShuttingDown;
+                    UndoChangesToClassifierRecord(LogId, true, DeleteLocalFile);
                     return;
                 }
                 LocalFileName = LocalFileName.Replace("Apply4Build.tsv", "Build.tsv");//set the filenames back to what it usually is

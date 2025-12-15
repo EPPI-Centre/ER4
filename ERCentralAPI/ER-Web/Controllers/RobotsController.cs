@@ -76,6 +76,27 @@ namespace ERxWebClient2.Controllers
             }
 
         }
+        [HttpGet("[action]")]
+        public IActionResult GetAllPastJobs()
+        {
+
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                if (ri.IsSiteAdmin == false) return Unauthorized();
+                RobotOpenAiTaskCriteria crit = RobotOpenAiTaskCriteria.NewAllPastJobsCriteria();
+                RobotOpenAiTaskReadOnlyList res = DataPortal.Fetch<RobotOpenAiTaskReadOnlyList>(crit);
+                //TestCode();
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "GetPastJobs error");
+                return StatusCode(500, e.Message);
+            }
+
+        }
         //private void TestCode()
         //{
         //    Dictionary<string, string> names = new Dictionary<string, string>();
@@ -90,7 +111,7 @@ namespace ERxWebClient2.Controllers
         //    names.Add("Fattoria.Talpe.Enrico", "9");
         //    names.Add("Fattoria.Talpe.Cesira", "10");
         //    JObject res = new JObject();
-            
+
         //}
 
         [HttpPost("[action]")]

@@ -78,10 +78,12 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
         this.modalService.GenericError(err);
       });
   }
-  public GetPastJobs(): Promise<void> {
+  public GetPastJobs(AllJobs: boolean): Promise<void> {
+    let endpoint = 'api/Robots/GetPastJobs';
+    if (AllJobs) endpoint = 'api/Robots/GetAllPastJobs';
     this.PastJobs = [];
     this._BusyMethods.push("GetPastJobs");
-    return lastValueFrom(this._httpC.get<iRobotOpenAiTaskReadOnly[]>(this._baseUrl + 'api/Robots/GetPastJobs'))
+    return lastValueFrom(this._httpC.get<iRobotOpenAiTaskReadOnly[]>(this._baseUrl + endpoint))
       .then((res) => {
         for (let iJob of res) {
           this.PastJobs.push(new RobotOpenAiTaskReadOnly(iJob));

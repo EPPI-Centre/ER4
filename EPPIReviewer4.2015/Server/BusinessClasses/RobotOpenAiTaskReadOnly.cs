@@ -460,7 +460,7 @@ namespace BusinessLibrary.BusinessClasses
     public class RobotOpenAiTaskCriteria : CriteriaBase<RobotOpenAiTaskCriteria>
     {
         public bool NextCreditTask { get; private set; } = true;
-        public bool PastJobs { get; private set; } = false;
+        public bool AllPastJobs { get; private set; } = false;
         public int JobId { get; private set; } = 0;
         public RobotOpenAiTaskCriteria() { }
         public static RobotOpenAiTaskCriteria NewNextCreditTaskCriteria()
@@ -481,7 +481,14 @@ namespace BusinessLibrary.BusinessClasses
         {
             RobotOpenAiTaskCriteria res = new RobotOpenAiTaskCriteria();
             res.NextCreditTask = false;
-            res.PastJobs = true;
+            res.AllPastJobs = false;
+            return res;
+        }
+        public static RobotOpenAiTaskCriteria NewAllPastJobsCriteria()
+        {
+            RobotOpenAiTaskCriteria res = new RobotOpenAiTaskCriteria();
+            res.NextCreditTask = false;
+            res.AllPastJobs = true;
             return res;
         }
     }
