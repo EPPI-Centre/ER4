@@ -1331,6 +1331,7 @@ namespace BusinessLibrary.BusinessClasses
             if (ScoresFile != "") resumeInfo.Add(new KeyValuePair<string, object>("ScoresFile", ScoresFile));
             if (RemoteFolder != "") resumeInfo.Add(new KeyValuePair<string, object>("RemoteFolder", RemoteFolder));
             if (OpenAlexAutoUpdate == true) resumeInfo.Add(new KeyValuePair<string, object>("OpenAlexAutoUpdate", OpenAlexAutoUpdate));
+            if (buildingNewModel == true) resumeInfo.Add(new KeyValuePair<string, object>("buildingNewModel", buildingNewModel));
             return resumeInfo;
         }
 
@@ -1552,6 +1553,9 @@ namespace BusinessLibrary.BusinessClasses
                     case "OpenAlexAutoUpdate":
                         OpenAlexAutoUpdate = kvp.Value.ToString() == "True" ? true : false;
                         break;
+                    case "buildingNewModel":
+                        buildingNewModel = kvp.Value.ToString() == "True" ? true : false;
+                        break;
                     default: break;
                 }
             }
@@ -1598,18 +1602,27 @@ namespace BusinessLibrary.BusinessClasses
         }
         private bool innerResumeAtDataFactoryRunning(ER_Web.Services.RawTaskToResume rttr, List<KeyValuePair<string, object>> paramsToResume)
         {
-            string pipelineName = "";
-            var found = paramsToResume.Find(f => f.Key == "pipelineName");
-            if (found.Key != "") pipelineName = found.Value.ToString();
-            else return false;
-            
-            DataFactoryHelper DFH = new DataFactoryHelper();
-            DFH.resumeInfo = paramsToResume;
-            //var a = this.GetAdfParameters(RunType);
-            bool res = (DFH.ResumeDataFactoryProcessV2(
-                    pipelineName, rttr.DataFactoryRunId, rttr.ReviewId, rttr.JobId, "ClassifierCommandV2", this.CancelToken)
-                ).GetAwaiter().GetResult();
-            return res;
+            try
+            {
+                string pipelineName = "";
+                var found = paramsToResume.Find(f => f.Key == "pipelineName");
+                if (found.Key != "") pipelineName = found.Value.ToString();
+                else return false;
+
+                DataFactoryHelper DFH = new DataFactoryHelper();
+                DFH.resumeInfo = paramsToResume;
+                //var a = this.GetAdfParameters(RunType);
+                bool res = (DFH.ResumeDataFactoryProcessV2(
+                        pipelineName, rttr.DataFactoryRunId, rttr.ReviewId, rttr.JobId, "ClassifierCommandV2", this.CancelToken)
+                    ).GetAwaiter().GetResult();
+                return res;
+            }
+            catch (Exception ex)
+            {
+                DataFactoryHelper.UpdateReviewJobLog(rttr.JobId, rttr.ReviewId, "Failed at resuming/monitoring DF job", "", "ClassifierCommandV2", true, false);
+                DataFactoryHelper.LogExceptionToFile(ex, rttr.ReviewId, rttr.JobId, "ClassifierCommandV2");
+                return false;
+            }
         }
 #endif
         
