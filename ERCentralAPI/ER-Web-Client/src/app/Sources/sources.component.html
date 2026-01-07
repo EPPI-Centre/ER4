@@ -81,13 +81,15 @@
                             </div>
                             <div class="form-group col-12">
                                 <label for="searchDescription">Description (optional)</label>
-                                <input type="text" class="form-control" id="searchDescription" [disabled]="!CanWrite()"
-                                       [(ngModel)]="CurrentSource.searchDescription" name="searchDescription">
+                                <textarea type="text" class="form-control" id="searchDescription" [disabled]="!CanWrite()"
+                                          [(ngModel)]="CurrentSource.searchDescription" name="searchDescription"
+                                          rows="{{TextAreaRowsFromContent(CurrentSource.searchDescription)}}"></textarea>
                             </div>
                             <div class="form-group col-12">
                                 <label for="searchnotes">Notes (optional)</label>
-                                <input type="text" class="form-control" id="searchnotes" [disabled]="!CanWrite()"
-                                       [(ngModel)]="CurrentSource.notes" name="searchnotes">
+                                <textarea type="text" class="form-control" id="searchnotes" [disabled]="!CanWrite()"
+                                          [(ngModel)]="CurrentSource.notes" name="searchnotes"
+                                          rows="{{TextAreaRowsFromContent(CurrentSource.notes)}}"></textarea>
                             </div>
                             <div class="col-12">
                                 <div class="row">
