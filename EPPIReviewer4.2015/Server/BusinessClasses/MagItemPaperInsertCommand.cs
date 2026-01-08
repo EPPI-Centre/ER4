@@ -170,7 +170,22 @@ namespace BusinessLibrary.BusinessClasses
                 // 1. Related papers search - here we have a list of IDs in the database - need to retrieve and then ensure we aren't already using any in this review
                 if (_SourceOfIds == "RelatedPapersSearch")
                 {
-                    incomingList.SourceName = "Automated search: " + DateTime.Now.ToShortDateString() + " at " + DateTime.Now.ToLongTimeString();
+                    DataPortal<MagRelatedPapersRun> dp = new DataPortal<MagRelatedPapersRun>();
+                    MagRelatedPapersRun relatedSearch = dp.Fetch(new SingleCriteria<MagRelatedPapersRun, Int64>(_MagRelatedRunId));
+                    //incomingList.SourceName = "Automated search: " + DateTime.Now.ToShortDateString() + " at " + DateTime.Now.ToLongTimeString();
+                    incomingList.SourceName = "Related search: \"" + TruncateSearchName(relatedSearch.UserDescription) + "\"";
+                    incomingList.SearchStr = "Related search properties" + Environment.NewLine
+                        + "Mode: " + relatedSearch.Mode + Environment.NewLine
+                        + "Date Created: " + relatedSearch.DateRun.ToString("dd MMM yyyy") + Environment.NewLine
+                        + "Hits Number: " + relatedSearch.NPapers + Environment.NewLine
+                        + "Date from: " + relatedSearch.DateFrom.ToString("dd MMM yyyy") + Environment.NewLine
+                        + "Seed from all includes: " + (relatedSearch.AllIncluded ? "Yes" : "No");
+                    incomingList.DateOfSearch = relatedSearch.DateRun;
+                    if (relatedSearch.AllIncluded == false && relatedSearch.AttributeName != "")
+                    {
+                        incomingList.SearchStr += Environment.NewLine + "With this code: " + relatedSearch.AttributeName
+                            + " (Id: " + relatedSearch.AttributeId.ToString() + ")";
+                    }
                     using (SqlCommand command = new SqlCommand("st_MagItemMagRelatedPaperInsert", connection))
                     {
                         command.CommandTimeout = 2000; // 2000 secs = about 2 hours? (JT - not sure why we have the long timeout?)
@@ -465,7 +480,7 @@ namespace BusinessLibrary.BusinessClasses
             if (val.Length <= limit) return val;
             string UpTo = val.Substring(0, limit);
             int suitableSpaceIndex = UpTo.LastIndexOf(' ');
-            if (suitableSpaceIndex > limit / 2) return UpTo.Substring(0, suitableSpaceIndex);
+            if (suitableSpaceIndex > limit / 2) return UpTo.Substring(0, suitableSpaceIndex) + "...";
             return UpTo.Substring(0, UpTo.Length - 3) + "...";
         }
         private ItemIncomingData GetIncomingItemFromMagPaper(MagPaper mp)

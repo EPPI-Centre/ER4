@@ -149,11 +149,13 @@ export class BasicMAGComp implements OnInit {
       this.ModalService.GenericErrorMessage('Sorry, there are too many results. Imports are limited to searches with up to 20,000 papers.');
     }
     else if (item.userStatus == 'Imported') {
-      this._confirmationDialogService.showMAGRunMessage('Papers have already been imported');
+      //this._confirmationDialogService.showMAGRunMessage('Papers have already been imported');
+      let msg: string = 'Are you sure you want to import these (up to ' + item.nPapers.toString() + ') items?<br />This search is already marked as \'Imported\'.';
+      this.ImportMagRelatedPapersRun(item, msg);
+    }
+    else if (item.userStatus == 'Checked') {
 
-    } else if (item.userStatus == 'Checked') {
-
-      let msg: string = 'Are you sure you want to import these (up to ' + item.nPapers.toString() + ') items?\n(This set is already marked as \'checked\'.)';
+      let msg: string = 'Are you sure you want to import these (up to ' + item.nPapers.toString() + ') items?<br />This set is already marked as \'checked\'.';
       this.ImportMagRelatedPapersRun(item, msg);
 
     } else if (item.userStatus == 'Unchecked' || item.userStatus == 'Not imported') {
