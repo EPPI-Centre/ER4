@@ -144,7 +144,7 @@ namespace BusinessLibrary.BusinessClasses
             incomingList.HasMAGScores = true;
             incomingList.IsFirst = true; incomingList.IsLast = true;
             incomingList.IncomingItems = new MobileList<ItemIncomingData>();
-
+            incomingList.Notes = SetNotesField();
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
@@ -193,8 +193,8 @@ namespace BusinessLibrary.BusinessClasses
                 // 2. AutoUpdateRun - here we also have a list of IDs in the database - need to retrieve and then ensure we aren't already using any in this review
                 if (_SourceOfIds == "AutoUpdateRun")
                 {
-                    incomingList.SourceName = "Auto-update imported on: " + DateTime.Now.ToShortDateString() +
-                        ". Top: " + this._TopN.ToString() + " ordered by " + _OrderBy + " with thresholds: AutoUpdate: " +
+                    incomingList.SourceName = "Auto-update imported on: " + DateTime.Now.ToShortDateString();
+                    incomingList.SearchStr = "Import parameters:" + Environment.NewLine + "Top: " + this._TopN.ToString() + " ordered by " + _OrderBy + " with thresholds: AutoUpdate: " +
                         _AutoUpdateScore.ToString() + ", Study type classifier: " + _StudyTypeClassifierScore.ToString() +
                         ", user built classifier: " + _UserClassifierScore.ToString();
                     using (SqlCommand command = new SqlCommand("st_MagAutoUpdateRunResults", connection))
@@ -267,8 +267,11 @@ namespace BusinessLibrary.BusinessClasses
                 List<string> IDsFilteredList = new List<string>();
                 if (_SourceOfIds == "MagSearchResults" || _SourceOfIds == "MagSearchResultsLatestMAG")
                 {
-                    incomingList.SourceName = _MagSearchDescription;
                     MagSearch ms = MagSearch.GetMagSearchById(_MagSearchId, ri.ReviewId);
+
+                    incomingList.SourceName = "OpenAlex search: #" + ms.SearchNo.ToString()
+                        + " (from: " + ms.SearchDate.ToString("dd MMM yyyy") + ")"
+                        + " \"" + TruncateSearchName(ms.SearchText) + "\"" ;
                     if (ms.SearchIdsStored == false) // i.e. we need to run the search on OpenAlex and download the papers
                     {
                         incomingList.SearchStr = ms.MagSearchText;
@@ -306,6 +309,7 @@ namespace BusinessLibrary.BusinessClasses
                     }
                     else // i.e. this is a combined search, so we already have the IDs; we don't run the search, we just run through them 50 at a time
                     {
+                        incomingList.SearchStr = ms.SearchIds;
                         count = 0;
                         string[] AllIDs = ms.SearchIds.Split(',');
                         while (count < AllIDs.Length)
@@ -455,7 +459,15 @@ namespace BusinessLibrary.BusinessClasses
             }
 
         }
-
+         private string TruncateSearchName(string val)
+        {
+            int limit = 40;
+            if (val.Length <= limit) return val;
+            string UpTo = val.Substring(0, limit);
+            int suitableSpaceIndex = UpTo.LastIndexOf(' ');
+            if (suitableSpaceIndex > limit / 2) return UpTo.Substring(0, suitableSpaceIndex);
+            return UpTo.Substring(0, UpTo.Length - 3) + "...";
+        }
         private ItemIncomingData GetIncomingItemFromMagPaper(MagPaper mp)
         {
             TextInfo myTI = new CultureInfo("en-GB", false).TextInfo;
@@ -547,6 +559,28 @@ namespace BusinessLibrary.BusinessClasses
                 return false;
             }
             return true;
+        }
+        private string SetNotesField()
+        {
+            string res = "";
+            //_FilterJournal _FilterDOI _FilterURL _FilterTitle
+            if (_FilterJournal != "" && _FilterJournal.Length > 3)
+            {
+                res += "Journal Field Filter: " + _FilterJournal;
+            }
+            if (_FilterDOI != "" && _FilterDOI.Length > 3)
+            {
+                res += (res == "" ? "" : Environment.NewLine) + "DOI Field Filter: " + _FilterDOI;
+            }
+            if (_FilterURL != "" && _FilterURL.Length > 3)
+            {
+                res += (res == "" ? "" : Environment.NewLine) + "URL Field Filter: " + _FilterURL;
+            }
+            if (_FilterTitle != "" && _FilterTitle.Length > 3)
+            {
+                res += (res == "" ? "" : Environment.NewLine) + "Title Field Filter: " + _FilterTitle;
+            }
+            return res;
         }
 
         private string transformPubTypeStringListToIndex(string s)

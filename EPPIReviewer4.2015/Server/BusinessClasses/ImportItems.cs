@@ -1419,8 +1419,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             }
             set
             {
-                if (value.Length > 4000) SetProperty(NotesProperty, value.Substring(0, 4000));
-                else SetProperty(NotesProperty, value);
+                SetProperty(NotesProperty, value);
             }
         }
         public static readonly PropertyInfo<DateTime> DateOfSearchProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("DateOfSearch", "DateOfSearch"));
