@@ -34,3 +34,26 @@ Examples (might not cover all 3rd party / external services!):
 - Clustering: as above, this relies on a third part product (Lingo3G) for which we bought the license and which runs in Azure.
 
 The latter 2 dependencies are _expected_ do be changed in the short-medium term. The current plan (as of Aug 2024) is to re-implement these functionalities inside the Azure Machine Learning environment.
+
+## Creating LMM-coding robots
+EPPI Reviewer allows to connect it to Large Language Model APIs and thus consume said API to automate coding jobs (and more, to some exent). Users "see" robots accounts according to what is in `TB_ROBOT_ACCOUNT` which however refers back to an ad-hoc (not activated) user account (in `TB_CONTACT`) and "for sale" records that control the cost of API calls (these live in `ReviewerAdmin.TB_FOR_SALE`).
+
+APIs will typically require an API Key (or similar) which is to be stored in `appsettings.Developer.json` **in development** (does not get saved in source control, this is **IMPORTANT!**), or in `appsettings.json` in production. The API-key needs to appear in the `"RobotSettings"` section, using this name-convention: `[CONTACT_NAME of the robot] Key` so, for example, the robot called `Mistral Large 24.11` (this is the contact name, and thus what users see in the UI) has an entry called `Mistral Large 24.11 Key`.
+
+There is no automation in place for creating the API key entry in `appsettings.Developer.json`, but since 12 Jan 2026 we have an SQL script template saved in `[...]\ERCentralAPI\SQL Scripts\Create Robot Template.sql`. This file needs to be edited in many lines in order to be useable, but it does include ALL commands needed to make a new Robot appear "and work", assuming it is compatible with the current code-base. It creates record in (in order of creation):
+
+- `Reviewer.TB_CONTACT` 1 record
+- `ReviewerAdmin.TB_FOR_SALE` 2 records
+- `Reviewer.TB_ROBOT_ACCOUNT` 1 record
+- `Reviewer.TB_ROBOT_ACCOUNT_SETTING` (4 records in this example, derived from `Mistral Large 24.11`).
+
+Naturally, for things to work, `TB_ROBOT_ACCOUNT.ENDPOINT` needs to point to a real API that works, paired with the key stored in the settings file.
+So, to create a new robot, please:
+
+1. Deploy an API endopoint for the robot, find its key, etc. (or similar)
+1. Copy the `Create Robot Template.sql` file and give it a meaningful filename.
+1. Carefully edit the copy of the file so that it will create new records that are fit for purpose. Save it and run it.
+1. Now that you've decided a Display Name for the robot (the `@CONTACT_NAME` value you edited) you can create a new entry in `appsettings.Developer.json` to supply the relative API Key. This will allow to run ER6 in Dev and see if the robot works, which it should do, if it's compatible with the present code-base.
+    1. Optionally, supply the edited script to whoever will add the robot "in production". Note that prices specified therein need to be correct at this point. You will also need to safely supply the correct API Key.
+
+Implied in the above: LLM Robots are NOT part of the core ER6 source code. They are implemented as DATA stored in the ER Databases, and thus the scripts to create them do not normally appear inside source-control.
