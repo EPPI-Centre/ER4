@@ -405,9 +405,23 @@ public partial class ReviewDetails : System.Web.UI.Page
             dt.Rows.Add(newrow);
         }
         idr.Close();
+        lblLLMCreditHeading.Visible = false;
+        if (dt.Rows.Count > 0)
+        {
+            lblLLMCreditHeading.Visible = true;
+        }
 
         gvCreditForRobots.DataSource = dt;
         gvCreditForRobots.DataBind();
+
+        pnlSiteLicenseCredit.Visible = false;
+        if (lblInSiteLicense.Visible == true)
+        {
+            // check if the site license has a robot credit assigned to it
+            lblSiteLicenseNumber.Text = lblInSiteLicense.Text.Remove(0, 12);
+            getOpenAIDetailsForSiteLicense();
+
+        }
 
     }
 
@@ -1263,4 +1277,45 @@ public partial class ReviewDetails : System.Web.UI.Page
             }
         }
     }
+
+    private void getOpenAIDetailsForSiteLicense()
+    {
+        string contact_name = "";
+        string contact_id = "";
+
+        DataTable dt = new DataTable();
+        System.Data.DataRow newrow;
+
+        dt.Columns.Add(new DataColumn("CREDIT_FOR_ROBOTS_ID", typeof(string)));
+        dt.Columns.Add(new DataColumn("CREDIT_PURCHASE_ID", typeof(string)));
+        dt.Columns.Add(new DataColumn("CREDIT_PURCHASER", typeof(string)));
+        dt.Columns.Add(new DataColumn("REMAINING", typeof(string)));
+
+        bool isAdmDB = true;
+        IDataReader idr = Utils.GetReader(isAdmDB, "st_GetCreditPurchaseIDsForOpenAI",
+            "0", lblSiteLicenseNumber.Text);
+        while (idr.Read())
+        {
+            newrow = dt.NewRow();
+            newrow["CREDIT_FOR_ROBOTS_ID"] = idr["tv_credit_for_robots_id"].ToString();
+            newrow["CREDIT_PURCHASE_ID"] = idr["tv_credit_purchase_id"].ToString();
+
+            contact_name = idr["tv_credit_purchaser_contact_name"].ToString();
+            contact_id = idr["tv_credit_purchaser_contact_id"].ToString();
+            newrow["CREDIT_PURCHASER"] = contact_name + " (" + contact_id + ")";
+
+            newrow["REMAINING"] = "£" + idr["tv_remaining"].ToString();
+            dt.Rows.Add(newrow);
+        }
+        idr.Close();
+        if (dt.Rows.Count > 0)
+        {
+            pnlSiteLicenseCredit.Visible = true;
+            gvCreditForRobotsSL.DataSource = dt;
+            gvCreditForRobotsSL.DataBind();
+        }
+
+    }
+
+
 }
