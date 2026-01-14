@@ -36,6 +36,7 @@ namespace BusinessLibrary.BusinessClasses
 
         public List<MagAutoUpdateRun> MagAutoUpdateRunList = new List<MagAutoUpdateRun>();
         public List<MagRelatedPapersRun> MagRelatedSearches = new List<MagRelatedPapersRun>();    
+        public List<OaOriginReportItem> Items = new List<OaOriginReportItem>();
 
         public OpenAlexOriginReportCommand(Int64 attId)
         {
@@ -94,12 +95,30 @@ namespace BusinessLibrary.BusinessClasses
                         }
                         reader.NextResult();
                         //4th and last reader contains all items (sometimes multiple row per item)
-                        Int64 previousItemId = 0, currentItemId = 0;
-                        OaOriginReportItem tmpItem;
+                        Int64 previousItemId = 0, currentItemId = 0, PaperId = 0;
+                        OaOriginReportItem tmpItem = new OaOriginReportItem();
                         while (reader.Read())
                         {
                             currentItemId = reader.GetInt64("item_id");
-                            if (previousItemId != currentItemId) tmpItem = new OaOriginReportItem(reader);
+                            if (previousItemId != currentItemId)
+                            {
+                                tmpItem = new OaOriginReportItem(reader);
+                                Items.Add(tmpItem);
+                                previousItemId = currentItemId;
+                            }
+                            PaperId = reader.GetInt64("PaperId");
+                            if (PaperId > 0 && !tmpItem.OpenAlexPaperId.Contains(PaperId))
+                            {
+                                tmpItem.OpenAlexPaperId.Add(PaperId);
+                            }
+                            if (reader.GetBoolean("IsInAU") == true)
+                            {
+                                tmpItem.AutoUpdateResults.Add(reader.GetInt32("MAG_AUTO_UPDATE_RUN_ID"));
+                            }
+                            if (reader.GetBoolean("IsInRS") == true)
+                            {
+                                tmpItem.AutoUpdateResults.Add(reader.GetInt32("MAG_RELATED_RUN_ID"));
+                            }
                         }
                     }
                 }
@@ -114,11 +133,16 @@ namespace BusinessLibrary.BusinessClasses
         public Int64 ItemId { get; private set; }
         public List<Int64> OpenAlexPaperId { get; private set; } = new List<Int64>();
         public string Title { get; private set; } = string.Empty;
-        public string ShortTitle{ get; private set; } = string.Empty;
+        public string ShortTitle { get; private set; } = string.Empty;
+        public string SourceName { get; private set; } = string.Empty;
 
         public List<int> RelatedSearches { get; private set; } = new List<int>();
 
         public List<int> AutoUpdateResults { get; private set; } = new List<int>();
+        public OaOriginReportItem() 
+        {
+            ItemId = 0;
+        }
         public OaOriginReportItem(SafeDataReader reader) 
         {
             ItemId = reader.GetInt64("item_id");
@@ -126,6 +150,7 @@ namespace BusinessLibrary.BusinessClasses
             if (tmp > 0) OpenAlexPaperId.Add(tmp);
             Title = reader.GetString("TITLE");
             ShortTitle = reader.GetString("SHORT_TITLE");
+            SourceName = reader.GetString("SOURCE_NAME");
         }
     }
     public class OaOriginSummary

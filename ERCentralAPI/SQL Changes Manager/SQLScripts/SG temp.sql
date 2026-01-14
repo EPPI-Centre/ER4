@@ -66,8 +66,8 @@ BEGIN
 	--add the unmatched
 	insert into @results (item_id, IsInAU, IsInRS) select item_id,0,0 from @UnmatchedItemsT
 
-	select count(distinct item_id) 'auto updates', 1+3 expected from @results where IsInAU = 1
-	select count(distinct item_id) 'related search', 291+3 expected from @results where IsInRS = 1
+	--select count(distinct item_id) 'auto updates', 1+3 expected from @results where IsInAU = 1
+	--select count(distinct item_id) 'related search', 291+3 expected from @results where IsInRS = 1
 	declare @AutoUpdates int = (select count(distinct item_id) from @results where IsInAU = 1)
 	declare @RelatedSearches int = (select count(distinct item_id) from @results where IsInRS = 1)
 	declare @Both int = (select count(distinct r1.item_id)  
@@ -75,11 +75,11 @@ BEGIN
 		inner join @results r2 on r1.item_id = r2.item_id and r1.IsInRS = 1 AND r2.IsInAU = 1)
 	declare @MatchedOtherSources int = (Select count(distinct item_id)  from @results where PaperId is NOT null and IsInAU = 0 and IsInRS = 0)
 	declare @totMatched int =  (Select count(distinct item_id)  from @MatchedItems)
-	declare @TotFromIR int = (select count(item_id) from TB_ITEM_REVIEW where REVIEW_ID = @ReviewId and IS_DELETED = 0)
+	--declare @TotFromIR int = (select count(item_id) from TB_ITEM_REVIEW where REVIEW_ID = @ReviewId and IS_DELETED = 0)
 	declare @WitnSomeMatch int = (select count(distinct IR.item_id) from TB_ITEM_REVIEW IR
 									inner join tb_ITEM_MAG_MATCH MM on IR.REVIEW_ID = @ReviewId and IS_DELETED = 0 and MM.ITEM_ID = IR.ITEM_ID)
 
-	Select @UnmatchedItems + @totMatched as [Computed Total], @TotFromIR as [TotalIR]
+	Select @UnmatchedItems + @totMatched as [Computed Total]--, @TotFromIR as [TotalIR]
 		--,@WitnSomeMatch [with some match]
 		,@totMatched as [Matched], @UnmatchedItems as [Not Matched]
 		,@AutoUpdates [In AutoUpdate results], @RelatedSearches [In Related Searches], @Both [in both], @MatchedOtherSources [Other]
@@ -94,8 +94,12 @@ BEGIN
 	select distinct rr.* from @results r
 	inner join TB_MAG_RELATED_RUN rr on r.IsInRS = 1 and r.MAG_RELATED_RUN_ID = rr.MAG_RELATED_RUN_ID and rr.REVIEW_ID = @ReviewId
 
-	select r.*, i.SHORT_TITLE, i.TITLE from @results r 
+	select r.*, i.SHORT_TITLE, i.TITLE,
+		CASE when s.SOURCE_ID is null then 'Manual creation' else s.SOURCE_NAME end as [SOURCE_NAME]
+	from @results r 
 	inner join tb_item i on r.item_id = i.ITEM_ID 
+	left join TB_ITEM_SOURCE tis on i.ITEM_ID = tis.ITEM_ID
+	left join TB_SOURCE s on s.SOURCE_ID = tis.SOURCE_ID and s.REVIEW_ID = @ReviewId
 	order by SHORT_TITLE, r.Item_id
 END
 GO

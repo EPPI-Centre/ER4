@@ -489,5 +489,12 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     this.isCollapsed2 = false;
   }
+  GetReport() {
+    if (this.CurrentDropdownSelectedCode2 != null && this.CurrentDropdownSelectedCode2.nodeType == "SetAttribute") {
+      let att = this.CurrentDropdownSelectedCode2 as SetAttribute;
+      this._magAdvancedService.GetOpenAlexOriginReportCommand(att.attribute_id);
+    }
+  }
+
 }
 
