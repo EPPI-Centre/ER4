@@ -291,115 +291,152 @@
             </div>
           </div>
         </div>
+        <br />
+        <div id="OriginalRCT" *ngIf="prebuiltClassifier1Selected" style="max-height: 28vh; overflow: auto; white-space: pre-line;" class="card container-fluid mt-1 bg-light  m-1 p-1 form-group  border border-primary">
+          <b>Original RCT</b>
+          This classifier identifies randomized trials and returns probabilities in order for users to determine their own thresholds for use.<br />
+          It was trained based on 280,620 coded records using data from the <a href="https://crowd.cochrane.org/" target="_blank">Cochrane Crowd</a>
+        </div>
+        <div id="SystematicReview" *ngIf="prebuiltClassifier2Selected" style="max-height: 28vh; overflow: auto; white-space: pre-line;" class="card container-fluid mt-1 bg-light  m-1 p-1 form-group  border border-primary">
+          <b>Systematic Review</b>
+          This classifier was built with data from the DARE database of reviews of effectiveness. It will be good at identifying these types of reviews, but less so identifying reviews answering other questions (such as those in non-health areas).<br />
+          The data for this classifier was supplied by the <a href="https://www.york.ac.uk/crd/" target="_blank">Centre for Reviews and Dissemination at the University of York</a>
+        </div>
+        <div id="EconomicEvaluation" *ngIf="prebuiltClassifier3Selected" style="max-height: 28vh; overflow: auto; white-space: pre-line;" class="card container-fluid mt-1 bg-light  m-1 p-1 form-group  border border-primary">
+          <b>Economic Evaluation</b>
+          This classifier was built with data from NHSEED, so is quite specifically about health economic evaluations.
+          The data for this classifier was supplied by the <a href="https://www.york.ac.uk/crd/" target="_blank">Centre for Reviews and Dissemination at the University of York</a>
+        </div>
+        <div id="CochraneRCT" *ngIf="prebuiltClassifier4Selected" style="max-height: 28vh; overflow: auto; white-space: pre-line;" class="card container-fluid mt-1 bg-light  m-1 p-1 form-group  border border-primary">
+          <b>Cochrane RCT</b>
+          The Cochrane RCT classifier divides records into two categories: those that are highly unlikely to be randomized trials and those that might be.
+          It was trained based on 280,620 coded records using data from the <a href="https://crowd.cochrane.org/" target="_blank">Cochrane Crowd.</a><br />
+          More details can be found in this <a href="https://www.jclinepi.com/article/S0895-4356(20)31172-0/fulltext" style="display:inline" target="_blank">paper</a>
+        </div>
+        <div id="COVID19MapCategories" *ngIf="prebuiltClassifier5Selected" style="max-height: 28vh; overflow: auto; white-space: pre-line;" class="card container-fluid mt-1 bg-light  m-1 p-1 form-group  border border-primary">
+          <b>COVID-19 map categories</b>
+          This classifier divides the references into the categories based on those identified during the creation of evidence maps of COVID-19 research carried out between 2020 and 2023.<br />
+          More details on this project can be found <a href="https://eppi.ioe.ac.uk/cms/Projects/DepartmentofHealthandSocialCare/Publishedreviews(bydate)/COVID-19Livingsystematicmapoftheevidence/tabid/3765/Default.aspx" target="_blank">here</a>
+        </div>
+        <div id="LongCOVIDBinaryModel" *ngIf="prebuiltClassifier6Selected" style="max-height: 28vh; overflow: auto; white-space: pre-line;" class="card container-fluid mt-1 bg-light  m-1 p-1 form-group  border border-primary">
+          <b>Long COVID binary model</b>
+          This classifier will try to identify papers related to Long COVID based on COVID-19 research mapping carried out between 2020 and 2023.<br />
+          More details on this project can be found <a href="https://eppi.ioe.ac.uk/cms/Projects/DepartmentofHealthandSocialCare/Publishedreviews(bydate)/COVID-19Livingsystematicmapoftheevidence/tabid/3765/Default.aspx" target="_blank">here</a>
+        </div>
+        <div id="PubMedStudyDesigns" *ngIf="prebuiltClassifier9Selected" style="max-height: 28vh; overflow: auto; white-space: pre-line;" class="card container-fluid mt-1 bg-light  m-1 p-1 form-group  border border-primary">
+          <b>PubMed study designs</b>
+          This classifier attempts to identify the type of study based on the title and abstract, and assign records into categories based on PubMed indexing.<br />
+          More details can be found in this <a href="https://eppi.ioe.ac.uk/CMS/Portals/35/PubMed%20study%20designs%20classifier%20v_1.pdf" style="display:inline" target="_blank">document</a>
+        </div>
       </div>
 
     </div>
-    <div id="modelResultsSection" *ngIf="modelResultsSection" class="mt-2">
-      <kendo-grid [data]="DataSourceModel"
-                  [selectable]="selectableSettings"
-                  [sort]="sortCustomModel"
-                  [kendoGridSelectBy]="'modelId'"
-                  (selectionChange)="selectedRows($event)"
-                  [style.max-height.vh]="40">
+      <div id="modelResultsSection" *ngIf="modelResultsSection" class="mt-2">
+        <kendo-grid [data]="DataSourceModel"
+                    [selectable]="selectableSettings"
+                    [sort]="sortCustomModel"
+                    [kendoGridSelectBy]="'modelId'"
+                    (selectionChange)="selectedRows($event)"
+                    [style.max-height.vh]="40">
 
-        <kendo-grid-checkbox-column [width]="40" headerClass="p-2" class="pr-1 pl-2 py-0">
-          <ng-template kendoGridHeaderTemplate>
-            <button class="btn btn-sm btn-outline-success my-1 py-0 px-1 " (click)="refreshModels()">
-              <fa-icon [icon]="faArrowsRotate" class="my-0"></fa-icon>
-            </button>
-          </ng-template>
-        </kendo-grid-checkbox-column>
-        <kendo-grid-column field="reviewId" title="ReviewID">
-        </kendo-grid-column>
-        <kendo-grid-column field="modelId" title="ModelID">
-        </kendo-grid-column>
-        <!--<kendo-grid-column field="modelTitle" title="Title">
-        </kendo-grid-column>-->
-        <kendo-grid-column field="modelTitle" title="Title" [width]="360" class="px-1 py-0 m-1">
-          <ng-template kendoGridCellTemplate let-dataItem>
-            <div (click)="ModelNameEdit(dataItem.modelId, dataItem.modelTitle)" class="btn btn-sm btn-light">
-              <span class="k-icon k-i-edit"></span>
-            </div>
-            {{dataItem.modelTitle}}
-          </ng-template>
-        </kendo-grid-column>
-        <kendo-grid-column field="attributeOn" title="Applies">
-        </kendo-grid-column>
-        <kendo-grid-column field="attributeNotOn" title="Compared with">
-        </kendo-grid-column>
-        <!--<kendo-grid-column field="accuracy" title="Accuracy">
-        </kendo-grid-column>
-        <kendo-grid-column field="auc" title="AUC">
-        </kendo-grid-column>-->
-        <kendo-grid-column field="precision" title="Precision">
-        </kendo-grid-column>
-        <kendo-grid-column field="recall" title="Recall">
-        </kendo-grid-column>
-        <kendo-grid-column [width]="80" class="px-1 py-0 m-1"
-                           field="modelId" title="Rebuild">
-          <ng-template kendoGridCellTemplate let-dataItem>
-            <div (click)="openRebuildConfirmationDialog(dataItem)" class="btn btn-link font-weight-bold">
-              Rebuild
-            </div>
-          </ng-template>
-        </kendo-grid-column>
-      </kendo-grid>
-
-    </div>
-    <div id="modelResultsAllReviewSection" *ngIf="modelResultsAllReviewSection" class="mt-2">
-      <kendo-grid [data]="DataSourceModelAllReviews"
-                  [selectable]="selectableSettings"
-                  [sort]="sortCustomModel"
-                  [kendoGridSelectBy]="'modelId'"
-                  (selectionChange)="selectedRows($event)"
-                  [style.max-height.vh]="40">
-
-        <kendo-grid-checkbox-column [width]="40" headerClass="p-2" class="pr-1 pl-2 py-0">
-          <ng-template kendoGridHeaderTemplate>
-            <button class="btn btn-sm btn-outline-success my-1 py-0 px-1 " (click)="refreshModels()">
-              <fa-icon [icon]="faArrowsRotate" class="my-0"></fa-icon>
-            </button>
-          </ng-template>
-        </kendo-grid-checkbox-column>
-        <kendo-grid-column field="reviewId" title="ReviewID">
-        </kendo-grid-column>
-        <kendo-grid-column field="modelId" title="ModelID">
-        </kendo-grid-column>
-        <kendo-grid-column field="modelTitle" title="Title">
-        </kendo-grid-column>
-        <kendo-grid-column field="attributeOn" title="Applies">
-        </kendo-grid-column>
-        <kendo-grid-column field="attributeNotOn" title="Compared with">
-        </kendo-grid-column>
-        <!--<kendo-grid-column field="accuracy" title="Accuracy">
-        </kendo-grid-column>
-        <kendo-grid-column field="auc" title="AUC">
-        </kendo-grid-column>-->
-        <kendo-grid-column field="precision" title="Precision">
-        </kendo-grid-column>
-        <kendo-grid-column field="recall" title="Recall">
-        </kendo-grid-column>
-        <!--<kendo-grid-column width="80" class="px-1 py-0 m-1"
-                            field="modelId" title="Rebuild">
-            <ng-template kendoGridCellTemplate let-dataItem>
-                <div (click)="openRebuildConfirmationDialog(dataItem)" class="btn btn-link font-weight-bold">
-                    Rebuild
-                </div>
+          <kendo-grid-checkbox-column [width]="40" headerClass="p-2" class="pr-1 pl-2 py-0">
+            <ng-template kendoGridHeaderTemplate>
+              <button class="btn btn-sm btn-outline-success my-1 py-0 px-1 " (click)="refreshModels()">
+                <fa-icon [icon]="faArrowsRotate" class="my-0"></fa-icon>
+              </button>
             </ng-template>
-        </kendo-grid-column>-->
-      </kendo-grid>
+          </kendo-grid-checkbox-column>
+          <kendo-grid-column field="reviewId" title="ReviewID">
+          </kendo-grid-column>
+          <kendo-grid-column field="modelId" title="ModelID">
+          </kendo-grid-column>
+          <!--<kendo-grid-column field="modelTitle" title="Title">
+      </kendo-grid-column>-->
+          <kendo-grid-column field="modelTitle" title="Title" [width]="360" class="px-1 py-0 m-1">
+            <ng-template kendoGridCellTemplate let-dataItem>
+              <div (click)="ModelNameEdit(dataItem.modelId, dataItem.modelTitle)" class="btn btn-sm btn-light">
+                <span class="k-icon k-i-edit"></span>
+              </div>
+              {{dataItem.modelTitle}}
+            </ng-template>
+          </kendo-grid-column>
+          <kendo-grid-column field="attributeOn" title="Applies">
+          </kendo-grid-column>
+          <kendo-grid-column field="attributeNotOn" title="Compared with">
+          </kendo-grid-column>
+          <!--<kendo-grid-column field="accuracy" title="Accuracy">
+      </kendo-grid-column>
+      <kendo-grid-column field="auc" title="AUC">
+      </kendo-grid-column>-->
+          <kendo-grid-column field="precision" title="Precision">
+          </kendo-grid-column>
+          <kendo-grid-column field="recall" title="Recall">
+          </kendo-grid-column>
+          <kendo-grid-column [width]="80" class="px-1 py-0 m-1"
+                             field="modelId" title="Rebuild">
+            <ng-template kendoGridCellTemplate let-dataItem>
+              <div (click)="openRebuildConfirmationDialog(dataItem)" class="btn btn-link font-weight-bold">
+                Rebuild
+              </div>
+            </ng-template>
+          </kendo-grid-column>
+        </kendo-grid>
 
+      </div>
+      <div id="modelResultsAllReviewSection" *ngIf="modelResultsAllReviewSection" class="mt-2">
+        <kendo-grid [data]="DataSourceModelAllReviews"
+                    [selectable]="selectableSettings"
+                    [sort]="sortCustomModel"
+                    [kendoGridSelectBy]="'modelId'"
+                    (selectionChange)="selectedRows($event)"
+                    [style.max-height.vh]="40">
+
+          <kendo-grid-checkbox-column [width]="40" headerClass="p-2" class="pr-1 pl-2 py-0">
+            <ng-template kendoGridHeaderTemplate>
+              <button class="btn btn-sm btn-outline-success my-1 py-0 px-1 " (click)="refreshModels()">
+                <fa-icon [icon]="faArrowsRotate" class="my-0"></fa-icon>
+              </button>
+            </ng-template>
+          </kendo-grid-checkbox-column>
+          <kendo-grid-column field="reviewId" title="ReviewID">
+          </kendo-grid-column>
+          <kendo-grid-column field="modelId" title="ModelID">
+          </kendo-grid-column>
+          <kendo-grid-column field="modelTitle" title="Title">
+          </kendo-grid-column>
+          <kendo-grid-column field="attributeOn" title="Applies">
+          </kendo-grid-column>
+          <kendo-grid-column field="attributeNotOn" title="Compared with">
+          </kendo-grid-column>
+          <!--<kendo-grid-column field="accuracy" title="Accuracy">
+      </kendo-grid-column>
+      <kendo-grid-column field="auc" title="AUC">
+      </kendo-grid-column>-->
+          <kendo-grid-column field="precision" title="Precision">
+          </kendo-grid-column>
+          <kendo-grid-column field="recall" title="Recall">
+          </kendo-grid-column>
+          <!--<kendo-grid-column width="80" class="px-1 py-0 m-1"
+                          field="modelId" title="Rebuild">
+          <ng-template kendoGridCellTemplate let-dataItem>
+              <div (click)="openRebuildConfirmationDialog(dataItem)" class="btn btn-link font-weight-bold">
+                  Rebuild
+              </div>
+          </ng-template>
+      </kendo-grid-column>-->
+        </kendo-grid>
+
+      </div>
+      <div class="col-12 mt-2 mb-2 justify-content-center">
+        <button (click)="openConfirmationDialog()" [disabled]="!CanApplyModel()"
+                type="button" class="btn btn-success" style="min-width:162px;max-width:162px;">
+          Run Model <fa-icon *ngIf="ClassifierServiceIsBusy" [icon]="faSpinner" [spin]="true" class="mt-1 ml-1"></fa-icon>
+        </button>
+        <button (click)="Classify()" type="button" class="btn btn-outline-dark ml-1">
+          Cancel
+        </button>
+      </div>
     </div>
-    <div class="col-12 mt-2 mb-2 justify-content-center">
-      <button (click)="openConfirmationDialog()" [disabled]="!CanApplyModel()"
-              type="button" class="btn btn-success" style="min-width:162px;max-width:162px;">
-        Run Model <fa-icon *ngIf="ClassifierServiceIsBusy" [icon]="faSpinner" [spin]="true" class="mt-1 ml-1"></fa-icon>
-      </button>
-      <button (click)="Classify()" type="button" class="btn btn-outline-dark ml-1">
-        Cancel
-      </button>
-    </div>
-  </div>
 
   <div id="CheckScreeningSection" *ngIf="CheckScreeningSection" class="col-12 p-0 mb-1">
     <CheckScreening (PleaseCloseMe)="OpenCheckScreening()"></CheckScreening>
