@@ -203,6 +203,12 @@
                     (click)="ClearNonManualMatches()">
               Clear non-manual matches
             </button>
+
+            <button class="btn btn-outline-info btn-sm mx-1"
+                    [disabled]="!CanGetCodeMatches() || MustMatchItems"
+                    (click)="GetReport()">
+              Origin Report
+            </button>
           </div>
 
         </div>

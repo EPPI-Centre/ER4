@@ -165,7 +165,28 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+        [HttpPost("[action]")]
+        public IActionResult OpenAlexOriginReportCommand([FromBody] SingleInt64Criteria attributeId)
+        {
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    DataPortal<OpenAlexOriginReportCommand> dp = new DataPortal<OpenAlexOriginReportCommand>();
+                    OpenAlexOriginReportCommand Result = new OpenAlexOriginReportCommand(attributeId.Value);
 
+                    Result = dp.Execute(Result);
+                    return Ok(Result);
+                }
+                else return Forbid();
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "OpenAlexOriginReportCommand has an error");
+                return StatusCode(500, e.Message);
+            }
+        }
     }
 
 }
