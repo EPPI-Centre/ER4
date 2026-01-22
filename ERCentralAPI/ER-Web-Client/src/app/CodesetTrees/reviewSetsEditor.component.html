@@ -138,10 +138,11 @@
             <div *ngIf="appliedCodes > 0">This will affect codes you have assigned to <strong>{{appliedCodes}}</strong> items. All this coding will be deleted!</div>
             <div *ngIf="AllocationsAffected == 1">Moreover, there is <strong>one</strong> coding assignment that is driven by a code within this coding tool. If you delete it, it will become impossible to edit the corresponding allocation!</div>
             <div *ngIf="AllocationsAffected > 1">Moreover, there are <strong>{{AllocationsAffected}}</strong> coding assignments that are driven by codes within this coding tool. If you delete it, it will become impossible to edit the corresponding allocations!</div>
+            <div *ngIf="VisMapsAffected > 0"><strong>This coding tool is used in a visualisation. You will need to remove it from the visualisation before it can be deleted from this review.</strong></div>
             <div>
               <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">No</button>
               <button class="btn btn-danger ml-1" (click)="DoDeleteCodeset()"
-                      [disabled]="!CanEditSelectedNode"
+                      [disabled]="!CanEditSelectedNode || VisMapsAffected > 0"
                       style="width:80px;">
                 Yes
               </button>

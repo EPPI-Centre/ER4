@@ -69,6 +69,12 @@ export class EditCodeComp implements OnInit, OnDestroy {
     public get AllocationsAffected(): number {
         return this._AllocationsAffected;
     }
+    private _NumVisMapsAffected: number = -1;
+    public get NumVisMapsAffected(): number {
+      // if the code is part of a coding tool that is in a visualisation but is not explicitly listed in a map then @NUM_VIS_MAPS = 1
+      // if the code is part of a coding tool that is in a visualisation and is explicitly listed in a map then @NUM_VIS_MAPS = 2
+      return this._NumVisMapsAffected;
+    }
     public get AllowedChildTypes(): kvAllowedAttributeType[] {
         return this.ReviewSetsService.AllowedChildTypesOfSelectedNode;
     }
@@ -202,6 +208,7 @@ export class EditCodeComp implements OnInit, OnDestroy {
         if (!this.UpdatingCode) return;
         this._appliedCodes = -1;
         this._AllocationsAffected = -1;
+        this._NumVisMapsAffected = -1;
         this.ReviewSetsEditingService.AttributeOrSetDeleteCheck(0, this.UpdatingCode.attributeSetId).then(
             success => {
                 //alert("did it");
@@ -209,6 +216,7 @@ export class EditCodeComp implements OnInit, OnDestroy {
                 this._ShowPanel = 'DeleteCode';
                 this._appliedCodes = success.numItems;
                 this._AllocationsAffected = success.numAllocations;
+                this._NumVisMapsAffected = success.numVisMaps;
                 //console.log("ShowDeleteCodesetClicked", success, this._appliedCodes);
                 //return result;
             },
@@ -221,6 +229,7 @@ export class EditCodeComp implements OnInit, OnDestroy {
         this._ShowPanel = '';
         this._appliedCodes = -1;
         this._AllocationsAffected = -1;
+        this._NumVisMapsAffected = -1;
     }
     ShowMoveCodeClicked() {
         this._ShowPanel = 'MoveCode';

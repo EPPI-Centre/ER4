@@ -135,7 +135,8 @@ export class ReviewSetsEditingService extends BusyAwareService {
         };
         const errorRes: AttributeSetDeleteWarningCommandResult = {
             numItems: -1,
-            numAllocations: -1
+            numAllocations: -1,
+            numVisMaps: -1
         }
 
       return lastValueFrom(this._httpC.post<AttributeSetDeleteWarningCommandResult>(this._baseUrl + 'api/Codeset/AttributeOrSetDeleteCheck', body))
@@ -1541,7 +1542,8 @@ export interface AttributeOrSetDeleteCheckCommandJSON {
 }
 export interface AttributeSetDeleteWarningCommandResult {
     numItems: number;
-    numAllocations: number;
+  numAllocations: number;
+  numVisMaps: number;
 }
 export class Attribute4Saving {
     attributeSetId: number = 0;
