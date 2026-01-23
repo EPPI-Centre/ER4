@@ -281,7 +281,18 @@ export class MAGSearchComponent implements OnInit {
         );
     }
   }
-
+  public EnumerateSearchItems(search: MagSearch) {
+    const msg = "This will fetch current search results (as they are now) and save/freeze them in the database.<br />"
+      + "As a result, importing or combining this search in the future will use the saved results, without re-running the search.<br />"
+      + "<Strong>Confirm?</strong>";
+    this._confirmationDialogService.confirm("Enumerate search results?",
+      msg, false, '')
+      .then((confirm: any) => {
+        if (confirm) {
+          this._magSearchService.EnumerateSearchItems(search);
+        }
+      });
+  }
   public get AllItemsAreSelected(): boolean {
     const ind = this._magSearchService.MagSearchList.findIndex(f => f.add == false);
     //console.log("AllItemsAreSelected", ind, this._magSearchService.MagSearchList.length);

@@ -32,10 +32,14 @@ namespace BusinessLibrary.BusinessClasses
         public OpenAlexOriginReportCommand() { }
 
         private Int64 _attId;
-        private OaOriginSummary _Summary;
+        private OaOriginSummary _Summary  = new OaOriginSummary();
 
         public List<MagAutoUpdateRun> MagAutoUpdateRunList = new List<MagAutoUpdateRun>();
-        public List<MagRelatedPapersRun> MagRelatedSearches = new List<MagRelatedPapersRun>();    
+        public List<int> MagAutoUpdateRunListCounts = new List<int>();
+        public List<MagRelatedPapersRun> MagRelatedSearches = new List<MagRelatedPapersRun>();
+        public List<int> MagRelatedSearchesCounts = new List<int>();
+        public List<MagSearch> MagTextSearches = new List<MagSearch>();
+        public List<int> MagTextSearchesCounts = new List<int>();
         public List<OaOriginReportItem> Items = new List<OaOriginReportItem>();
 
         public OpenAlexOriginReportCommand(Int64 attId)
@@ -65,9 +69,10 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Execute()
         {
+            List<MagSearch> allMagTextSearches = new List<MagSearch>();
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 connection.Open();
                 using (SqlCommand command = new SqlCommand("st_OpenAlexOriginReport", connection))
                 {
@@ -86,15 +91,23 @@ namespace BusinessLibrary.BusinessClasses
                         while (reader.Read()) 
                         {
                             MagAutoUpdateRunList.Add(MagAutoUpdateRun.GetMagAutoUpdateRun(reader));
+                            MagAutoUpdateRunListCounts.Add(reader.GetInt32("ITEMS_COUNT"));
                         }
                         reader.NextResult();
                         //3rd reader is the list of Related searches found
                         while (reader.Read()) 
                         { 
                             MagRelatedSearches.Add(MagRelatedPapersRun.GetMagRelatedPapersRun(reader));
+                            MagRelatedSearchesCounts.Add(reader.GetInt32("ITEMS_COUNT"));
                         }
                         reader.NextResult();
-                        //4th and last reader contains all items (sometimes multiple row per item)
+                        //4th reader contains all TB_MAG_SEARCH records that might contain our papers
+                        while (reader.Read())
+                        {
+                            allMagTextSearches.Add(MagSearch.GetMagSearchWithIds(reader));//we'll use and reduce this list later
+                        }
+                        reader.NextResult();
+                        //5th and last reader contains all items (sometimes multiple row per item)
                         Int64 previousItemId = 0, currentItemId = 0, PaperId = 0;
                         OaOriginReportItem tmpItem = new OaOriginReportItem();
                         while (reader.Read())
@@ -117,12 +130,70 @@ namespace BusinessLibrary.BusinessClasses
                             }
                             if (reader.GetBoolean("IsInRS") == true)
                             {
-                                tmpItem.AutoUpdateResults.Add(reader.GetInt32("MAG_RELATED_RUN_ID"));
+                                tmpItem.RelatedSearches.Add(reader.GetInt32("MAG_RELATED_RUN_ID"));
                             }
                         }
                     }
                 }
                 connection.Close();
+            }
+            ProcessTextSearches(allMagTextSearches);
+        }
+        /// <summary>
+        /// to keep the SQL fast enough, we process IDs for text searches here
+        ///aims:
+        ///- remove text searches that do not contain the Items we care about
+        ///- count match items to searches
+        ///process:
+        ///1. represent searches as an ID paired with a list of paperIDs
+        ///2. find our Items in the lists of paperIDs to see where they appear
+        ///3. put data in the properties we'll return
+        /// </summary>
+        /// <param name="allMagTextSearches"></param>
+        private void ProcessTextSearches(List<MagSearch> allMagTextSearches)
+        {
+            //1. represent searches as an ID paired with a list of paperIDs
+            List<KeyValuePair<int, List<long>>> SearchesAndPaperIds = new List<KeyValuePair<int, List<long>>>();
+            foreach(MagSearch search in allMagTextSearches)
+            {
+                List<long> PaperIds = new List<long>();
+                string[] splitted = search.SearchIds.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                long tId;
+                foreach (string pid in splitted)
+                {
+                    if (long.TryParse(pid, out tId)) PaperIds.Add(tId);
+                }
+                SearchesAndPaperIds.Add(new KeyValuePair<int, List<long>>(search.MagSearchId, PaperIds));
+            }
+            //2. find our Items in the lists of paperIDs to see where they appear
+            List<int> SearchIdsToKeep = new List<int>();
+            foreach(OaOriginReportItem item in Items)
+            {
+                foreach(long Pid in item.OpenAlexPaperId)
+                {
+                    List<KeyValuePair<int,List<long>>> found = SearchesAndPaperIds.FindAll(f => f.Value.Contains(Pid));
+                    foreach (KeyValuePair<int, List<long>> fS in found)
+                    {
+                        if (!SearchIdsToKeep.Contains(fS.Key))
+                        {
+                            SearchIdsToKeep.Add(fS.Key);
+                            MagSearch? toAdd = allMagTextSearches.Find(f => f.MagSearchId == fS.Key);
+                            if (toAdd != null)
+                            {
+                                allMagTextSearches.Remove(toAdd);
+                                MagTextSearches.Add(toAdd);//3. put data in the properties we'll return
+                            }
+                            MagTextSearchesCounts.Add(1);//3. put data in the properties we'll return
+                        }
+                        else
+                        {
+                            int Index = MagTextSearches.FindIndex(f => f.MagSearchId == fS.Key);
+                            if (Index != -1) MagTextSearchesCounts[Index]++;//3. put data in the properties we'll return
+                        }
+                        if (!item.TextSearches.Contains(fS.Key))
+                            item.TextSearches.Add(fS.Key); //3.put data in the properties we'll return
+                    }
+                }
             }
         }
 
@@ -137,6 +208,7 @@ namespace BusinessLibrary.BusinessClasses
         public string SourceName { get; private set; } = string.Empty;
 
         public List<int> RelatedSearches { get; private set; } = new List<int>();
+        public List<int> TextSearches { get; private set; } = new List<int>();
 
         public List<int> AutoUpdateResults { get; private set; } = new List<int>();
         public OaOriginReportItem() 
@@ -166,10 +238,6 @@ namespace BusinessLibrary.BusinessClasses
         public OaOriginSummary(SafeDataReader reader) 
         {
             TotalItems = reader.GetInt32("Computed Total");
-            if (TotalItems != reader.GetInt32("TotalIR"))
-            {
-                throw new Exception("Error. Report contains inconsistent data, please contact EPPISupport.");
-            }
             Matched = reader.GetInt32("Matched");
             NotMatched = reader.GetInt32("Not Matched");
             InAutoUpdateResults = reader.GetInt32("In AutoUpdate results");

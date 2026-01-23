@@ -11,6 +11,8 @@ using Csla.Silverlight;
 using Csla.DataPortalClient;
 using BusinessLibrary.BusinessClasses;
 using System.Text.RegularExpressions;
+using System.Web;
+
 
 #if !SILVERLIGHT
 using System.Data.SqlClient;
@@ -447,6 +449,18 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(SearchDateProperty, value);
             }
         }
+        public static readonly PropertyInfo<DateTime> DateIdsAcquiredProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("DateIdsAcquired", "DateIdsAcquired", 0));
+        public DateTime DateIdsAcquired
+        {
+            get
+            {
+                return GetProperty(DateIdsAcquiredProperty);
+            }
+            set
+            {
+                SetProperty(DateIdsAcquiredProperty, value);
+            }
+        }
 
         public static readonly PropertyInfo<string> MagFolderProperty = RegisterProperty<string>(new PropertyInfo<string>("MagFolder", "MagFolder", ""));
         public string MagFolder
@@ -560,6 +574,18 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(SearchIdsStoredProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<bool> CanReRunProperty = RegisterProperty<bool>(new PropertyInfo<bool>("CanReRun", "CanReRun", false));
+        public bool CanReRun
+        {
+            get
+            {
+                return GetProperty(CanReRunProperty);
+            }
+            set
+            {
+                SetProperty(CanReRunProperty, value);
             }
         }
         public static readonly PropertyInfo<string> SearchIdsProperty = RegisterProperty<string>(new PropertyInfo<string>("SearchIds", "SearchIds", ""));
@@ -794,6 +820,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@MAG_SEARCH_TEXT", MagSearchText));
                     command.Parameters.Add(new SqlParameter("@MAG_SEARCH_ID", 0));
                     command.Parameters.Add(new SqlParameter("@SEARCH_IDS_STORED", true));
+                    command.Parameters.Add(new SqlParameter("@CAN_RERUN", false));
                     command.Parameters.Add(new SqlParameter("@SEARCH_IDS", string.Join(",", OverallResults)));
                     command.Parameters["@MAG_SEARCH_ID"].Direction = ParameterDirection.Output;
                     command.ExecuteNonQuery();
@@ -828,18 +855,21 @@ namespace BusinessLibrary.BusinessClasses
             return results;
         }
 
-        private List<string> GetIdsFromOpenAlex(MagSearch theSearch)
+        public static List<string> GetIdsFromOpenAlex(MagSearch theSearch)
         {
             List<string> results = new List<string>();
             bool doSearch = theSearch.DoSearchInAPICalls;
-            //if ((!theSearch.SearchText.StartsWith("Custom filter:")) && (theSearch.MagSearchText.IndexOf("display_name.search:") == -1) &&
-            //    (theSearch.MagSearchText.IndexOf("concepts.id:") == -1) && (theSearch.MagSearchText.IndexOf("openalex_id:") == -1) &&
-            //    (theSearch.MagSearchText.IndexOf("title_and_abstract.search:") == -1))
-            ////if ((theSearch.MagSearchText.IndexOf("display_name.search:") == -1) && (theSearch.MagSearchText.IndexOf("concepts.id:") == -1) && (theSearch.MagSearchText.IndexOf("openalex_id:") == -1))
-            //{
-            //    doSearch = true; // i.e. title/abstract search where we 'search' rather than 'filter'
-            //}
-            List<MagMakesHelpers.OaPaperFilterResult> res = MagMakesHelpers.downloadOaPaperFilterUsingCursor(theSearch.MagSearchText, doSearch);
+            //we'll do a bit of work to figure if we have "room" to ask only for IDs, which is faster.
+            //Need to check, because the final URL we contact can't be longer than 2,048 chars.
+            string SearchString = theSearch.MagSearchText;
+            int offset = 220;//I've measured 188 chars (including the "select" we'd add) used by URL+fixed query parts of the string - rounding to 220 for safety
+            int limit = 2048;
+            int URLencodedLength = HttpUtility.UrlEncode(theSearch.MagSearchText).Length;
+            if (offset + URLencodedLength < limit)
+            {
+                SearchString += "&select=id";
+            }
+            List<MagMakesHelpers.OaPaperFilterResult> res = MagMakesHelpers.downloadOaPaperFilterUsingCursor(SearchString, doSearch);
             foreach (MagMakesHelpers.OaPaperFilterResult r in res)
             {
                 foreach (MagMakesHelpers.OaPaper p in r.results)
@@ -852,7 +882,22 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Update()
         {
-            // no need to update this object
+            // no need to update this object, apart from the new possibility of "saving IDs" added in Jan 2026
+            if (SearchIds != "")
+            {
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                {
+                    connection.Open(); using (SqlCommand command = new SqlCommand("st_MagSearchAddPaperIds", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                        command.Parameters.Add(new SqlParameter("@MAG_SEARCH_ID", MagSearchId));
+                        command.Parameters.Add(new SqlParameter("@SEARCH_IDS", SearchIds));
+                        command.ExecuteNonQuery();
+                    }
+                }
+            }
         }
 
         protected override void DataPortal_DeleteSelf()
@@ -871,7 +916,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        // this version used when we want a list of searches
+        // this version used when we want a regular list of searches
         internal static MagSearch GetMagSearch(SafeDataReader reader)
         {
             MagSearch returnValue = new MagSearch();
@@ -883,9 +928,11 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<int>(SearchNoProperty, reader.GetInt32("SEARCH_NO"));
             returnValue.LoadProperty<int>(HitsNoProperty, reader.GetInt32("HITS_NO"));
             returnValue.LoadProperty<DateTime>(SearchDateProperty, reader.GetDateTime("SEARCH_DATE"));
+            returnValue.LoadProperty<DateTime>(DateIdsAcquiredProperty, reader.GetDateTime("IDS_DATE"));
             returnValue.LoadProperty<string>(MagFolderProperty, reader.GetString("MAG_FOLDER"));
             returnValue.LoadProperty<string>(MagSearchTextProperty, reader.GetString("MAG_SEARCH_TEXT"));
             returnValue.LoadProperty<bool>(SearchIdsStoredProperty, reader.GetBoolean("SEARCH_IDS_STORED"));
+            returnValue.LoadProperty<bool>(CanReRunProperty, reader.GetBoolean("CAN_RERUN"));
             returnValue.MarkOld();
             return returnValue;
         }
@@ -893,18 +940,7 @@ namespace BusinessLibrary.BusinessClasses
         // this version for a specific search when we load optional search results too
         internal static MagSearch GetMagSearchWithIds(SafeDataReader reader)
         {
-            MagSearch returnValue = new MagSearch();
-            returnValue.LoadProperty<int>(MagSearchIdProperty, reader.GetInt32("MAG_SEARCH_ID"));
-            returnValue.LoadProperty<int>(ReviewIdProperty, reader.GetInt32("REVIEW_ID"));
-            returnValue.LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
-            returnValue.LoadProperty<string>(ContactNameProperty, reader.GetString("CONTACT_NAME"));
-            returnValue.LoadProperty<string>(SearchTextProperty, reader.GetString("SEARCH_TEXT"));
-            returnValue.LoadProperty<int>(SearchNoProperty, reader.GetInt32("SEARCH_NO"));
-            returnValue.LoadProperty<int>(HitsNoProperty, reader.GetInt32("HITS_NO"));
-            returnValue.LoadProperty<DateTime>(SearchDateProperty, reader.GetDateTime("SEARCH_DATE"));
-            returnValue.LoadProperty<string>(MagFolderProperty, reader.GetString("MAG_FOLDER"));
-            returnValue.LoadProperty<string>(MagSearchTextProperty, reader.GetString("MAG_SEARCH_TEXT"));
-            returnValue.LoadProperty<bool>(SearchIdsStoredProperty, reader.GetBoolean("SEARCH_IDS_STORED"));
+            MagSearch returnValue = GetMagSearch(reader);
             returnValue.LoadProperty<string>(SearchIdsProperty, reader.GetString("SEARCH_IDS"));
             returnValue.MarkOld();
             return returnValue;
