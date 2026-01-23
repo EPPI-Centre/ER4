@@ -494,8 +494,12 @@ export class OpenAlexOriginReportCommand implements iOpenAlexOriginReportCommand
   public magTextSearchesCounts: number[] = [];
   public summary: iOaOriginSummary = {
     inAutoUpdateResults: 0,
-    inBoth: 0,
+    inTextSearches: 0,
+    inBothAuAndRs: 0,
+    inBothAuAndTs: 0,
+    inBothTsAndRs: 0,
     inRelatedSearches: 0,
+    inAll3: 0,
     matched: 0,
     notMatched: 0,
     otherMatched: 0,
@@ -503,9 +507,13 @@ export class OpenAlexOriginReportCommand implements iOpenAlexOriginReportCommand
   };
   public get SummaryHTMLtable(): string {
     const summary = this.summary;
-    let res: string = "<table class='ItemsTable'><tr><th>Total Items</th><th>Matched</th><th>Not Matched</th><th>In Auto Updates</th><th>In Related Searches</th><th>In both</th><th>Matched but in neither</th></tr>";
+    let res: string = "<table class='ItemsTable'><tr><th>Total Items</th><th>Matched</th><th>Not Matched</th><th>In Auto Updates</th>"
+      + "<th>In Related Searches</th><th>In both AU & RS</th><th>In Text Searches</th><th>In both TS and AU</th>"
+      + "<th>In both TS and RS</th><th>In all 3</th><th>Matched but in none</th></tr>";
+
     res += "<tr><td>" + summary.totalItems + "</td><td>" + summary.matched + "</td><td>" + summary.notMatched + "</td><td>" + summary.inAutoUpdateResults
-      + "</td><td>" + summary.inRelatedSearches + "</td><td>" + summary.inBoth + "</td><td>" + summary.otherMatched + "</td></tr></table>";
+      + "</td><td>" + summary.inRelatedSearches + "</td><td>" + summary.inBothAuAndRs + "</td><td>" + summary.inTextSearches + "</td><td>" + summary.inBothAuAndTs
+      + "</td><td>" + summary.inBothTsAndRs + "</td><td>" + summary.inAll3 + "</td><td>" + summary.otherMatched + "</td></tr></table>";
     return res;
   }
   public get AutoUpdatesHTMLTable(): string {
@@ -613,8 +621,12 @@ export interface iOaOriginReportItem {
 }
 export interface iOaOriginSummary {
   inAutoUpdateResults: number;
-  inBoth: number;
   inRelatedSearches: number;
+  inTextSearches: number;
+  inBothAuAndRs: number;
+  inBothAuAndTs: number;
+  inBothTsAndRs: number;
+  inAll3: number;
   matched: number;
   notMatched: number;
   otherMatched: number;

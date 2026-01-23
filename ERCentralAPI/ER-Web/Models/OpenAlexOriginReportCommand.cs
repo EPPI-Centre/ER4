@@ -138,6 +138,7 @@ namespace BusinessLibrary.BusinessClasses
                 connection.Close();
             }
             ProcessTextSearches(allMagTextSearches);
+            Summary.RecomputeFinalSummaryFigures(Items);
         }
         /// <summary>
         /// to keep the SQL fast enough, we process IDs for text searches here
@@ -232,7 +233,11 @@ namespace BusinessLibrary.BusinessClasses
         public int NotMatched { get; private set; } = 0;
         public int InAutoUpdateResults { get; private set; } = 0;
         public int InRelatedSearches { get; private set; } = 0;
-        public int InBoth { get; private set; } = 0;
+        public int InTextSearches { get; private set; } = 0;
+        public int InBothAuAndRs { get; private set; } = 0;
+        public int InBothAuAndTs { get; private set; } = 0;
+        public int InBothTsAndRs { get; private set; } = 0;
+        public int InAll3 { get; private set; } = 0;
         public int OtherMatched { get; private set; } = 0;
         public OaOriginSummary() { }
         public OaOriginSummary(SafeDataReader reader) 
@@ -242,8 +247,76 @@ namespace BusinessLibrary.BusinessClasses
             NotMatched = reader.GetInt32("Not Matched");
             InAutoUpdateResults = reader.GetInt32("In AutoUpdate results");
             InRelatedSearches = reader.GetInt32("In Related Searches");
-            InBoth = reader.GetInt32("in both");
+            InBothAuAndRs = reader.GetInt32("in both");
             OtherMatched = reader.GetInt32("Other");
+        }
+        /// <summary>
+        /// We need to recompute (and since we can, check) figures because:
+        /// figures from TextSearches are not returned by SQL as they are not-known at that point!
+        /// So we'll check the figures we have, and compute what's missing here.
+        /// </summary>
+        /// <param name="Items"></param>
+        /// <exception cref="Exception"></exception>
+        public void RecomputeFinalSummaryFigures(List<OaOriginReportItem> Items)
+        {
+
+            List<long> InAu = new List<long>();
+            List<long> InRs = new List<long>();
+            List<long> InTs = new List<long>();
+            int localInBothAuAndRs = 0;
+            int localInBothAuAndTs = 0;
+            int localInBothTsAndRs = 0;
+            int localInAll3 = 0;
+            List<OaOriginReportItem> tList = Items.FindAll(f => f.AutoUpdateResults.Count > 0);
+            foreach (OaOriginReportItem itm in tList)
+            {
+                if (!InAu.Contains(itm.ItemId)) InAu.Add(itm.ItemId);
+            }
+            if (InAutoUpdateResults != InAu.Count) throw new Exception("Report figures are inconsistent, error found in number of Items in AutoUpdate results");
+            tList = Items.FindAll(f => f.RelatedSearches.Count > 0);
+            foreach (OaOriginReportItem itm in tList)
+            {
+                if (!InRs.Contains(itm.ItemId)) InRs.Add(itm.ItemId);
+            }
+            if (InRelatedSearches != InRs.Count) throw new Exception("Report figures are inconsistent, error found in number of Items in Related Searches");
+            tList = Items.FindAll(f => f.TextSearches.Count > 0);
+            foreach (OaOriginReportItem itm in tList)//now we complicate things. We add Ids to InTs and ALSO check if they appear also in the other two lists, in the same loop
+            {
+                if (!InTs.Contains(itm.ItemId))
+                {
+                    InTs.Add(itm.ItemId);
+                    if (InAu.Contains(itm.ItemId))
+                    {
+                        localInBothAuAndTs++;//this item is in both text searches and auto updates
+                        if (InRs.Contains(itm.ItemId))
+                        {
+                            localInBothTsAndRs++;//this item is in both text searches and related searches
+                            localInAll3++;//but it's also Au, so it's in all 3!
+                        }
+                    }
+                    else
+                    {
+                        if (InRs.Contains(itm.ItemId)) localInBothTsAndRs++;//this item is in both text searches and related searches (but not in auto updates)
+                    }
+                }
+            }
+            InTextSearches = InTs.Count;
+            //we've found all items that are in both (Au & Ts), both (Rs & Ts) and "all 3", so we only need to check what's in both (Au & Rs)
+            foreach (long itId in InAu)
+            {
+                if (InRs.Contains(itId)) localInBothAuAndRs++;
+            }
+
+            if (localInBothAuAndRs != InBothAuAndRs) throw new Exception("Report figures are inconsistent, error found in number of Items in both AU and RS results");
+            InBothAuAndTs = localInBothAuAndTs;
+            InBothTsAndRs = localInBothTsAndRs;
+            InAll3 = localInAll3;
+            int remainingMatchedCount = Items.FindAll(f => f.OpenAlexPaperId.Count > 0 
+                                                        && f.AutoUpdateResults.Count == 0
+                                                        && f.RelatedSearches.Count == 0
+                                                        && f.TextSearches.Count == 0
+                                                        ).Count;
+            OtherMatched = remainingMatchedCount;
         }
     }
 }

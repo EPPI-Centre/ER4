@@ -557,6 +557,10 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     SummarySheet.columns?.push(Cmedium);
     SummarySheet.columns?.push(Cmedium);
     SummarySheet.columns?.push(Cmedium);
+    SummarySheet.columns?.push(Cmedium);
+    SummarySheet.columns?.push(Cmedium);
+    SummarySheet.columns?.push(Cmedium);
+    SummarySheet.columns?.push(Cmedium);
     
     const titleCell: WorkbookSheetRowCell = { value: "Open Alex Origin Report", bold: true, colSpan:7 };
     const emptyCell: WorkbookSheetRowCell = { value: "" };
@@ -576,19 +580,27 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     const summH3: WorkbookSheetRowCell = { value: "Not Matched", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const summH4: WorkbookSheetRowCell = { value: "In Auto Updates", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const summH5: WorkbookSheetRowCell = { value: "In Related Searches", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
-    const summH6: WorkbookSheetRowCell = { value: "In both", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
-    const summH7: WorkbookSheetRowCell = { value: "Matched but in neither", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH6: WorkbookSheetRowCell = { value: "In both AU & RS", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH7: WorkbookSheetRowCell = { value: "In Text Searches", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH8: WorkbookSheetRowCell = { value: "In both TS & AU", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH9: WorkbookSheetRowCell = { value: "In both TS & RS", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH10: WorkbookSheetRowCell = { value: "In all 3", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH11: WorkbookSheetRowCell = { value: "Matched but in none", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
 
-    SummarySheet.rows?.push({ cells: [summH1, summH2, summH3, summH4, summH5, summH6, summH7] });
+    SummarySheet.rows?.push({ cells: [summH1, summH2, summH3, summH4, summH5, summH6, summH7, summH8, summH9, summH10, summH11] });
     const summD1: WorkbookSheetRowCell = { value: rep.summary.totalItems, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const summD2: WorkbookSheetRowCell = { value: rep.summary.matched,borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const summD3: WorkbookSheetRowCell = { value: rep.summary.notMatched, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const summD4: WorkbookSheetRowCell = { value: rep.summary.inAutoUpdateResults, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const summD5: WorkbookSheetRowCell = { value: rep.summary.inRelatedSearches, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
-    const summD6: WorkbookSheetRowCell = { value: rep.summary.inBoth, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
-    const summD7: WorkbookSheetRowCell = { value: rep.summary.otherMatched, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summD6: WorkbookSheetRowCell = { value: rep.summary.inBothAuAndRs, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summD7: WorkbookSheetRowCell = { value: rep.summary.inTextSearches, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summD8: WorkbookSheetRowCell = { value: rep.summary.inBothAuAndTs, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summD9: WorkbookSheetRowCell = { value: rep.summary.inBothTsAndRs, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summD10: WorkbookSheetRowCell = { value: rep.summary.inAll3, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summD11: WorkbookSheetRowCell = { value: rep.summary.otherMatched, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
 
-    SummarySheet.rows?.push({ cells: [summD1, summD2, summD3, summD4, summD5, summD6, summD7] });
+    SummarySheet.rows?.push({ cells: [summD1, summD2, summD3, summD4, summD5, summD6, summD7, summD8, summD9, summD10, summD11] });
     SummarySheet.rows?.push({ cells: [emptyCell] });
     SummarySheet.rows?.push(...this.MakeAURexcel(rep));
     SummarySheet.rows?.push({ cells: [emptyCell] });
