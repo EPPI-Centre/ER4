@@ -765,7 +765,8 @@
                     <div class="col-12 pr-0 pl-1 font-weight-bold">
                       <span class="k-icon k-i-table-column-insert-left k-color-info"></span>&nbsp;Columns:
                     </div>
-                    <div class="rounded bg-white col w-100">
+                    <div class="rounded col w-100" [ngClass]="{'font-weight-bold alert-danger' : map.columnsAttributeID == -1}">
+                      <div *ngIf="map.columnsAttributeID == -1">This code no longer exists!</div>
                       Code: {{map.columnsPublicAttributeName}} <br />
                       Tool: {{map.columnsPublicSetName}}
                     </div>
@@ -774,16 +775,18 @@
                     <div class="col-12 pr-0 pl-1 font-weight-bold">
                       <span class="k-icon k-i-table-row-insert-above k-color-info"></span>&nbsp;Rows:
                     </div>
-                    <div class="rounded bg-white col w-100">
+                    <div class="rounded col w-100" [ngClass]="{'font-weight-bold alert-danger' : map.rowsAttributeID == -1}">
+                      <div *ngIf="map.rowsAttributeID == -1">This code no longer exists!</div>
                       Code: {{map.rowsPublicAttributeName}} <br />
                       Tool: {{map.rowsPublicSetName}}
                     </div>
                   </div>
-                  <div class="col row m-1 p-0 border border-info rounded" style="vertical-align:top">
+                  <div class="col row m-1 p-0 border border-info rounded"  style="vertical-align:top">
                     <div class="col-12 pr-0 pl-1 font-weight-bold">
                       <span class="k-icon k-i-chart-bubble k-color-success"></span>&nbsp;Segments:
                     </div>
-                    <div class="rounded bg-white col w-100">
+                    <div class="rounded col w-100" [ngClass]="{'font-weight-bold alert-danger' : map.segmentsAttributeID == -1}">
+                      <div *ngIf="map.segmentsAttributeID == -1">This code no longer exists!</div>
                       Code: {{map.segmentsPublicAttributeName}} <br />
                       Tool: {{map.segmentsPublicSetName}}
                     </div>
@@ -881,7 +884,8 @@
                       </tr>
                     </table>
                   </div>
-                  <div class="rounded bg-white col w-100">
+                  <div class="rounded col w-100" [ngClass]="{'font-weight-bold alert-danger' : EditingMap.columnsAttributeID == -1}">
+                    <div *ngIf="EditingMap.columnsAttributeID == -1">This code no longer exists!</div>
                     Code: {{EditingMap.columnsPublicAttributeName}} <br />
                     Tool: {{EditingMap.columnsPublicSetName}}
                   </div>
@@ -899,7 +903,8 @@
                       </tr>
                     </table>
                   </div>
-                  <div class="rounded bg-white col w-100">
+                  <div class="rounded col w-100" [ngClass]="{'font-weight-bold alert-danger' : EditingMap.rowsAttributeID == -1}">
+                    <div *ngIf="EditingMap.rowsAttributeID == -1">This code no longer exists!</div>
                     Code: {{EditingMap.rowsPublicAttributeName}} <br />
                     Tool: {{EditingMap.rowsPublicSetName}}
                   </div>
@@ -917,7 +922,8 @@
                       </tr>
                     </table>
                   </div>
-                  <div class="rounded bg-white col w-100">
+                  <div class="rounded col w-100" [ngClass]="{'font-weight-bold alert-danger' : EditingMap.segmentsAttributeID == -1}">
+                    <div *ngIf="EditingMap.segmentsAttributeID == -1">This code no longer exists!</div>
                     Code: {{EditingMap.segmentsPublicAttributeName}} <br />
                     Tool: {{EditingMap.segmentsPublicSetName}}
                   </div>

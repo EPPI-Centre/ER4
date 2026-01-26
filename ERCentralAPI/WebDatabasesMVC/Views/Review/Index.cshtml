@@ -1135,8 +1135,14 @@
 
                 content += "</td><td style='text-align:right;'>";
 
-                content += "<div><button class='btn btn-secondary btn-sm btn-round' onclick='GetMap(" + map.webDBMapId
-                    + ")' id='getMapButton" + map.webDBMapId + "'>View map</button></div>";                     
+                if (map.columnsAttributeID == -1 || map.rowsAttributeID == -1 || map.segmentsAttributeID == -1) {
+                    content += "<div><button  disabled class='btn btn-secondary btn-sm btn-round' onclick='GetMap(" + map.webDBMapId
+                        + ")' id='getMapButton" + map.webDBMapId + "'>View map</button></div>"; 
+                }
+                else {
+                    content += "<div><button class='btn btn-secondary btn-sm btn-round' onclick='GetMap(" + map.webDBMapId
+                        + ")' id='getMapButton" + map.webDBMapId + "'>View map</button></div>";
+                }
 
                 content += "</td></tr></table>";
                 
