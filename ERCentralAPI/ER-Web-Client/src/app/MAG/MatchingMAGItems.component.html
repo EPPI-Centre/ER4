@@ -182,33 +182,51 @@
             </div>
           </div>
 
-          <div class="col-sm-12 col-lg-8">
-            <button class="btn btn-primary btn-sm text-white mx-1"
+          <div class="col-sm-12 col-lg-8 row mx-0 px-0">
+            <button class="btn btn-primary btn-sm text-white my-auto mx-1"
                     [disabled]="!CanGetCodeMatches() || MustMatchItems "
                     (click)="MAGBrowser('MatchedWithThisCode')">
               List (matched) items
             </button>
-            <button class="btn btn-primary btn-sm text-white mx-1"
+            <button class="btn btn-primary btn-sm text-white my-auto mx-1"
                     [disabled]="!CanGetCodeMatches()"
                     (click)="RunMatchingAlgo(1)">
               Auto-match items
             </button>
-            <button class="btn btn-danger btn-sm text-white mx-1"
+            <button class="btn btn-danger btn-sm text-white my-auto mx-1"
                     [disabled]="!CanGetCodeMatches() || MustMatchItems"
                     (click)="ClearMatches()">
               Clear matches
             </button>
-            <button class="btn btn-danger btn-sm text-white mx-1"
+            <button class="btn btn-danger btn-sm text-white my-auto mx-1"
                     [disabled]="!CanGetCodeMatches() || MustMatchItems"
                     (click)="ClearNonManualMatches()">
               Clear non-manual matches
             </button>
 
-            <button class="btn btn-outline-info btn-sm mx-1"
-                    [disabled]="!CanGetCodeMatches() || MustMatchItems"
-                    (click)="GetReport()">
-              Origin Report
-            </button>
+            <div *ngIf="OAoriginReport == null" class="border border-info bg-light rounded my-auto">
+              <button class="btn btn-outline-info btn-sm m-1"
+                      [disabled]="!CanGetCodeMatches() || MustMatchItems"
+                      (click)="GetReport()">
+                Origin Report
+              </button>
+            </div>
+            <div *ngIf="OAoriginReport != null" class="border border-info bg-light rounded my-auto">
+              <button class="btn btn-outline-info btn-sm m-1"
+                      [disabled]="!CanGetCodeMatches() || MustMatchItems"
+                      (click)="GetReport()">
+                Origin Report
+              </button>
+              <button class="btn btn-outline-primary btn-sm m-1"
+                      (click)="SaveReport()">
+                <span class="k-icon k-i-save"></span> HTML
+              </button>
+              <button class="btn btn-outline-primary btn-sm m-1"
+                      [disabled]="!CanGetCodeMatches() || MustMatchItems"
+                      (click)="SaveReportToExcel()">
+                <span class="k-icon k-i-save"></span> Excel
+              </button>
+            </div>
           </div>
 
         </div>

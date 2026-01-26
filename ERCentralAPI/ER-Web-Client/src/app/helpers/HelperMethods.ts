@@ -190,7 +190,9 @@ export class Helpers {
       + " body { font-family: Roboto, Arial, sans-serif; font-size: 14px;} .alert-info { color: #0c5460; background-color: #d1ecf1; border-color: #bee5eb;}"
       + " .small, small { font-size: .875em; font-weight: 400;} .text-info { color: #17a2b8!important; } code { color: #e01a76;}"
       + " .text-success { color: #28a745!important;} .font-weight-bold { font-weight: 700!important;} .light-yellow-bg { background-color: #fff3cd; }"
-      + " .ItemsTable th, .ItemsTable td {border: 1px solid #dee2e6!important; border-color: #343a40!important;} .m-2 { margin: 0.5rem!important;}";
+      + " .ItemsTable th, .ItemsTable td {border: 1px solid #dee2e6!important; border-color: #343a40!important;} .m-2 { margin: 0.5rem!important;}"
+      + ".px-1 { padding-right:0.25rem !important; padding-left:0.25rem !important;}"
+      + ".px-1 th, .px-1 td { padding-right:0.25rem !important; padding-left:0.25rem !important;}";
       //+ "<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css' integrity='sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N' crossorigin='anonymous'>";
     if (addExcelStyleHack) res += " br { mso-data-placement: same-cell;} </style>";
     else res += "</style>";
@@ -207,7 +209,7 @@ export class Helpers {
     return text;
   }
   //used to show reports in a throwaway new tab.
-  public static OpenInNewWindow(ReportHTML: any, baseUrl: string) {
+  public static OpenInNewWindow(ReportHTML: any, baseUrl: string, title: string|undefined = undefined) {
     if (ReportHTML.length < 1) return;
 
     let Pagelink = "about:blank";
@@ -215,7 +217,7 @@ export class Helpers {
     //let pwa = window.open("data:text/plain;base64," + btoa(this.AddHTMLFrame(this.ReportHTML)), "_new");
     if (pwa) {
       pwa.document.open();
-      pwa.document.write(this.AddHTMLFrame(ReportHTML, baseUrl));
+      pwa.document.write(this.AddHTMLFrame(ReportHTML, baseUrl, title));
       pwa.document.close();
     }
   }

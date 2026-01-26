@@ -1,11 +1,11 @@
-import { Component, OnInit, ViewChild, OnDestroy, Output, EventEmitter, Input } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, Output, EventEmitter, Input, Inject } from '@angular/core';
 import { searchService } from '../services/search.service';
-import { singleNode, SetAttribute } from '../services/ReviewSets.service';
+import { singleNode, SetAttribute, ReviewSetsService } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
-import { MVCMagPaperListSelectionCriteria, MagFieldOfStudy, MagPaper, TopicLink, MagBrowseHistoryItem }
+import { MVCMagPaperListSelectionCriteria, MagFieldOfStudy, MagPaper, TopicLink, MagBrowseHistoryItem, OpenAlexOriginReportCommand }
   from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
@@ -15,6 +15,9 @@ import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service'
 import { MAGRelatedRunsService } from '../services/MAGRelatedRuns.service';
 import { MAGTopicsService } from '../services/MAGTopics.service';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { Helpers } from '../helpers/HelperMethods';
+import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
+import { Workbook, WorkbookSheet, WorkbookSheetColumn, WorkbookSheetRow, WorkbookSheetRowCell, WorkbookSheetRowCellBorderBottom, WorkbookSheetRowCellBorderLeft, WorkbookSheetRowCellBorderRight, WorkbookSheetRowCellBorderTop } from '@progress/kendo-angular-excel-export';
 
 @Component({
   selector: 'MatchingMAGItems',
@@ -24,7 +27,8 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
 
-  constructor(private ConfirmationDialogService: ConfirmationDialogService,
+  constructor(@Inject('BASE_URL') private _baseUrl: string,
+    private ConfirmationDialogService: ConfirmationDialogService,
     public _magBasicService: MAGRelatedRunsService,
     public _magAdvancedService: MAGAdvancedService,
     private _magBrowserService: MAGBrowserService,
@@ -33,7 +37,8 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     private _eventEmitterService: EventEmitterService,
     private router: Router,
     public _mAGBrowserHistoryService: MAGBrowserHistoryService,
-    private _magTopicsService: MAGTopicsService
+    private _magTopicsService: MAGTopicsService,
+    private reviewSetsService: ReviewSetsService
   ) {
 
   }
@@ -46,6 +51,9 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     else if (!this._ReviewerIdentityServ.HasWriteRights) {
       this.router.navigate(['Main']);
+    }
+    else if (this.reviewSetsService.ReviewSets.length == 0) {
+      this.reviewSetsService.GetReviewSets();
     }
     //else {
     //    this.GetMagReviewMagInfoCommand();
@@ -69,6 +77,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
   public SearchTextTopicResultsTotalPages: number = 0;
   public magPaperId: number = 0;
   public basicPanel: boolean = false;
+  public OAoriginReport: OpenAlexOriginReportCommand | null = null;
   faSpinner = faSpinner;
   public Back() {
     //this.router.navigate(['Main']);
@@ -488,13 +497,294 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
       this.CurrentDropdownSelectedCode2 = this.WithOrWithoutCodeSelector2.SelectedNodeData;
     }
     this.isCollapsed2 = false;
+    this.OAoriginReport = null;
   }
-  GetReport() {
+  async GetReport() {
     if (this.CurrentDropdownSelectedCode2 != null && this.CurrentDropdownSelectedCode2.nodeType == "SetAttribute") {
       let att = this.CurrentDropdownSelectedCode2 as SetAttribute;
-      this._magAdvancedService.GetOpenAlexOriginReportCommand(att.attribute_id);
+      const check = await this._magAdvancedService.GetOpenAlexOriginReportCommand(att.attribute_id);
+      if (check != false) {
+        this.OAoriginReport = check as OpenAlexOriginReportCommand;
+        const res = this.MakeHTMLReport();
+        Helpers.OpenInNewWindow(res, this._baseUrl, "Open Alex Origin Report");
+      }
     }
   }
+  MakeHTMLReport(): string {
+    if (this.OAoriginReport == null) return "";
+    const rep = this.OAoriginReport;
+    const att = this.CurrentDropdownSelectedCode2 as SetAttribute;
+    let res = "<h4>Open Alex Origin Report</h4>"
+      + "<p>Generated in ReviewId = " + this._ReviewerIdentityServ.reviewerIdentity.reviewId.toString()
+      + ", on items with \"" + att.attribute_name + "\" (id = " + att.attribute_id.toString() +").</p>"
+      + rep.SummaryHTMLtable;
+    res += "<Br />" + rep.AutoUpdatesHTMLTable;
+    res += "<Br />" + rep.RelatedRunsHTMLTable;
+    res += "<Br />" + rep.TextSearchesHTMLTable;
+    res += "<Br />" + rep.ItemsHTMLTable;
+    return res;
+  }
+  SaveReport() {
+    if (this.OAoriginReport == null) return ;
+    const rep = this.MakeHTMLReport();
+    const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(rep, this._baseUrl, "Open Alex Origin Report", true));
+    saveAs(dataURI, "Open Alex Origin Report.html");
+  }
+  SaveReportToExcel() {
+    if (this.OAoriginReport == null) return;
+    const rep = this.OAoriginReport;
+    let SheetsToAdd: WorkbookSheet[] = [{
+      name: "Summary",
+      columns: <WorkbookSheetColumn[]>[],
+      rows: []
+    }, {
+      name: "Items",
+      columns: <WorkbookSheetColumn[]>[],
+      rows: []
+    }];
+    const workbook: Workbook = new Workbook({
+      sheets: <WorkbookSheet[]>SheetsToAdd
+    });
+    const SummarySheet = SheetsToAdd[0];
+    const ItemsSheet = SheetsToAdd[1];
+    ItemsSheet.frozenRows = 1;
 
+    const Cmedium: WorkbookSheetColumn = { autoWidth: false, width: 170 };
+    SummarySheet.columns?.push(Cmedium);
+    SummarySheet.columns?.push(Cmedium);
+    SummarySheet.columns?.push(Cmedium);
+    SummarySheet.columns?.push(Cmedium);
+    SummarySheet.columns?.push(Cmedium);
+    SummarySheet.columns?.push(Cmedium);
+    SummarySheet.columns?.push(Cmedium);
+    SummarySheet.columns?.push(Cmedium);
+    SummarySheet.columns?.push(Cmedium);
+    SummarySheet.columns?.push(Cmedium);
+    SummarySheet.columns?.push(Cmedium);
+    
+    const titleCell: WorkbookSheetRowCell = { value: "Open Alex Origin Report", bold: true, colSpan:7 };
+    const emptyCell: WorkbookSheetRowCell = { value: "" };
+    SummarySheet.rows?.push({ cells: [titleCell] });
+    SummarySheet.rows?.push({ cells: [emptyCell] });
+    const att = this.CurrentDropdownSelectedCode2 as SetAttribute;
+    const descrCell: WorkbookSheetRowCell = {
+      value: "Generated in ReviewId = " + this._ReviewerIdentityServ.reviewerIdentity.reviewId.toString()
+        + ", on items with \"" + att.attribute_name + "\" (id = " + att.attribute_id.toString() + ")."
+        , colSpan:7
+    };
+    SummarySheet.rows?.push({ cells: [descrCell] });
+    SummarySheet.rows?.push({ cells: [emptyCell] });
+
+    const summH1: WorkbookSheetRowCell = { value: "Total Items", bold:true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH2: WorkbookSheetRowCell = { value: "Matched", bold: true,borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH3: WorkbookSheetRowCell = { value: "Not Matched", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH4: WorkbookSheetRowCell = { value: "In Auto Updates", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH5: WorkbookSheetRowCell = { value: "In Related Searches", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH6: WorkbookSheetRowCell = { value: "In both AU & RS", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH7: WorkbookSheetRowCell = { value: "In Text Searches", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH8: WorkbookSheetRowCell = { value: "In both TS & AU", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH9: WorkbookSheetRowCell = { value: "In both TS & RS", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH10: WorkbookSheetRowCell = { value: "In all 3", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH11: WorkbookSheetRowCell = { value: "Matched but in none", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+
+    SummarySheet.rows?.push({ cells: [summH1, summH2, summH3, summH4, summH5, summH6, summH7, summH8, summH9, summH10, summH11] });
+    const summD1: WorkbookSheetRowCell = { value: rep.summary.totalItems, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summD2: WorkbookSheetRowCell = { value: rep.summary.matched,borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summD3: WorkbookSheetRowCell = { value: rep.summary.notMatched, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summD4: WorkbookSheetRowCell = { value: rep.summary.inAutoUpdateResults, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summD5: WorkbookSheetRowCell = { value: rep.summary.inRelatedSearches, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summD6: WorkbookSheetRowCell = { value: rep.summary.inBothAuAndRs, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summD7: WorkbookSheetRowCell = { value: rep.summary.inTextSearches, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summD8: WorkbookSheetRowCell = { value: rep.summary.inBothAuAndTs, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summD9: WorkbookSheetRowCell = { value: rep.summary.inBothTsAndRs, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summD10: WorkbookSheetRowCell = { value: rep.summary.inAll3, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summD11: WorkbookSheetRowCell = { value: rep.summary.otherMatched, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+
+    SummarySheet.rows?.push({ cells: [summD1, summD2, summD3, summD4, summD5, summD6, summD7, summD8, summD9, summD10, summD11] });
+    SummarySheet.rows?.push({ cells: [emptyCell] });
+    SummarySheet.rows?.push(...this.MakeAURexcel(rep));
+    SummarySheet.rows?.push({ cells: [emptyCell] });
+    SummarySheet.rows?.push(...this.MakeRsExcel(rep));
+    SummarySheet.rows?.push({ cells: [emptyCell] });
+    SummarySheet.rows?.push(...this.MakeTsExcel(rep));
+    this.MakeItemsExecl(rep, ItemsSheet);
+    workbook.toDataURL().then((dataUrl) => {
+      saveAs(dataUrl, "OpenAlex Origin Report.xlsx");
+      //this.saving = false;
+    });
+  }
+  private MakeAURexcel(rep: OpenAlexOriginReportCommand): WorkbookSheetRow[] {
+    let res: WorkbookSheetRow[] = [];
+    const summH: WorkbookSheetRowCell = { value: "Relevant Auto Updates:", colSpan: 3 };
+    res.push({ cells: [summH] });
+    const summH1: WorkbookSheetRowCell = { value: "Name", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH2: WorkbookSheetRowCell = { value: "Hits N", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH3: WorkbookSheetRowCell = { value: "Id", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH4: WorkbookSheetRowCell = { value: "Study Type Classifier", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH5: WorkbookSheetRowCell = { value: "User Classifier", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH6: WorkbookSheetRowCell = { value: "Date", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH7: WorkbookSheetRowCell = { value: "Items #", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    res.push({ cells: [summH1, summH2, summH3, summH4, summH5, summH6, summH7] });
+
+    let index: number = 0;
+    for (let aur of rep.magAutoUpdateRunList) {
+      const summD1: WorkbookSheetRowCell = { value: aur.userDescription, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD2: WorkbookSheetRowCell = { value: aur.nPapers, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD3: WorkbookSheetRowCell = { value: aur.magAutoUpdateRunId, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD4: WorkbookSheetRowCell = { value: aur.studyTypeClassifier, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD5: WorkbookSheetRowCell = { value: aur.userClassifierDescription, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD6: WorkbookSheetRowCell = { value: Helpers.FormatDate(aur.dateRun), borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD7: WorkbookSheetRowCell = { value: rep.magAutoUpdateRunListCounts[index], borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      res.push({ cells: [summD1, summD2, summD3, summD4, summD5, summD6, summD7] });
+      index++;
+    }
+    return res;
+  }
+  private MakeRsExcel(rep: OpenAlexOriginReportCommand): WorkbookSheetRow[] {
+    let res: WorkbookSheetRow[] = [];
+    const summH: WorkbookSheetRowCell = { value: "Relevant Auto Updates:", colSpan: 3 };
+    res.push({ cells: [summH] });
+    const summH1: WorkbookSheetRowCell = { value: "Name", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH2: WorkbookSheetRowCell = { value: "Hits N", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH3: WorkbookSheetRowCell = { value: "Id", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH4: WorkbookSheetRowCell = { value: "Mode", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH5: WorkbookSheetRowCell = { value: "With this code", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH6: WorkbookSheetRowCell = { value: "Date run", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH7: WorkbookSheetRowCell = { value: "Items #", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    res.push({ cells: [summH1, summH2, summH3, summH4, summH5, summH6, summH7] });
+
+    let index: number = 0;
+    for (let rs of rep.magRelatedSearches) {
+      const summD1: WorkbookSheetRowCell = { value: rs.userDescription, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD2: WorkbookSheetRowCell = { value: rs.nPapers, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD3: WorkbookSheetRowCell = { value: rs.magRelatedRunId, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD4: WorkbookSheetRowCell = { value: rs.mode, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD5: WorkbookSheetRowCell = { value: rs.attributeName, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD6: WorkbookSheetRowCell = { value: Helpers.FormatDate(rs.dateRun), borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD7: WorkbookSheetRowCell = { value: rep.magRelatedSearchesCounts[index], borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      res.push({ cells: [summD1, summD2, summD3, summD4, summD5, summD6, summD7] });
+      index++;
+    }
+    return res;
+  }
+
+  private MakeTsExcel(rep: OpenAlexOriginReportCommand): WorkbookSheetRow[] {
+    let res: WorkbookSheetRow[] = [];
+    const summH: WorkbookSheetRowCell = { value: "Relevant Text Searches:", colSpan: 3 };
+    res.push({ cells: [summH] });
+
+    let summHs: WorkbookSheetRowCell = {
+      value: "Results for these only contain searches for which the list of results is stored (and fixed) in EPPI Reviewer. These are \"combined searches\" and searches that have been imported at least once (since V.6.17.2)."
+      , colSpan: 7, fontSize: 13, wrap: true
+    };
+    res.push({ cells: [summHs] });
+    
+    //Results for these only contain searches for which the list of results is stored (and fixed)
+    const summH1: WorkbookSheetRowCell = { value: "Name", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH2: WorkbookSheetRowCell = { value: "Hits N", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH3: WorkbookSheetRowCell = { value: "Id", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH4: WorkbookSheetRowCell = { value: "Search N.", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH5: WorkbookSheetRowCell = { value: "Date run", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH6: WorkbookSheetRowCell = { value: "Items #", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    res.push({ cells: [summH1, summH2, summH3, summH4, summH5, summH6] });
+
+    let index: number = 0;
+    for (let rs of rep.magTextSearches) {
+      const summD1: WorkbookSheetRowCell = { value: rs.searchText, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD2: WorkbookSheetRowCell = { value: rs.hitsNo, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD3: WorkbookSheetRowCell = { value: rs.magSearchId, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD4: WorkbookSheetRowCell = { value: rs.searchNo, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD5: WorkbookSheetRowCell = { value: Helpers.FormatDate2(rs.searchDate), borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD6: WorkbookSheetRowCell = { value: rep.magTextSearchesCounts[index], borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      res.push({ cells: [summD1, summD2, summD3, summD4, summD5, summD6] });
+      index++;
+    }
+    return res;
+  }
+
+  private MakeItemsExecl(rep: OpenAlexOriginReportCommand, ItemsSheet: WorkbookSheet) {
+    const Cshort: WorkbookSheetColumn = { autoWidth: false, width: 70 };
+    const Cmedium: WorkbookSheetColumn = { autoWidth: false, width: 150 };
+    const Cwide: WorkbookSheetColumn = { autoWidth: false, width: 350 };
+    ItemsSheet.columns?.push(Cshort);
+    ItemsSheet.columns?.push(Cmedium);
+    ItemsSheet.columns?.push(Cwide);
+    ItemsSheet.columns?.push(Cmedium);
+    ItemsSheet.columns?.push(Cwide);
+    ItemsSheet.columns?.push(Cshort);
+    ItemsSheet.columns?.push(Cwide);
+    ItemsSheet.columns?.push(Cshort);
+    ItemsSheet.columns?.push(Cwide);
+    ItemsSheet.columns?.push(Cshort);
+    const summH1: WorkbookSheetRowCell = { value: "ItemId", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH2: WorkbookSheetRowCell = { value: "Short Title", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH3: WorkbookSheetRowCell = { value: "Title", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH4: WorkbookSheetRowCell = { value: "In source:", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH5: WorkbookSheetRowCell = { value: "AutoUpdate Runs", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH6: WorkbookSheetRowCell = { value: "AU Runs Count", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH7: WorkbookSheetRowCell = { value: "Related Searches:", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH8: WorkbookSheetRowCell = { value: "RS count:", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH9: WorkbookSheetRowCell = { value: "Text Searches:", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH10: WorkbookSheetRowCell = { value: "TS count:", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    ItemsSheet.rows?.push({ cells: [summH1, summH2, summH3, summH4, summH5, summH6, summH7, summH8, summH9, summH10] });
+    const minHeight = 20;
+    for (let i of rep.items) {
+      //i.itemId + "</td><td>" + i.shortTitle + "</td><td class='small'>" + i.title
+      const summD1: WorkbookSheetRowCell = { value: i.itemId, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD2: WorkbookSheetRowCell = { value: i.shortTitle, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD3: WorkbookSheetRowCell = { value: i.title, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD4: WorkbookSheetRowCell = { value: i.sourceName, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      let CellVal = "";
+      let aurCount = 0;
+      for (let AuId of i.autoUpdateResults) {
+        const aur = rep.GetAutoUpdate(AuId);
+        if (aur) {
+          aurCount++;
+          if (CellVal != "") CellVal += "\r\n";
+          CellVal += aur.userDescription + " (" + aur.magAutoUpdateRunId + ")";
+        }
+      }
+      const summD5: WorkbookSheetRowCell = { value: CellVal, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD6: WorkbookSheetRowCell = { value: aurCount, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      CellVal = "";
+      let rsCount = 0;
+      for (let rsId of i.relatedSearches) {
+        const rs = rep.GetRelatedSearch(rsId);
+        if (rs) {
+          rsCount++;
+          if (CellVal != "") CellVal += "\r\n";
+          CellVal += rs.userDescription + " (" + rs.magRelatedRunId + ")";
+        }
+      }
+      const summD7: WorkbookSheetRowCell = { value: CellVal, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD8: WorkbookSheetRowCell = { value: rsCount, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      CellVal = "";
+      let tsCount = 0;
+      for (let tsId of i.textSearches) {
+        const rs = rep.GetTextSearch(tsId);
+        if (rs) {
+          tsCount++;
+          if (CellVal != "") CellVal += "\r\n";
+          CellVal += rs.searchText + " (#" + rs.searchNo + ")";
+        }
+      }
+      const summD9: WorkbookSheetRowCell = { value: CellVal, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD10: WorkbookSheetRowCell = { value: tsCount, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      ItemsSheet.rows?.push({ cells: [summD1, summD2, summD3, summD4, summD5, summD6, summD7, summD8, summD9, summD10] });
+      if (rsCount > 0 || aurCount > 0 || tsCount > 0) {
+        let rCount = 0;
+        if (ItemsSheet.rows) {
+          rsCount = Math.max(rsCount,aurCount,tsCount);
+          rCount = ItemsSheet.rows.length;
+          const height = minHeight * rsCount;
+          ItemsSheet.rows[rCount - 1].height = height;
+        }
+      }
+    }
+  }
+  private readonly borderBottom: WorkbookSheetRowCellBorderBottom = { size: 1 };
+  private readonly borderLeft: WorkbookSheetRowCellBorderLeft = { size: 1 };
+  private readonly borderTop: WorkbookSheetRowCellBorderTop = { size: 1 };
+  private readonly borderRight: WorkbookSheetRowCellBorderRight = { size: 1 };
 }
 

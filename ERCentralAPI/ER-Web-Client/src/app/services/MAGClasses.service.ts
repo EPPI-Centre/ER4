@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
+import { Helpers } from '../helpers/HelperMethods';
 
 @Injectable({
   providedIn: 'root',
@@ -405,6 +406,8 @@ export class MagSearch {
   contactName: string = '';
   isOASearch: boolean = false;
   searchIdsStored: boolean = false;
+  canReRun: boolean = true;
+  dateIdsAcquired: string = '';
   add: boolean = false;
 }
 
@@ -458,4 +461,174 @@ export class MagAddClassifierScoresCommand {
 }
 export interface iMagMatchItemsToPapersCommand {
   currentStatus: string;
+}
+
+export interface iOpenAlexOriginReportCommand {
+  items: iOaOriginReportItem[];
+  magAutoUpdateRunList: MagAutoUpdateRun[];
+  magAutoUpdateRunListCounts: number[];
+  magRelatedSearches: MagRelatedPapersRun[];
+  magRelatedSearchesCounts: number[];
+  magTextSearches: MagSearch[];
+  magTextSearchesCounts: number[];
+  summary: iOaOriginSummary;
+}
+export class OpenAlexOriginReportCommand implements iOpenAlexOriginReportCommand {
+  constructor(data: iOpenAlexOriginReportCommand) {
+    this.items = data.items;
+    this.magAutoUpdateRunList = data.magAutoUpdateRunList;
+    this.magAutoUpdateRunListCounts = data.magAutoUpdateRunListCounts;
+    this.magRelatedSearches = data.magRelatedSearches;
+    this.magRelatedSearchesCounts = data.magRelatedSearchesCounts;
+    this.magTextSearches = data.magTextSearches;
+    this.magTextSearchesCounts = data.magTextSearchesCounts;
+    this.summary = data.summary;
+    
+  }
+  public items: iOaOriginReportItem[] = [];
+  public magAutoUpdateRunList: MagAutoUpdateRun[] = [];
+  public magAutoUpdateRunListCounts: number[] = [];
+  public magRelatedSearches: MagRelatedPapersRun[] = [];
+  public magRelatedSearchesCounts: number[] = [];
+  public magTextSearches: MagSearch[] = [];
+  public magTextSearchesCounts: number[] = [];
+  public summary: iOaOriginSummary = {
+    inAutoUpdateResults: 0,
+    inTextSearches: 0,
+    inBothAuAndRs: 0,
+    inBothAuAndTs: 0,
+    inBothTsAndRs: 0,
+    inRelatedSearches: 0,
+    inAll3: 0,
+    matched: 0,
+    notMatched: 0,
+    otherMatched: 0,
+    totalItems: 0,
+  };
+  public get SummaryHTMLtable(): string {
+    const summary = this.summary;
+    let res: string = "<table class='ItemsTable'><tr><th>Total Items</th><th>Matched</th><th>Not Matched</th><th>In Auto Updates</th>"
+      + "<th>In Related Searches</th><th>In both AU & RS</th><th>In Text Searches</th><th>In both TS and AU</th>"
+      + "<th>In both TS and RS</th><th>In all 3</th><th>Matched but in none</th></tr>";
+
+    res += "<tr><td>" + summary.totalItems + "</td><td>" + summary.matched + "</td><td>" + summary.notMatched + "</td><td>" + summary.inAutoUpdateResults
+      + "</td><td>" + summary.inRelatedSearches + "</td><td>" + summary.inBothAuAndRs + "</td><td>" + summary.inTextSearches + "</td><td>" + summary.inBothAuAndTs
+      + "</td><td>" + summary.inBothTsAndRs + "</td><td>" + summary.inAll3 + "</td><td>" + summary.otherMatched + "</td></tr></table>";
+    return res;
+  }
+  public get AutoUpdatesHTMLTable(): string {
+    let res: string = "<p>Relevant Auto Updates:</p>"
+      + "<table class='ItemsTable px-1'><tr><th>Name</th><th>Hits N</th><th>Id</th><th>Study Type Classifier</th><th>User Classifier</th><th>Date</th><th>Items #</th></tr>";
+    let index: number = 0;
+    for (let aur of this.magAutoUpdateRunList) {
+      res += "<tr><td>" + aur.userDescription + "</td><td>" + aur.nPapers + "</td><td>" + aur.magAutoUpdateRunId + "</td><td>"
+        + aur.studyTypeClassifier + "</td><td>" + aur.userClassifierDescription
+        + "</td><td>" + Helpers.FormatDate(aur.dateRun) + "</td><td>" + this.magAutoUpdateRunListCounts[index] + "</td></tr>";
+      index++;
+    }
+    res += "</table>";
+    return res;
+  }
+  public get RelatedRunsHTMLTable(): string {
+    let res: string = "<p>Relevant \"Related Searches\":</p>"
+      + "<table class='ItemsTable px-1'><tr><th>Name</th><th>Hits N</th><th>Id</th><th>Mode</th><th>With this code</th><th>Date run</th><th>Items #</th></tr>";
+    let index: number = 0;
+    for (let rs of this.magRelatedSearches) {
+      res += "<tr><td>" + rs.userDescription + "</td><td>" + rs.nPapers + "</td><td>" + rs.magRelatedRunId + "</td><td>"
+        + rs.mode + "</td><td>" + rs.attributeName + "</td><td>" 
+        + Helpers.FormatDate(rs.dateRun) + "</td><td>" + this.magRelatedSearchesCounts[index] + "</td></tr>";
+      index++;
+    }
+    res += "</table>";
+    return res;
+  }
+  public get TextSearchesHTMLTable(): string {
+    let res: string = "<p>Relevant \"Text Searches\":<br /><div class='small'>Results for these only contain searches for which the list of results is stored (and fixed)"
+      + " in EPPI Reviewer. These are \"combined searches\" and searches that have been imported at least once (since V.6.17.2).</div></p > "
+      + "<table class='ItemsTable px-1'><tr><th>Name</th><th>Hits N</th><th>Id</th><th>Search N.</th><th>Date run</th><th>Items #</th></tr>";
+    let index: number = 0;
+    for (let rs of this.magTextSearches) {
+      res += "<tr><td>" + rs.searchText + "</td><td>" + rs.hitsNo + "</td><td>" + rs.magSearchId + "</td><td>"
+        + rs.searchNo + "</td><td>" + Helpers.FormatDate2(rs.searchDate) + "</td><td>"
+        + + this.magTextSearchesCounts[index] + "</td></tr>";
+      index++;
+    }
+    res += "</table>";
+    return res;
+  }
+
+  public get ItemsHTMLTable(): string {
+    const magRelatedSearches = this.magRelatedSearches;
+    let res: string = "<p>Items List:</p>"
+      + "<table class='ItemsTable px-1'><tr><th>ItemId</th><th>Short Title</th><th>Title</th><th>In source:</th><th>AutoUpdate Runs:</th>"
+      + "<th>AU runs count:</th><th>Related Searches:</th><th>RS count:</th><th>Text Searches:</th><th>TS count:</th></tr>";
+    for (let i of this.items) {
+      res += "<tr><td>" + i.itemId + "</td><td>" + i.shortTitle + "</td><td class='small'>" + i.title + "</td><td>"
+        + i.sourceName + "</td><td>";
+      let count = 0;
+      for (let AuId of i.autoUpdateResults) {
+        const aur = this.GetAutoUpdate(AuId);
+        if (aur) {
+          res += aur.userDescription + " (" + aur.magAutoUpdateRunId + ")<br />";
+          count++;
+        }
+      }
+      if (res.endsWith("<br />")) res = res.substring(0, res.length - 6);
+      res += "</td><td>" + count.toString() + "</td><td>";
+      count = 0;
+      for (let rsId of i.relatedSearches) {
+        const rs = this.GetRelatedSearch(rsId);
+        if (rs) {
+          res += rs.userDescription + " (" + rs.magRelatedRunId + ")<br />";
+          count++;
+        }
+      }
+      if (res.endsWith("<br />")) res = res.substring(0, res.length - 6);
+      res += "</td><td>" + count.toString() + "</td><td>";
+      count = 0;
+      for (let rsId of i.textSearches) {
+        const rs = this.GetTextSearch(rsId);
+        if (rs) {
+          res += rs.searchText + " (#" + rs.searchNo + ")<br />";
+          count++;
+        }
+      }
+      if (res.endsWith("<br />")) res = res.substring(0, res.length - 6);
+      res += "</td><td>" + count.toString() + "</td></tr>";
+    }
+    res += "</table>";
+    return res;
+  }
+  public GetAutoUpdate(Id: number): MagAutoUpdateRun | undefined {
+    return this.magAutoUpdateRunList.find(f => f.magAutoUpdateRunId == Id);
+  }
+  public GetRelatedSearch(Id: number): MagRelatedPapersRun | undefined {
+    return this.magRelatedSearches.find(f => f.magRelatedRunId == Id);
+  }
+  public GetTextSearch(Id: number): MagSearch | undefined {
+    return this.magTextSearches.find(f => f.magSearchId == Id);
+  }
+}
+export interface iOaOriginReportItem {
+  autoUpdateResults: number[];
+  itemId: number;
+  openAlexPaperId: number[];
+  relatedSearches: number[];
+  textSearches: number[];
+  shortTitle: string;
+  sourceName: string;
+  title: string;
+}
+export interface iOaOriginSummary {
+  inAutoUpdateResults: number;
+  inRelatedSearches: number;
+  inTextSearches: number;
+  inBothAuAndRs: number;
+  inBothAuAndTs: number;
+  inBothTsAndRs: number;
+  inAll3: number;
+  matched: number;
+  notMatched: number;
+  otherMatched: number;
+  totalItems: number;
 }

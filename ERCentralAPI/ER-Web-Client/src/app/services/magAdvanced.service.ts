@@ -5,7 +5,7 @@ import { BusyAwareService } from '../helpers/BusyAwareService';
 import { MAGBrowserService } from './MAGBrowser.service';
 import {
   MagPaper, MagReviewMagInfo, MVCMagPaperListSelectionCriteria,
-  MagList, MagCheckContReviewRunningCommand, MagCurrentInfo, iMagMatchItemsToPapersCommand
+  MagList, MagCheckContReviewRunningCommand, MagCurrentInfo, iMagMatchItemsToPapersCommand, iOpenAlexOriginReportCommand, OpenAlexOriginReportCommand
 } from './MAGClasses.service';
 import { Router } from '@angular/router';
 import { EventEmitterService } from './EventEmitter.service';
@@ -335,18 +335,19 @@ export class MAGAdvancedService extends BusyAwareService implements OnDestroy {
         return error;
       });
   }
-  public GetOpenAlexOriginReportCommand(AttId: number) {
+  public GetOpenAlexOriginReportCommand(AttId: number): Promise<OpenAlexOriginReportCommand | boolean>{
     this._BusyMethods.push("GetOpenAlexOriginReportCommand");
     let body = JSON.stringify({ Value: AttId });
-    return lastValueFrom(this._httpC.post<string>(this._baseUrl + 'api/MagMatchAll/OpenAlexOriginReportCommand', body)
-    ).then((res) => {
+    return lastValueFrom(this._httpC.post<iOpenAlexOriginReportCommand>(this._baseUrl + 'api/MagMatchAll/OpenAlexOriginReportCommand', body)
+    ).then((iRes) => {
       this.RemoveBusy("GetOpenAlexOriginReportCommand");
+      let res: OpenAlexOriginReportCommand = new OpenAlexOriginReportCommand(iRes);
       return res;
     },
       error => {
         this.RemoveBusy("GetOpenAlexOriginReportCommand");
         this.modalService.GenericError(error);
-        return error;
+        return false;
       });
   }
   public Clear() {
