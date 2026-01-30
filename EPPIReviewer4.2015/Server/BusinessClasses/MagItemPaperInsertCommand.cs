@@ -331,7 +331,14 @@ namespace BusinessLibrary.BusinessClasses
                     }
                     else // we already have the IDs; we don't run the search, we just run through them [MaxPageSize] at a time
                     {
-                        incomingList.SearchStr = ms.SearchIds;
+                        if (ms.CanReRun)
+                        {//it's a search that runs against OA directly, so we want the search string recorded
+                            incomingList.SearchStr = ms.MagSearchText;
+                        }
+                        else
+                        {//it's a combined search, we'll store the search IDs as they appear in the search record
+                            incomingList.SearchStr = ms.SearchIds;
+                        }
                         count = 0;
                         int MaxPageSize = 100;
                         string[] AllIDs = ms.SearchIds.Split(',');
