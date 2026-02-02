@@ -561,19 +561,36 @@ export class OpenAlexOriginReportCommand implements iOpenAlexOriginReportCommand
     const magRelatedSearches = this.magRelatedSearches;
     let res: string = "<p>Items List:</p>"
       + "<table class='ItemsTable px-1'><tr><th>ItemId</th><th>Short Title</th><th>Title</th><th>In source:</th><th>AutoUpdate Runs:</th>"
+      + "<th>AU date:</th><th>AU score:</th><th>Study Type score:</th><th>User Classif. score:</th>"
       + "<th>AU runs count:</th><th>Related Searches:</th><th>RS count:</th><th>Text Searches:</th><th>TS count:</th></tr>";
     for (let i of this.items) {
       res += "<tr><td>" + i.itemId + "</td><td>" + i.shortTitle + "</td><td class='small'>" + i.title + "</td><td>"
         + i.sourceName + "</td><td>";
       let count = 0;
+      let AUdetails = "";
+      let AUdate = "";
+      let AUscore = "";
+      let AUStudyScore = "";
+      let AUuserScore = "";
       for (let AuId of i.autoUpdateResults) {
-        const aur = this.GetAutoUpdate(AuId);
+        const aur = this.GetAutoUpdate(AuId.autoUpdateId);
         if (aur) {
-          res += aur.userDescription + " (" + aur.magAutoUpdateRunId + ")<br />";
+          AUdetails += aur.userDescription + " (" + aur.magAutoUpdateRunId + ")<br />";
+          AUdate += Helpers.FormatDate2(AuId.dateRun) +"<br />";
+          AUscore += AuId.contReviewScore.toLocaleString("en-GB", { maximumFractionDigits: 3 }) +"<br />";
+          AUStudyScore += AuId.studyTypeClassifierScore.toLocaleString("en-GB", { maximumFractionDigits: 3 }) + "<br />";
+          AUuserScore += AuId.userClassifierScore.toLocaleString("en-GB", { maximumFractionDigits: 3 }) + "<br />";
           count++;
         }
       }
-      if (res.endsWith("<br />")) res = res.substring(0, res.length - 6);
+      if (AUdetails.endsWith("<br />")) {
+        AUdetails = AUdetails.substring(0, res.length - 6);
+        AUdate = AUdate.substring(0, res.length - 6);
+        AUscore = AUscore.substring(0, res.length - 6);
+        AUStudyScore = AUStudyScore.substring(0, res.length - 6);
+        AUuserScore = AUuserScore.substring(0, res.length - 6);
+      }
+      res += AUdetails + "</td><td>" + AUdate + "</td><td>" + AUscore + "</td><td>" + AUStudyScore + "</td><td>" + AUuserScore;
       res += "</td><td>" + count.toString() + "</td><td>";
       count = 0;
       for (let rsId of i.relatedSearches) {
@@ -610,7 +627,7 @@ export class OpenAlexOriginReportCommand implements iOpenAlexOriginReportCommand
   }
 }
 export interface iOaOriginReportItem {
-  autoUpdateResults: number[];
+  autoUpdateResults: iOaOriginAutoItemUpdateRun[];
   itemId: number;
   openAlexPaperId: number[];
   relatedSearches: number[];
@@ -631,4 +648,11 @@ export interface iOaOriginSummary {
   notMatched: number;
   otherMatched: number;
   totalItems: number;
+}
+export interface iOaOriginAutoItemUpdateRun {
+  autoUpdateId: number;
+  dateRun:string;
+  contReviewScore: number;
+  userClassifierScore: number;
+  studyTypeClassifierScore: number;
 }

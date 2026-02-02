@@ -569,6 +569,8 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
       this.ReviewSetsService.ItemCodingItemAttributeSaveCommandHandled();
       //do something if command ended with an error
       //console.log('Error handling');
+      SubSuccess.unsubscribe();
+      SubError.unsubscribe();
       alert("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
       //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.unsubscribe();
       //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.unsubscribe();

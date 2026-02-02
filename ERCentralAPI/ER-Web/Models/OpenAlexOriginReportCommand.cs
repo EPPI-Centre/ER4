@@ -126,7 +126,7 @@ namespace BusinessLibrary.BusinessClasses
                             }
                             if (reader.GetBoolean("IsInAU") == true)
                             {
-                                tmpItem.AutoUpdateResults.Add(reader.GetInt32("MAG_AUTO_UPDATE_RUN_ID"));
+                                tmpItem.AutoUpdateResults.Add(new OaOriginAutoItemUpdateRun(reader));
                             }
                             if (reader.GetBoolean("IsInRS") == true)
                             {
@@ -211,7 +211,7 @@ namespace BusinessLibrary.BusinessClasses
         public List<int> RelatedSearches { get; private set; } = new List<int>();
         public List<int> TextSearches { get; private set; } = new List<int>();
 
-        public List<int> AutoUpdateResults { get; private set; } = new List<int>();
+        public List<OaOriginAutoItemUpdateRun> AutoUpdateResults { get; set; } = new List<OaOriginAutoItemUpdateRun>();
         public OaOriginReportItem() 
         {
             ItemId = 0;
@@ -224,6 +224,22 @@ namespace BusinessLibrary.BusinessClasses
             Title = reader.GetString("TITLE");
             ShortTitle = reader.GetString("SHORT_TITLE");
             SourceName = reader.GetString("SOURCE_NAME");
+        }
+    }
+    public class OaOriginAutoItemUpdateRun
+    {
+        public int AutoUpdateId { get; private set; }
+        public double ContReviewScore { get; private set; }
+        public double UserClassifierScore { get; private set; }
+        public double StudyTypeClassifierScore { get; private set; }
+        public DateTime DateRun { get; private set; }
+        public OaOriginAutoItemUpdateRun(SafeDataReader reader)
+        {
+            AutoUpdateId = reader.GetInt32("MAG_AUTO_UPDATE_RUN_ID");
+            ContReviewScore = reader.GetDouble("ContReviewScore");
+            UserClassifierScore = reader.GetDouble("UserClassifierScore");
+            StudyTypeClassifierScore = reader.GetDouble("StudyTypeClassifierScore");
+            DateRun = reader.GetDateTime("DATE_RUN");
         }
     }
     public class OaOriginSummary

@@ -581,26 +581,32 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     const summH4: WorkbookSheetRowCell = { value: "In Auto Updates", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const summH5: WorkbookSheetRowCell = { value: "In Related Searches", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const summH6: WorkbookSheetRowCell = { value: "In both AU & RS", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    //2nd row
     const summH7: WorkbookSheetRowCell = { value: "In Text Searches", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const summH8: WorkbookSheetRowCell = { value: "In both TS & AU", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const summH9: WorkbookSheetRowCell = { value: "In both TS & RS", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const summH10: WorkbookSheetRowCell = { value: "In all 3", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const summH11: WorkbookSheetRowCell = { value: "Matched but in none", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
 
-    SummarySheet.rows?.push({ cells: [summH1, summH2, summH3, summH4, summH5, summH6, summH7, summH8, summH9, summH10, summH11] });
     const summD1: WorkbookSheetRowCell = { value: rep.summary.totalItems, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const summD2: WorkbookSheetRowCell = { value: rep.summary.matched,borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const summD3: WorkbookSheetRowCell = { value: rep.summary.notMatched, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const summD4: WorkbookSheetRowCell = { value: rep.summary.inAutoUpdateResults, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const summD5: WorkbookSheetRowCell = { value: rep.summary.inRelatedSearches, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const summD6: WorkbookSheetRowCell = { value: rep.summary.inBothAuAndRs, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    //2nd row
     const summD7: WorkbookSheetRowCell = { value: rep.summary.inTextSearches, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const summD8: WorkbookSheetRowCell = { value: rep.summary.inBothAuAndTs, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const summD9: WorkbookSheetRowCell = { value: rep.summary.inBothTsAndRs, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const summD10: WorkbookSheetRowCell = { value: rep.summary.inAll3, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const summD11: WorkbookSheetRowCell = { value: rep.summary.otherMatched, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
 
-    SummarySheet.rows?.push({ cells: [summD1, summD2, summD3, summD4, summD5, summD6, summD7, summD8, summD9, summD10, summD11] });
+    SummarySheet.rows?.push({ cells: [summH1, summH2, summH3, summH4, summH5, summH6] });
+    SummarySheet.rows?.push({ cells: [summD1, summD2, summD3, summD4, summD5, summD6] });
+
+    SummarySheet.rows?.push({ cells: [emptyCell, summH7, summH8, summH9, summH10, summH11] });
+    SummarySheet.rows?.push({ cells: [emptyCell, summD7, summD8, summD9, summD10, summD11] });
+
     SummarySheet.rows?.push({ cells: [emptyCell] });
     SummarySheet.rows?.push(...this.MakeAURexcel(rep));
     SummarySheet.rows?.push({ cells: [emptyCell] });
@@ -711,6 +717,9 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     ItemsSheet.columns?.push(Cwide);
     ItemsSheet.columns?.push(Cmedium);
     ItemsSheet.columns?.push(Cwide);
+    ItemsSheet.columns?.push(Cmedium);
+    ItemsSheet.columns?.push(Cshort);
+    ItemsSheet.columns?.push(Cshort);
     ItemsSheet.columns?.push(Cshort);
     ItemsSheet.columns?.push(Cwide);
     ItemsSheet.columns?.push(Cshort);
@@ -721,12 +730,19 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     const summH3: WorkbookSheetRowCell = { value: "Title", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const summH4: WorkbookSheetRowCell = { value: "In source:", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const summH5: WorkbookSheetRowCell = { value: "AutoUpdate Runs", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
-    const summH6: WorkbookSheetRowCell = { value: "AU Runs Count", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
-    const summH7: WorkbookSheetRowCell = { value: "Related Searches:", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
-    const summH8: WorkbookSheetRowCell = { value: "RS count:", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
-    const summH9: WorkbookSheetRowCell = { value: "Text Searches:", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
-    const summH10: WorkbookSheetRowCell = { value: "TS count:", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
-    ItemsSheet.rows?.push({ cells: [summH1, summH2, summH3, summH4, summH5, summH6, summH7, summH8, summH9, summH10] });
+    const summH6: WorkbookSheetRowCell = { value: "AU date:", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH7: WorkbookSheetRowCell = { value: "AU score:", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH8: WorkbookSheetRowCell = { value: "Study Type score:", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH9: WorkbookSheetRowCell = { value: "User Classif. score:", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH10: WorkbookSheetRowCell = { value: "AU Runs Count", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH11: WorkbookSheetRowCell = { value: "Related Searches:", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH12: WorkbookSheetRowCell = { value: "RS count:", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH13: WorkbookSheetRowCell = { value: "Text Searches:", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    const summH14: WorkbookSheetRowCell = { value: "TS count:", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+    ItemsSheet.rows?.push({
+      cells: [summH1, summH2, summH3, summH4, summH5, summH6, summH7
+        , summH8, summH9, summH10, summH11, summH12, summH13, summH14]
+    });
     const minHeight = 20;
     for (let i of rep.items) {
       //i.itemId + "</td><td>" + i.shortTitle + "</td><td class='small'>" + i.title
@@ -734,19 +750,37 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
       const summD2: WorkbookSheetRowCell = { value: i.shortTitle, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
       const summD3: WorkbookSheetRowCell = { value: i.title, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
       const summD4: WorkbookSheetRowCell = { value: i.sourceName, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
-      let CellVal = "";
+      let CellVal5 = "";
+      let CellVal6 = "";
+      let CellVal7 = "";
+      let CellVal8 = "";
+      let CellVal9 = "";
       let aurCount = 0;
       for (let AuId of i.autoUpdateResults) {
-        const aur = rep.GetAutoUpdate(AuId);
+        const aur = rep.GetAutoUpdate(AuId.autoUpdateId);
         if (aur) {
           aurCount++;
-          if (CellVal != "") CellVal += "\r\n";
-          CellVal += aur.userDescription + " (" + aur.magAutoUpdateRunId + ")";
+          if (CellVal5 != "") {
+            CellVal5 += "\r\n";
+            CellVal6 += "\r\n";
+            CellVal7 += "\r\n";
+            CellVal8 += "\r\n";
+            CellVal9 += "\r\n";
+          }
+          CellVal5 += aur.userDescription + " (" + aur.magAutoUpdateRunId + ")";
+          CellVal6 += Helpers.FormatDate2(AuId.dateRun);
+          CellVal7 += AuId.contReviewScore.toLocaleString("en-GB", { maximumFractionDigits: 3 });
+          CellVal8 += AuId.studyTypeClassifierScore.toLocaleString("en-GB", { maximumFractionDigits: 3 });
+          CellVal9 += AuId.userClassifierScore.toLocaleString("en-GB", { maximumFractionDigits: 3 });
         }
       }
-      const summD5: WorkbookSheetRowCell = { value: CellVal, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
-      const summD6: WorkbookSheetRowCell = { value: aurCount, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
-      CellVal = "";
+      const summD5: WorkbookSheetRowCell = { value: CellVal5, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD6: WorkbookSheetRowCell = { value: CellVal6, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD7: WorkbookSheetRowCell = { value: CellVal7, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD8: WorkbookSheetRowCell = { value: CellVal8, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD9: WorkbookSheetRowCell = { value: CellVal9, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD10: WorkbookSheetRowCell = { value: aurCount, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      let CellVal = "";
       let rsCount = 0;
       for (let rsId of i.relatedSearches) {
         const rs = rep.GetRelatedSearch(rsId);
@@ -756,8 +790,8 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
           CellVal += rs.userDescription + " (" + rs.magRelatedRunId + ")";
         }
       }
-      const summD7: WorkbookSheetRowCell = { value: CellVal, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
-      const summD8: WorkbookSheetRowCell = { value: rsCount, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD11: WorkbookSheetRowCell = { value: CellVal, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD12: WorkbookSheetRowCell = { value: rsCount, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
       CellVal = "";
       let tsCount = 0;
       for (let tsId of i.textSearches) {
@@ -768,9 +802,13 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
           CellVal += rs.searchText + " (#" + rs.searchNo + ")";
         }
       }
-      const summD9: WorkbookSheetRowCell = { value: CellVal, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
-      const summD10: WorkbookSheetRowCell = { value: tsCount, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
-      ItemsSheet.rows?.push({ cells: [summD1, summD2, summD3, summD4, summD5, summD6, summD7, summD8, summD9, summD10] });
+      const summD13: WorkbookSheetRowCell = { value: CellVal, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      const summD14: WorkbookSheetRowCell = { value: tsCount, wrap: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
+      ItemsSheet.rows?.push({
+        cells: [summD1, summD2, summD3, summD4, summD5, summD6, summD7
+          , summD8, summD9, summD10, summD11, summD12, summD13, summD14]
+      });
+
       if (rsCount > 0 || aurCount > 0 || tsCount > 0) {
         let rCount = 0;
         if (ItemsSheet.rows) {

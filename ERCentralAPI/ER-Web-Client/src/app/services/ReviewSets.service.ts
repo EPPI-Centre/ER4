@@ -458,8 +458,6 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
   }
   @Output() ItemCodingCheckBoxClickedEvent: EventEmitter<CheckBoxClickedEventData> = new EventEmitter<CheckBoxClickedEventData>();
   public PassItemCodingCeckboxChangedEvent(evdata: CheckBoxClickedEventData) {
-    //this._IsBusy = true;
-
     this.ItemCodingCheckBoxClickedEvent.emit(evdata);
   }
   @Output() ItemCodingItemAttributeSaveCommandExecuted: EventEmitter<ItemAttributeSaveCommand> = new EventEmitter<ItemAttributeSaveCommand>();
@@ -506,7 +504,7 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
     this._BusyMethods.push("ExecuteItemAttributeBulkInsertCommand");
     //this "busy" situation is handled in ItemCodingItemAttributeSaveCommandHandled as it gets completed in the "coding" components...
     //thus, we don't simply remove it when the API call ends.
-    this._httpC.post<ItemAttributeBulkSaveCommand>(this._baseUrl + 'api/ItemSetList/ExecuteItemAttributeBulkInsertCommand', cmd).subscribe(
+    lastValueFrom(this._httpC.post<ItemAttributeBulkSaveCommand>(this._baseUrl + 'api/ItemSetList/ExecuteItemAttributeBulkInsertCommand', cmd)).then(
       data => {
         this.RemoveBusy("ExecuteItemAttributeBulkInsertCommand");
         //this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
@@ -522,7 +520,7 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
     this._BusyMethods.push("ExecuteItemAttributeBulkDeleteCommand");
     //this "busy" situation is handled in ItemCodingItemAttributeSaveCommandHandled as it gets completed in the "coding" components...
     //thus, we don't simply remove it when the API call ends.
-    this._httpC.post<ItemAttributeBulkSaveCommand>(this._baseUrl + 'api/ItemSetList/ExecuteItemAttributeBulkDeleteCommand', cmd).subscribe(
+    lastValueFrom(this._httpC.post<ItemAttributeBulkSaveCommand>(this._baseUrl + 'api/ItemSetList/ExecuteItemAttributeBulkDeleteCommand', cmd)).then(
       data => {
         this.RemoveBusy("ExecuteItemAttributeBulkDeleteCommand");
         //this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
