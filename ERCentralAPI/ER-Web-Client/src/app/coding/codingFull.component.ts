@@ -643,6 +643,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     cmd.additionalText = data.additionalText;
     cmd.itemArmId = data.armId;
     cmd.setId = attribute.set_id;
+    cmd.isExclusive = attribute.isExclusive;
     //console.log(attribute.set_id);
     cmd.attributeId = data.AttId;
     cmd.revInfo = this.reviewInfoService.ReviewInfo;

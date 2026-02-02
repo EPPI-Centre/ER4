@@ -298,6 +298,7 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
     evdata.armId = this.armsService.SelectedArm == null ? 0 : this.armsService.SelectedArm.itemArmId;
     evdata.AttId = +data.id.replace('A', '');
     evdata.additionalText = data.additionalText;
+    evdata.isExclusive = data.isExclusive;
     this.ReviewSetsService.PassItemCodingCeckboxChangedEvent(evdata);
   }
 
@@ -505,6 +506,7 @@ export class CheckBoxClickedEventData {
   AttId: number = 0;
   additionalText: string = "";
   armId: number = 0;
+  isExclusive: boolean = false;
 }
 
 

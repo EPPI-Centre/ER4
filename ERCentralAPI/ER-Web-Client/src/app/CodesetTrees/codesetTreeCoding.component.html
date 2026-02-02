@@ -1,3 +1,11 @@
+<script>
+  $(document).ready(function () {
+    $("#checkbox123").kendoCheckBox({
+      rounded: 'full'
+    });
+  });
+</script>
+
 <div #ManualModal *ngIf="showManualModal">
   <div class="modal-backdrop fade show" style="position:fixed;top:0px;left:0px;z-index:999;" (click)="DeleteCodingCancelled()"></div>
   <div role="dialog" tabindex="-1" class="modal fade show d-block" style="z-index:1000" aria-labelledby="modal-basic-title">
@@ -55,9 +63,14 @@
           <img *ngIf="data.allowEditingCodeset" title="You can edit this Coding Tool (e.g. add new codes - NOT IMPLEMENTED!)" src="assets/CodeSetEditable.png" class="mr-1" />
           <img *ngIf="!data.allowEditingCodeset" title="You can't edit this Coding Tool" src="assets/CodeSetLocked.png" class="mr-1" />
         </span>
+
         <input class="my-1 mr-1" type="checkbox" id="attributeID-{{data.id}}" [(ngModel)]="data.isSelected"
                [disabled]="!CanWriteCoding(data)"
-               *ngIf="data.showCheckBox" (change)="CheckBoxClicked($event, data)" />
+               *ngIf="data.showCheckBox && data.isExclusive" (change)="CheckBoxClicked($event, data)" />
+
+        <input class="my-1 mr-1" type="checkbox" id="attributeID-{{data.id}}" [(ngModel)]="data.isSelected"
+               [disabled]="!CanWriteCoding(data)"
+               *ngIf="data.showCheckBox  && !data.isExclusive" (change)="CheckBoxClicked($event, data)" />
 
 
 
@@ -90,7 +103,7 @@
           </ng-template>
         </span>
       </ng-template>
-</kendo-treeview>
+    </kendo-treeview>
   </div>
 </div>
 <div class="mt-2" *ngIf="SelectedCodeDescription != ''">

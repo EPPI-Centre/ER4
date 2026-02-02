@@ -553,6 +553,23 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ContactIdProperty, value);
             }
         }
+
+        public static readonly PropertyInfo<Boolean> IsExclusiveProperty = RegisterProperty<Boolean>(new PropertyInfo<Boolean>("IsExclusive", "IsExclusive"));
+        [JsonProperty]
+        public Boolean IsExclusive
+        {
+            get
+            {
+                return GetProperty(IsExclusiveProperty);
+            }
+            set
+            {
+                SetProperty(IsExclusiveProperty, value);
+            }
+        }
+
+
+
         public static readonly PropertyInfo<int> MaxDepthProperty = RegisterProperty<int>(new PropertyInfo<int>("MaxDepth", "MaxDepth", 0));
         public int MaxDepth
         {
@@ -974,6 +991,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(ExtURLProperty, reader.GetString("Ext_URL"));
             returnValue.LoadProperty<string>(ExtTypeProperty, reader.GetString("Ext_Type"));
             returnValue.LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
+            returnValue.LoadProperty<bool>(IsExclusiveProperty, reader.GetBoolean("IS_EXCLUSIVE"));
             returnValue.LoadProperty<int>(MaxDepthProperty, MaxDepth);
             returnValue.LoadProperty<bool>(UserCanEditProperty, UserCanEdit);
             return returnValue;

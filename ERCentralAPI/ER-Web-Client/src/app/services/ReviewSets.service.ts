@@ -271,6 +271,7 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
       newAtt.extType = iAtt.extType;
       newAtt.originalAttributeID = iAtt.originalAttributeID;
       newAtt.oldestKnownId = iAtt.oldestKnownId;
+      newAtt.isExclusive = iAtt.isExclusive;
       newAtt.attributes = ReviewSetsService.childrenFromJSONarray(iAtt.attributes.attributesList);
       result.push(newAtt);
     }
@@ -470,19 +471,36 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
     this._BusyMethods.push("ExecuteItemAttributeSaveCommand");
     //this "busy" situation is handled in ItemCodingItemAttributeSaveCommandHandled as it gets completed in the "coding" components...
     //thus, we don't simply remove it when the API call ends.
-    this._httpC.post<ItemAttributeSaveCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemAttributeSaveCommand', cmd).subscribe(
-      data => {
+    if (cmd.isExclusive == true) {
+      this._httpC.post<ItemAttributeSaveCommand>(this._baseUrl + 'api/ItemSetList/ExecuteItemAttributeExclusiveSaveCommand', cmd).subscribe(
+        data => {
 
-        this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
-        //this._IsBusy = false;
-      }, error => {
+          this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
+          //this._IsBusy = false;
+        }, error => {
 
-        this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
-        //this.ItemCodingItemAttributeSaveCommandError.emit(error);
-        //this._IsBusy = false;
-        this.RemoveBusy("ExecuteItemAttributeSaveCommand");
-      }
-    );
+          this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
+          //this.ItemCodingItemAttributeSaveCommandError.emit(error);
+          //this._IsBusy = false;
+          this.RemoveBusy("ExecuteItemAttributeSaveCommand");
+        }
+      );
+    }
+    else {
+      this._httpC.post<ItemAttributeSaveCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemAttributeSaveCommand', cmd).subscribe(
+        data => {
+
+          this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
+          //this._IsBusy = false;
+        }, error => {
+
+          this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
+          //this.ItemCodingItemAttributeSaveCommandError.emit(error);
+          //this._IsBusy = false;
+          this.RemoveBusy("ExecuteItemAttributeSaveCommand");
+        }
+      );
+    }
   }
   public ExecuteItemAttributeBulkInsertCommand(cmd: ItemAttributeBulkSaveCommand) {
     this._BusyMethods.push("ExecuteItemAttributeBulkInsertCommand");
@@ -647,6 +665,7 @@ export interface singleNode {
   description: string;
   attributeSetId: number;
   parent: number;
+  isExclusive: boolean;
 
   isSelected: boolean;
   additionalText: string;
@@ -712,6 +731,7 @@ export class ReviewSet implements singleNode {
   userCanEditURLs: boolean = false;
   originalSetId: number = 0;
   oldestKnownId: number = 0;
+  isExclusive: boolean = false;
 
   public get NumberOfChildren(): number {
     let countSoFar: number = 0;
@@ -734,6 +754,7 @@ export class SetAttribute implements singleNode {
   attribute_type: string = "";
   attribute_set_desc: string = "";
   attribute_desc: string = "";
+  isExclusive: boolean = false;
   set_id: number = 0;
   public get description(): string {
     return this.attribute_set_desc;
@@ -822,6 +843,7 @@ export interface iAttributeSet {
   extType: string;
   originalAttributeID: number;
   oldestKnownId: number;
+  isExclusive: boolean;
 }
 export interface iSetType {
   setTypeId: number;
@@ -846,7 +868,7 @@ export class ItemAttributeSaveCommand {
   public setId: number = 0;
   public itemId: number = 0;
   public itemArmId: number = 0;
-
+  public isExclusive: boolean = false;
   public revInfo: ReviewInfo | null = null;
 }
 export class ItemAttributeBulkSaveCommand {
