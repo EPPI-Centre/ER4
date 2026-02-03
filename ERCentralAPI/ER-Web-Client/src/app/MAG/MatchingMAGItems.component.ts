@@ -648,7 +648,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
   }
   private MakeRsExcel(rep: OpenAlexOriginReportCommand): WorkbookSheetRow[] {
     let res: WorkbookSheetRow[] = [];
-    const summH: WorkbookSheetRowCell = { value: "Relevant Auto Updates:", colSpan: 3 };
+    const summH: WorkbookSheetRowCell = { value: "Relevant Related Searches:", colSpan: 3 };
     res.push({ cells: [summH] });
     const summH1: WorkbookSheetRowCell = { value: "Name", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const summH2: WorkbookSheetRowCell = { value: "Hits N", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
@@ -680,7 +680,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     res.push({ cells: [summH] });
 
     let summHs: WorkbookSheetRowCell = {
-      value: "Results for these only contain searches for which the list of results is stored (and fixed) in EPPI Reviewer. These are \"combined searches\" and searches that have been imported at least once (since V.6.17.2)."
+      value: "Results for these only contain searches for which the list of results is stored (and fixed) in EPPI Reviewer. These are \"combined searches\" and searches that have been enumerated or imported (since V.6.17.2)."
       , colSpan: 7, fontSize: 13, wrap: true
     };
     res.push({ cells: [summHs] });
@@ -712,19 +712,20 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     const Cshort: WorkbookSheetColumn = { autoWidth: false, width: 70 };
     const Cmedium: WorkbookSheetColumn = { autoWidth: false, width: 150 };
     const Cwide: WorkbookSheetColumn = { autoWidth: false, width: 350 };
-    ItemsSheet.columns?.push(Cshort);
-    ItemsSheet.columns?.push(Cmedium);
-    ItemsSheet.columns?.push(Cwide);
-    ItemsSheet.columns?.push(Cmedium);
-    ItemsSheet.columns?.push(Cwide);
-    ItemsSheet.columns?.push(Cmedium);
-    ItemsSheet.columns?.push(Cshort);
-    ItemsSheet.columns?.push(Cshort);
-    ItemsSheet.columns?.push(Cshort);
-    ItemsSheet.columns?.push(Cwide);
-    ItemsSheet.columns?.push(Cshort);
-    ItemsSheet.columns?.push(Cwide);
-    ItemsSheet.columns?.push(Cshort);
+    ItemsSheet.columns?.push(Cshort);//a
+    ItemsSheet.columns?.push(Cmedium);//b
+    ItemsSheet.columns?.push(Cwide);//c
+    ItemsSheet.columns?.push(Cmedium);//d
+    ItemsSheet.columns?.push(Cwide);//e
+    ItemsSheet.columns?.push(Cmedium);//f
+    ItemsSheet.columns?.push(Cshort);//g
+    ItemsSheet.columns?.push(Cshort);//h
+    ItemsSheet.columns?.push(Cshort);//i
+    ItemsSheet.columns?.push(Cshort);//j
+    ItemsSheet.columns?.push(Cwide);//k
+    ItemsSheet.columns?.push(Cshort);//l
+    ItemsSheet.columns?.push(Cwide);//m
+    ItemsSheet.columns?.push(Cshort);//n
     const summH1: WorkbookSheetRowCell = { value: "ItemId", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const summH2: WorkbookSheetRowCell = { value: "Short Title", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };
     const summH3: WorkbookSheetRowCell = { value: "Title", bold: true, borderBottom: this.borderBottom, borderLeft: this.borderLeft, borderRight: this.borderRight, borderTop: this.borderTop };

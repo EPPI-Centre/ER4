@@ -544,9 +544,9 @@ export class OpenAlexOriginReportCommand implements iOpenAlexOriginReportCommand
   }
   public get TextSearchesHTMLTable(): string {
     let res: string = "<p>Relevant \"Text Searches\":<br /><div class='small'>Results for these only contain searches for which the list of results is stored (and fixed)"
-      + " in EPPI Reviewer. These are \"combined searches\" and searches that have been imported at least once (since V.6.17.2).</div></p > "
+      + " in EPPI Reviewer. These are \"combined searches\" and searches that have been enumerated or imported (since V.6.17.2).</div></p > "
       + "<table class='ItemsTable px-1'><tr><th>Name</th><th>Hits N</th><th>Id</th><th>Search N.</th><th>Date run</th><th>Items #</th></tr>";
-    let index: number = 0;
+    let index: number = 0; 
     for (let rs of this.magTextSearches) {
       res += "<tr><td>" + rs.searchText + "</td><td>" + rs.hitsNo + "</td><td>" + rs.magSearchId + "</td><td>"
         + rs.searchNo + "</td><td>" + Helpers.FormatDate2(rs.searchDate) + "</td><td>"

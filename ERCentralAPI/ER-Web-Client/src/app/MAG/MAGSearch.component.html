@@ -378,6 +378,7 @@
                     <div class="my-auto d-flex">
                       <input type="checkbox" disabled class="my-auto mr-1" />
                       <button (click)="EnumerateSearchItems(item)" class="btn btn-outline-primary btn-sm px-1 py-0 my-auto"
+                              [disabled]="item.hitsNo < 1"
                               title="Results are NOT stored and NOT fixed. Click this button to get and freeze/finalise the results set.">
                         <span class="k-icon k-i-unlock"></span>
                       </button>
