@@ -844,7 +844,7 @@ namespace BusinessLibrary.BusinessClasses
             var generatedText = Newtonsoft.Json.JsonConvert.DeserializeObject<OpenAIResult>(responseString);
             _inputTokens += generatedText.usage.prompt_tokens;
             _outputTokens += generatedText.usage.total_tokens - generatedText.usage.prompt_tokens;
-            var responses = generatedText.choices[0].message.content;
+            var responses = generatedText.Content;
 
             if (IsDeepSeekLike(RobotCoder))
             {
@@ -935,6 +935,8 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         res.Add(pair.SettingName, DecVal);
                     }
+                    else if (pair.SettingValue == "true") res.Add(pair.SettingName, true);
+                    else if (pair.SettingValue == "false") res.Add(pair.SettingName, false);
                     else res.Add(pair.SettingName, pair.SettingValue);
                 }
                 else
@@ -956,6 +958,8 @@ namespace BusinessLibrary.BusinessClasses
                             {
                                 tempToAdd.Add(splitted[i], DecVal);
                             }
+                            else if (pair.SettingValue == "true") res.Add(pair.SettingName, true);
+                            else if (pair.SettingValue == "false") res.Add(pair.SettingName, false);
                             else tempToAdd.Add(splitted[i], pair.SettingValue);
                         }
                         else
@@ -966,8 +970,14 @@ namespace BusinessLibrary.BusinessClasses
                     res.Merge(tempToAdd);
                 }
             }
-            res.Add("messages", jMessages);
-            //res.Merge(jMessages);
+            if (Robot.RobotName.StartsWith("GPT-5"))
+            {
+                res.Add("input", jMessages);
+            }
+            else
+            {
+                res.Add("messages", jMessages);
+            }
             return JsonConvert.SerializeObject(res);
         }
 
@@ -1119,13 +1129,43 @@ namespace BusinessLibrary.BusinessClasses
             public int created { get; set; }
             public string model { get; set; }
             public Prompt_Filter_Results[] prompt_filter_results { get; set; }
-            public Choice[] choices { get; set; }
+            public Choice[] choices { get; set; } = [];
+
+            public Output[] output { get; set; } = [];
             public Usage usage { get; set; }
+
+            public string Content
+            {
+                get
+                {
+                    if (choices.Length > 0)
+                    {
+                        return choices[0].message.content;
+                    }
+                    else if (output.Length > 0 && output[0].content.Length > 0)
+                    {
+                        return output[0].content[0].text;
+                    }
+                    else return "";
+                }
+            }
         }
 
         public class Usage
         {
-            public int prompt_tokens { get; set; }
+            private int _prompt_tokens = 0;
+            public int prompt_tokens { 
+                get
+                {
+                    if (input_tokens > 0) return input_tokens;
+                    else return _prompt_tokens;
+                } 
+                set
+                {
+                    _prompt_tokens = value;
+                } 
+            }
+            public int input_tokens { get; set; } = 0;
             public int completion_tokens { get; set; }
             public int total_tokens { get; set; }
         }
@@ -1182,10 +1222,26 @@ namespace BusinessLibrary.BusinessClasses
             public string content { get; set; }
         }
 
+        //GPT-5.x types
+        public class Output
+        {
+            public string id { get; set; }
+            public string type { get; set; }
+            public string status { get; set; }
+            public string role { get; set; }
 
+            public Content[] content { get; set; } = [];
+
+        }
+        public class Content
+        {
+            public string type { get; set; }
+            public string text { get; set; }
+        }
+        //END of GPT-5.x types
 #endif
 
 
-    }
+        }
 
 }
