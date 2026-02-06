@@ -360,25 +360,26 @@
                 <td class="align-middle">{{item.contactName}}</td>
                 <td class="align-middle">{{FormatDate2(item.searchDate)}}</td>
                 <td class="align-middle">
-                  <div *ngIf="item.searchIdsStored && item.canReRun" title="Results are stored and fixed. Re-run the search to get up-to-date results." class="d-block">
+                  <div *ngIf="item.searchIdsStored && item.canReRun" title="Results are stored and fixed. Re-run the search to get updated results." class="d-block">
                     <div class="my-auto d-flex">
                       <input type="checkbox" checked disabled />
                       <span class="k-icon k-i-lock text-primary"></span>
                     </div>
                     <div class="small" *ngIf="item.dateIdsAcquired != '0001-01-01T00:00:00'">At: {{FormatDate2(item.dateIdsAcquired)}}</div>
                   </div>
-                  <div *ngIf="item.searchIdsStored && !item.canReRun" title="Results are stored and fixed. This search cannot be re-run to get up-to-date results." class="d-block">
+                  <div *ngIf="item.searchIdsStored && !item.canReRun" title="Results are stored and fixed. This search cannot be re-run to get up to date results." class="d-block">
                     <div class="my-auto d-flex">
                       <input type="checkbox" checked disabled />
                       <span class="k-icon k-i-lock text-danger"></span>
                     </div>
                     <div class="small" *ngIf="item.dateIdsAcquired != '0001-01-01T00:00:00'">At: {{FormatDate2(item.dateIdsAcquired)}}</div>
                   </div>
-                  <div *ngIf="!item.searchIdsStored" title="Lock/freeze the search. This will rerun the search and store the results.">
+                  <div *ngIf="!item.searchIdsStored" title="Results are NOT stored and NOT fixed. Click this button to get and freeze/finalise the results set.">
                     <div class="my-auto d-flex">
                       <input type="checkbox" disabled class="my-auto mr-1" />
                       <button (click)="EnumerateSearchItems(item)" class="btn btn-outline-primary btn-sm px-1 py-0 my-auto"
-                              title="Lock/freeze the search. This will rerun the search and store the results.">
+                              [disabled]="item.hitsNo < 1"
+                              title="Results are NOT stored and NOT fixed. Click this button to get and freeze/finalise the results set.">
                         <span class="k-icon k-i-unlock"></span>
                       </button>
                     </div>
