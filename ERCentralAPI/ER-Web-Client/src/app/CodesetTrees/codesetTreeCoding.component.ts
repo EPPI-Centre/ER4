@@ -67,17 +67,17 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
   @Output() RemoveCodeModalClosed = new EventEmitter<void>();
   @Output() PleaseOpenOutcomesPanel = new EventEmitter<ItemSet>();//emits the ItemSetId where outcomesList is
 
-  // this is the hotkeys code
-  @HostListener('window:keydown.Alt.1', ['$event'])
-  @HostListener('window:keydown.Alt.2', ['$event'])
-  @HostListener('window:keydown.Alt.3', ['$event'])
-  @HostListener('window:keydown.Alt.4', ['$event'])
-  @HostListener('window:keydown.Alt.5', ['$event'])
-  @HostListener('window:keydown.Alt.6', ['$event'])
-  @HostListener('window:keydown.Alt.7', ['$event'])
-  @HostListener('window:keydown.Alt.8', ['$event'])
-  @HostListener('window:keydown.Alt.9', ['$event'])
-  @HostListener('window:keydown.Alt.0', ['$event'])
+  // this is the hotkeys code on macs Alt = Option, but it doesn't work :-(
+  @HostListener('window:keydown.alt.1', ['$event'])
+  @HostListener('window:keydown.alt.2', ['$event'])
+  @HostListener('window:keydown.alt.3', ['$event'])
+  @HostListener('window:keydown.alt.4', ['$event'])
+  @HostListener('window:keydown.alt.5', ['$event'])
+  @HostListener('window:keydown.alt.6', ['$event'])
+  @HostListener('window:keydown.alt.7', ['$event'])
+  @HostListener('window:keydown.alt.8', ['$event'])
+  @HostListener('window:keydown.alt.9', ['$event'])
+  @HostListener('window:keydown.alt.0', ['$event'])
   handleKeyDown(event: KeyboardEvent) {
     if (this.HotKeysOn === false || this.SelectedNodeData == null ) return;
     else {

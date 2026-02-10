@@ -391,6 +391,7 @@ namespace BusinessLibrary.BusinessClasses
                 //json = JsonConvert.SerializeObject(requestBody);
                 List<string> toIgnore = new List<string>();
                 toIgnore.Add("response_format.type");
+                toIgnore.Add("text.format.type");
                 json = RobotOpenAICommand.BuildJsonRequestBody(RobotCoder, messages, toIgnore);
             }
             else
@@ -440,7 +441,7 @@ namespace BusinessLibrary.BusinessClasses
             _inputTokens = generatedText.usage.prompt_tokens;
             _outputTokens = generatedText.usage.total_tokens - generatedText.usage.prompt_tokens;
             MarkdownPipeline pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
-            var responses = Markdown.ToHtml(generatedText.choices[0].message.content, pipeline);
+            var responses = Markdown.ToHtml(generatedText.Content, pipeline);
             //var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
 
             _returnMessage = "Completed " + "without errors. (Tokens: prompt: " + generatedText.usage.prompt_tokens.ToString() + ", total: " + generatedText.usage.total_tokens.ToString() + ")";

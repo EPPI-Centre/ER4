@@ -899,85 +899,87 @@ namespace BusinessLibrary.BusinessClasses
 
         internal static bool AuthorisationInHeader(RobotCoderReadOnly robot)
         {
-            string lowname = robot.RobotName.ToLower();
-            if (lowname.Contains("deepseek")) return true;
-            else if (lowname.Contains("mistral")) return true;
-            else if (lowname.Contains("llama")) return true;
-            else return false;
+            int index = robot.RobotSettings.FindIndex(f => f.SettingIsInternal == true && f.SettingName == "AuthorisationInHeader");
+            return (index != -1);
         }
         internal static bool UsesExtraParameters(RobotCoderReadOnly robot)
         {
-            string lowname = robot.RobotName.ToLower();
-            if (lowname.Contains("mistral")) return true;
-            else return false;
+            int index = robot.RobotSettings.FindIndex(f => f.SettingIsInternal == true && f.SettingName == "UsesExtraParameters");
+            return (index != -1);
         }
 
         internal static bool IsDeepSeekLike(RobotCoderReadOnly robot)
-        {//simple logic, for now!!
-            return robot.RobotName.ToLower().Contains("deepseek");            
+        {
+            int index = robot.RobotSettings.FindIndex(f => f.SettingIsInternal == true && f.SettingName == "DeepSeekLike");
+            return (index != -1);
         }
 
         internal static string BuildJsonRequestBody(RobotCoderReadOnly Robot, List<OpenAIChatClass> messages, List<string> SettingNamesToIgnore)
         {
             JObject res = new JObject();
+            string FieldNameForPrompts = "messages";
             var jMessages = JArray.FromObject(messages);
             foreach (RobotCoderSetting pair in Robot.RobotSettings)
             {
                 if (SettingNamesToIgnore.Contains(pair.SettingName)) continue;
-                if (!pair.SettingName.Contains('.'))
-                {
-                    int IntVal;
-                    decimal DecVal;
-                    if (int.TryParse(pair.SettingValue, out IntVal)) {
-                        res.Add(pair.SettingName, IntVal);
-                    }
-                    else if (decimal.TryParse(pair.SettingValue, out DecVal))
+                if (pair.SettingIsInternal == false)
+                {//these are settings we use as parameters included in the request
+                    if (!pair.SettingName.Contains('.'))
                     {
-                        res.Add(pair.SettingName, DecVal);
+                        int IntVal;
+                        decimal DecVal;
+                        if (int.TryParse(pair.SettingValue, out IntVal))
+                        {
+                            res.Add(pair.SettingName, IntVal);
+                        }
+                        else if (decimal.TryParse(pair.SettingValue, out DecVal))
+                        {
+                            res.Add(pair.SettingName, DecVal);
+                        }
+                        else if (pair.SettingValue == "true") res.Add(pair.SettingName, true);
+                        else if (pair.SettingValue == "false") res.Add(pair.SettingName, false);
+                        else res.Add(pair.SettingName, pair.SettingValue);
                     }
-                    else if (pair.SettingValue == "true") res.Add(pair.SettingName, true);
-                    else if (pair.SettingValue == "false") res.Add(pair.SettingName, false);
-                    else res.Add(pair.SettingName, pair.SettingValue);
+                    else
+                    {
+                        string[] splitted = pair.SettingName.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+                        JObject tempToAdd = new JObject();
+                        for (int i = splitted.Length - 1; i >= 0; i--)
+                        {
+                            if (i == splitted.Length - 1)
+                            {//last element, we always add it
+
+                                int IntVal;
+                                decimal DecVal;
+                                if (int.TryParse(pair.SettingValue, out IntVal))
+                                {
+                                    tempToAdd.Add(splitted[i], IntVal);
+                                }
+                                else if (decimal.TryParse(pair.SettingValue, out DecVal))
+                                {
+                                    tempToAdd.Add(splitted[i], DecVal);
+                                }
+                                else if (pair.SettingValue == "true") res.Add(pair.SettingName, true);
+                                else if (pair.SettingValue == "false") res.Add(pair.SettingName, false);
+                                else tempToAdd.Add(splitted[i], pair.SettingValue);
+                            }
+                            else
+                            {
+                                tempToAdd = new JObject(new JProperty(splitted[i], tempToAdd));
+                            }
+                        }
+                        res.Merge(tempToAdd);
+                    }
                 }
                 else
-                {
-                    string[] splitted = pair.SettingName.Split(new[] {'.'}, StringSplitOptions.RemoveEmptyEntries);
-                    JObject tempToAdd = new JObject();
-                    for (int i = splitted.Length - 1; i >= 0; i--)
+                {//parameters used to control other things, not parameters included in the request
+                    if (pair.SettingName == "FieldNameForPrompts")
                     {
-                        if (i == splitted.Length - 1)
-                        {//last element, we always add it
-
-                            int IntVal;
-                            decimal DecVal;
-                            if (int.TryParse(pair.SettingValue, out IntVal))
-                            {
-                                tempToAdd.Add(splitted[i], IntVal);
-                            }
-                            else if (decimal.TryParse(pair.SettingValue, out DecVal))
-                            {
-                                tempToAdd.Add(splitted[i], DecVal);
-                            }
-                            else if (pair.SettingValue == "true") res.Add(pair.SettingName, true);
-                            else if (pair.SettingValue == "false") res.Add(pair.SettingName, false);
-                            else tempToAdd.Add(splitted[i], pair.SettingValue);
-                        }
-                        else
-                        {
-                            tempToAdd = new JObject(new JProperty(splitted[i], tempToAdd));
-                        }
+                        FieldNameForPrompts = pair.SettingValue;
                     }
-                    res.Merge(tempToAdd);
                 }
             }
-            if (Robot.RobotName.StartsWith("GPT-5"))
-            {
-                res.Add("input", jMessages);
-            }
-            else
-            {
-                res.Add("messages", jMessages);
-            }
+            res.Add(FieldNameForPrompts, jMessages);
             return JsonConvert.SerializeObject(res);
         }
 
