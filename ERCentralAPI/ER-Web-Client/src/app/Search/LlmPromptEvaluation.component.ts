@@ -2,6 +2,7 @@ import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEm
 import { Router } from '@angular/router';
 import { ReviewService } from '../services/review.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
+import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
 import { ModalService } from '../services/modal.service';
 import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { ClassifierService, PriorityScreeningSimulation } from '../services/classifier.service';
@@ -10,10 +11,13 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 import { ReviewSetsService, ReviewSet, SetAttribute, singleNode } from '../services/ReviewSets.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ChartComponent } from '@progress/kendo-angular-charts';
-import { iRobotSettings, RobotsService } from '../services/Robots.service';
+//import { iRobotOpenAICommand, RobotsService, iRobotSettings } from '../services/Robots.service';
+import { iRobotOpenAiQueueBatchJobEvaluationCommand, iRobotCoderReadOnly, iRobotSettings, RobotsService, iRobotOpenAiCancelQueuedBatchJobEvaluationCommand } from '../services/Robots.service';
 import { saveAs } from '@progress/kendo-file-saver';
 import 'hammerjs';
 import { NgModel } from '@angular/forms';
+import { Helpers } from '../helpers/HelperMethods';
+
 
 @Component({
   selector: 'LlmPromptEvaluation',
@@ -31,7 +35,9 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     private notificationService: NotificationService,
     private modalService: ModalService,
     private _robotsService: RobotsService,
-    public reviewSetsService: ReviewSetsService
+    public reviewSetsService: ReviewSetsService,
+    private ReviewerIdentityServ: ReviewerIdentityService,
+    private reviewInfoService: ReviewInfoService,
   ) { }
 
   @Output() PleaseCloseMe = new EventEmitter();
@@ -42,10 +48,19 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   public SelectedGoldStandardEvaluationAttribute: number = 0;
   public SelectedGoldStandardTrainTestAttribute: number = 0;
   public SelectedTrainTestBelowHereAttribute: number = 0;
+  public showManualModalRobotOptions: boolean = false;
+  public showManualModalUncompleteWarning: boolean = false;
+  public showRobotDetails = true;
+
+
 
   public get AllCodeSets(): ReviewSet[] {
 
     return this.reviewSetsService.ReviewSets;
+  }
+  FormatDate(DateSt: string): string {
+    if (DateSt == "0001-01-01T00:00:00") return "None";
+    return Helpers.FormatDate2(DateSt);
   }
 
   @ViewChild('evaluationNameInput') evaluationNameInput!: NgModel;
@@ -59,9 +74,6 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     //this.BulkDeleteCodingCommand = this.GetNewBulkDeleteCodingCommand();
     //this.showMessage = false;
   }
-
-
-
 
   @ViewChild('VisualiseChart')
   private VisualiseChart!: ChartComponent;
@@ -80,7 +92,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     return this._eventEmitterService.nodeSelected;
   }
   SetSelectedGoldStandardEvaluationAttribute(node: singleNode | null | undefined) {
-    //alert(JSON.stringify(node));
+    // alert(JSON.stringify(node));
     if (node != null && node.nodeType == "SetAttribute") {
       let a = node as SetAttribute;
       this.selectedModelDropDown1 = node.name;
@@ -142,6 +154,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
 
     this.isCollapsedSetSelectedTrainTestBelowHereAttribute = false;
   }
+  
   RobotChanged(event: Event) {
     let name = (event.target as HTMLOptionElement).value;
     this._robotsService.RobotSetting.robotName = name;
@@ -152,7 +165,6 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   public get RobotsList() {
     return this._robotsService.RobotsList;
   }
-
   ngOnDestroy() {
 
   }
@@ -160,4 +172,72 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   BackToMain() {
     this.router.navigate(['Main']);
   }
+
+  public get HasWriteRights(): boolean {
+
+    return this.ReviewerIdentityServ.HasWriteRights;
+  }
+
+  public get CanRunOpenAIrobot(): boolean {
+    if (!this.HasWriteRights) return false;
+    else if (!this.reviewInfoService.ReviewInfo.canUseRobots) return false;
+    return true;
+  }
+
+  public get SelectedRobot(): iRobotCoderReadOnly | null {
+    if (this.RobotSettings.robotName == "") return null;
+    const selected = this.RobotsList.find(f => f.robotName == this.RobotSettings.robotName);
+    if (!selected) return null;
+    return selected;
+  }
+
+  public RunRobotOpenAICommandEvaluation() {
+    this.ActuallyRunRobotOpenAICommandEvaluation();
+  }
+
+  public async ActuallyRunRobotOpenAICommandEvaluation() {
+    let rname = this.RobotSettings.robotName;
+
+    const node = this.reviewSetsService.selectedNode as ReviewSet;
+
+    let data: iRobotOpenAiQueueBatchJobEvaluationCommand = {
+      evaluationName: this.evaluationNameText,
+      robotName: this.RobotSettings.robotName,
+      reviewSetId: this.selectedCodeSet.reviewSetId,
+      reviewSetHtml: this.selectedCodeSet.printHtml(false, false, true),
+      goldStandardAttributeId: this.SelectedGoldStandardEvaluationAttribute,
+      useFullTextDocument: this.RobotSettings.useFullTextDocument,
+      returnMessage: "",
+      nIterations: this.n_iterations
+    };
+    this._robotsService.EnqueueRobotOpenAIBatchJobEvaluationCommand(data).then(
+      (res: boolean) => {
+        if (res) {
+          this.notificationService.show({
+            content: "Your Batch Coding request has been Queued.",
+            animation: { type: 'slide', duration: 400 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: "info", icon: true },
+            hideAfter: 4000
+          });
+          this._robotsService.GetCurrentQueue();
+          //this.ShowQueue = true;
+        }
+      }
+
+    );
+  }
+
+  public RobotDDData: Array<any> = [
+    {
+      text: 'LLM coding options...',
+      click: () => {
+        this.showManualModalRobotOptions = true;
+      }
+    }
+  ];
+  
+
+
+
 }

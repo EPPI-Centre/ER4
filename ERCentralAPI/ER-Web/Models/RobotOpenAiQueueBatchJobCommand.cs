@@ -45,7 +45,8 @@ namespace BusinessLibrary.BusinessClasses
             get { return _result; }
         }
 
-        public RobotOpenAiQueueBatchJobCommand(string robotName, string criteria, int creditPurchaseId, int reviewSetId, bool onlyCodeInTheRobotName, bool lockTheCoding, bool useFullTextDocument)
+        public RobotOpenAiQueueBatchJobCommand(string robotName, string criteria, int creditPurchaseId, int reviewSetId, bool onlyCodeInTheRobotName,
+            bool lockTheCoding, bool useFullTextDocument)
         {
             _RobotName = robotName;
             _criteria = criteria;
@@ -103,6 +104,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@LOCK_CODING", _lockTheCoding));
                     command.Parameters.Add(new SqlParameter("@USE_PDFS", _useFullTextDocument)); 
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
+                    command.Parameters.Add(new SqlParameter("@N_ITERATIONS", 0));
                     command.Parameters.Add(new SqlParameter("@RESULT", System.Data.SqlDbType.VarChar));
                     command.Parameters["@RESULT"].Size = 100;
                     command.Parameters["@RESULT"].Direction = System.Data.ParameterDirection.Output;

@@ -33,7 +33,7 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
       onlyCodeInTheRobotName: true,
       lockTheCoding: true,
       useFullTextDocument: false,
-      rememberTheseChoices: false
+      rememberTheseChoices: false,
     };
   }
   public ShowSettingsInBatchPanel: boolean = true;
@@ -204,6 +204,59 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
         return false;
       });
   }
+
+  public EnqueueRobotOpenAIBatchJobEvaluationCommand(cmd: iRobotOpenAiQueueBatchJobEvaluationCommand): Promise<boolean> {
+
+    this._BusyMethods.push("EnqueueRobotOpenAIBatchJobEvaluationCommand");
+    return lastValueFrom(this._httpC.post<iRobotOpenAiQueueBatchJobEvaluationCommand>(this._baseUrl + 'api/Robots/EnqueueRobotOpenAIBatchJobEvaluation', cmd))
+      .then((res) => {
+        this.RemoveBusy("EnqueueRobotOpenAIBatchJobEvaluationCommand");
+        if (res.returnMessage.includes("Error")) {
+          this.modalService.GenericErrorMessage("The batch submission failed with message: " + res.returnMessage);
+          return false;
+        }
+        return true;
+      },
+        (err) => {
+          this.RemoveBusy("EnqueueRobotOpenAIBatchJobEvaluationCommand");
+          this.modalService.GenericError(err);
+          cmd.returnMessage = "Error";
+          return false;
+        })
+      .catch((err) => {
+        this.RemoveBusy("EnqueueRobotOpenAIBatchJobEvaluationCommand");
+        this.modalService.GenericError(err);
+        cmd.returnMessage = "Error";
+        return false;
+      });
+  }
+
+  public CancelRobotOpenAIBatchEvaluation(JobId: number): Promise<boolean> {
+    this._BusyMethods.push("CancelRobotOpenAIBatchEvaluation");
+    let body = JSON.stringify({ Value: JobId });
+    return lastValueFrom(this._httpC.post<iRobotOpenAiCancelQueuedBatchJobEvaluationCommand>(this._baseUrl + 'api/Robots/CancelRobotOpenAIBatchEvaluation', body))
+      .then((res) => {
+        this.RemoveBusy("CancelRobotOpenAIBatchEvaluation");
+        if (res.success == false) {
+          this.modalService.GenericErrorMessage("The job could <strong>not be Cancelled</strong><br>This usually happens because the job had already started or ended.");
+        }
+        this.GetCurrentQueue();
+        return true;
+      },
+        (err) => {
+          this.RemoveBusy("CancelRobotOpenAIBatchEvaluation");
+          this.modalService.GenericError(err);
+          this.GetCurrentQueue();
+          return false;
+        })
+      .catch((err) => {
+        this.RemoveBusy("CancelRobotOpenAIBatchEvaluation");
+        this.modalService.GenericError(err);
+        this.GetCurrentQueue();
+        return false;
+      });
+  }
+
   public TextFromAttributeId(AttId: number): string {
     const res = this._reviewSetsService.FindAttributeById(AttId);
     if (res) {
@@ -268,6 +321,17 @@ export interface iRobotOpenAiQueueBatchJobCommand {
   lockTheCoding: boolean;
   useFullTextDocument: boolean;
   returnMessage: string;
+}
+
+export interface iRobotOpenAiQueueBatchJobEvaluationCommand {
+  evaluationName: string;
+  robotName: string;
+  reviewSetId: number;
+  reviewSetHtml: string;
+  goldStandardAttributeId: number;
+  useFullTextDocument: boolean;
+  returnMessage: string;
+  nIterations: number;
 }
 
 export interface iRobotSettings {
@@ -449,6 +513,11 @@ export interface iRobotOpenAiTaskError {
   stackTrace: string;
 }
 export interface iRobotOpenAiCancelQueuedBatchJobCommand {
+  jobId: number;
+  success: boolean;
+}
+
+export interface iRobotOpenAiCancelQueuedBatchJobEvaluationCommand {
   jobId: number;
   success: boolean;
 }

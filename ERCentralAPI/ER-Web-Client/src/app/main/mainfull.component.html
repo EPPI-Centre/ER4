@@ -305,7 +305,7 @@
             &nbsp;Show descriptions <input type="checkbox" [(ngModel)]="printCsetShowDescriptions" class="m-1" />
           </div>
           <div class="col-12 mx-0 mb-1 p-0 row">
-            <button kendoButton class="btn btn-outline-success btn-sm ml-1" title="Print coding tool" (click)="PrintCodingTool()" [disabled]="selectedNode == null || selectedNode.nodeType != 'ReviewSet'">
+            <button kendoButton class="btn btn-outline-success btn-sm ml-1" title="Print coding tool" (click)="PrintSelectedCodingTool()" [disabled]="selectedNode == null || selectedNode.nodeType != 'ReviewSet'">
               Print!
             </button>
             <button kendoButton class="btn btn-dark btn-sm px-2 ml-1" title="Cancel" (click)="ShowPrintCodeset = false">

@@ -54,6 +54,18 @@
               </option>
             </select>
           </div>
+          <div *ngIf="showRobotDetails && SelectedRobot" class="px-1 mx-0 my-1 border border-info rounded small alert-info">
+            <div class="row mx-0">
+              <!--<div class="mx-1 font-weight-bold col-12">Robot name: {{SelectedRobot.robotName}}</div>-->
+              <div class="col mx-1 px-1">
+                <div class="mx-0">Cost per million input tokens: £{{SelectedRobot.inputTokenCostPerMillion}}</div>
+                <div class="mx-0">Cost per million output tokens: £{{SelectedRobot.outputTokenCostPerMillion}}</div>
+                <div class="mx-0">Current retirement date: {{FormatDate(SelectedRobot.retirementDate)}}</div>
+              </div>
+              <div class="col mx-0 rounded bg-light px-1"><span class="font-weight-bold">Description:</span> {{SelectedRobot.description}}</div>
+            </div>
+            <button class="btn btn-sm btn-outline-dark mr-1 py-0 small" (click)="showRobotDetails = false">Hide Details</button>
+          </div>
           <div class="col-12 mx-0 px-1 row form-group pt-1 mt-1 mt-md-0">
             <div class="mx-0 px-1 col-12 col-sm-6 col-md-4 my-auto text-sm-right">Number of iterations</div>
             <div class="my-auto">
@@ -64,10 +76,10 @@
                                     [autoCorrect]="true"
                                     class="border border-dark rounded"
                                     style="width: 100px;">
-
               </kendo-numerictextbox>
             </div>
           </div>
+          <button class="btn btn-sm btn-outline-danger mr-1 my-auto py-0 font-weight-bold" (click)="ActuallyRunRobotOpenAICommandEvaluation()" [disabled]="!CanRunOpenAIrobot">Submit</button>
         </div>
       </div>
     </div>
