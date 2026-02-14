@@ -71,8 +71,8 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(RobotNameProperty, value);
             }
         }
-        public static readonly PropertyInfo<DateTime> WhenRunProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("WhenRun", "WhenRun"));
-        public DateTime WhenRun
+        public static readonly PropertyInfo<SmartDate> WhenRunProperty = RegisterProperty<SmartDate>(new PropertyInfo<SmartDate>("WhenRun", "WhenRun"));
+        public SmartDate WhenRun
         {
             get
             {
@@ -179,43 +179,47 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(FNProperty, value);
             }
         }
-
+        public static readonly PropertyInfo<int> OpenAiPromptEvaluationIdProperty = RegisterProperty<int>(new PropertyInfo<int>("OpenAiPromptEvaluationId", "OpenAiPromptEvaluationId"));
+        public int OpenAiPromptEvaluationId
+        {
+            get
+            {
+                return GetProperty(OpenAiPromptEvaluationIdProperty);
+            }
+            set
+            {
+                SetProperty(OpenAiPromptEvaluationIdProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "ContactId"));
+        public int ContactId
+        {
+            get
+            {
+                return GetProperty(ContactIdProperty);
+            }
+            set
+            {
+                SetProperty(ContactIdProperty, value);
+            }
+        }
 
 
 
 #if !SILVERLIGHT
 
-        protected void DataPortal_Fetch(SingleCriteria<PriorityScreeningSimulation, string> criteria) // used to return a specific Paper
+        protected void DataPortal_Fetch(SingleCriteria<RobotOpenAiPromptEvaluation, string> criteria) // used to return a specific Paper
         {
 
         }
         protected override void DataPortal_Insert()
         {
-            /*
-            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-            LoadProperty(ReviewIdProperty, ri.ReviewId);
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-            {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_PriorityScreeningSimulationInsert", connection))
-                {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReadProperty(ReviewIdProperty)));
-                    command.Parameters.Add(new SqlParameter("@PriorityScreeningSimulation_NAME", ReadProperty(NameProperty)));
-                    command.Parameters.Add(new SqlParameter("@PriorityScreeningSimulation_DETAIL", ReadProperty(DetailProperty)));
-                    command.Parameters.Add(new SqlParameter("@NEW_PriorityScreeningSimulation_ID", 0));
-                    command.Parameters["@NEW_PriorityScreeningSimulation_ID"].Direction = System.Data.ParameterDirection.Output;
-                    command.ExecuteNonQuery();
-                    LoadProperty(PriorityScreeningSimulationIdProperty, command.Parameters["@NEW_PriorityScreeningSimulation_ID"].Value);
-                }
-                connection.Close();
-            }
-             */
+
         }
 
         protected override void DataPortal_Update()
         {
-
+            // never updated via ui
         }
 
         protected override void DataPortal_DeleteSelf()
@@ -227,21 +231,36 @@ namespace BusinessLibrary.BusinessClasses
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-            string FolderAndFileName = DataFactoryHelper.NameBase + "ReviewId" + ri.ReviewId.ToString();
-            string RemoteFolder = "priority_screening_simulation/" + FolderAndFileName + "/";
-            string ScoresFile = RemoteFolder + criteria.Value;
-
-            string blobConnection = AzureSettings.blobConnection;
-            if (BlobOperations.ThisBlobExist(blobConnection, "eppi-reviewer-data", ScoresFile))
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
-                BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", ScoresFile);
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("[st_RobotOpenAIPromptEvaluationDelete", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@OPENAI_PROMPT_EVALUATION_ID", this.OpenAiPromptEvaluationId));
+                    command.ExecuteNonQuery();
+                }
+                connection.Close();
             }
         }
 
         internal static RobotOpenAiPromptEvaluation GetRobotOpenAiPromptEvaluation(SafeDataReader reader)
         {
             RobotOpenAiPromptEvaluation returnValue = new RobotOpenAiPromptEvaluation();
-            //returnValue.LoadProperty<string>(SimulationNameProperty, simulationName);
+            returnValue.LoadProperty<string>(TitleProperty, reader.GetString("TITLE"));
+            returnValue.LoadProperty<string>(ReviewSetHtmlProperty, reader.GetString("REVIEW_SET_HTML"));
+            returnValue.LoadProperty<string>(RobotNameProperty, reader.GetString("ROBOT_NAME"));
+            returnValue.LoadProperty<Int32>(NRecordsProperty, reader.GetInt32("N_RECORDS"));
+            returnValue.LoadProperty<Int32>(NIterationsProperty, reader.GetInt32("N_ITERATIONS"));
+            returnValue.LoadProperty<Int32>(OpenAiPromptEvaluationIdProperty, reader.GetInt32("OPENAI_PROMPT_EVALUATION_ID"));
+            returnValue.LoadProperty<Int32>(NCodesProperty, reader.GetInt32("N_CODES"));
+            returnValue.LoadProperty<Int32>(TPProperty, reader.GetInt32("TP"));
+            returnValue.LoadProperty<Int32>(TNProperty, reader.GetInt32("TN"));
+            returnValue.LoadProperty<Int32>(FPProperty, reader.GetInt32("FP"));
+            returnValue.LoadProperty<Int32>(FNProperty, reader.GetInt32("FN"));
+            returnValue.LoadProperty<SmartDate>(WhenRunProperty, reader.GetSmartDate("N_RECORDS"));
+            returnValue.LoadProperty<bool>(UsePdfsProperty, reader.GetBoolean("USE_PDFS"));
+            returnValue.LoadProperty<Int32>(NRecordsProperty, reader.GetInt32("N_RECORDS"));
             returnValue.MarkOld();
             return returnValue;
         }
