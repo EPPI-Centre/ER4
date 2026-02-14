@@ -241,7 +241,7 @@ namespace BusinessLibrary.BusinessClasses
         internal static RobotOpenAiPromptEvaluation GetRobotOpenAiPromptEvaluation(SafeDataReader reader)
         {
             RobotOpenAiPromptEvaluation returnValue = new RobotOpenAiPromptEvaluation();
-            returnValue.LoadProperty<string>(SimulationNameProperty, simulationName);
+            //returnValue.LoadProperty<string>(SimulationNameProperty, simulationName);
             returnValue.MarkOld();
             return returnValue;
         }
