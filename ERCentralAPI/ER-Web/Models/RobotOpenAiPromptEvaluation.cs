@@ -258,9 +258,8 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<Int32>(TNProperty, reader.GetInt32("TN"));
             returnValue.LoadProperty<Int32>(FPProperty, reader.GetInt32("FP"));
             returnValue.LoadProperty<Int32>(FNProperty, reader.GetInt32("FN"));
-            returnValue.LoadProperty<SmartDate>(WhenRunProperty, reader.GetSmartDate("N_RECORDS"));
+            returnValue.LoadProperty<SmartDate>(WhenRunProperty, reader.GetSmartDate("WHEN_RUN"));
             returnValue.LoadProperty<bool>(UsePdfsProperty, reader.GetBoolean("USE_PDFS"));
-            returnValue.LoadProperty<Int32>(NRecordsProperty, reader.GetInt32("N_RECORDS"));
             returnValue.MarkOld();
             return returnValue;
         }

@@ -12,7 +12,7 @@ import { ReviewSetsService, ReviewSet, SetAttribute, singleNode } from '../servi
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ChartComponent } from '@progress/kendo-angular-charts';
 //import { iRobotOpenAICommand, RobotsService, iRobotSettings } from '../services/Robots.service';
-import { iRobotOpenAiQueueBatchJobEvaluationCommand, iRobotCoderReadOnly, iRobotSettings, RobotsService, iRobotOpenAiCancelQueuedBatchJobEvaluationCommand } from '../services/Robots.service';
+import { iRobotOpenAiQueueBatchJobEvaluationCommand, iRobotCoderReadOnly, iRobotSettings, RobotsService, iRobotOpenAiCancelQueuedBatchJobEvaluationCommand, RobotOpenAiPromptEvaluation, RobotOpenAiPromptEvaluationData } from '../services/Robots.service';
 import { saveAs } from '@progress/kendo-file-saver';
 import 'hammerjs';
 import { NgModel } from '@angular/forms';
@@ -67,7 +67,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   ngOnInit() {
     if (this.reviewSetsService.ReviewSets.length == 0) this.reviewSetsService.GetReviewSets();
     if (this._robotsService.RobotsList.length == 0) this._robotsService.GetRobotsList();
-
+    this.refreshRobotOpenAiPromptEvaluationList();
   }
 
   DropdownSelectCodingToolPromptEvaluation() {
@@ -171,6 +171,25 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
 
   BackToMain() {
     this.router.navigate(['Main']);
+  }
+
+  public get RobotOpenAiPromptEvaluationList(): RobotOpenAiPromptEvaluation[] {
+    return this._robotsService.RobotOpenAiPromptEvaluationList;
+  }
+  refreshRobotOpenAiPromptEvaluationList() {
+    this._robotsService.FetchRobotOpenAiPromptEvaluationList();
+  }
+
+  public get RobotOpenAiPromptEvaluationDataList(): RobotOpenAiPromptEvaluationData[] {
+    return this._robotsService.CurrentRobotOpenAiPromptEvaluationDataList;
+  }
+
+  showEvaluation(item: RobotOpenAiPromptEvaluation) {
+    this._robotsService.FetchRobotOpenAiPromptEvaluationDataList(item.openAiPromptEvaluationId);
+  }
+
+  confirmDeleteEvaluation(item: RobotOpenAiPromptEvaluation) {
+
   }
 
   public get HasWriteRights(): boolean {

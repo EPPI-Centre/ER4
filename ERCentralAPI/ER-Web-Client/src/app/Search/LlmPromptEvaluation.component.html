@@ -117,7 +117,106 @@
           </div>
         </div>
       </div>
+      <div class="col-12 col-md-6 mx-0 px-1 mb-1">
+        <div class="card container-fluid mt-1 bg-light border border-primary rounded px-1 mx-0">
+          <div class="p-1 m-0 ">
+            <div>
+              <b>Results of evaluation</b>
+            </div>
+            <div style="max-height:27vh; min-height:185px;overflow:auto;">
+              <table class="table-sm w-100 table-striped">
+                <thead>
+                  <tr>
+                    <th class="">ItemId</th>
+
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr *ngFor="let item of RobotOpenAiPromptEvaluationDataList">
+
+                    
+                    <td class="">
+                      {{item.itemId}}
+                    </td>
+
+
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
-<statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body"></statusbar>
+    
+        </div>
+        <div class="row mx-0 mx-0">
+          <div class="col-12 col-md-6 mx-0 px-1 mb-1">
+            <div class="card container-fluid mt-1 bg-light border border-primary rounded px-1 mx-0">
+              <div class="p-1 m-0  ">
+                <div><b>Completed Evaluations</b></div>
+                <div>
+                  <button title="Refresh list" (click)="refreshRobotOpenAiPromptEvaluationList()" class="btn btn-sm btn-outline-success ml-1 mr-0 mb-1 pt-1 pb-0 px-2">
+                    Refresh list  <fa-icon [icon]="faArrowsRotate" class="my-0"></fa-icon>
+                  </button>
+                </div>
+                <div style="max-height:27vh; min-height:185px;overflow:auto;">
+                  <table class="table-sm w-100 table-striped">
+                    <thead>
+                      <tr>
+                        <th class="">Name</th>
+                        <th class="">Robot</th>
+                        <th class=""># records</th>
+                        <th class=""># codes</th>
+                        <th class="">TP</th>
+                        <th class="">TN</th>
+                        <th class="">FP</th>
+                        <th class="">FN</th>
+                        <th class=""></th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      <tr *ngFor="let item of RobotOpenAiPromptEvaluationList">
+
+                        <td class="">
+                          <button (click)="showEvaluation(item)" class="btn btn-link px-1 py-0">{{item.title}}</button>
+                        </td>
+                        <td class="">
+                          {{item.robotName}}
+                        </td>
+                        <td class="">
+                          {{item.nRecords}}
+                        </td>
+                        <td class="">
+                          {{item.nCodes}}
+                        </td>
+                        <td class="">
+                          {{item.tp}}
+                        </td>
+                        <td class="">
+                          {{item.tn}}
+                        </td>
+                        <td class="">
+                          {{item.fp}}
+                        </td>
+                        <td class="">
+                          {{item.fn}}
+                        </td>
+
+                        <td class="" style="min-width: 65px; max-width: 65px; text-align:right">
+                          <button class="btn btn-sm btn-danger" title="Delete this evaluation" (click)="confirmDeleteEvaluation(item)">
+                            <span class="k-icon k-i-trash" size="small" style="position: relative; top:-2px;"></span>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body"></statusbar>

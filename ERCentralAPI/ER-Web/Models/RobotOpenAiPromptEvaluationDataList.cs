@@ -22,28 +22,21 @@ using BusinessLibrary.BusinessClasses;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
-    public class RobotOpenAiPromptEvaluationDataList : DynamicBindingListBase<RobotOpenAiPromptEvaluationData>
+    public class RobotOpenAiPromptEvaluationDataList : ReadOnlyListBase<RobotOpenAiPromptEvaluationDataList, RobotOpenAiPromptEvaluationData>
     {
 
         public static void GetRobotOpenAiPromptEvaluationDataList(int OpenAiPromptEvaluationId, EventHandler<DataPortalResult<RobotOpenAiPromptEvaluationDataList>> handler)
         {
             DataPortal<RobotOpenAiPromptEvaluationDataList> dp = new DataPortal<RobotOpenAiPromptEvaluationDataList>();
             dp.FetchCompleted += handler;
-            dp.BeginFetch(new RobotOpenAiPromptEvaluationDataSelectionCriteria(typeof(RobotOpenAiPromptEvaluationDataList), OpenAiPromptEvaluationId));
+            //dp.BeginFetch(new RobotOpenAiPromptEvaluationDataSelectionCriteria(typeof(RobotOpenAiPromptEvaluationDataList), OpenAiPromptEvaluationId));
+            dp.BeginFetch(new SingleCriteria<RobotOpenAiPromptEvaluationDataList, int>(OpenAiPromptEvaluationId));
         }
 
 
-#if SILVERLIGHT
-        public RobotOpenAiPromptEvaluationDataList() { }
-#else
-        public RobotOpenAiPromptEvaluationDataList() { }
-#endif
-
-#if SILVERLIGHT
-       
-#else
-        protected void DataPortal_Fetch(RobotOpenAiPromptEvaluationDataSelectionCriteria criteria)
+        protected void DataPortal_Fetch(SingleCriteria<RobotOpenAiPromptEvaluationDataList, int> criteria)
         {
+            IsReadOnly = false;
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             RaiseListChangedEvents = false;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
@@ -52,7 +45,7 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlCommand command = new SqlCommand("st_RobotOpenAiPromptEvaluationDataList", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@OPENAI_PROMPT_EVALUATION_ID", criteria.OpenAiPromptEvaluationId));
+                    command.Parameters.Add(new SqlParameter("@OPENAI_PROMPT_EVALUATION_ID", criteria.Value));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         while (reader.Read())
@@ -63,11 +56,11 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 connection.Close();
             }
+            IsReadOnly = true;
             RaiseListChangedEvents = true;
         }
 
-#endif
-
+        /*
         [Serializable]
         public class RobotOpenAiPromptEvaluationDataSelectionCriteria : Csla.CriteriaBase<RobotOpenAiPromptEvaluationDataSelectionCriteria>
         {
@@ -81,6 +74,6 @@ namespace BusinessLibrary.BusinessClasses
                 LoadProperty(OpenAiPromptEvaluationIdProperty, openAiPromptEvaluationId);
             }
             public RobotOpenAiPromptEvaluationDataSelectionCriteria() { }
-        }
+        }*/
     }
 }

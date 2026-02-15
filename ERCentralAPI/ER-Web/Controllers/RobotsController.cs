@@ -210,6 +210,7 @@ namespace ERxWebClient2.Controllers
             }
 
         }
+        // ************************************ Below here is OpenAi Prompt Evaluation *******************************
         [HttpPost("[action]")]
         public IActionResult EnqueueRobotOpenAIBatchJobEvaluation([FromBody] RobotOpenAiQueueBatchJobEvaluationCommandJson data)
         {
@@ -249,6 +250,64 @@ namespace ERxWebClient2.Controllers
             }
 
         }
+        [HttpGet("[action]")]
+        public IActionResult FetchRobotOpenAiPromptEvaluationList()
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                DataPortal<RobotOpenAiPromptEvaluationList> dp = new DataPortal<RobotOpenAiPromptEvaluationList>();
+                RobotOpenAiPromptEvaluationList result = dp.Fetch();
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error in FetchRobotOpenAiPromptEvaluationList");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpPost("[action]")]
+        public IActionResult FetchRobotOpenAiPromptEvaluationDataList([FromBody] string crit)
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                SingleCriteria<RobotOpenAiPromptEvaluationDataList, int> criteria =
+                    new SingleCriteria<RobotOpenAiPromptEvaluationDataList, int>(Convert.ToInt32(crit));
+
+                DataPortal<RobotOpenAiPromptEvaluationDataList> dp = new DataPortal<RobotOpenAiPromptEvaluationDataList>();
+                RobotOpenAiPromptEvaluationDataList result = dp.Fetch(criteria);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error in FetchRobotOpenAiPromptEvaluationDataList");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpPost("[action]")]
+        public IActionResult DeleteRobotOpenAiPromptEvaluation([FromBody] string crit)
+        {
+            try
+            {
+                if (!SetCSLAUser4Writing()) return Unauthorized();
+                SingleCriteria<RobotOpenAiPromptEvaluation, string> criteria =
+                    new SingleCriteria<RobotOpenAiPromptEvaluation, string>(crit);
+
+                DataPortal<RobotOpenAiPromptEvaluation> dp = new DataPortal<RobotOpenAiPromptEvaluation>();
+                dp.Delete(criteria);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error in DeleteRobotOpenAiPromptEvaluation");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        // ******************************* end OpenAI prompt evaluation ********************************************
     }
 }
 

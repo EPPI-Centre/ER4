@@ -257,6 +257,87 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
       });
   }
 
+  private _RobotOpenAiPromptEvaluationList: RobotOpenAiPromptEvaluation[] = [];
+  public get RobotOpenAiPromptEvaluationList(): RobotOpenAiPromptEvaluation[] {
+    return this._RobotOpenAiPromptEvaluationList;
+  }
+  public set RobotOpenAiPromptEvaluationList(robotOpenAiPromptEvaluationList: RobotOpenAiPromptEvaluation[]) {
+    this._RobotOpenAiPromptEvaluationList = robotOpenAiPromptEvaluationList;
+  }
+  private _currentRobotOpenAiPromptEvaluationDataList: RobotOpenAiPromptEvaluationData[] = [];
+  public get CurrentRobotOpenAiPromptEvaluationDataList(): RobotOpenAiPromptEvaluationData[] {
+    return this._currentRobotOpenAiPromptEvaluationDataList;
+  }
+  public set CurrentRobotOpenAiPromptEvaluationDataList(robotOpenAiPromptEvaluationDataList: RobotOpenAiPromptEvaluationData[]) {
+    this._currentRobotOpenAiPromptEvaluationDataList = robotOpenAiPromptEvaluationDataList;
+  }
+
+  public FetchRobotOpenAiPromptEvaluationList() {
+    this._BusyMethods.push("FetchRobotOpenAiPromptEvaluationList");
+    lastValueFrom(this._httpC.get<RobotOpenAiPromptEvaluation[]>(this._baseUrl + 'api/Robots/FetchRobotOpenAiPromptEvaluationList'))
+      .then(result => {
+        this.RemoveBusy("FetchRobotOpenAiPromptEvaluationList");
+        if (result != null) {
+          this.RobotOpenAiPromptEvaluationList = result;
+
+          console.log('this.FetchRobotOpenAiPromptEvaluationList', this.RobotOpenAiPromptEvaluationList);
+        }
+      },
+        error => {
+          this.RemoveBusy("FetchRobotOpenAiPromptEvaluationList");
+          this.modalService.GenericError(error);
+        }).catch(
+          (caught) => {
+            this.modalService.GenericError(caught);
+            this.RemoveBusy("FetchRobotOpenAiPromptEvaluationList");
+          });
+  }
+  public FetchRobotOpenAiPromptEvaluationDataList(openAiPromptEvaluationId: string) {
+    this._BusyMethods.push("FetchRobotOpenAiPromptEvaluationDataList");
+    //let body = JSON.stringify(OpenAiPromptEvaluationId);
+
+    const params = { openAiPromptEvaluationId };
+
+    //lastValueFrom(this._httpC.get<RobotOpenAiPromptEvaluationData[]>(this._baseUrl + 'api/Robots/FetchRobotOpenAiPromptEvaluationDataList', {params}))
+    lastValueFrom(this._httpC.post<RobotOpenAiPromptEvaluationData[]>(this._baseUrl + 'api/Robots/FetchRobotOpenAiPromptEvaluationDataList', openAiPromptEvaluationId,
+      { headers: { 'Content-Type': 'application/json' } }))
+      .then((result) => {
+        this.RemoveBusy("FetchRobotOpenAiPromptEvaluationDataList");
+        if (result != null) {
+          this._currentRobotOpenAiPromptEvaluationDataList = result;
+
+          console.log('this.FetchRobotOpenAiPromptEvaluationDataList', this._currentRobotOpenAiPromptEvaluationDataList);
+        }
+      },
+        error => {
+          this.RemoveBusy("FetchRobotOpenAiPromptEvaluationDataList");
+          this.modalService.GenericError(error);
+        }).catch(
+          (caught) => {
+            this.modalService.GenericError(caught);
+            this.RemoveBusy("FetchRobotOpenAiPromptEvaluationDataList");
+          });
+  }
+
+  public DeleteRobotOpenAiPromptEvaluation(OpenAiPromptEvaluationId: string) {
+    this._BusyMethods.push("DeleteRobotOpenAiPromptEvaluation");
+    let body = JSON.stringify(OpenAiPromptEvaluationId);
+    return lastValueFrom(this._httpC.post<RobotOpenAiPromptEvaluation>(this._baseUrl + 'api/Robots/DeleteRobotOpenAiPromptEvaluation',
+      body))
+      .then(
+        (result) => {
+          this.RemoveBusy("DeleteRobotOpenAiPromptEvaluation");
+          this.FetchRobotOpenAiPromptEvaluationList();
+          return true;
+        }, error => {
+          this.modalService.GenericError(error);
+          //this.modalService.GenericErrorMessage("There was an error getting the RobotOpenAiPromptEvaluationList. Please contact eppisupport@ucl.ac.uk");
+          this.RemoveBusy("DeleteRobotOpenAiPromptEvaluation");
+          return false;
+        }
+      );
+  }
+
   public TextFromAttributeId(AttId: number): string {
     const res = this._reviewSetsService.FindAttributeById(AttId);
     if (res) {
@@ -520,4 +601,28 @@ export interface iRobotOpenAiCancelQueuedBatchJobCommand {
 export interface iRobotOpenAiCancelQueuedBatchJobEvaluationCommand {
   jobId: number;
   success: boolean;
+}
+
+export interface RobotOpenAiPromptEvaluation {
+  openAiPromptEvaluationId: string;
+  title: string;
+  robotName: string;
+  reviewSetHtml: string;
+  usePdfs: boolean;
+  nIterations: number;
+  nRecords: number;
+  nCodes: number;
+  tp: number;
+  tn: number;
+  fp: number;
+  fn: number;
+  whenRun: Date;
+}
+export interface RobotOpenAiPromptEvaluationData {
+  openaiPromptEvaluationId: number;
+  iteration: number;
+  itemId: number;
+  attributeId: number;
+  additionalText: string;
+  goldStandard: boolean;
 }
