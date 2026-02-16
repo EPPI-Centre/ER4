@@ -383,7 +383,7 @@
     <None Update="SQLScripts\762.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="SQLScripts\JT_working.sql">
+    <None Update="SQLScripts\764.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="SQL_Changes_ManagerSettings.json">
