@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { ConfigService } from './config.service';
-import { lastValueFrom, Subscription } from 'rxjs';
+import { lastValueFrom, Subscription, Timestamp } from 'rxjs';
 import { EventEmitterService } from './EventEmitter.service';
 import { ReviewSetsService } from './ReviewSets.service';
 
@@ -271,6 +271,13 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
   public set CurrentRobotOpenAiPromptEvaluationDataList(robotOpenAiPromptEvaluationDataList: RobotOpenAiPromptEvaluationData[]) {
     this._currentRobotOpenAiPromptEvaluationDataList = robotOpenAiPromptEvaluationDataList;
   }
+  public _currentRobotOpenAiPromptEvaluation: RobotOpenAiPromptEvaluation | null = null;
+  public get currentRobotOpenAiPromptEvaluation(): RobotOpenAiPromptEvaluation | null {
+    return this._currentRobotOpenAiPromptEvaluation;
+  }
+  public set CurrentRobotOpenAiPromptEvaluation(item: RobotOpenAiPromptEvaluation | null) {
+    this._currentRobotOpenAiPromptEvaluation = item;
+  }
 
   public FetchRobotOpenAiPromptEvaluationList() {
     this._BusyMethods.push("FetchRobotOpenAiPromptEvaluationList");
@@ -292,10 +299,11 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
             this.RemoveBusy("FetchRobotOpenAiPromptEvaluationList");
           });
   }
-  public FetchRobotOpenAiPromptEvaluationDataList(openAiPromptEvaluationId: string) {
+  public FetchRobotOpenAiPromptEvaluationDataList(item: RobotOpenAiPromptEvaluation) {
     this._BusyMethods.push("FetchRobotOpenAiPromptEvaluationDataList");
     //let body = JSON.stringify(OpenAiPromptEvaluationId);
-
+    const openAiPromptEvaluationId = item.openAiPromptEvaluationId;
+    this.CurrentRobotOpenAiPromptEvaluation = item;
     const params = { openAiPromptEvaluationId };
 
     //lastValueFrom(this._httpC.get<RobotOpenAiPromptEvaluationData[]>(this._baseUrl + 'api/Robots/FetchRobotOpenAiPromptEvaluationDataList', {params}))

@@ -95,8 +95,8 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(GoldStandardAttributeNameProperty, value);
             }
         }
-        public static readonly PropertyInfo<SmartDate> WhenRunProperty = RegisterProperty<SmartDate>(new PropertyInfo<SmartDate>("WhenRun", "WhenRun"));
-        public SmartDate WhenRun
+        public static readonly PropertyInfo<DateTime> WhenRunProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("WhenRun", "WhenRun"));
+        public DateTime WhenRun
         {
             get
             {
@@ -284,7 +284,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<int>(TNProperty, reader.GetInt32("TN"));
             returnValue.LoadProperty<int>(FPProperty, reader.GetInt32("FP"));
             returnValue.LoadProperty<int>(FNProperty, reader.GetInt32("FN"));
-            returnValue.LoadProperty<SmartDate>(WhenRunProperty, reader.GetSmartDate("WHEN_RUN"));
+            returnValue.LoadProperty<DateTime>(WhenRunProperty, reader.GetDateTime("WHEN_RUN"));
             returnValue.LoadProperty<bool>(UsePdfsProperty, reader.GetBoolean("USE_PDFS"));
             returnValue.MarkOld();
             return returnValue;

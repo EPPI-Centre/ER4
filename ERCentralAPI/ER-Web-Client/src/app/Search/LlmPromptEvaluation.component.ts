@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, ElementRef } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewService } from '../services/review.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -17,10 +17,11 @@ import {
   iRobotOpenAiCancelQueuedBatchJobEvaluationCommand, RobotOpenAiPromptEvaluation, RobotOpenAiPromptEvaluationData,
   ConfusionMatrixSummary, ConfusionMatrixRow, AttributeLookup
 } from '../services/Robots.service';
-import { saveAs } from '@progress/kendo-file-saver';
+import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
 import 'hammerjs';
 import { NgModel } from '@angular/forms';
 import { Helpers } from '../helpers/HelperMethods';
+import { NONE_TYPE } from '@angular/compiler';
 
 
 @Component({
@@ -143,6 +144,10 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   public selectedModelDropDown1: string = '';
   public selectedModelDropDown2: string = '';
   public selectedModelDropDown3: string = '';
+  public currentSelectedEvaluationCodeSetName: string = '';
+  public currentSelectedEvaluationDateRun: Date | null = null;
+  public currentSelectedEvaluationTitle: string = '';
+  public currentSelectedEvaluationContactName: string = '';
   
   public evaluationNameText: string = '';
 
@@ -189,7 +194,11 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   }
 
   showEvaluation(item: RobotOpenAiPromptEvaluation) {
-    this._robotsService.FetchRobotOpenAiPromptEvaluationDataList(item.openAiPromptEvaluationId);
+    this.currentSelectedEvaluationCodeSetName = this.getCodeSetName(item);
+    this.currentSelectedEvaluationDateRun = item.whenRun;
+    this.currentSelectedEvaluationTitle = item.title;
+    this.currentSelectedEvaluationContactName = item.contactName;
+    this._robotsService.FetchRobotOpenAiPromptEvaluationDataList(item);
   }
 
   public get metrics(): ConfusionMatrixSummary[] {
@@ -207,8 +216,18 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   getAttributeName(attributeId: number): string {
     return this._robotsService.getAttributeName(this._robotsService.attributeLookup, attributeId);
   }  
-
-
+  public getCodeSetName(item: RobotOpenAiPromptEvaluation): string {
+    let html = item.reviewSetHtml;
+    const start = html.indexOf("<h2>") + 4;
+    const end = html.indexOf("</h2>");
+    return html.substring(start, end);
+  }
+  public DownloadSelectedEvaluationCodingTool() {
+    if (this._robotsService.currentRobotOpenAiPromptEvaluation == null || this._robotsService.currentRobotOpenAiPromptEvaluation.reviewSetHtml == "") return;
+    const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(this._robotsService.currentRobotOpenAiPromptEvaluation.reviewSetHtml, this._baseUrl, "Coding Tool Printout"));
+    //console.log("Savign report:", dataURI)
+    saveAs(dataURI, "Coding Tool printout.html");
+  }
   public confirmDeleteEvaluation(item: RobotOpenAiPromptEvaluation) {
     this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to delete this evaluation?', false, '')
       .then(

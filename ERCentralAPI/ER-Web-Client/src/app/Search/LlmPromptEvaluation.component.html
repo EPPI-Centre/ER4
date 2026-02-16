@@ -113,50 +113,48 @@
                   <th class=""></th>
                 </tr>
               </thead>
-
               <tbody>
                 <tr *ngFor="let item of RobotOpenAiPromptEvaluationList">
-
                   <td class="">
                     <button (click)="showEvaluation(item)" class="btn btn-link px-1 py-0">{{item.title}}</button>
                   </td>
-                  <td class="">
-                    {{item.contactName}}
-                  </td>
-                  <td class="">
-                    {{item.robotName}}
-                  </td>
-                  <td class="">
-                    {{item.nRecords}}
-                  </td>
-                  <td class="">
-                    {{item.nCodes}}
-                  </td>
-                  <td class="">
-                    {{item.nIterations}}
-                  </td>
-                  <td class="">
-                    {{item.tp}}
-                  </td>
-                  <td class="">
-                    {{item.tn}}
-                  </td>
-                  <td class="">
-                    {{item.fp}}
-                  </td>
-                  <td class="">
-                    {{item.fn}}
-                  </td>
+  <td class="">
+    {{item.contactName}}
+  </td>
+  <td class="">
+    {{item.robotName}}
+  </td>
+  <td class="">
+    {{item.nRecords}}
+  </td>
+  <td class="">
+    {{item.nCodes}}
+  </td>
+  <td class="">
+    {{item.nIterations}}
+  </td>
+  <td class="">
+    {{item.tp}}
+  </td>
+  <td class="">
+    {{item.tn}}
+  </td>
+  <td class="">
+    {{item.fp}}
+  </td>
+  <td class="">
+    {{item.fn}}
+  </td>
 
-                  <td class="" style="min-width: 65px; max-width: 65px; text-align:right">
-                    <button class="btn btn-sm btn-danger" title="Delete this evaluation" (click)="confirmDeleteEvaluation(item)">
-                      <span class="k-icon k-i-trash" size="small" style="position: relative; top:-2px;"></span>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+  <td class="" style="min-width: 65px; max-width: 65px; text-align:right">
+    <button class="btn btn-sm btn-danger" title="Delete this evaluation" (click)="confirmDeleteEvaluation(item)">
+      <span class="k-icon k-i-trash" size="small" style="position: relative; top:-2px;"></span>
+    </button>
+  </td>
+  </tr>
+  </tbody>
+  </table>
+</div>
         </div>
       </div>
     </div>
@@ -199,13 +197,20 @@
       <div class="card container-fluid mt-1 bg-light border border-primary rounded px-1 mx-0">
         <div class="p-1 m-0 ">
           <div>
-            <b>Results of evaluation</b>
+            <h4>{{ currentSelectedEvaluationTitle }}</h4>
           </div>
-          <h5 class="mt-4">Performance Metrics</h5>
+          <div>
+            <h5>Codeset:{{ currentSelectedEvaluationCodeSetName }} </h5>
+          </div>
+          <div><h5>Run by: {{ currentSelectedEvaluationContactName }} on {{ currentSelectedEvaluationDateRun ? (currentSelectedEvaluationDateRun | date:'medium') : 'no date' }}</h5></div>
+          <div>
+            <button (click)="DownloadSelectedEvaluationCodingTool()" class="btn btn-link px-1 py-0">Download copy of the coding tool as used in this evaluation</button>
+          </div>
+          <h5 class="mt-4">Summary performance metrics</h5>
           <table class="table table-sm table-striped">
             <thead class="table-primary">
               <tr>
-                <th>Attribute Name</th>
+                <th>Code name</th>
                 <th class="text-center">Sensitivity (Recall)</th>
                 <th class="text-center">Specificity</th>
                 <th class="text-center">Precision</th>
@@ -226,6 +231,7 @@
           </table>
         </div>
         <div class="confusion-matrices-container">
+          <h5 class="mt-4">Contingency tables for each code</h5>
           <div *ngFor="let attributeId of uniqueAttributeIds" class="mb-4">
             <h5 class="mb-2">{{ getAttributeName(attributeId) }}</h5>
 
