@@ -48,8 +48,8 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   @Output() PleaseCloseMe = new EventEmitter();
 
   public selectedCodeSet: ReviewSet = new ReviewSet();
-  public n_iterations: number = 5;
-  public n_in_train_set: number = 100;
+  public n_iterations: number = 3;
+  public n_in_train_set: number = 50;
   public SelectedGoldStandardEvaluationAttribute: number = 0;
   public SelectedGoldStandardTrainTestAttribute: number = 0;
   public SelectedTrainTestBelowHereAttribute: number = 0;
@@ -222,12 +222,20 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     const end = html.indexOf("</h2>");
     return html.substring(start, end);
   }
+  public listItems(thisRow: ConfusionMatrixRow, trueOrFalseHuman: boolean) {
+    const r = thisRow.attributeId;
+
+    // grab: attributeId, trueOrFalseHuman, and the LLM true / false from the first field in the row
+    // then put this information through the system into the searchlist object.
+
+  }
   public DownloadSelectedEvaluationCodingTool() {
     if (this._robotsService.currentRobotOpenAiPromptEvaluation == null || this._robotsService.currentRobotOpenAiPromptEvaluation.reviewSetHtml == "") return;
     const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(this._robotsService.currentRobotOpenAiPromptEvaluation.reviewSetHtml, this._baseUrl, "Coding Tool Printout"));
     //console.log("Savign report:", dataURI)
     saveAs(dataURI, "Coding Tool printout.html");
   }
+  
   public confirmDeleteEvaluation(item: RobotOpenAiPromptEvaluation) {
     this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to delete this evaluation?', false, '')
       .then(
@@ -252,10 +260,29 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
 
     return this.ReviewerIdentityServ.HasWriteRights;
   }
-
+  public get SimulationNameAlreadyExists() {
+    for (let evaluation of this._robotsService.RobotOpenAiPromptEvaluationList) {
+      if (evaluation.title.toLowerCase() == this.evaluationNameText.toLowerCase()) {
+        return true;
+      }
+    }
+    return false;
+  }
+  private readonly pattern = /^[A-Za-z0-9\-_ ]+$/;
+  public get evaluationNameIsInvalid(): number {
+    if (this.evaluationNameText.length == 0) return 1;
+    else if (this.evaluationNameText.length < 4) return 2;
+    else if (this.pattern.test(this.evaluationNameText) == false) return 3;
+    else if (this.SimulationNameAlreadyExists) return 4;
+    return 0;
+  }
   public get CanRunOpenAIrobot(): boolean {
     if (!this.HasWriteRights) return false;
-    else if (!this.reviewInfoService.ReviewInfo.canUseRobots) return false;
+    if (!this.reviewInfoService.ReviewInfo.canUseRobots) return false;
+    if (this.selectedCodeSet == null) return false;
+    if (this.SelectedGoldStandardEvaluationAttribute == null) return false;
+    if (this.RobotSettings.robotName == "") return false;
+    if (this.evaluationNameIsInvalid) return false;
     return true;
   }
 
@@ -265,7 +292,21 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     if (!selected) return null;
     return selected;
   }
-
+  public openConfirmationDialogPromptEvaluation() {
+    this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to run the evaluation with these codes?', false, '')
+      .then(
+        (confirmed: any) => {
+          //console.log('User confirmed:', confirmed);
+          if (confirmed) {
+            this.ActuallyRunRobotOpenAICommandEvaluation();
+          }
+          else {
+            //alert('pressed cancel close dialog');
+          };
+        }
+      )
+      .catch(() => { });
+  }
   public RunRobotOpenAICommandEvaluation() {
     this.ActuallyRunRobotOpenAICommandEvaluation();
   }

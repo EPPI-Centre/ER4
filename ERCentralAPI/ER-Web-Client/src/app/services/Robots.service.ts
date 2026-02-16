@@ -409,7 +409,6 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
     this.attributeLookup = this.getUniqueAttributes(data);  
   }  
 
-
   calculateConfusionMatrices(data: RobotOpenAiPromptEvaluationData[]): ConfusionMatrixRow[] {
   if (!data || data.length === 0) {
     return [];
