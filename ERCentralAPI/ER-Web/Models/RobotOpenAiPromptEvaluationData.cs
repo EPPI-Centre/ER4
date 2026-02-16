@@ -107,6 +107,18 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(AdditionalTextProperty, value);
             }
         }
+        public static readonly PropertyInfo<string> AttributeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeName", "AttributeName"));
+        public string AttributeName
+        {
+            get
+            {
+                return GetProperty(AttributeNameProperty);
+            }
+            set
+            {
+                SetProperty(AttributeNameProperty, value);
+            }
+        }
         public static readonly PropertyInfo<bool> GoldStandardProperty = RegisterProperty<bool>(new PropertyInfo<bool>("GoldStandard", "GoldStandard"));
         public bool GoldStandard
         {
@@ -155,6 +167,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<Int64>(ItemIdProperty, reader.GetInt64("ITEM_ID"));
             returnValue.LoadProperty<Int64>(AttributeIdProperty, reader.GetInt64("ATTRIBUTE_ID"));
             returnValue.LoadProperty<string>(AdditionalTextProperty, reader.GetString("ADDITIONAL_TEXT"));
+            returnValue.LoadProperty<string>(AttributeNameProperty, reader.GetString("ATTRIBUTE_NAME"));
             returnValue.LoadProperty<bool>(GoldStandardProperty, reader.GetBoolean("GOLD_STANDARD"));
             returnValue.MarkOld();
             return returnValue;

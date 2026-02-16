@@ -71,6 +71,30 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(RobotNameProperty, value);
             }
         }
+        public static readonly PropertyInfo<string> ContactNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactName", "ContactName"));
+        public string ContactName
+        {
+            get
+            {
+                return GetProperty(ContactNameProperty);
+            }
+            set
+            {
+                SetProperty(ContactNameProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<string> GoldStandardAttributeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("GoldStandardAttributeName", "GoldStandardAttributeName"));
+        public string GoldStandardAttributeName
+        {
+            get
+            {
+                return GetProperty(GoldStandardAttributeNameProperty);
+            }
+            set
+            {
+                SetProperty(GoldStandardAttributeNameProperty, value);
+            }
+        }
         public static readonly PropertyInfo<SmartDate> WhenRunProperty = RegisterProperty<SmartDate>(new PropertyInfo<SmartDate>("WhenRun", "WhenRun"));
         public SmartDate WhenRun
         {
@@ -234,10 +258,10 @@ namespace BusinessLibrary.BusinessClasses
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-                using (SqlCommand command = new SqlCommand("[st_RobotOpenAIPromptEvaluationDelete", connection))
+                using (SqlCommand command = new SqlCommand("st_RobotOpenAIPromptEvaluationDelete", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@OPENAI_PROMPT_EVALUATION_ID", this.OpenAiPromptEvaluationId));
+                    command.Parameters.Add(new SqlParameter("@OPENAI_PROMPT_EVALUATION_ID", criteria.Value));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();
@@ -250,14 +274,16 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(TitleProperty, reader.GetString("TITLE"));
             returnValue.LoadProperty<string>(ReviewSetHtmlProperty, reader.GetString("REVIEW_SET_HTML"));
             returnValue.LoadProperty<string>(RobotNameProperty, reader.GetString("ROBOT_NAME"));
+            returnValue.LoadProperty<string>(ContactNameProperty, reader.GetString("CONTACT_NAME"));
+            returnValue.LoadProperty<string>(GoldStandardAttributeNameProperty, reader.GetString("GOLD_STANDARD_ATTRIBUTE_NAME"));
             returnValue.LoadProperty<Int32>(NRecordsProperty, reader.GetInt32("N_RECORDS"));
             returnValue.LoadProperty<Int32>(NIterationsProperty, reader.GetInt32("N_ITERATIONS"));
             returnValue.LoadProperty<Int32>(OpenAiPromptEvaluationIdProperty, reader.GetInt32("OPENAI_PROMPT_EVALUATION_ID"));
             returnValue.LoadProperty<Int32>(NCodesProperty, reader.GetInt32("N_CODES"));
-            returnValue.LoadProperty<Int32>(TPProperty, reader.GetInt32("TP"));
-            returnValue.LoadProperty<Int32>(TNProperty, reader.GetInt32("TN"));
-            returnValue.LoadProperty<Int32>(FPProperty, reader.GetInt32("FP"));
-            returnValue.LoadProperty<Int32>(FNProperty, reader.GetInt32("FN"));
+            returnValue.LoadProperty<int>(TPProperty, reader.GetInt32("TP"));
+            returnValue.LoadProperty<int>(TNProperty, reader.GetInt32("TN"));
+            returnValue.LoadProperty<int>(FPProperty, reader.GetInt32("FP"));
+            returnValue.LoadProperty<int>(FNProperty, reader.GetInt32("FN"));
             returnValue.LoadProperty<SmartDate>(WhenRunProperty, reader.GetSmartDate("WHEN_RUN"));
             returnValue.LoadProperty<bool>(UsePdfsProperty, reader.GetBoolean("USE_PDFS"));
             returnValue.MarkOld();

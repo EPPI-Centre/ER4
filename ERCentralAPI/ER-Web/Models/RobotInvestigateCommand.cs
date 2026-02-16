@@ -224,7 +224,8 @@ namespace BusinessLibrary.BusinessClasses
                             command.Parameters.Add(new SqlParameter("@FORCE_CODING_IN_ROBOT_NAME", false));
                             command.Parameters.Add(new SqlParameter("@LOCK_CODING", false));
                             command.Parameters.Add(new SqlParameter("@USE_PDFS", false));
-                            command.Parameters.Add(new SqlParameter("@N_ITERATIONS", 0));
+                            command.Parameters.Add(new SqlParameter("@N_ITERATIONS", 1L));
+                            command.Parameters.Add(new SqlParameter("@OPENAI_PROMPT_EVALUATION_ID", 0L));
                             command.Parameters.Add(new SqlParameter("@result", SqlDbType.VarChar));
                             command.Parameters["@result"].Size = 50;
                             command.Parameters["@result"].Direction = System.Data.ParameterDirection.Output;

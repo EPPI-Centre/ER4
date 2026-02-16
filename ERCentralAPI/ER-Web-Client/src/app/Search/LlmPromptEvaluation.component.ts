@@ -12,7 +12,11 @@ import { ReviewSetsService, ReviewSet, SetAttribute, singleNode } from '../servi
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ChartComponent } from '@progress/kendo-angular-charts';
 //import { iRobotOpenAICommand, RobotsService, iRobotSettings } from '../services/Robots.service';
-import { iRobotOpenAiQueueBatchJobEvaluationCommand, iRobotCoderReadOnly, iRobotSettings, RobotsService, iRobotOpenAiCancelQueuedBatchJobEvaluationCommand, RobotOpenAiPromptEvaluation, RobotOpenAiPromptEvaluationData } from '../services/Robots.service';
+import {
+  iRobotOpenAiQueueBatchJobEvaluationCommand, iRobotCoderReadOnly, iRobotSettings, RobotsService,
+  iRobotOpenAiCancelQueuedBatchJobEvaluationCommand, RobotOpenAiPromptEvaluation, RobotOpenAiPromptEvaluationData,
+  ConfusionMatrixSummary, ConfusionMatrixRow, AttributeLookup
+} from '../services/Robots.service';
 import { saveAs } from '@progress/kendo-file-saver';
 import 'hammerjs';
 import { NgModel } from '@angular/forms';
@@ -188,8 +192,41 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     this._robotsService.FetchRobotOpenAiPromptEvaluationDataList(item.openAiPromptEvaluationId);
   }
 
-  confirmDeleteEvaluation(item: RobotOpenAiPromptEvaluation) {
+  public get metrics(): ConfusionMatrixSummary[] {
+    return this._robotsService.metrics;
+  }
+  public get uniqueAttributeIds(): number[] {
+    return this._robotsService.uniqueAttributeIds;
+  }
+  public getRowsForAttribute(attributeId: number): ConfusionMatrixRow[] { 
+    return this._robotsService.getRowsForAttribute(attributeId);
+  }
+  public getMetricsForAttribute(attributeId: number): ConfusionMatrixSummary | undefined {
+    return this._robotsService.getMetricsForAttribute(attributeId);
+  }
+  getAttributeName(attributeId: number): string {
+    return this._robotsService.getAttributeName(this._robotsService.attributeLookup, attributeId);
+  }  
 
+
+  public confirmDeleteEvaluation(item: RobotOpenAiPromptEvaluation) {
+    this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to delete this evaluation?', false, '')
+      .then(
+        (confirmed: any) => {
+          //console.log('User confirmed:', confirmed);
+          if (confirmed) {
+            this.deleteEvaluation(item);
+          }
+          else {
+            //alert('pressed cancel close dialog');
+          };
+        }
+      )
+      .catch(() => { });
+  }
+
+  deleteEvaluation(item: RobotOpenAiPromptEvaluation) {
+    this._robotsService.DeleteRobotOpenAiPromptEvaluation(item.openAiPromptEvaluationId);
   }
 
   public get HasWriteRights(): boolean {
