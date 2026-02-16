@@ -1227,9 +1227,9 @@ namespace BusinessLibrary.BusinessClasses
             public int created { get; set; }
             public string model { get; set; }
             public Prompt_Filter_Results[] prompt_filter_results { get; set; }
-            public Choice[] choices { get; set; } = [];
+            public Choice[] choices { get; set; } = new Choice[0];
 
-            public Output[] output { get; set; } = [];
+            public Output[] output { get; set; } = new Output[0];
             public Usage usage { get; set; }
 
             public string Content
@@ -1328,7 +1328,7 @@ namespace BusinessLibrary.BusinessClasses
             public string status { get; set; }
             public string role { get; set; }
 
-            public Content[] content { get; set; } = [];
+            public Content[] content { get; set; } = new Content[0];
 
         }
         public class Content

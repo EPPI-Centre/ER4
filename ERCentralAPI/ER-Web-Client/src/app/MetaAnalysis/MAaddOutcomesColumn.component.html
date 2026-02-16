@@ -4,18 +4,27 @@
     <div class="row mx-1"><div class="h4 mx-auto text-success">Add Column</div></div>
     <div class="row mx-1">
       <div class="row m-auto rounded py-1 px-2 border border-info bg-white">
-        <div class="ml-auto">Column type:</div>
-        <div class="row ml-1 mr-auto">
-          <input class="m-1 p-1" type="radio" value="Answer" name="QorARadio" [disabled]="HasMaxAnswerCols" (click)="DelayedCheckSelectionState()"
-                 [(ngModel)]="ColumnMode">Answer
+        <div class="col my-auto">Column type:</div>
+        <div class="col-auto">
+          <div class="row ml-1 mr-auto col-12">
+            <input class="m-1 p-1" type="radio" value="Answer" name="QorARadio" [disabled]="HasMaxAnswerCols" (click)="DelayedCheckSelectionState()"
+                   [(ngModel)]="ColumnMode">Answer (Item level)
 
-          <input class="m-1 p-1" type="radio" value="Question" name="QorARadio" [disabled]="HasMaxQuestionCols" (click)="DelayedCheckSelectionState()"
-                 [(ngModel)]="ColumnMode">Question
+            <input class="ml-2 my-1 mr-1 p-1" type="radio" value="Question" name="QorARadio" [disabled]="HasMaxQuestionCols" (click)="DelayedCheckSelectionState()"
+                   [(ngModel)]="ColumnMode">Question (Item level)
+          </div>
+          <div class="row ml-1 mr-auto border-top border-primary">
+            <input class="m-1 p-1" type="radio" value="AnswerOutcome" name="QorARadio" [disabled]="HasMaxAnswerOutcomeCols" (click)="DelayedCheckSelectionState()"
+                   [(ngModel)]="ColumnMode">Answer (Outcome level)
+
+            <input class="ml-2 my-1 mr-1 p-1" type="radio" value="QuestionOutcome" name="QorARadio" [disabled]="HasMaxQuestionOutcomeCols" (click)="DelayedCheckSelectionState()"
+                   [(ngModel)]="ColumnMode">Question (Outcome level)
+          </div>
         </div>
       </div>
     </div>
     <div class="row mx-0 mt-1">
-      <div *ngIf="ColumnMode == 'Answer' && !HasMaxAnswerCols" class="row mx-1">
+      <div *ngIf="(ColumnMode == 'Answer' || ColumnMode == 'AnswerOutcome') && !HasMaxAnswerCols" class="row mx-1">
         <div class="my-auto">Select (answer) code: </div>
         <div ngbDropdown>
           <button ngbDropdownAnchor class="btn btn-primary dropdown-toggle p-1 m-1" id="dropdownTree"
@@ -28,7 +37,7 @@
           </div>
         </div>
       </div>
-      <div *ngIf="ColumnMode == 'Question' && !HasMaxQuestionCols" class="row mx-1">
+      <div *ngIf="(ColumnMode == 'Question' || ColumnMode =='QuestionOutcome') && !HasMaxQuestionCols" class="row mx-1">
         <div class="my-auto">Select (question) code: </div>
         <div ngbDropdown>
           <button ngbDropdownAnchor class="btn btn-primary dropdown-toggle p-1 m-1" id="dropdownTree"

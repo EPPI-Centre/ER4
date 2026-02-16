@@ -81,6 +81,19 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ItemSetIdProperty, value);
             }
         }
+        public static readonly PropertyInfo<Int64> ItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemId", "ItemId"));
+        [JsonProperty]
+        public Int64 ItemId
+        {
+            get
+            {
+                return GetProperty(ItemIdProperty);
+            }
+            set
+            {
+                SetProperty(ItemIdProperty, value);
+            }
+        }
 
         public static readonly PropertyInfo<int> OutcomeTypeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("OutcomeTypeId", "OutcomeTypeId"));
         [JsonProperty]
@@ -1086,7 +1099,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(occ30Property, value);
             }
         }
-
+#region answersOnItem
         public static readonly PropertyInfo<long> aa1Property = RegisterProperty<long>(new PropertyInfo<long>("aa1", "aa1"));
         [JsonProperty]
         public long aa1
@@ -1366,7 +1379,8 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(aa20Property, value);
             }
         }
-
+# endregion
+#region questionsOnItem
         public static readonly PropertyInfo<string> aq1Property = RegisterProperty<string>(new PropertyInfo<string>("aq1", "aq1"));
         [JsonProperty]
         public string aq1
@@ -1646,9 +1660,572 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(aq20Property, value);
             }
         }
+        #endregion
 
-       
-        
+#region answersOnOutocme
+        public static readonly PropertyInfo<long> ao1Property = RegisterProperty<long>(new PropertyInfo<long>("ao1", "ao1"));
+        [JsonProperty]
+        public long ao1
+        {
+            get
+            {
+                return GetProperty(ao1Property);
+            }
+            set
+            {
+                SetProperty(ao1Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<long> ao2Property = RegisterProperty<long>(new PropertyInfo<long>("ao2", "ao2"));
+        [JsonProperty]
+        public long ao2
+        {
+            get
+            {
+                return GetProperty(ao2Property);
+            }
+            set
+            {
+                SetProperty(ao2Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<long> ao3Property = RegisterProperty<long>(new PropertyInfo<long>("ao3", "ao3"));
+        [JsonProperty]
+        public long ao3
+        {
+            get
+            {
+                return GetProperty(ao3Property);
+            }
+            set
+            {
+                SetProperty(ao3Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<long> ao4Property = RegisterProperty<long>(new PropertyInfo<long>("ao4", "ao4"));
+        [JsonProperty]
+        public long ao4
+        {
+            get
+            {
+                return GetProperty(ao4Property);
+            }
+            set
+            {
+                SetProperty(ao4Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<long> ao5Property = RegisterProperty<long>(new PropertyInfo<long>("ao5", "ao5"));
+        [JsonProperty]
+        public long ao5
+        {
+            get
+            {
+                return GetProperty(ao5Property);
+            }
+            set
+            {
+                SetProperty(ao5Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<long> ao6Property = RegisterProperty<long>(new PropertyInfo<long>("ao6", "ao6"));
+        [JsonProperty]
+        public long ao6
+        {
+            get
+            {
+                return GetProperty(ao6Property);
+            }
+            set
+            {
+                SetProperty(ao6Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<long> ao7Property = RegisterProperty<long>(new PropertyInfo<long>("ao7", "ao7"));
+        [JsonProperty]
+        public long ao7
+        {
+            get
+            {
+                return GetProperty(ao7Property);
+            }
+            set
+            {
+                SetProperty(ao7Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<long> ao8Property = RegisterProperty<long>(new PropertyInfo<long>("ao8", "ao8"));
+        [JsonProperty]
+        public long ao8
+        {
+            get
+            {
+                return GetProperty(ao8Property);
+            }
+            set
+            {
+                SetProperty(ao8Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<long> ao9Property = RegisterProperty<long>(new PropertyInfo<long>("ao9", "ao9"));
+        [JsonProperty]
+        public long ao9
+        {
+            get
+            {
+                return GetProperty(ao9Property);
+            }
+            set
+            {
+                SetProperty(ao9Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<long> ao10Property = RegisterProperty<long>(new PropertyInfo<long>("ao10", "ao10"));
+        [JsonProperty]
+        public long ao10
+        {
+            get
+            {
+                return GetProperty(ao10Property);
+            }
+            set
+            {
+                SetProperty(ao10Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<long> ao11Property = RegisterProperty<long>(new PropertyInfo<long>("ao11", "ao11"));
+        [JsonProperty]
+        public long ao11
+        {
+            get
+            {
+                return GetProperty(ao11Property);
+            }
+            set
+            {
+                SetProperty(ao11Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<long> ao12Property = RegisterProperty<long>(new PropertyInfo<long>("ao12", "ao12"));
+        [JsonProperty]
+        public long ao12
+        {
+            get
+            {
+                return GetProperty(ao12Property);
+            }
+            set
+            {
+                SetProperty(ao12Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<long> ao13Property = RegisterProperty<long>(new PropertyInfo<long>("ao13", "ao13"));
+        [JsonProperty]
+        public long ao13
+        {
+            get
+            {
+                return GetProperty(ao13Property);
+            }
+            set
+            {
+                SetProperty(ao13Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<long> ao14Property = RegisterProperty<long>(new PropertyInfo<long>("ao14", "ao14"));
+        [JsonProperty]
+        public long ao14
+        {
+            get
+            {
+                return GetProperty(ao14Property);
+            }
+            set
+            {
+                SetProperty(ao14Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<long> ao15Property = RegisterProperty<long>(new PropertyInfo<long>("ao15", "ao15"));
+        [JsonProperty]
+        public long ao15
+        {
+            get
+            {
+                return GetProperty(ao15Property);
+            }
+            set
+            {
+                SetProperty(ao15Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<long> ao16Property = RegisterProperty<long>(new PropertyInfo<long>("ao16", "ao16"));
+        [JsonProperty]
+        public long ao16
+        {
+            get
+            {
+                return GetProperty(ao16Property);
+            }
+            set
+            {
+                SetProperty(ao16Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<long> ao17Property = RegisterProperty<long>(new PropertyInfo<long>("ao17", "ao17"));
+        [JsonProperty]
+        public long ao17
+        {
+            get
+            {
+                return GetProperty(ao17Property);
+            }
+            set
+            {
+                SetProperty(ao17Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<long> ao18Property = RegisterProperty<long>(new PropertyInfo<long>("ao18", "ao18"));
+        [JsonProperty]
+        public long ao18
+        {
+            get
+            {
+                return GetProperty(ao18Property);
+            }
+            set
+            {
+                SetProperty(ao18Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<long> ao19Property = RegisterProperty<long>(new PropertyInfo<long>("ao19", "ao19"));
+        [JsonProperty]
+        public long ao19
+        {
+            get
+            {
+                return GetProperty(ao19Property);
+            }
+            set
+            {
+                SetProperty(ao19Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<long> ao20Property = RegisterProperty<long>(new PropertyInfo<long>("ao20", "ao20"));
+        [JsonProperty]
+        public long ao20
+        {
+            get
+            {
+                return GetProperty(ao20Property);
+            }
+            set
+            {
+                SetProperty(ao20Property, value);
+            }
+        }
+#endregion
+#region questionsOnItem
+        public static readonly PropertyInfo<string> aqo1Property = RegisterProperty<string>(new PropertyInfo<string>("aqo1", "aqo1"));
+        [JsonProperty]
+        public string aqo1
+        {
+            get
+            {
+                return GetProperty(aqo1Property);
+            }
+            set
+            {
+                SetProperty(aqo1Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> aqo2Property = RegisterProperty<string>(new PropertyInfo<string>("aqo2", "aqo2"));
+        [JsonProperty]
+        public string aqo2
+        {
+            get
+            {
+                return GetProperty(aqo2Property);
+            }
+            set
+            {
+                SetProperty(aqo2Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> aqo3Property = RegisterProperty<string>(new PropertyInfo<string>("aqo3", "aqo3"));
+        [JsonProperty]
+        public string aqo3
+        {
+            get
+            {
+                return GetProperty(aqo3Property);
+            }
+            set
+            {
+                SetProperty(aqo3Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> aqo4Property = RegisterProperty<string>(new PropertyInfo<string>("aqo4", "aqo4"));
+        [JsonProperty]
+        public string aqo4
+        {
+            get
+            {
+                return GetProperty(aqo4Property);
+            }
+            set
+            {
+                SetProperty(aqo4Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> aqo5Property = RegisterProperty<string>(new PropertyInfo<string>("aqo5", "aqo5"));
+        [JsonProperty]
+        public string aqo5
+        {
+            get
+            {
+                return GetProperty(aqo5Property);
+            }
+            set
+            {
+                SetProperty(aqo5Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> aqo6Property = RegisterProperty<string>(new PropertyInfo<string>("aqo6", "aqo6"));
+        [JsonProperty]
+        public string aqo6
+        {
+            get
+            {
+                return GetProperty(aqo6Property);
+            }
+            set
+            {
+                SetProperty(aqo6Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> aqo7Property = RegisterProperty<string>(new PropertyInfo<string>("aqo7", "aqo7"));
+        [JsonProperty]
+        public string aqo7
+        {
+            get
+            {
+                return GetProperty(aqo7Property);
+            }
+            set
+            {
+                SetProperty(aqo7Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> aqo8Property = RegisterProperty<string>(new PropertyInfo<string>("aqo8", "aqo8"));
+        [JsonProperty]
+        public string aqo8
+        {
+            get
+            {
+                return GetProperty(aqo8Property);
+            }
+            set
+            {
+                SetProperty(aqo8Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> aqo9Property = RegisterProperty<string>(new PropertyInfo<string>("aqo9", "aqo9"));
+        [JsonProperty]
+        public string aqo9
+        {
+            get
+            {
+                return GetProperty(aqo9Property);
+            }
+            set
+            {
+                SetProperty(aqo9Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> aqo10Property = RegisterProperty<string>(new PropertyInfo<string>("aqo10", "aqo10"));
+        [JsonProperty]
+        public string aqo10
+        {
+            get
+            {
+                return GetProperty(aqo10Property);
+            }
+            set
+            {
+                SetProperty(aqo10Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> aqo11Property = RegisterProperty<string>(new PropertyInfo<string>("aqo11", "aqo11"));
+        [JsonProperty]
+        public string aqo11
+        {
+            get
+            {
+                return GetProperty(aqo11Property);
+            }
+            set
+            {
+                SetProperty(aqo11Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> aqo12Property = RegisterProperty<string>(new PropertyInfo<string>("aqo12", "aqo12"));
+        [JsonProperty]
+        public string aqo12
+        {
+            get
+            {
+                return GetProperty(aqo12Property);
+            }
+            set
+            {
+                SetProperty(aqo12Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> aqo13Property = RegisterProperty<string>(new PropertyInfo<string>("aqo13", "aqo13"));
+        [JsonProperty]
+        public string aqo13
+        {
+            get
+            {
+                return GetProperty(aqo13Property);
+            }
+            set
+            {
+                SetProperty(aqo13Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> aqo14Property = RegisterProperty<string>(new PropertyInfo<string>("aqo14", "aqo14"));
+        [JsonProperty]
+        public string aqo14
+        {
+            get
+            {
+                return GetProperty(aqo14Property);
+            }
+            set
+            {
+                SetProperty(aqo14Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> aqo15Property = RegisterProperty<string>(new PropertyInfo<string>("aqo15", "aqo15"));
+        [JsonProperty]
+        public string aqo15
+        {
+            get
+            {
+                return GetProperty(aqo15Property);
+            }
+            set
+            {
+                SetProperty(aqo15Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> aqo16Property = RegisterProperty<string>(new PropertyInfo<string>("aqo16", "aqo16"));
+        [JsonProperty]
+        public string aqo16
+        {
+            get
+            {
+                return GetProperty(aqo16Property);
+            }
+            set
+            {
+                SetProperty(aqo16Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> aqo17Property = RegisterProperty<string>(new PropertyInfo<string>("aqo17", "aqo17"));
+        [JsonProperty]
+        public string aqo17
+        {
+            get
+            {
+                return GetProperty(aqo17Property);
+            }
+            set
+            {
+                SetProperty(aqo17Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> aqo18Property = RegisterProperty<string>(new PropertyInfo<string>("aqo18", "aqo18"));
+        [JsonProperty]
+        public string aqo18
+        {
+            get
+            {
+                return GetProperty(aqo18Property);
+            }
+            set
+            {
+                SetProperty(aqo18Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> aqo19Property = RegisterProperty<string>(new PropertyInfo<string>("aqo19", "aqo19"));
+        [JsonProperty]
+        public string aqo19
+        {
+            get
+            {
+                return GetProperty(aqo19Property);
+            }
+            set
+            {
+                SetProperty(aqo19Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> aqo20Property = RegisterProperty<string>(new PropertyInfo<string>("aqo20", "aqo20"));
+        [JsonProperty]
+        public string aqo20
+        {
+            get
+            {
+                return GetProperty(aqo20Property);
+            }
+            set
+            {
+                SetProperty(aqo20Property, value);
+            }
+        }
+        #endregion
+
+
 
         /*
          * For N, Means and SD: Data1: N 1, Data2: N 2, Data3: mean 1, Data4: mean 2, Data5: SD 1, Data6: SD 2
@@ -3207,31 +3784,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        protected void DataPortal_Fetch(SingleCriteria<Item, Int64> criteria) // used to return a specific item
-        {
-            /*
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-            {
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_Item", connection))
-                {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@ITEM_ID", criteria.Value));
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                    {
-                        if (reader.Read())
-                        {
-                            //LoadProperty<Int64>(OutcomeIdProperty, reader.GetInt64("ITEM_ID"));
-                            LoadProperty<string>(TitleProperty, reader.GetString("TITLE"));
-                        }
-                    }
-                }
-                connection.Close();
-            }
-            */
-        }
+        
 
 
         /* USED IN REPORTS N.B. DOES *NOT* GET THE ATTRIBUTES THAT APPEAR IN THE META-ANALYSIS GRID */
@@ -3327,6 +3880,7 @@ namespace BusinessLibrary.BusinessClasses
 
             returnValue.LoadProperty<int>(OutcomeIdProperty, reader.GetInt32("OUTCOME_ID"));
             returnValue.LoadProperty<Int64>(ItemSetIdProperty, reader.GetInt64("ITEM_SET_ID"));
+            returnValue.LoadProperty<Int64>(ItemIdProperty, reader.GetInt64("ITEM_ID"));
             returnValue.LoadProperty<int>(OutcomeTypeIdProperty, reader.GetInt32("OUTCOME_TYPE_ID"));
             // returnValue.LoadProperty<string>(OutcomeTypeNameProperty, reader.GetString("OUTCOME_TYPE_NAME")); <- not currently in query
             returnValue.LoadProperty<Int64>(ItemAttributeIdInterventionProperty, reader.GetInt64("ITEM_ATTRIBUTE_ID_INTERVENTION"));

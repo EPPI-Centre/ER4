@@ -163,6 +163,8 @@ namespace BusinessLibrary.BusinessClasses
         public static string CochraneAPIBaseAddress { get { return AppSettings["CochraneAPIBaseAddress"]; } }
         public static string CochraneoAuthBaseAddress { get { return AppSettings["CochraneoAuthBaseAddress"]; } }
         public static string CochraneAccountBaseAddress { get { return AppSettings["CochraneAccountBaseAddress"]; } }
+
+#if !ER4
         public static int ResumeTasksStartupDelayInSeconds
         { 
             get {
@@ -172,7 +174,7 @@ namespace BusinessLibrary.BusinessClasses
                 else return 60;
             } 
         }
-
+#endif
 
 
         public static string tenantID { get { return AzureContReviewSettings["tenantID"]; } }

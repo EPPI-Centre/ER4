@@ -196,7 +196,7 @@ namespace BusinessLibrary.BusinessClasses
                         reader2.NextResult();
                         while (reader2.Read())
                         {
-                            RobotSettings.Add(new RobotCoderSetting(reader2.GetString("SETTING_NAME"), reader2.GetString("SETTING_VALUE")));
+                            RobotSettings.Add(new RobotCoderSetting(reader2));
                         }
                     }
                 }
@@ -209,10 +209,13 @@ namespace BusinessLibrary.BusinessClasses
     public class RobotCoderSetting: BusinessBase<RobotCoderSetting>
     {
         public RobotCoderSetting() { }
-        internal RobotCoderSetting(string Name, string Value) {
-            SettingName = Name;
-            SettingValue = Value;
+#if !SILVERLIGHT
+        internal RobotCoderSetting(SafeDataReader reader) {
+            SettingName = reader.GetString("SETTING_NAME");
+            SettingValue = reader.GetString("SETTING_VALUE");
+            SettingIsInternal = reader.GetBoolean("INTERNAL_SETTING");
         }
+#endif
         public static readonly PropertyInfo<string> SettingNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SettingName", "SettingName"));
         public string SettingName
         {
@@ -235,6 +238,18 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(SettingValueProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<bool> SettingIsInternalProperty = RegisterProperty<bool>(new PropertyInfo<bool>("SettingIsInternal", "SettingIsInternal"));
+        public bool SettingIsInternal
+        {
+            get
+            {
+                return GetProperty(SettingIsInternalProperty);
+            }
+            set
+            {
+                SetProperty(SettingIsInternalProperty, value);
             }
         }
     }

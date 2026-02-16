@@ -96,8 +96,8 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
     //this.itemID.next(ItemId); 
     //console.log('FetchCoding');
     let body = JSON.stringify({ Value: ItemId });
-    this._httpC.post<iItemSet[]>(this._baseUrl + 'api/ItemSetList/Fetch',
-      body).subscribe(result => {
+    lastValueFrom(this._httpC.post<iItemSet[]>(this._baseUrl + 'api/ItemSetList/Fetch',
+      body)).then(result => {
         this.ItemCodingList = [];
         for (let iSet of result) {
           let NewRealItemSet: ItemSet = new ItemSet(iSet);
@@ -124,8 +124,8 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
     //this.itemID.next(ItemId); 
     //console.log('FetchCoding');
     this._CurrentItemAttPDFCoding = new ItemAttPDFCoding();
-    this._httpC.post<ItemAttributePDF[]>(this._baseUrl + 'api/ItemSetList/FetchPDFCoding',
-      criteria).subscribe(result => {
+    lastValueFrom(this._httpC.post<ItemAttributePDF[]>(this._baseUrl + 'api/ItemSetList/FetchPDFCoding',
+      criteria)).then(result => {
         //console.log("FetchItemAttPDFCoding", result);
         this._CurrentItemAttPDFCoding.Criteria = criteria;
         this._CurrentItemAttPDFCoding.ItemAttPDFCoding = result;
@@ -135,11 +135,10 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
         this.modalService.SendBackHomeWithError(error);
         this.ngZone.run(() => this.IsBusy);
       }
-        , () => {
-          this.RemoveBusy("FetchItemAttPDFCoding");
-          this.ngZone.run(() => this.IsBusy);
-        }
-      );
+    ).catch(() => {
+      this.RemoveBusy("FetchItemAttPDFCoding");
+      this.ngZone.run(() => this.IsBusy);
+    });
   }
 
   public async StandaloneFetchItemAttPDFCoding(criteria: ItemAttPDFCodingCrit): Promise<ItemAttributePDF[] | boolean> {
