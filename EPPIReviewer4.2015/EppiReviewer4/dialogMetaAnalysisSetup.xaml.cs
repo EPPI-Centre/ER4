@@ -160,7 +160,7 @@ namespace EppiReviewer4
             };
             radBusyEditMAIndicator.IsBusy = true;
             dp.BeginFetch(new BusinessLibrary.BusinessClasses.OutcomeList.OutcomeListSelectionCriteria(typeof(OutcomeList), ma.SetId, ma.AttributeIdIntervention,
-                ma.AttributeIdControl, ma.AttributeIdOutcome, 0, ma.MetaAnalysisId, ma.AttributeIdQuestion, ma.AttributeIdAnswer));
+                ma.AttributeIdControl, ma.AttributeIdOutcome, 0, ma.MetaAnalysisId, ma.AttributeIdQuestion, ma.AttributeIdAnswer, ma.AttributeIdQuestionOutcome, ma.AttributeIdAnswerOutcome));
         }
 
         private void SetUpOutcomesGrid(bool SetSelectSelectable)

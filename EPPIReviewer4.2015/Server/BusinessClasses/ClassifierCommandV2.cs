@@ -11,8 +11,6 @@ using Microsoft.Azure.Management.DataFactory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Rest;
 using System.Data;
-using System.Reflection.Emit;
-using Humanizer;
 
 
 
@@ -456,11 +454,10 @@ namespace BusinessLibrary.BusinessClasses
             }
             return NewJobId;
         }
-
         private void SetLocalTempFilename(int ReviewId, int ContactId, string JobType)
         {
 #if (!CSLA_NETCORE)
-				LocalFileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath 
+				LocalFileName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads\"
                     + "ReviewID" + ReviewId + "ContactId" + ContactId.ToString() + JobType + ".tsv";
 #else
             DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
@@ -1461,7 +1458,7 @@ namespace BusinessLibrary.BusinessClasses
         //static string BaseUrlScoreNewRCTModel = AzureSettings.BaseUrlScoreNewRCTModel;
         //static string apiKeyScoreNewRCTModel = AzureSettings.apiKeyScoreNewRCTModel;// Cochrane RCT Classifier v.2 (ensemble) blob storage
 
-
+# if !ER4
         public void ResumeJob(ER_Web.Services.RawTaskToResume rttr)
         {
             try
@@ -1625,7 +1622,8 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 #endif
-        
+#endif
+
     }
 }    
 

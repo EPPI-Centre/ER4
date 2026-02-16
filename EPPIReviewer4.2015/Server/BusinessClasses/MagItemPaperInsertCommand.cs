@@ -383,7 +383,7 @@ namespace BusinessLibrary.BusinessClasses
                     
                     if (_SourceOfIds == "MagSearchResults" && ms.SearchIdsStored == false && AllResultsIds.Count > 0)
                     {//we'll actually create a new source/import, so at this point, we save into TB_MAG_SEARCH the OA IDs list
-                        string OAidsListToSave = string.Join(',', AllResultsIds);
+                        string OAidsListToSave = string.Join(",", AllResultsIds);
                         ms.SearchIds = OAidsListToSave;
                         ms = ms.Save();
                     }

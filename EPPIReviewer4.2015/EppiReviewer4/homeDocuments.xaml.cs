@@ -2660,7 +2660,7 @@ namespace EppiReviewer4
             };
             radBusyEditMAIndicator.IsBusy = true;
             dp.BeginFetch(new BusinessLibrary.BusinessClasses.OutcomeList.OutcomeListSelectionCriteria(typeof(OutcomeList), ma.SetId, ma.AttributeIdIntervention,
-                ma.AttributeIdControl, ma.AttributeIdOutcome, 0, ma.MetaAnalysisId, ma.AttributeIdQuestion, ma.AttributeIdAnswer));
+                ma.AttributeIdControl, ma.AttributeIdOutcome, 0, ma.MetaAnalysisId, ma.AttributeIdQuestion, ma.AttributeIdAnswer, ma.AttributeIdQuestionOutcome, ma.AttributeIdAnswerOutcome));
         }
         private void GridViewMetaAnalyses_SelectionChanged(object sender, SelectionChangeEventArgs e)
         {
@@ -5011,12 +5011,12 @@ on the right of the main screen");
                             };
                             radBusyEditMAIndicator.IsBusy = true;
                             dp2.BeginFetch(new BusinessLibrary.BusinessClasses.OutcomeList.OutcomeListSelectionCriteria(typeof(OutcomeList), ma2.SetId, ma2.AttributeIdIntervention,
-                                ma2.AttributeIdControl, ma2.AttributeIdOutcome, 0, ma2.MetaAnalysisId, ma2.AttributeIdQuestion, ma2.AttributeIdAnswer));
+                                ma2.AttributeIdControl, ma2.AttributeIdOutcome, 0, ma2.MetaAnalysisId, ma2.AttributeIdQuestion, ma2.AttributeIdAnswer, ma2.AttributeIdQuestionOutcome, ma2.AttributeIdAnswerOutcome));
                         }
                     };
                     radBusyEditMAIndicator.IsBusy = true;
                     dp.BeginFetch(new BusinessLibrary.BusinessClasses.OutcomeList.OutcomeListSelectionCriteria(typeof(OutcomeList), ma1.SetId, ma1.AttributeIdIntervention,
-                        ma1.AttributeIdControl, ma1.AttributeIdOutcome, 0, ma1.MetaAnalysisId, ma1.AttributeIdQuestion, ma1.AttributeIdAnswer));
+                        ma1.AttributeIdControl, ma1.AttributeIdOutcome, 0, ma1.MetaAnalysisId, ma1.AttributeIdQuestion, ma1.AttributeIdAnswer, ma1.AttributeIdQuestionOutcome, ma1.AttributeIdAnswerOutcome));
                 }
             }
             else
