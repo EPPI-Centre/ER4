@@ -54,6 +54,18 @@
               </option>
             </select>
           </div>
+          <div *ngIf="showRobotDetails && SelectedRobot" class="px-1 mx-0 my-1 border border-info rounded small alert-info">
+            <div class="row mx-0">
+              <!--<div class="mx-1 font-weight-bold col-12">Robot name: {{SelectedRobot.robotName}}</div>-->
+              <div class="col mx-1 px-1">
+                <div class="mx-0">Cost per million input tokens: £{{SelectedRobot.inputTokenCostPerMillion}}</div>
+                <div class="mx-0">Cost per million output tokens: £{{SelectedRobot.outputTokenCostPerMillion}}</div>
+                <div class="mx-0">Current retirement date: {{FormatDate(SelectedRobot.retirementDate)}}</div>
+              </div>
+              <div class="col mx-0 rounded bg-light px-1"><span class="font-weight-bold">Description:</span> {{SelectedRobot.description}}</div>
+            </div>
+            <button class="btn btn-sm btn-outline-dark mr-1 py-0 small" (click)="showRobotDetails = false">Hide Details</button>
+          </div>
           <div class="col-12 mx-0 px-1 row form-group pt-1 mt-1 mt-md-0">
             <div class="mx-0 px-1 col-12 col-sm-6 col-md-4 my-auto text-sm-right">Number of iterations</div>
             <div class="my-auto">
@@ -64,43 +76,205 @@
                                     [autoCorrect]="true"
                                     class="border border-dark rounded"
                                     style="width: 100px;">
-
               </kendo-numerictextbox>
             </div>
+          </div>
+          <button class="btn btn-sm btn-outline-danger mr-1 my-auto py-0 font-weight-bold" (click)="ActuallyRunRobotOpenAICommandEvaluation()" [disabled]="!CanRunOpenAIrobot">Submit</button>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+  <div class="row mx-0 mx-0">
+    <div class="col-12 col-md-6 mx-0 px-1 mb-1">
+      <div class="card container-fluid mt-1 bg-light border border-primary rounded px-1 mx-0">
+        <div class="p-1 m-0  ">
+          <div><b>Completed Evaluations</b></div>
+          <div>
+            <button title="Refresh list" (click)="refreshRobotOpenAiPromptEvaluationList()" class="btn btn-sm btn-outline-success ml-1 mr-0 mb-1 pt-1 pb-0 px-2">
+              Refresh list  <fa-icon [icon]="faArrowsRotate" class="my-0"></fa-icon>
+            </button>
+          </div>
+          <div style="max-height:27vh; min-height:185px;overflow:auto;">
+            <table class="table-sm w-100 table-striped">
+              <thead>
+                <tr>
+                  <th class="">Name</th>
+                  <th class="">User</th>
+                  <th class="">Robot</th>
+                  <th class=""># records</th>
+                  <th class=""># codes</th>
+                  <th class=""># iterations</th>
+                  <th class="">TP</th>
+                  <th class="">TN</th>
+                  <th class="">FP</th>
+                  <th class="">FN</th>
+                  <th class=""></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of RobotOpenAiPromptEvaluationList">
+                  <td class="">
+                    <button (click)="showEvaluation(item)" class="btn btn-link px-1 py-0">{{item.title}}</button>
+                  </td>
+  <td class="">
+    {{item.contactName}}
+  </td>
+  <td class="">
+    {{item.robotName}}
+  </td>
+  <td class="">
+    {{item.nRecords}}
+  </td>
+  <td class="">
+    {{item.nCodes}}
+  </td>
+  <td class="">
+    {{item.nIterations}}
+  </td>
+  <td class="">
+    {{item.tp}}
+  </td>
+  <td class="">
+    {{item.tn}}
+  </td>
+  <td class="">
+    {{item.fp}}
+  </td>
+  <td class="">
+    {{item.fn}}
+  </td>
+
+  <td class="" style="min-width: 65px; max-width: 65px; text-align:right">
+    <button class="btn btn-sm btn-danger" title="Delete this evaluation" (click)="confirmDeleteEvaluation(item)">
+      <span class="k-icon k-i-trash" size="small" style="position: relative; top:-2px;"></span>
+    </button>
+  </td>
+  </tr>
+  </tbody>
+  </table>
+</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-md-6 mx-0 px-1 mb-1">
+    <div style="display: none;"> <!--class="card container-fluid mt-1 bg-light border border-primary rounded px-1 mx-0" -->>
+      <div class="p-1 m-0 ">
+        <div><b>Create train / test splits from gold standard data</b></div>
+        <div class="mx-0 px-1 col-12 col-sm-6 col-md-4 my-auto text-sm-right">Split records with this code</div>
+        <div ngbDropdown class="d-inline-block my-auto mx-0 px-1 col-12 col-sm-6 col-md-8 ">
+          <button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree2" (click)="isCollapsedSetSelectedGoldStandardTrainTestAttribute = !isCollapsedSetSelectedGoldStandardTrainTestAttribute; isCollapsed2SetSelectedGoldStandardTrainTestAttribute=false" [attr.aria-expanded]="!isCollapsedSetSelectedGoldStandardTrainTestAttribute" aria-controls="collapseCodeTree">{{selectedModelDropDown2}}&nbsp;</button>
+          <div (click)="SetSelectedGoldStandardTrainTestAttribute(nodeSelected)" class="dropdown-menu" id="collapseCodeTree2" [ngbCollapse]="!isCollapsedSetSelectedGoldStandardTrainTestAttribute">
+            <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown2()" [rootsOnly]=false></codesetSelector>
+          </div>
+        </div>
+        <div class="mx-0 px-1 col-12 col-sm-6 col-md-4 my-auto text-sm-right">Create below here</div>
+        <div ngbDropdown class="d-inline-block my-auto mx-0 px-1 col-12 col-sm-6 col-md-8 ">
+          <button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree3" (click)="isCollapsedSetSelectedTrainTestBelowHereAttribute = !isCollapsedSetSelectedTrainTestBelowHereAttribute; isCollapsed2SetSelectedTrainTestBelowHereAttribute=false" [attr.aria-expanded]="!isCollapsedSetSelectedTrainTestBelowHereAttribute" aria-controls="collapseCodeTree">{{selectedModelDropDown3}}&nbsp;</button>
+          <div (click)="SetSelectedTrainTestBelowHereAttribute(nodeSelected)" class="dropdown-menu" id="collapseCodeTree3" [ngbCollapse]="!isCollapsedSetSelectedTrainTestBelowHereAttribute">
+            <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown3()" [rootsOnly]=false></codesetSelector>
+          </div>
+        </div>
+        <div class="col-12 mx-0 px-1 row form-group pt-1 mt-1 mt-md-0">
+          <div class="mx-0 px-1 col-12 col-sm-6 col-md-4 my-auto text-sm-right">Number in train set</div>
+          <div class="my-auto">
+            <kendo-numerictextbox [(ngModel)]="n_in_train_set"
+                                  [min]="5" [format]="'n0'"
+                                  [max]="10000"
+                                  [step]="1"
+                                  [autoCorrect]="true"
+                                  class="border border-dark rounded"
+                                  style="width: 100px;">
+
+            </kendo-numerictextbox>
           </div>
         </div>
       </div>
     </div>
-    <div class="col-12 col-md-6 mx-0 px-1 mb-1">
+    <div class="col-12 mx-0 px-1 mb-1">
       <div class="card container-fluid mt-1 bg-light border border-primary rounded px-1 mx-0">
         <div class="p-1 m-0 ">
-          <div><b>Create train / test splits from gold standard data</b></div>
-          <div class="mx-0 px-1 col-12 col-sm-6 col-md-4 my-auto text-sm-right">Split records with this code</div>
-          <div ngbDropdown class="d-inline-block my-auto mx-0 px-1 col-12 col-sm-6 col-md-8 ">
-            <button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree2" (click)="isCollapsedSetSelectedGoldStandardTrainTestAttribute = !isCollapsedSetSelectedGoldStandardTrainTestAttribute; isCollapsed2SetSelectedGoldStandardTrainTestAttribute=false" [attr.aria-expanded]="!isCollapsedSetSelectedGoldStandardTrainTestAttribute" aria-controls="collapseCodeTree">{{selectedModelDropDown2}}&nbsp;</button>
-            <div (click)="SetSelectedGoldStandardTrainTestAttribute(nodeSelected)" class="dropdown-menu" id="collapseCodeTree2" [ngbCollapse]="!isCollapsedSetSelectedGoldStandardTrainTestAttribute">
-              <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown2()" [rootsOnly]=false></codesetSelector>
-            </div>
+          <div>
+            <h4>{{ currentSelectedEvaluationTitle }}</h4>
           </div>
-          <div class="mx-0 px-1 col-12 col-sm-6 col-md-4 my-auto text-sm-right">Create below here</div>
-          <div ngbDropdown class="d-inline-block my-auto mx-0 px-1 col-12 col-sm-6 col-md-8 ">
-            <button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree3" (click)="isCollapsedSetSelectedTrainTestBelowHereAttribute = !isCollapsedSetSelectedTrainTestBelowHereAttribute; isCollapsed2SetSelectedTrainTestBelowHereAttribute=false" [attr.aria-expanded]="!isCollapsedSetSelectedTrainTestBelowHereAttribute" aria-controls="collapseCodeTree">{{selectedModelDropDown3}}&nbsp;</button>
-            <div (click)="SetSelectedTrainTestBelowHereAttribute(nodeSelected)" class="dropdown-menu" id="collapseCodeTree3" [ngbCollapse]="!isCollapsedSetSelectedTrainTestBelowHereAttribute">
-              <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown3()" [rootsOnly]=false></codesetSelector>
-            </div>
+          <div>
+            <h5>Codeset:{{ currentSelectedEvaluationCodeSetName }} </h5>
           </div>
-          <div class="col-12 mx-0 px-1 row form-group pt-1 mt-1 mt-md-0">
-            <div class="mx-0 px-1 col-12 col-sm-6 col-md-4 my-auto text-sm-right">Number in train set</div>
-            <div class="my-auto">
-              <kendo-numerictextbox [(ngModel)]="n_in_train_set"
-                                    [min]="5" [format]="'n0'"
-                                    [max]="10000"
-                                    [step]="1"
-                                    [autoCorrect]="true"
-                                    class="border border-dark rounded"
-                                    style="width: 100px;">
+          <div><h5>Run by: {{ currentSelectedEvaluationContactName }} on {{ currentSelectedEvaluationDateRun ? (currentSelectedEvaluationDateRun | date:'medium') : 'no date' }}</h5></div>
+          <div>
+            <button (click)="DownloadSelectedEvaluationCodingTool()" class="btn btn-link px-1 py-0">Download copy of the coding tool as used in this evaluation</button>
+          </div>
+          <h5 class="mt-4">Summary performance metrics</h5>
+          <table class="table table-sm table-striped">
+            <thead class="table-primary">
+              <tr>
+                <th>Code name</th>
+                <th class="text-center">Sensitivity (Recall)</th>
+                <th class="text-center">Specificity</th>
+                <th class="text-center">Precision</th>
+                <th class="text-center">F1 Score</th>
+                <th class="text-center">Accuracy</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let m of metrics">
+                <td>{{ getAttributeName(m.attributeId) }}</td>
+                <td class="text-center">{{ m.sensitivity | number:'1.3-3' }}</td>
+                <td class="text-center">{{ m.specificity | number:'1.3-3' }}</td>
+                <td class="text-center">{{ m.precision | number:'1.3-3' }}</td>
+                <td class="text-center">{{ m.f1Score | number:'1.3-3' }}</td>
+                <td class="text-center">{{ m.accuracy | number:'1.3-3' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="confusion-matrices-container">
+          <h5 class="mt-4">Contingency tables for each code</h5>
+          <div *ngFor="let attributeId of uniqueAttributeIds" class="mb-4">
+            <h5 class="mb-2">{{ getAttributeName(attributeId) }}</h5>
 
-              </kendo-numerictextbox>
+            <table class="table table-bordered table-sm mb-2">
+              <thead class="table-light">
+                <tr>
+                  <th class="text-center" style="width: 33%"></th>
+                  <th class="text-center" style="width: 33%">Human True</th>
+                  <th class="text-center" style="width: 33%">Human False</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let row of getRowsForAttribute(attributeId)">
+                  <td class="table-light">
+                    <strong>{{ row.llmClassification ? 'LLM True' : 'LLM False' }}</strong>
+                  </td>
+                  <td class="text-center"
+                      [ngClass]="{
+                'table-success': row.llmClassification,
+                'table-danger': !row.llmClassification
+              }">
+                    {{ row.llm_human_true }}
+                    <small class="text-muted">{{ row.llmClassification ? '(TP)' : '(FN)' }}</small>
+                  </td>
+                  <td class="text-center"
+                      [ngClass]="{
+                'table-danger': row.llmClassification,
+                'table-success': !row.llmClassification
+              }">
+                    {{ row.llm_human_false }}
+                    <small class="text-muted">{{ row.llmClassification ? '(FP)' : '(TN)' }}</small>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- Metrics for this attribute -->
+            <div *ngIf="getMetricsForAttribute(attributeId) as m" class="small text-muted">
+              <span class="me-3"><strong>Sensitivity/Recall:</strong> {{ m.sensitivity | number:'1.3-3' }} | </span>
+              <span class="me-3"><strong>Specificity:</strong> {{ m.specificity | number:'1.3-3' }} | </span>
+              <span class="me-3"><strong>Precision:</strong> {{ m.precision | number:'1.3-3' }} | </span>
+              <span class="me-3"><strong>F1:</strong> {{ m.f1Score | number:'1.3-3' }} | </span>
+              <span><strong>Accuracy:</strong> {{ m.accuracy | number:'1.3-3' }}</span>
             </div>
           </div>
         </div>
@@ -108,4 +282,4 @@
     </div>
   </div>
 </div>
-<statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body"></statusbar>
+      <statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body"></statusbar>

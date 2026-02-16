@@ -489,14 +489,15 @@ namespace BusinessLibrary.BusinessClasses
                     { //first time we're executing this while loop
                         cmd = LLM_Factory.GetRobot(RT.Robot, RT.ReviewSetId, RT.ItemIDsList[done], isLastinBatch,
                                 RT.RobotApiCallId, RT.RobotContactId, RT.ReviewId, RT.JobOwnerId, RT.OnlyCodeInTheRobotName,
-                                 RT.LockTheCoding, RT.UseFullTextDocument, doclist);
+                                 RT.LockTheCoding, RT.UseFullTextDocument, doclist, nIterations: RT.NIterations, openAiPromptEvaluationId: RT.OpenAiPromptEvaluationId);
                         cmd.CreditId = RT.CreditPurchaseId;
                     } 
                     else
                     {
                         cmd = LLM_Factory.GetRobot(RT.Robot, RT.ReviewSetId, RT.ItemIDsList[done], isLastinBatch,
                                 RT.RobotApiCallId, RT.RobotContactId, RT.ReviewId, RT.JobOwnerId,
-                                RT.OnlyCodeInTheRobotName, RT.LockTheCoding, RT.UseFullTextDocument, doclist, cmd.ReviewSetForPrompts, cmd.CachedPrompt, RT.CreditPurchaseId);
+                                RT.OnlyCodeInTheRobotName, RT.LockTheCoding, RT.UseFullTextDocument, doclist, cmd.ReviewSetForPrompts,
+                                cmd.CachedPrompt, RT.CreditPurchaseId, nIterations: RT.NIterations, openAiPromptEvaluationId: RT.OpenAiPromptEvaluationId);
                     }
                     if (ApiUnresponsiveRetries > 0)
                     {

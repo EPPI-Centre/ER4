@@ -236,6 +236,22 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(JobOwnerProperty);
             }
         }
+        public static readonly PropertyInfo<int> NIterationsProperty = RegisterProperty<int>(new PropertyInfo<int>("NIterations", "NIterations"));
+        public int NIterations
+        {
+            get
+            {
+                return GetProperty(NIterationsProperty);
+            }
+        }
+        public static readonly PropertyInfo<int> OpenAiPromptEvaluationIdProperty = RegisterProperty<int>(new PropertyInfo<int>("OpenAiPromptEvaluationId", "OpenAiPromptEvaluationId"));
+        public int OpenAiPromptEvaluationId
+        {
+            get
+            {
+                return GetProperty(OpenAiPromptEvaluationIdProperty);
+            }
+        }
 
 
         //protected override void AddAuthorizationRules()
@@ -367,6 +383,8 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty<int>(JobOwnerIdProperty, reader.GetInt32("CONTACT_ID"));
             LoadProperty<bool>(UseFullTextDocumentProperty, reader.GetBoolean("USE_PDFS"));
             LoadProperty<string>(JobOwnerProperty, reader.GetString("CONTACT_NAME"));
+            LoadProperty<int>(NIterationsProperty, reader.GetInt32("N_ITERATIONS"));
+            LoadProperty<int>(OpenAiPromptEvaluationIdProperty, reader.GetInt32("OPENAI_PROMPT_EVALUATION_ID"));
             //LoadProperty<string>(RobotNameProperty, reader.GetString("ROBOT_NAME"));
 
             LoadProperty<MobileList<long>>(ItemIDsListProperty, new MobileList<long>());

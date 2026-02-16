@@ -8,19 +8,19 @@ namespace BusinessLibrary.BusinessClasses
     public static class LLM_Factory
     {
         public static LLMRobotCommand GetRobot(RobotCoderReadOnly robot, int reviewSetId, Int64 itemId, bool onlyCodeInTheRobotName = true, 
-            bool lockTheCoding = true, bool useFullTextDocument = false, int creditId = 0)
+            bool lockTheCoding = true, bool useFullTextDocument = false, int creditId = 0, int nIterations = 0)
         {
-            RobotOpenAICommand res = new RobotOpenAICommand(robot, reviewSetId, itemId, onlyCodeInTheRobotName, lockTheCoding, useFullTextDocument, creditId);
+            RobotOpenAICommand res = new RobotOpenAICommand(robot, reviewSetId, itemId, onlyCodeInTheRobotName, lockTheCoding, useFullTextDocument, creditId, n_iterations: nIterations);
             return res;
         }
 
         public static LLMRobotCommand GetRobot(RobotCoderReadOnly robot, int reviewSetId, Int64 itemId, bool isLastInBatch, int JobId, int robotContactId, int reviewId,
             int JobOwnerId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true, bool useFullTextDocument = false, string docsList = "", ReviewSet? reviewSetForPrompts = null, string cachedPrompt = ""
-            , int creditId = 0)
+            , int creditId = 0, int nIterations = 0, int openAiPromptEvaluationId = 0)
         {
             RobotOpenAICommand res = new RobotOpenAICommand(robot, reviewSetId, itemId, isLastInBatch, JobId, robotContactId, reviewId,
-            JobOwnerId, onlyCodeInTheRobotName, lockTheCoding, useFullTextDocument, docsList,
-            robot.EndPoint, AzureSettings.RobotAPIKeyByRobotName(robot.RobotName), creditId);
+                JobOwnerId, onlyCodeInTheRobotName, lockTheCoding, useFullTextDocument, docsList,
+                robot.EndPoint, AzureSettings.RobotAPIKeyByRobotName(robot.RobotName), creditId, n_iterations: nIterations, openai_prompt_evaluation_id: openAiPromptEvaluationId);
             if (reviewSetForPrompts != null) res.ReviewSetForPrompts = reviewSetForPrompts;
             if (cachedPrompt != "") res.CachedPrompt = cachedPrompt;
             return res;
@@ -65,6 +65,18 @@ namespace BusinessLibrary.BusinessClasses
         {
             get { return ReadProperty(APICallTimeoutInSecondsProperty); }
             set { LoadProperty(APICallTimeoutInSecondsProperty, value); }
+        }
+        public static readonly PropertyInfo<int> NIterationsProperty = RegisterProperty<int>(new PropertyInfo<int>("NIterations", "NIterations", 0));
+        public int NIterations
+        {
+            get { return ReadProperty(NIterationsProperty); }
+            set { LoadProperty(NIterationsProperty, value); }
+        }
+        public static readonly PropertyInfo<int> OpenAiPromptEvaluationIdProperty = RegisterProperty<int>(new PropertyInfo<int>("OpenAiPromptEvaluationId", "OpenAiPromptEvaluationId", 0));
+        public int OpenAiPromptEvaluationId
+        {
+            get { return ReadProperty(OpenAiPromptEvaluationIdProperty); }
+            set { LoadProperty(OpenAiPromptEvaluationIdProperty, value); }
         }
         protected string _message = "";
         public string ReturnMessage

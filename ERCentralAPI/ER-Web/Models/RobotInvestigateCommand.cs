@@ -224,6 +224,8 @@ namespace BusinessLibrary.BusinessClasses
                             command.Parameters.Add(new SqlParameter("@FORCE_CODING_IN_ROBOT_NAME", false));
                             command.Parameters.Add(new SqlParameter("@LOCK_CODING", false));
                             command.Parameters.Add(new SqlParameter("@USE_PDFS", false));
+                            command.Parameters.Add(new SqlParameter("@N_ITERATIONS", 1L));
+                            command.Parameters.Add(new SqlParameter("@OPENAI_PROMPT_EVALUATION_ID", 0L));
                             command.Parameters.Add(new SqlParameter("@result", SqlDbType.VarChar));
                             command.Parameters["@result"].Size = 50;
                             command.Parameters["@result"].Direction = System.Data.ParameterDirection.Output;
@@ -391,7 +393,6 @@ namespace BusinessLibrary.BusinessClasses
                 //json = JsonConvert.SerializeObject(requestBody);
                 List<string> toIgnore = new List<string>();
                 toIgnore.Add("response_format.type");
-                toIgnore.Add("text.format.type");
                 json = RobotOpenAICommand.BuildJsonRequestBody(RobotCoder, messages, toIgnore);
             }
             else
@@ -441,7 +442,7 @@ namespace BusinessLibrary.BusinessClasses
             _inputTokens = generatedText.usage.prompt_tokens;
             _outputTokens = generatedText.usage.total_tokens - generatedText.usage.prompt_tokens;
             MarkdownPipeline pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
-            var responses = Markdown.ToHtml(generatedText.Content, pipeline);
+            var responses = Markdown.ToHtml(generatedText.choices[0].message.content, pipeline);
             //var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
 
             _returnMessage = "Completed " + "without errors. (Tokens: prompt: " + generatedText.usage.prompt_tokens.ToString() + ", total: " + generatedText.usage.total_tokens.ToString() + ")";

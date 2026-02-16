@@ -682,6 +682,48 @@ export class ReviewSet implements singleNode {
     return res;
   }
 
+  public printHtml(printCsetShowIds: boolean, printCsetShowTypes: boolean, printCsetShowDescriptions: boolean): string {
+    let res: string = "";
+    res += "<h2>" + this.set_name;
+    if (printCsetShowIds) res += " (ID: " + this.set_id + ")";
+    if (printCsetShowTypes) res += " [" + this.setType.setTypeName + "]";
+    res += "</h2>";
+
+    if (printCsetShowDescriptions && this.description.trim().length > 0) {
+      let desc: string = this.description;
+      desc = desc.replace("\r\n", "<br>");
+      desc = desc.replace("\n", "<br>");
+      desc = desc.replace("\r", "<br>");
+      res += "<i>" + desc + " </i>";
+    }
+    res += "<p><ul>";
+    for (let attributeSet of this.attributes) {
+      res = this.PrintReviewSetAddAttributes(res, attributeSet, printCsetShowIds, printCsetShowDescriptions, printCsetShowTypes);
+    }
+    res += "</ul></p>";
+    return res;
+  }
+  PrintReviewSetAddAttributes(report: string, attributeSet: SetAttribute, showIDs: boolean, showDescriptions: boolean, ShowTypes: boolean): string {
+    let desc: string = attributeSet.description;
+    desc = desc.replace("\r\n", "<br>");
+    desc = desc.replace("\n", "<br>");
+    desc = desc.replace("\r", "<br>");
+    report += "<li>" + attributeSet.attribute_name;
+    if (showIDs) report += " (ID = " + attributeSet.attribute_id + ")";
+    if (ShowTypes) report += " [" + attributeSet.attribute_type + "]";
+    if (showDescriptions && desc.trim().length > 0) report += "<br><i>" + desc + " </i>";
+
+    if (attributeSet.attributes != null && attributeSet.attributes.length > 0) {
+      report += "<ul>";
+      for (let child of attributeSet.attributes) {
+        report = this.PrintReviewSetAddAttributes(report, child, showIDs, showDescriptions, ShowTypes);
+      }
+      report += "</ul>";
+    }
+    report += "</li>";
+    return report;
+  }
+
   public description: string = "";
   setType: iSetType = {
     setTypeId: 0,
