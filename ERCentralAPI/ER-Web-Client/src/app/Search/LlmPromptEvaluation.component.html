@@ -204,7 +204,7 @@
             <h5>Codeset: {{ currentSelectedEvaluationCodeSetName }} </h5>
           </div>
           <div>
-            <h5>Evaluation run by {{ currentSelectedEvaluationContactName }} on {{ currentSelectedEvaluationDateRun ? (currentSelectedEvaluationDateRun | date:'medium') : 'no date' }}</h5>
+            <h6>Evaluation run by {{ currentSelectedEvaluationContactName }} on {{ currentSelectedEvaluationDateRun ? (currentSelectedEvaluationDateRun | date:'medium') : 'no date' }} using the LLM: {{currentSelectedEvaluationRobotName}}. There were {{currentSelectedEvaluationNCodes}} codes in the codeset and {{currentSelectedEvaluationNRecords}} items (studies) evaluated over {{currentSelectedEvaluationNIterations}} iteration(s).</h6>
             <button (click)="DownloadSelectedEvaluationCodingTool()" class="btn btn-link px-1 py-0">Download the stored copy of the coding tool as used in this evaluation</button>
 
           </div>
@@ -241,8 +241,8 @@
               <thead class="table-light">
                 <tr>
                   <th class="text-center" style="width: 33%"></th>
-                  <th class="text-center" style="width: 33%">Human True</th>
-                  <th class="text-center" style="width: 33%">Human False</th>
+                  <th class="text-center" style="width: 33%">Gold standard True</th>
+                  <th class="text-center" style="width: 33%">Gold standard False</th>
                 </tr>
               </thead>
               <tbody>
