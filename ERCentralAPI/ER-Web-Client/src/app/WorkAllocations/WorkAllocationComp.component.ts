@@ -162,10 +162,8 @@ export class WorkAllocationComp implements OnInit {
   public set AllocateOptions(value: kvSelectFrom[]) {
 
     this._allocateOptions = value;
-
   }
   public get HasWriteRights(): boolean {
-
     return this.ReviewerIdentityServ.HasWriteRights;
   }
   private _allocateInclOrExcl: string = 'true';

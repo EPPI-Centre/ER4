@@ -9,6 +9,7 @@ import { ClassifierService, PriorityScreeningSimulation } from '../services/clas
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { ReviewSetsService, ReviewSet, SetAttribute, singleNode } from '../services/ReviewSets.service';
+import { ReviewSetsEditingService, PerformRandomAllocateTrainTestCommand } from '../services/ReviewSetsEditing.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ChartComponent } from '@progress/kendo-angular-charts';
 //import { iRobotOpenAICommand, RobotsService, iRobotSettings } from '../services/Robots.service';
@@ -21,7 +22,7 @@ import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
 import 'hammerjs';
 import { NgModel } from '@angular/forms';
 import { Helpers } from '../helpers/HelperMethods';
-import { NONE_TYPE } from '@angular/compiler';
+import { Attribute, NONE_TYPE } from '@angular/compiler';
 import { Criteria, ItemListService } from '../services/ItemList.service';
 
 
@@ -42,7 +43,8 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     public reviewSetsService: ReviewSetsService,
     private ReviewerIdentityServ: ReviewerIdentityService,
     private reviewInfoService: ReviewInfoService,
-    private itemListService: ItemListService
+    private itemListService: ItemListService,
+    private _reviewSetsEditingService: ReviewSetsEditingService,
   ) { }
 
   @Output() PleaseCloseMe = new EventEmitter();
@@ -50,9 +52,9 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   public selectedCodeSet: ReviewSet = new ReviewSet();
   public n_iterations: number = 3;
   public n_in_train_set: number = 50;
-  public SelectedGoldStandardEvaluationAttribute: number = 0;
-  public SelectedGoldStandardTrainTestAttribute: number = 0;
-  public SelectedTrainTestBelowHereAttribute: number = 0;
+  public SelectedGoldStandardEvaluationAttribute: SetAttribute | null = null;
+  public SelectedGoldStandardTrainTestAttribute: SetAttribute | null = null;
+  public SelectedTrainTestBelowHereAttribute: SetAttribute | null = null;
   public showManualModalRobotOptions: boolean = false;
   public showManualModalUncompleteWarning: boolean = false;
   public showRobotDetails = true;
@@ -82,7 +84,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     //this.showMessage = false;
   }
   OpenCreateTrainTestSplitsSection() {
-    this.CreateTrainTestSplitsSection = this.CreateTrainTestSplitsSection;
+    this.CreateTrainTestSplitsSection = !this.CreateTrainTestSplitsSection;
   }
 
   @ViewChild('VisualiseChart')
@@ -100,28 +102,28 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   }
   SetSelectedGoldStandardEvaluationAttribute(node: singleNode | null | undefined) {
     // alert(JSON.stringify(node));
-    if (node != null && node.nodeType == "SetAttribute") {
-      let a = node as SetAttribute;
+    if (node != null) {
+      //let a = node as SetAttribute;
       this.selectedModelDropDown1 = node.name;
-      this.SelectedGoldStandardEvaluationAttribute = a.attribute_id;
+      this.SelectedGoldStandardEvaluationAttribute = node as SetAttribute;
       this._eventEmitterService.nodeSelected = undefined;
     }
     else {
       this.selectedModelDropDown1 = "";
-      this.SelectedGoldStandardEvaluationAttribute = 0;
+      this.SelectedGoldStandardEvaluationAttribute = null ;
     }
   }
   SetSelectedGoldStandardTrainTestAttribute(node: singleNode | null | undefined) {
     //alert(JSON.stringify(node));
-    if (node != null && node != undefined && node.nodeType == "SetAttribute") {
-      let a = node as SetAttribute;
+    if (node != null) {
+      //let a = node as SetAttribute;
       this.selectedModelDropDown2 = node.name;
-      this.SelectedGoldStandardTrainTestAttribute = a.attribute_id;
+      this.SelectedGoldStandardTrainTestAttribute = node as SetAttribute;
       this._eventEmitterService.nodeSelected = undefined;
     }
     else {
       this.selectedModelDropDown2 = "";
-      this.SelectedGoldStandardTrainTestAttribute = 0;
+      this.SelectedGoldStandardTrainTestAttribute = null;
     }
   }
   SetSelectedTrainTestBelowHereAttribute(node: singleNode | null | undefined) {
@@ -129,13 +131,47 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     if (node != null && node != undefined && node.nodeType == "SetAttribute") {
       let a = node as SetAttribute;
       this.selectedModelDropDown3 = node.name;
-      this.SelectedTrainTestBelowHereAttribute = a.attribute_id;
+      this.SelectedTrainTestBelowHereAttribute = node as SetAttribute;
       this._eventEmitterService.nodeSelected = undefined;
     }
     else {
       this.selectedModelDropDown3 = "";
-      this.SelectedTrainTestBelowHereAttribute = 0;
+      this.SelectedTrainTestBelowHereAttribute = null;
     }
+  }
+  SetupTrainTestData() {
+    if (this.SelectedGoldStandardTrainTestAttribute != null && this.SelectedTrainTestBelowHereAttribute != null) {
+      this.confirmationDialogService.confirm('Please confirm', 'Are you sure you want to set up the train / test sets with these codes?', false, '')
+        .then(
+          (confirmed: any) => {
+            //console.log('User confirmed:', confirmed);
+            if (confirmed) {
+              this.ReallySetupTrainTestData();
+            }
+            else {
+              //alert('pressed cancel close dialog');
+            };
+          }
+        )
+        .catch(() => { });
+    }
+  }
+  ReallySetupTrainTestData() {
+    if (!this.CanWrite()) return;
+
+    const goldStandardAttributeId = (this.SelectedGoldStandardTrainTestAttribute as SetAttribute).attribute_id;
+    const belowHereAttributeId = (this.SelectedTrainTestBelowHereAttribute as SetAttribute).attribute_id;
+    const belowHereSetId = (this.SelectedTrainTestBelowHereAttribute as SetAttribute).set_id;
+
+    let assignParameters: PerformRandomAllocateTrainTestCommand = new PerformRandomAllocateTrainTestCommand();
+    assignParameters.attributeIdGoldStandard = goldStandardAttributeId;
+    assignParameters.attributeIdPlaceBelow = belowHereAttributeId;
+    assignParameters.setIdPlaceBelow = belowHereSetId;
+    assignParameters.howManyToTrain = this.n_in_train_set;
+
+    this._reviewSetsEditingService.RandomlyAssignTrainTestCodeToItem(assignParameters);
+
+    this.CreateTrainTestSplitsSection = false;
   }
   public isCollapsedSetSelectedGoldStandardEvaluationAttribute: boolean = false;
   public isCollapsed2SetSelectedGoldStandardEvaluationAttribute: boolean = false;
@@ -242,7 +278,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     cr.attributeid = r;
     cr.openAiPromptEvaluationId = this._robotsService.CurrentRobotOpenAiPromptEvaluation.openAiPromptEvaluationId;
     cr.llmTrue = thisRow.llmClassification;
-    cr.goldTrue = thisRow.llm_human_true > 0;
+    cr.goldTrue = trueOrFalseHuman;
     cr.listType = "RobotOpenAIPromptEvaluationResults";
     this.itemListService.FetchWithCrit(cr, "LLM eval list");
     this._eventEmitterService.criteriaMAGChange.emit("");
@@ -342,7 +378,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
       robotName: this.RobotSettings.robotName,
       reviewSetId: this.selectedCodeSet.reviewSetId,
       reviewSetHtml: this.selectedCodeSet.printHtml(false, false, true),
-      goldStandardAttributeId: this.SelectedGoldStandardEvaluationAttribute,
+      goldStandardAttributeId: (this.SelectedGoldStandardEvaluationAttribute as SetAttribute).attribute_id,
       useFullTextDocument: this.RobotSettings.useFullTextDocument,
       returnMessage: "",
       nIterations: this.n_iterations

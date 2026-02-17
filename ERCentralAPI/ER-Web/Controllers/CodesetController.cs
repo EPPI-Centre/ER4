@@ -428,8 +428,32 @@ namespace ERxWebClient2.Controllers
 				return StatusCode(500, e.Message);
 			}
 		}
+        [HttpPost("[action]")]
+        public IActionResult PerformRandomAllocateTrainTest([FromBody] PerformRandomAllocateTrainTestCommandJSON data)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    PerformRandomAllocateTrainTestCommand cmd = new PerformRandomAllocateTrainTestCommand(
+                        data.attributeIdGoldStandard,
+                        data.attributeIdPlaceBelow,
+                        data.setIdPlaceBelow,
+                        data.howManyToTrain);
+                    DataPortal<PerformRandomAllocateTrainTestCommand> dp = new DataPortal<PerformRandomAllocateTrainTestCommand>();
+                    cmd = dp.Execute(cmd);
+                    return Ok(cmd);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "PerformRandomAllocateTrainTest error");
+                return StatusCode(500, e.Message);
+            }
+        }
 
-	}
+    }
 
     public class ReviewSetUpdateCommandJSON
     {
@@ -533,4 +557,11 @@ namespace ERxWebClient2.Controllers
 		public int numericRandomSample { get; set; }
 		public bool randomSampleIncluded { get; set; }
 	}
+    public class PerformRandomAllocateTrainTestCommandJSON
+    {
+        public long attributeIdGoldStandard { get; set; }
+        public long attributeIdPlaceBelow { get; set; }
+        public int setIdPlaceBelow { get; set; }
+        public int howManyToTrain { get; set; }
+    }
 }

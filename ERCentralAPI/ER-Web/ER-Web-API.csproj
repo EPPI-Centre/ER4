@@ -306,6 +306,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Models\PerformRandomAllocateTrainTestCommand.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
     <Compile Update="Models\RobotLLM.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>

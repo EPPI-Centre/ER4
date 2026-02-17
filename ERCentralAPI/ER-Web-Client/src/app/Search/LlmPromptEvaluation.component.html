@@ -206,7 +206,7 @@
                 </div>
               </div>
               <div>
-                <button class="btn btn-sm btn-outline-danger mr-1 my-auto py-0 font-weight-bold" [disabled]="!HasWriteRights">Create train / test split</button>
+                <button class="btn btn-sm btn-outline-danger mr-1 my-auto py-0 font-weight-bold" (click)="SetupTrainTestData()" [disabled]="!HasWriteRights">Create train / test split</button>
 
               </div>
             </div>
