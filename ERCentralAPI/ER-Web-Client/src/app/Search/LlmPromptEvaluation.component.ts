@@ -82,7 +82,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     //this.showMessage = false;
   }
   OpenCreateTrainTestSplitsSection() {
-    this.CreateTrainTestSplitsSection = !this.CreateTrainTestSplitsSection;
+    this.CreateTrainTestSplitsSection = this.CreateTrainTestSplitsSection;
   }
 
   @ViewChild('VisualiseChart')
