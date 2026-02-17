@@ -570,6 +570,11 @@ namespace BusinessLibrary.BusinessClasses
 
             string userprompt = "";
             string sysprompt = "";
+            string configuredSysprompt = "";
+            if (rs.SetDescription.StartsWith("contextual_prompt:"))
+            {
+                configuredSysprompt = rs.SetDescription.Replace("contextual_prompt:", "").Trim() + "\n\n";
+            }
 
             // *** Create the prompt for the LLM
             if (_useFullTextDocument == false)
@@ -581,10 +586,10 @@ namespace BusinessLibrary.BusinessClasses
                     if (i.Title.Trim().Length <= 1) { hastitle = false; }
                     if (i.Abstract.Trim().Length <= 1) { hasabstract = false; }
                     userprompt = "";
-                    sysprompt = "You extract data from the text provided below into a JSON object of the shape provided below. If the data is not in the text return 'false' for that field. \nShape: {" + prompt + "}";
+                    sysprompt = configuredSysprompt + "You extract data from the text provided below into a JSON object of the shape provided below. If the data is not in the text return 'false' for that field. \nShape: {" + prompt + "}";
                     if (hasabstract && hastitle)
                     {
-                        sysprompt = "You extract data from the title and text provided below into a JSON object of the shape provided below. If the data is not in the text return 'false' for that field. \nShape: {" + prompt + "}";
+                        sysprompt = configuredSysprompt + "You extract data from the title and text provided below into a JSON object of the shape provided below. If the data is not in the text return 'false' for that field. \nShape: {" + prompt + "}";
                         userprompt = "Title: " + i.Title + "\nText: " + i.Abstract;
                     }
                     else if (hastitle == true && hasabstract == false)
@@ -627,7 +632,7 @@ namespace BusinessLibrary.BusinessClasses
                     _message = "Error: no PDF text to process";
                     return false;
                 }
-                sysprompt = "You extract data from the markdown text provided below into a JSON object of the shape provided below. If the data is not in the text return 'false' for that field. \nShape: {" + prompt + "}";
+                sysprompt = configuredSysprompt + "You extract data from the markdown text provided below into a JSON object of the shape provided below. If the data is not in the text return 'false' for that field. \nShape: {" + prompt + "}";
                 userprompt = AllText;
                
             }
@@ -704,7 +709,7 @@ namespace BusinessLibrary.BusinessClasses
                             userprompt = resultDict[ragKey];
                             if (userprompt != "")
                             {
-                                sysprompt = "You extract data from the text provided below into a JSON object of the shape provided below. If the data requested is not in the text return 'false' for that field. \nShape: {" + RagPrompts[c] + "}";
+                                sysprompt = configuredSysprompt + "You extract data from the text provided below into a JSON object of the shape provided below. If the data requested is not in the text return 'false' for that field. \nShape: {" + RagPrompts[c] + "}";
                                 messages = new List<OpenAIChatClass>
                             {
                                 new OpenAIChatClass { role = "system", content = sysprompt},
