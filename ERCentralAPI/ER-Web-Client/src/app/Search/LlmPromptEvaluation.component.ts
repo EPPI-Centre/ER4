@@ -57,6 +57,8 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   public showManualModalUncompleteWarning: boolean = false;
   public showRobotDetails = true;
 
+  public CreateTrainTestSplitsSection: boolean = false;
+
 
 
   public get AllCodeSets(): ReviewSet[] {
@@ -78,6 +80,9 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   DropdownSelectCodingToolPromptEvaluation() {
     //this.BulkDeleteCodingCommand = this.GetNewBulkDeleteCodingCommand();
     //this.showMessage = false;
+  }
+  OpenCreateTrainTestSplitsSection() {
+    this.CreateTrainTestSplitsSection = !this.CreateTrainTestSplitsSection;
   }
 
   @ViewChild('VisualiseChart')
