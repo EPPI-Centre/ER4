@@ -14,7 +14,7 @@ import { ChartComponent } from '@progress/kendo-angular-charts';
 //import { iRobotOpenAICommand, RobotsService, iRobotSettings } from '../services/Robots.service';
 import {
   iRobotOpenAiQueueBatchJobEvaluationCommand, iRobotCoderReadOnly, iRobotSettings, RobotsService,
-  iRobotOpenAiCancelQueuedBatchJobEvaluationCommand, RobotOpenAiPromptEvaluation, RobotOpenAiPromptEvaluationData,
+  iRobotOpenAiCancelQueuedBatchJobEvaluationCommand, iRobotOpenAiPromptEvaluation, RobotOpenAiPromptEvaluationData,
   ConfusionMatrixSummary, ConfusionMatrixRow, AttributeLookup
 } from '../services/Robots.service';
 import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
@@ -22,6 +22,7 @@ import 'hammerjs';
 import { NgModel } from '@angular/forms';
 import { Helpers } from '../helpers/HelperMethods';
 import { NONE_TYPE } from '@angular/compiler';
+import { Criteria, ItemListService } from '../services/ItemList.service';
 
 
 @Component({
@@ -33,8 +34,6 @@ import { NONE_TYPE } from '@angular/compiler';
 export class LlmPromptEvaluation implements OnInit, OnDestroy {
   constructor(private router: Router,
     @Inject('BASE_URL') private _baseUrl: string,
-    private classifierService: ClassifierService,
-    private _reviewerIdentityServ: ReviewerIdentityService,
     private confirmationDialogService: ConfirmationDialogService,
     private _eventEmitterService: EventEmitterService,
     private notificationService: NotificationService,
@@ -43,6 +42,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     public reviewSetsService: ReviewSetsService,
     private ReviewerIdentityServ: ReviewerIdentityService,
     private reviewInfoService: ReviewInfoService,
+    private itemListService: ItemListService
   ) { }
 
   @Output() PleaseCloseMe = new EventEmitter();
@@ -91,12 +91,9 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   faSpinner = faSpinner;
 
   CanWrite(): boolean {
-    if (this.ClassifierServiceIsBusy) return false;
-    return this._reviewerIdentityServ.HasWriteRights;
+    return this.ReviewerIdentityServ.HasWriteRights;
   }
-  public get ClassifierServiceIsBusy(): boolean {
-    return this.classifierService.IsBusy;
-  }
+  
 
   public get nodeSelected(): singleNode | null | undefined {
     return this._eventEmitterService.nodeSelected;
@@ -192,7 +189,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     this.router.navigate(['Main']);
   }
 
-  public get RobotOpenAiPromptEvaluationList(): RobotOpenAiPromptEvaluation[] {
+  public get RobotOpenAiPromptEvaluationList(): iRobotOpenAiPromptEvaluation[] {
     return this._robotsService.RobotOpenAiPromptEvaluationList;
   }
   refreshRobotOpenAiPromptEvaluationList() {
@@ -203,7 +200,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     return this._robotsService.CurrentRobotOpenAiPromptEvaluationDataList;
   }
 
-  showEvaluation(item: RobotOpenAiPromptEvaluation) {
+  showEvaluation(item: iRobotOpenAiPromptEvaluation) {
     this.currentSelectedEvaluationCodeSetName = this.getCodeSetName(item);
     this.currentSelectedEvaluationDateRun = item.whenRun;
     this.currentSelectedEvaluationTitle = item.title;
@@ -230,27 +227,37 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   getAttributeName(attributeId: number): string {
     return this._robotsService.getAttributeName(this._robotsService.attributeLookup, attributeId);
   }  
-  public getCodeSetName(item: RobotOpenAiPromptEvaluation): string {
+  public getCodeSetName(item: iRobotOpenAiPromptEvaluation): string {
     let html = item.reviewSetHtml;
     const start = html.indexOf("<h2>") + 4;
     const end = html.indexOf("</h2>");
     return html.substring(start, end);
   }
   public listItems(thisRow: ConfusionMatrixRow, trueOrFalseHuman: boolean) {
+    if (!this._robotsService.CurrentRobotOpenAiPromptEvaluation) return;
     const r = thisRow.attributeId;
-
+    let cr: Criteria = new Criteria();
+    cr.showDeleted = false;
+    cr.pageNumber = 0;
+    cr.attributeid = r;
+    cr.openAiPromptEvaluationId = this._robotsService.CurrentRobotOpenAiPromptEvaluation.openAiPromptEvaluationId;
+    cr.llmTrue = thisRow.llmClassification;
+    cr.goldTrue = thisRow.llm_human_true > 0;
+    cr.listType = "RobotOpenAIPromptEvaluationResults";
+    this.itemListService.FetchWithCrit(cr, "LLM eval list");
+    this._eventEmitterService.criteriaMAGChange.emit("");
     // grab: attributeId, trueOrFalseHuman, and the LLM true / false from the first field in the row
     // then put this information through the system into the searchlist object.
 
   }
   public DownloadSelectedEvaluationCodingTool() {
-    if (this._robotsService.currentRobotOpenAiPromptEvaluation == null || this._robotsService.currentRobotOpenAiPromptEvaluation.reviewSetHtml == "") return;
-    const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(this._robotsService.currentRobotOpenAiPromptEvaluation.reviewSetHtml, this._baseUrl, "Coding Tool Printout"));
+    if (this._robotsService.CurrentRobotOpenAiPromptEvaluation == null || this._robotsService.CurrentRobotOpenAiPromptEvaluation.reviewSetHtml == "") return;
+    const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(this._robotsService.CurrentRobotOpenAiPromptEvaluation.reviewSetHtml, this._baseUrl, "Coding Tool Printout"));
     //console.log("Savign report:", dataURI)
     saveAs(dataURI, "Coding Tool printout.html");
   }
   
-  public confirmDeleteEvaluation(item: RobotOpenAiPromptEvaluation) {
+  public confirmDeleteEvaluation(item: iRobotOpenAiPromptEvaluation) {
     this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to delete this evaluation?', false, '')
       .then(
         (confirmed: any) => {
@@ -266,7 +273,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
       .catch(() => { });
   }
 
-  deleteEvaluation(item: RobotOpenAiPromptEvaluation) {
+  deleteEvaluation(item: iRobotOpenAiPromptEvaluation) {
     this._robotsService.DeleteRobotOpenAiPromptEvaluation(item.openAiPromptEvaluationId);
   }
 

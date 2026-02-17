@@ -1399,6 +1399,10 @@ export class Criteria {
     interimCrit.withSetIdsList = this.withSetIdsList;
     interimCrit.withOutSetIdsList = this.withOutSetIdsList;
 
+    interimCrit.goldTrue = this.goldTrue;
+    interimCrit.llmTrue = this.llmTrue;
+    interimCrit.openAiPromptEvaluationId = this.openAiPromptEvaluationId;
+
     return interimCrit;
   }
   onlyIncluded: boolean | null = true;
@@ -1434,6 +1438,10 @@ export class Criteria {
   withAttributesIds: string = "";
   withSetIdsList: string = "";
   withOutSetIdsList: string = "";
+
+  goldTrue: boolean = false;
+  llmTrue: boolean = false;
+  openAiPromptEvaluationId: number = 0;
 }
 
 

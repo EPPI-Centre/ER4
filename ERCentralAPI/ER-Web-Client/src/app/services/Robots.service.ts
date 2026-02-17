@@ -257,11 +257,11 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
       });
   }
 
-  private _RobotOpenAiPromptEvaluationList: RobotOpenAiPromptEvaluation[] = [];
-  public get RobotOpenAiPromptEvaluationList(): RobotOpenAiPromptEvaluation[] {
+  private _RobotOpenAiPromptEvaluationList: iRobotOpenAiPromptEvaluation[] = [];
+  public get RobotOpenAiPromptEvaluationList(): iRobotOpenAiPromptEvaluation[] {
     return this._RobotOpenAiPromptEvaluationList;
   }
-  public set RobotOpenAiPromptEvaluationList(robotOpenAiPromptEvaluationList: RobotOpenAiPromptEvaluation[]) {
+  public set RobotOpenAiPromptEvaluationList(robotOpenAiPromptEvaluationList: iRobotOpenAiPromptEvaluation[]) {
     this._RobotOpenAiPromptEvaluationList = robotOpenAiPromptEvaluationList;
   }
   private _currentRobotOpenAiPromptEvaluationDataList: RobotOpenAiPromptEvaluationData[] = [];
@@ -271,17 +271,17 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
   public set CurrentRobotOpenAiPromptEvaluationDataList(robotOpenAiPromptEvaluationDataList: RobotOpenAiPromptEvaluationData[]) {
     this._currentRobotOpenAiPromptEvaluationDataList = robotOpenAiPromptEvaluationDataList;
   }
-  public _currentRobotOpenAiPromptEvaluation: RobotOpenAiPromptEvaluation | null = null;
-  public get currentRobotOpenAiPromptEvaluation(): RobotOpenAiPromptEvaluation | null {
+  public _currentRobotOpenAiPromptEvaluation: iRobotOpenAiPromptEvaluation | null = null;
+  public get CurrentRobotOpenAiPromptEvaluation(): iRobotOpenAiPromptEvaluation | null {
     return this._currentRobotOpenAiPromptEvaluation;
   }
-  public set CurrentRobotOpenAiPromptEvaluation(item: RobotOpenAiPromptEvaluation | null) {
+  public set CurrentRobotOpenAiPromptEvaluation(item: iRobotOpenAiPromptEvaluation | null) {
     this._currentRobotOpenAiPromptEvaluation = item;
   }
 
   public FetchRobotOpenAiPromptEvaluationList() {
     this._BusyMethods.push("FetchRobotOpenAiPromptEvaluationList");
-    lastValueFrom(this._httpC.get<RobotOpenAiPromptEvaluation[]>(this._baseUrl + 'api/Robots/FetchRobotOpenAiPromptEvaluationList'))
+    lastValueFrom(this._httpC.get<iRobotOpenAiPromptEvaluation[]>(this._baseUrl + 'api/Robots/FetchRobotOpenAiPromptEvaluationList'))
       .then(result => {
         this.RemoveBusy("FetchRobotOpenAiPromptEvaluationList");
         if (result != null) {
@@ -299,7 +299,7 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
             this.RemoveBusy("FetchRobotOpenAiPromptEvaluationList");
           });
   }
-  public FetchRobotOpenAiPromptEvaluationDataList(item: RobotOpenAiPromptEvaluation) {
+  public FetchRobotOpenAiPromptEvaluationDataList(item: iRobotOpenAiPromptEvaluation) {
     this._BusyMethods.push("FetchRobotOpenAiPromptEvaluationDataList");
     //let body = JSON.stringify(OpenAiPromptEvaluationId);
     const openAiPromptEvaluationId = item.openAiPromptEvaluationId;
@@ -327,10 +327,10 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
           });
   }
 
-  public DeleteRobotOpenAiPromptEvaluation(OpenAiPromptEvaluationId: string) {
+  public DeleteRobotOpenAiPromptEvaluation(OpenAiPromptEvaluationId: number) {
     this._BusyMethods.push("DeleteRobotOpenAiPromptEvaluation");
     let body = JSON.stringify(OpenAiPromptEvaluationId);
-    return lastValueFrom(this._httpC.post<RobotOpenAiPromptEvaluation>(this._baseUrl + 'api/Robots/DeleteRobotOpenAiPromptEvaluation',
+    return lastValueFrom(this._httpC.post<iRobotOpenAiPromptEvaluation>(this._baseUrl + 'api/Robots/DeleteRobotOpenAiPromptEvaluation',
       body))
       .then(
         (result) => {
@@ -780,8 +780,8 @@ export interface iRobotOpenAiCancelQueuedBatchJobEvaluationCommand {
   success: boolean;
 }
 
-export interface RobotOpenAiPromptEvaluation {
-  openAiPromptEvaluationId: string;
+export interface iRobotOpenAiPromptEvaluation {
+  openAiPromptEvaluationId: number;
   title: string;
   robotName: string;
   contactName: string;

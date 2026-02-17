@@ -154,7 +154,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
       (item: any) => {
         this.router.navigate(['Main']);
         this.GoToItemList();
-        this.LoadMAGAllocList(item);
+        if (item != "") this.LoadMAGAllocList(item);
       }
 
     )

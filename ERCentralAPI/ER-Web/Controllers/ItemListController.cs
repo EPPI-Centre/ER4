@@ -314,6 +314,11 @@ namespace ERxWebClient2.Controllers
         public string withSetIdsList { get; set; }
         public string withOutSetIdsList { get; set; }
 
+        public bool goldTrue { get; set; }
+        public bool llmTrue { get; set; }
+        public int openAiPromptEvaluationId { get; set; }
+        public Int64 attributeId { get; set; }
+
         public SelectionCriteria CSLACriteria 
         {
             get
@@ -345,6 +350,11 @@ namespace ERxWebClient2.Controllers
                 CSLAcrit.WithOutAttributesIdsList = withOutAttributesIdsList;
                 CSLAcrit.WithOutSetIdsList = withOutSetIdsList;
                 CSLAcrit.WithSetIdsList = withSetIdsList;
+
+                CSLAcrit.goldTrue = goldTrue;
+                CSLAcrit.llmTrue = llmTrue;
+                CSLAcrit.OpenAiPromptEvaluationId = openAiPromptEvaluationId;
+                CSLAcrit.AttributeId = attributeId;
                 return CSLAcrit;
             }
         }
