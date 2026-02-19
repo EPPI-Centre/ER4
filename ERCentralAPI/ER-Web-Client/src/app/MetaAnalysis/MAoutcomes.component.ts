@@ -1,12 +1,7 @@
 import { Component, OnInit, OnDestroy, EventEmitter, Output, Inject } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
 import { Router } from '@angular/router';
-import { Observable, Subscription } from 'rxjs';
-import { Item, ItemListService, StringKeyValue } from '../services/ItemList.service';
-import { ItemDocsService } from '../services/itemdocs.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Helpers } from '../helpers/HelperMethods';
-import { PriorityScreeningService } from '../services/PriorityScreening.service';
 import { DynamicColumnsOutcomes, IdAndNamePair, MetaAnalysis, MetaAnalysisSelectionCrit, MetaAnalysisService } from '../services/MetaAnalysis.service';
 import { ExtendedOutcome } from '../services/outcomes.service';
 import { CustomSorting } from '../helpers/CustomSorting';
@@ -29,7 +24,9 @@ import { encodeBase64, saveAs } from '@progress/kendo-file-saver';
 .OutcomesTable td {border: 1px dotted Silver;}
 .sortableTH { cursor:pointer;}
 .QuestionCol { background: Khaki !important; border: 1px dotted white !important; cursor:pointer;}
+.QuestionColOutcome { background: LightSkyBlue !important; border: 1px dotted white !important; cursor:pointer;}
 .AnswerCol { background: LemonChiffon !important; border: 1px dotted white !important; cursor:pointer;}
+.AnswerColOutcome { background: PowderBlue !important; border: 1px dotted white !important; cursor:pointer;}
 .ConstantCol{ border-left: 1px dotted silver !important;  border-right: 1px dotted silver !important;}
 .ClassifCol { background: LightGray !important; border: 1px dotted white !important; cursor:pointer;}
 .FirstQuestion, .FirstAnswer, .FirstClassif {border-left:1px solid DarkBlue !important;}
@@ -85,6 +82,17 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
     return this.Outcomes.filter(f => f.isSelected == true).length;
   }
 
+  public get ColSpanOnOutcomes(): number {
+    return this.ColumnVisibility.AnswerOutcomeHeaders.length + this.ColumnVisibility.QuestionOutcomeHeaders.length;
+  }
+  public get ColSpanOnItems(): number {
+    return this.ColumnVisibility.AnswerHeaders.length + this.ColumnVisibility.QuestionHeaders.length;
+  }
+  public get ColSpanOnOCC(): number {
+    return this.ColumnVisibility.ClassificationHeaders.length;
+  }
+
+
   public SortingSymbol(fieldName: string): string {
     return CustomSorting.SortingSymbol(fieldName, this.MetaAnalysisService.LocalSort);
   }
@@ -133,13 +141,16 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
   }
   private DoDeleteColumn(colToDelete: IdAndNamePair) {
     //need to:
+    //0. Find which of the 4 types of cols we're deleting
     //1. remove name/id from 2 fields in CurrentMetaAnalysis
     //2. remove column from this.ColumnVisibility
     //3. check "sortBy", react if we're sorting by the column that's about to disappear.
     //4. save all changes! (this is to match the behaviour of "add column" where we HAVE to save the whole MA)
-
+    //column tags: aa1-20, aq1-20, ao1-20, aqo1-20
     if (this.MetaAnalysisService.CurrentMetaAnalysis == null) return;
     const separator = String.fromCharCode(0x00AC); //the "not" simbol, or inverted pipe
+
+    //answers for entire item
     let ind: number = this.ColumnVisibility.AnswerHeaders.indexOf(colToDelete);
     let colname = "";
     if (ind != -1) {
@@ -161,34 +172,85 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
       }
       colname = "aa" + (ind + 1).toString();
       this.ColumnVisibility.AnswerHeaders.splice(ind, 1);
-    } else {
-      ind = this.ColumnVisibility.QuestionHeaders.indexOf(colToDelete);
-      if (ind != -1) {
-        //question col
-        //attributeIdQuestion only has commas between elements, so there is some discerning to do...
-        if (this.ColumnVisibility.QuestionHeaders.length == 1) {//only element
-          this.MetaAnalysisService.CurrentMetaAnalysis.attributeQuestionText = "";
-          this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdQuestion = "";
-        } else {
-          if (ind == 0) {//first element of many 
-            this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdQuestion =
-              this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdQuestion.replace(colToDelete.Id.toString() + ',', '');
-          } else {
-            this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdQuestion =
-              this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdQuestion.replace(',' + colToDelete.Id.toString(), '');
-          }
-          this.MetaAnalysisService.CurrentMetaAnalysis.attributeQuestionText =
-            this.MetaAnalysisService.CurrentMetaAnalysis.attributeQuestionText.replace(colToDelete.Name + separator, '');
-        }
-        colname = "aq" + (ind + 1).toString();
-        this.ColumnVisibility.QuestionHeaders.splice(ind, 1);
-      }
     }
+
+    //questions for entire item
+    ind = this.ColumnVisibility.QuestionHeaders.indexOf(colToDelete);
+    if (ind != -1) {
+      //question col
+      //attributeIdQuestion only has commas between elements, so there is some discerning to do...
+      if (this.ColumnVisibility.QuestionHeaders.length == 1) {//only element
+        this.MetaAnalysisService.CurrentMetaAnalysis.attributeQuestionText = "";
+        this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdQuestion = "";
+      } else {
+        if (ind == 0) {//first element of many 
+          this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdQuestion =
+            this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdQuestion.replace(colToDelete.Id.toString() + ',', '');
+        } else {
+          this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdQuestion =
+            this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdQuestion.replace(',' + colToDelete.Id.toString(), '');
+        }
+        this.MetaAnalysisService.CurrentMetaAnalysis.attributeQuestionText =
+          this.MetaAnalysisService.CurrentMetaAnalysis.attributeQuestionText.replace(colToDelete.Name + separator, '');
+      }
+      colname = "aq" + (ind + 1).toString();
+      this.ColumnVisibility.QuestionHeaders.splice(ind, 1);
+    }
+
+    //answers for codes on outcomes
+    ind = this.ColumnVisibility.AnswerOutcomeHeaders.indexOf(colToDelete);
+    colname = "";
+    if (ind != -1) {
+      //answer col
+      //attributeIdAnswer only has commas between elements, so there is some discerning to do...
+      if (this.ColumnVisibility.AnswerOutcomeHeaders.length == 1) {//only element
+        this.MetaAnalysisService.CurrentMetaAnalysis.attributeAnswerOutcomeText = "";
+        this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdAnswerOutcome = "";
+      } else {
+        if (ind == 0) {//first element of many
+          this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdAnswerOutcome =
+            this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdAnswerOutcome.replace(colToDelete.Id.toString() + ',', '');
+        } else {
+          this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdAnswerOutcome =
+            this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdAnswerOutcome.replace(',' + colToDelete.Id.toString(), '');
+        }
+        this.MetaAnalysisService.CurrentMetaAnalysis.attributeAnswerOutcomeText =
+          this.MetaAnalysisService.CurrentMetaAnalysis.attributeAnswerOutcomeText.replace(colToDelete.Name + separator, '');
+      }
+      colname = "ao" + (ind + 1).toString();
+      this.ColumnVisibility.AnswerOutcomeHeaders.splice(ind, 1);
+    }
+
+    //questions for entire item
+    ind = this.ColumnVisibility.QuestionOutcomeHeaders.indexOf(colToDelete);
+    if (ind != -1) {
+      //question col
+      //attributeIdQuestion only has commas between elements, so there is some discerning to do...
+      if (this.ColumnVisibility.QuestionOutcomeHeaders.length == 1) {//only element
+        this.MetaAnalysisService.CurrentMetaAnalysis.attributeQuestionOutcomeText = "";
+        this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdQuestionOutcome = "";
+      } else {
+        if (ind == 0) {//first element of many 
+          this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdQuestionOutcome =
+            this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdQuestionOutcome.replace(colToDelete.Id.toString() + ',', '');
+        } else {
+          this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdQuestionOutcome =
+            this.MetaAnalysisService.CurrentMetaAnalysis.attributeIdQuestionOutcome.replace(',' + colToDelete.Id.toString(), '');
+        }
+        this.MetaAnalysisService.CurrentMetaAnalysis.attributeQuestionOutcomeText =
+          this.MetaAnalysisService.CurrentMetaAnalysis.attributeQuestionOutcomeText.replace(colToDelete.Name + separator, '');
+      }
+      colname = "aqo" + (ind + 1).toString();
+      this.ColumnVisibility.QuestionOutcomeHeaders.splice(ind, 1);
+    }
+    
+
     if (this.MetaAnalysisService.CurrentMetaAnalysis.sortedBy == colname) {
       this.MetaAnalysisService.UnSortOutcomes();
     }
     this.PleaseSaveTheCurrentMA.emit();
   }
+
   public ExportOutcomes() {
     if (this.ExportTo == "Excel" || this.ExportTo == "Html"
       || this.ExportTo == "CSV" || this.ExportTo == "TSV") this.ExportTable();
@@ -219,6 +281,16 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
     i = 1;
     for (let col of this.ColumnVisibility.QuestionHeaders) {
       Cols.push({ name: col.Name, value: "aq" + i.toString() });
+      i++;
+    }
+    i = 1;
+    for (let col of this.ColumnVisibility.AnswerOutcomeHeaders) {
+      Cols.push({ name: col.Name, value: "ao" + i.toString() });
+      i++;
+    }
+    i = 1;
+    for (let col of this.ColumnVisibility.QuestionOutcomeHeaders) {
+      Cols.push({ name: col.Name, value: "aoq" + i.toString() });
       i++;
     }
     i = 1;
@@ -341,7 +413,7 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
       const data = this.Outcomes;
       let ToSend: any[] = [];
       //1st the headers
-      if (this.ExportTo == "ExcelRD") {
+      if (this.ExportTo !== "ExcelRD") {
         const row1 = data[0] as any;
         let headerRow: any = {};
         for (var prop in row1) {

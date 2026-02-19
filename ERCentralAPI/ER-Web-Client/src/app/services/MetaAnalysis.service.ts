@@ -87,6 +87,8 @@ export class MetaAnalysisService extends BusyAwareService {
       || this.CurrentMetaAnalysis.sortedBy !== this.CurrentMetaAnalysisUnchanged.sortedBy
       || this.CurrentMetaAnalysis.attributeIdQuestion !== this.CurrentMetaAnalysisUnchanged.attributeIdQuestion
       || this.CurrentMetaAnalysis.attributeIdAnswer !== this.CurrentMetaAnalysisUnchanged.attributeIdAnswer
+      || this.CurrentMetaAnalysis.attributeIdQuestionOutcome !== this.CurrentMetaAnalysisUnchanged.attributeIdQuestionOutcome
+      || this.CurrentMetaAnalysis.attributeIdAnswerOutcome !== this.CurrentMetaAnalysisUnchanged.attributeIdAnswerOutcome
       || this.CurrentMetaAnalysis.title !== this.CurrentMetaAnalysisUnchanged.title
     ) return true;
     if (this.CurrentMetaAnalysis.filterSettingsList.filter(f => f.isClear == false).length != this.CurrentMetaAnalysisUnchanged.filterSettingsList.filter(f => f.isClear == false).length) return true;
@@ -262,6 +264,7 @@ export class MetaAnalysisService extends BusyAwareService {
         }
       }
     }
+    //Qs and As that refer to codes applied to the item to which outcomes belong
     const separator = String.fromCharCode(0x00AC); //the "not" simbol, or inverted pipe
     let AnswersColIds: string[] = [];
     if (this.CurrentMetaAnalysis.attributeIdAnswer) AnswersColIds = this.CurrentMetaAnalysis.attributeIdAnswer.split(",");
@@ -292,6 +295,37 @@ export class MetaAnalysisService extends BusyAwareService {
         }
       }
     }
+
+    //now we repeat for Qs and As that refer to Outcomes, not items
+    if (this.CurrentMetaAnalysis.attributeIdAnswerOutcome) AnswersColIds = this.CurrentMetaAnalysis.attributeIdAnswerOutcome.split(",");
+    AnswersColNames = [];
+    if (this.CurrentMetaAnalysis.attributeAnswerOutcomeText) AnswersColNames = this.CurrentMetaAnalysis.attributeAnswerOutcomeText.split(separator);
+    if (AnswersColIds.length > 0 //nothing to do if we don't have answers cols to show
+      && AnswersColIds.length + 1 == AnswersColNames.length //can't do anything reliable if we get 2 arrays of diff length! (one ends with an empty string)
+    ) {
+      for (let i = 0; i < AnswersColIds.length; i++) {
+        if (AnswersColNames[i] && AnswersColNames[i] != "") {
+          let minicode: IdAndNamePair = new IdAndNamePair();
+          minicode.Id = Number.parseInt(AnswersColIds[i], 10);
+          minicode.Name = AnswersColNames[i];
+          this.ColumnVisibility.AnswerOutcomeHeaders.push(minicode);
+        }
+      }
+    }
+    QuestionColIds = this.CurrentMetaAnalysis.attributeIdQuestionOutcome.split(",");
+    QuestionColNames = this.CurrentMetaAnalysis.attributeQuestionOutcomeText.split(separator);
+    if (QuestionColIds.length > 0 && QuestionColIds.length + 1 == QuestionColNames.length) {
+      //can't do anything reliable if we get 2 arrays of diff length! (one ends with an empty string)
+      for (let i = 0; i < QuestionColIds.length; i++) {
+        if (QuestionColNames[i] && QuestionColNames[i] != "") {
+          let minicode: IdAndNamePair = new IdAndNamePair();
+          minicode.Id = Number.parseInt(QuestionColIds[i], 10);
+          minicode.Name = QuestionColNames[i];
+          this.ColumnVisibility.QuestionOutcomeHeaders.push(minicode);
+        }
+      }
+    }
+
   }
 
   public ApplySavedSorting() {
@@ -692,10 +726,17 @@ interface iMetaAnalysis {
   outcomeText: string;
   outcomes: iExtendedOutcome[];
   metaAnalysisModerators: iModerator[];
+
   attributeIdQuestion: string;
   attributeQuestionText: string;
   attributeIdAnswer: string;
   attributeAnswerText: string;
+
+  attributeIdQuestionOutcome: string;
+  attributeQuestionOutcomeText: string;
+  attributeIdAnswerOutcome: string;
+  attributeAnswerOutcomeText: string;
+
   gridSettings: string;
   filterSettingsList: iFilterSettings[];
   feForestPlot: null;
@@ -812,10 +853,17 @@ export class MetaAnalysis implements iMetaAnalysis {
     this.controlText = iMA.controlText;
     this.outcomeText = iMA.outcomeText;
     this.metaAnalysisModerators = iMA.metaAnalysisModerators;
+
     this.attributeIdQuestion = iMA.attributeIdQuestion;
     this.attributeQuestionText = iMA.attributeQuestionText;
     this.attributeIdAnswer = iMA.attributeIdAnswer;
     this.attributeAnswerText = iMA.attributeAnswerText;
+
+    this.attributeIdQuestionOutcome = iMA.attributeIdQuestionOutcome;;
+    this.attributeQuestionOutcomeText = iMA.attributeQuestionOutcomeText;;
+    this.attributeIdAnswerOutcome = iMA.attributeIdAnswerOutcome;;
+    this.attributeAnswerOutcomeText = iMA.attributeAnswerOutcomeText;;
+
     this.gridSettings = iMA.gridSettings;
     this.feForestPlot =null;
     this.reForestPlot =null;
@@ -961,10 +1009,18 @@ export class MetaAnalysis implements iMetaAnalysis {
   public outcomeText: string;
   public outcomes: ExtendedOutcome[];
   public metaAnalysisModerators: Moderator[];
+
   public attributeIdQuestion: string;
   public attributeQuestionText: string;
   public attributeIdAnswer: string;
   public attributeAnswerText: string;
+
+  public attributeIdQuestionOutcome: string;
+  public attributeQuestionOutcomeText: string;
+  public attributeIdAnswerOutcome: string;
+  public attributeAnswerOutcomeText: string;
+
+
   public gridSettings: string;
   public filterSettingsList: FilterSettings[];
   public feForestPlot: null;
@@ -1154,6 +1210,8 @@ export class DynamicColumnsOutcomes {
   ClassificationHeaders: IdAndNamePair[] = [];
   AnswerHeaders: IdAndNamePair[] = [];
   QuestionHeaders: IdAndNamePair[] = [];
+  AnswerOutcomeHeaders: IdAndNamePair[] = [];
+  QuestionOutcomeHeaders: IdAndNamePair[] = [];
 }
 export class IdAndNamePair {
   Id: number = -1;

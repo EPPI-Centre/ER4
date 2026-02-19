@@ -17,6 +17,12 @@
 <div class="small OutcomesTableContainer">
   <table class="table table-sm OutcomesTable tableFixHead" id="OutcomesTable">
     <thead>
+      <tr *ngIf="ColSpanOnOCC > 0 || ColSpanOnOutcomes > 0 || ColSpanOnItems > 0">
+        <td colspan="12"></td>
+        <td *ngIf="ColSpanOnOutcomes > 0" [attr.colspan]="ColSpanOnOutcomes" class="text-center FirstQuestion">Outcome Level</td>
+        <td *ngIf="ColSpanOnItems > 0" [attr.colspan]="ColSpanOnItems" class="text-center FirstQuestion">Item Level</td>
+        <td *ngIf="ColSpanOnOCC > 0" [attr.colspan]="ColSpanOnOCC" class="FirstQuestion">Outcome Classification codes</td>
+      </tr>
       <tr>
         <th style="text-align: center; vertical-align: bottom;" class="sortableTH ConstantCol" (click)="Sort('isSelected')">
           <div class="d-inline-flex">
@@ -73,6 +79,215 @@
           Arm 2<span [innerHTML]="SortingSymbol('grp2ArmName')"></span>
           <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('Arm2Column')}" (click)="DoEditThisFilter('grp2ArmName', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
         </th>
+
+
+
+        <!--up to 20 cols for Answers Applied to the Outcome-->
+        <th (click)="Sort('ao1')" *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 0" class="FirstAnswer AnswerColOutcome" id="col-ao1">
+          {{ColumnVisibility.AnswerOutcomeHeaders[0].Name}}<span [innerHTML]="SortingSymbol('ao1')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('ao1')}" (click)="DoEditThisFilter('ao1', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.AnswerOutcomeHeaders[0], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('ao2')" *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 1" class="AnswerColOutcome" id="col-ao2">
+          {{ColumnVisibility.AnswerOutcomeHeaders[1].Name}}<span [innerHTML]="SortingSymbol('ao2')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('ao2')}" (click)="DoEditThisFilter('ao2', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.AnswerOutcomeHeaders[1], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('ao3')" *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 2" class="AnswerColOutcome" id="col-ao3">
+          {{ColumnVisibility.AnswerOutcomeHeaders[2].Name}}<span [innerHTML]="SortingSymbol('ao3')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('ao3')}" (click)="DoEditThisFilter('ao3', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.AnswerOutcomeHeaders[2], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('ao4')" *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 3" class="AnswerColOutcome" id="col-ao4">
+          {{ColumnVisibility.AnswerOutcomeHeaders[3].Name}}<span [innerHTML]="SortingSymbol('ao4')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('ao4')}" (click)="DoEditThisFilter('ao4', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.AnswerOutcomeHeaders[3], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('ao5')" *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 4" class="AnswerColOutcome" id="col-ao5">
+          {{ColumnVisibility.AnswerOutcomeHeaders[4].Name}}<span [innerHTML]="SortingSymbol('ao5')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('ao5')}" (click)="DoEditThisFilter('ao5', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.AnswerOutcomeHeaders[4], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('ao6')" *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 5" class="AnswerColOutcome" id="col-ao6">
+          {{ColumnVisibility.AnswerOutcomeHeaders[5].Name}}<span [innerHTML]="SortingSymbol('ao6')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('ao6')}" (click)="DoEditThisFilter('ao6', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.AnswerOutcomeHeaders[5], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('ao7')" *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 6" class="AnswerColOutcome" id="col-ao7">
+          {{ColumnVisibility.AnswerOutcomeHeaders[6].Name}}<span [innerHTML]="SortingSymbol('ao7')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('ao7')}" (click)="DoEditThisFilter('ao7', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.AnswerOutcomeHeaders[6], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('ao8')" *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 7" class="AnswerColOutcome" id="col-ao8">
+          {{ColumnVisibility.AnswerOutcomeHeaders[7].Name}}<span [innerHTML]="SortingSymbol('ao8')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('ao8')}" (click)="DoEditThisFilter('ao8', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.AnswerOutcomeHeaders[7], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('ao9')" *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 8" class="AnswerColOutcome" id="col-ao9">
+          {{ColumnVisibility.AnswerOutcomeHeaders[8].Name}}<span [innerHTML]="SortingSymbol('ao9')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('ao9')}" (click)="DoEditThisFilter('ao9', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.AnswerOutcomeHeaders[8], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('ao10')" *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 9" class="AnswerColOutcome" id="col-ao10">
+          {{ColumnVisibility.AnswerOutcomeHeaders[9].Name}}<span [innerHTML]="SortingSymbol('ao10')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('ao10')}" (click)="DoEditThisFilter('ao10', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.AnswerOutcomeHeaders[9], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('ao11')" *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 10" class="AnswerColOutcome" id="col-ao11">
+          {{ColumnVisibility.AnswerOutcomeHeaders[10].Name}}<span [innerHTML]="SortingSymbol('ao11')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('ao11')}" (click)="DoEditThisFilter('ao11', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.AnswerOutcomeHeaders[10], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('ao12')" *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 11" class="AnswerColOutcome" id="col-ao12">
+          {{ColumnVisibility.AnswerOutcomeHeaders[11].Name}}<span [innerHTML]="SortingSymbol('ao12')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('ao12')}" (click)="DoEditThisFilter('ao12', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.AnswerOutcomeHeaders[11], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('ao13')" *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 12" class="AnswerColOutcome" id="col-ao13">
+          {{ColumnVisibility.AnswerOutcomeHeaders[12].Name}}<span [innerHTML]="SortingSymbol('ao13')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('ao13')}" (click)="DoEditThisFilter('ao13', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.AnswerOutcomeHeaders[12], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('ao14')" *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 13" class="AnswerColOutcome" id="col-ao14">
+          {{ColumnVisibility.AnswerOutcomeHeaders[13].Name}}<span [innerHTML]="SortingSymbol('ao14')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('ao14')}" (click)="DoEditThisFilter('ao14', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.AnswerOutcomeHeaders[13], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('ao15')" *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 14" class="AnswerColOutcome" id="col-ao15">
+          {{ColumnVisibility.AnswerOutcomeHeaders[14].Name}}<span [innerHTML]="SortingSymbol('ao15')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('ao15')}" (click)="DoEditThisFilter('ao15', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.AnswerOutcomeHeaders[14], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('ao16')" *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 15" class="AnswerColOutcome" id="col-ao16">
+          {{ColumnVisibility.AnswerOutcomeHeaders[15].Name}}<span [innerHTML]="SortingSymbol('ao16')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('ao16')}" (click)="DoEditThisFilter('ao16', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.AnswerOutcomeHeaders[15], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('ao17')" *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 16" class="AnswerColOutcome" id="col-ao17">
+          {{ColumnVisibility.AnswerOutcomeHeaders[16].Name}}<span [innerHTML]="SortingSymbol('ao17')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('ao17')}" (click)="DoEditThisFilter('ao17', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.AnswerOutcomeHeaders[16], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('ao18')" *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 17" class="AnswerColOutcome" id="col-ao18">
+          {{ColumnVisibility.AnswerOutcomeHeaders[17].Name}}<span [innerHTML]="SortingSymbol('ao18')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('ao18')}" (click)="DoEditThisFilter('ao18', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.AnswerOutcomeHeaders[17], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('ao19')" *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 18" class="AnswerColOutcome" id="col-ao19">
+          {{ColumnVisibility.AnswerOutcomeHeaders[18].Name}}<span [innerHTML]="SortingSymbol('ao19')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('ao19')}" (click)="DoEditThisFilter('ao19', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.AnswerOutcomeHeaders[18], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('ao20')" *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 19" class="AnswerColOutcome" id="col-ao20">
+          {{ColumnVisibility.AnswerOutcomeHeaders[19].Name}}<span [innerHTML]="SortingSymbol('ao20')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('ao20')}" (click)="DoEditThisFilter('ao20', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.AnswerOutcomeHeaders[19], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+
+        <!--Up to 20 cols for Questions Applied to the outcome -->
+        <th (click)="Sort('aqo1')" *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 0" class="FirstQuestion QuestionColOutcome" id="col-aqo1">
+          {{ColumnVisibility.QuestionOutcomeHeaders[0].Name}}<span [innerHTML]="SortingSymbol('aqo1')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('aqo1')}" (click)="DoEditThisFilter('aqo1', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.QuestionOutcomeHeaders[0], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('aqo2')" *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 1" class="QuestionColOutcome" id="col-aqo2">
+          {{ColumnVisibility.QuestionOutcomeHeaders[1].Name}}<span [innerHTML]="SortingSymbol('aqo2')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('aqo2')}" (click)="DoEditThisFilter('aqo2', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.QuestionOutcomeHeaders[1], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('aqo3')" *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 2" class="QuestionColOutcome" id="col-aqo3">
+          {{ColumnVisibility.QuestionOutcomeHeaders[2].Name}}<span [innerHTML]="SortingSymbol('aqo3')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('aqo3')}" (click)="DoEditThisFilter('aqo3', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.QuestionOutcomeHeaders[2], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('aqo4')" *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 3" class="QuestionColOutcome" id="col-aqo4">
+          {{ColumnVisibility.QuestionOutcomeHeaders[3].Name}}<span [innerHTML]="SortingSymbol('aqo4')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('aqo4')}" (click)="DoEditThisFilter('aqo4', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.QuestionOutcomeHeaders[3], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('aqo5')" *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 4" class="QuestionColOutcome" id="col-aqo5">
+          {{ColumnVisibility.QuestionOutcomeHeaders[4].Name}}<span [innerHTML]="SortingSymbol('aqo5')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('aqo5')}" (click)="DoEditThisFilter('aqo5', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.QuestionOutcomeHeaders[4], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('aqo6')" *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 5" class="QuestionColOutcome" id="col-aqo6">
+          {{ColumnVisibility.QuestionOutcomeHeaders[5].Name}}<span [innerHTML]="SortingSymbol('aqo6')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('aqo6')}" (click)="DoEditThisFilter('aqo6', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.QuestionOutcomeHeaders[5], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('aqo7')" *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 6" class="QuestionColOutcome" id="col-aqo7">
+          {{ColumnVisibility.QuestionOutcomeHeaders[6].Name}}<span [innerHTML]="SortingSymbol('aqo7')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('aqo7')}" (click)="DoEditThisFilter('aqo7', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.QuestionOutcomeHeaders[6], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('aqo8')" *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 7" class="QuestionColOutcome" id="col-aqo8">
+          {{ColumnVisibility.QuestionOutcomeHeaders[7].Name}}<span [innerHTML]="SortingSymbol('aqo8')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('aqo8')}" (click)="DoEditThisFilter('aqo8', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.QuestionOutcomeHeaders[7], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('aqo9')" *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 8" class="QuestionColOutcome" id="col-aqo9">
+          {{ColumnVisibility.QuestionOutcomeHeaders[8].Name}}<span [innerHTML]="SortingSymbol('aqo9')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('aqo9')}" (click)="DoEditThisFilter('aqo9', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.QuestionOutcomeHeaders[8], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('aqo10')" *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 9" class="QuestionColOutcome" id="col-aqo10">
+          {{ColumnVisibility.QuestionOutcomeHeaders[9].Name}}<span [innerHTML]="SortingSymbol('aqo10')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('aqo10')}" (click)="DoEditThisFilter('aqo10', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.QuestionOutcomeHeaders[9], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('aqo11')" *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 10" class="QuestionColOutcome" id="col-aqo11">
+          {{ColumnVisibility.QuestionOutcomeHeaders[10].Name}}<span [innerHTML]="SortingSymbol('aqo11')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('aqo11')}" (click)="DoEditThisFilter('aqo11', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.QuestionOutcomeHeaders[10], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('aqo12')" *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 11" class="QuestionColOutcome" id="col-aqo12">
+          {{ColumnVisibility.QuestionOutcomeHeaders[11].Name}}<span [innerHTML]="SortingSymbol('aqo12')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('aqo12')}" (click)="DoEditThisFilter('aqo12', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.QuestionOutcomeHeaders[11], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('aqo13')" *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 12" class="QuestionColOutcome" id="col-aqo13">
+          {{ColumnVisibility.QuestionOutcomeHeaders[12].Name}}<span [innerHTML]="SortingSymbol('aqo13')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('aqo13')}" (click)="DoEditThisFilter('aqo13', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.QuestionOutcomeHeaders[12], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('aqo14')" *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 13" class="QuestionColOutcome" id="col-aqo14">
+          {{ColumnVisibility.QuestionOutcomeHeaders[13].Name}}<span [innerHTML]="SortingSymbol('aqo14')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('aqo14')}" (click)="DoEditThisFilter('aqo14', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.QuestionOutcomeHeaders[13], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('aqo15')" *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 14" class="QuestionColOutcome" id="col-aqo15">
+          {{ColumnVisibility.QuestionOutcomeHeaders[14].Name}}<span [innerHTML]="SortingSymbol('aqo15')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('aqo15')}" (click)="DoEditThisFilter('aqo15', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.QuestionOutcomeHeaders[14], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('aqo16')" *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 15" class="QuestionColOutcome" id="col-aqo16">
+          {{ColumnVisibility.QuestionOutcomeHeaders[15].Name}}<span [innerHTML]="SortingSymbol('aqo16')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('aqo16')}" (click)="DoEditThisFilter('aqo16', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.QuestionOutcomeHeaders[15], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('aqo17')" *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 16" class="QuestionColOutcome" id="col-aqo17">
+          {{ColumnVisibility.QuestionOutcomeHeaders[16].Name}}<span [innerHTML]="SortingSymbol('aqo17')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('aqo17')}" (click)="DoEditThisFilter('aqo17', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.QuestionOutcomeHeaders[16], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('aqo18')" *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 17" class="QuestionColOutcome" id="col-aqo18">
+          {{ColumnVisibility.QuestionOutcomeHeaders[17].Name}}<span [innerHTML]="SortingSymbol('aqo18')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('aqo18')}" (click)="DoEditThisFilter('aqo18', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.QuestionOutcomeHeaders[17], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('aqo19')" *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 18" class="QuestionColOutcome" id="col-aqo19">
+          {{ColumnVisibility.QuestionOutcomeHeaders[18].Name}}<span [innerHTML]="SortingSymbol('aqo19')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('aqo19')}" (click)="DoEditThisFilter('aqo19', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.QuestionOutcomeHeaders[18], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+        <th (click)="Sort('aqo20')" *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 19" class="QuestionColOutcome" id="col-aqo20">
+          {{ColumnVisibility.QuestionOutcomeHeaders[19].Name}}<span [innerHTML]="SortingSymbol('aqo20')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('aqo20')}" (click)="DoEditThisFilter('aqo20', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+          <kendo-icon (click)="DeleteColumn(ColumnVisibility.QuestionOutcomeHeaders[19], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
+        </th>
+
+
+        <!--up to 20 cols for Answers Applied to the Items for this outcome-->
         <th (click)="Sort('aa1')" *ngIf="ColumnVisibility.AnswerHeaders.length > 0" class="FirstAnswer AnswerCol" id="col-aa1">
           {{ColumnVisibility.AnswerHeaders[0].Name}}<span [innerHTML]="SortingSymbol('aa1')"></span>
           <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('aa1')}" (click)="DoEditThisFilter('aa1', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
@@ -174,6 +389,7 @@
           <kendo-icon (click)="DeleteColumn(ColumnVisibility.AnswerHeaders[19], $event)" [ngClass]="{'DisabledClickableIcon' : !HasWriteRights}" class="text-danger clickableIcon" name="delete" size="small"></kendo-icon>
         </th>
 
+        <!--Up to 20 cols for Questions Applied to the Items for this outcome -->
         <th (click)="Sort('aq1')" *ngIf="ColumnVisibility.QuestionHeaders.length > 0" class="FirstQuestion QuestionCol" id="col-aq1">
           {{ColumnVisibility.QuestionHeaders[0].Name}}<span [innerHTML]="SortingSymbol('aq1')"></span>
           <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('aq1')}" (click)="DoEditThisFilter('aq1', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
@@ -423,6 +639,48 @@
         <td>{{oo.grp1ArmName}}</td>
         <td>{{oo.grp2ArmName}}</td>
 
+        <td *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 0" class="FirstAnswer AnswerColOutcome">{{oo.ao1}}</td>
+        <td *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 1" class="AnswerColOutcome">{{oo.ao2}}</td>
+        <td *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 2" class="AnswerColOutcome">{{oo.ao3}}</td>
+        <td *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 3" class="AnswerColOutcome">{{oo.ao4}}</td>
+        <td *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 4" class="AnswerColOutcome">{{oo.ao5}}</td>
+        <td *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 5" class="AnswerColOutcome">{{oo.ao6}}</td>
+        <td *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 6" class="AnswerColOutcome">{{oo.ao7}}</td>
+        <td *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 7" class="AnswerColOutcome">{{oo.ao8}}</td>
+        <td *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 8" class="AnswerColOutcome">{{oo.ao9}}</td>
+        <td *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 9" class="AnswerColOutcome">{{oo.ao10}}</td>
+        <td *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 10" class="AnswerColOutcome">{{oo.ao11}}</td>
+        <td *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 11" class="AnswerColOutcome">{{oo.ao12}}</td>
+        <td *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 12" class="AnswerColOutcome">{{oo.ao13}}</td>
+        <td *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 13" class="AnswerColOutcome">{{oo.ao14}}</td>
+        <td *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 14" class="AnswerColOutcome">{{oo.ao15}}</td>
+        <td *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 15" class="AnswerColOutcome">{{oo.ao16}}</td>
+        <td *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 16" class="AnswerColOutcome">{{oo.ao17}}</td>
+        <td *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 17" class="AnswerColOutcome">{{oo.ao18}}</td>
+        <td *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 18" class="AnswerColOutcome">{{oo.ao19}}</td>
+        <td *ngIf="ColumnVisibility.AnswerOutcomeHeaders.length > 19" class="AnswerColOutcome">{{oo.ao20}}</td>
+
+        <td *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 0" class="FirstQuestion QuestionColOutcome">{{oo.aqo1}}</td>
+        <td *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 1" class="QuestionColOutcome">{{oo.aqo2}}</td>
+        <td *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 2" class="QuestionColOutcome">{{oo.aqo3}}</td>
+        <td *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 3" class="QuestionColOutcome">{{oo.aqo4}}</td>
+        <td *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 4" class="QuestionColOutcome">{{oo.aqo5}}</td>
+        <td *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 5" class="QuestionColOutcome">{{oo.aqo6}}</td>
+        <td *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 6" class="QuestionColOutcome">{{oo.aqo7}}</td>
+        <td *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 7" class="QuestionColOutcome">{{oo.aqo8}}</td>
+        <td *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 8" class="QuestionColOutcome">{{oo.aqo9}}</td>
+        <td *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 9" class="QuestionColOutcome">{{oo.aqo10}}</td>
+        <td *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 10" class="QuestionColOutcome">{{oo.aqo11}}</td>
+        <td *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 11" class="QuestionColOutcome">{{oo.aqo12}}</td>
+        <td *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 12" class="QuestionColOutcome">{{oo.aqo13}}</td>
+        <td *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 13" class="QuestionColOutcome">{{oo.aqo14}}</td>
+        <td *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 14" class="QuestionColOutcome">{{oo.aqo15}}</td>
+        <td *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 15" class="QuestionColOutcome">{{oo.aqo16}}</td>
+        <td *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 16" class="QuestionColOutcome">{{oo.aqo17}}</td>
+        <td *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 17" class="QuestionColOutcome">{{oo.aqo18}}</td>
+        <td *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 18" class="QuestionColOutcome">{{oo.aqo19}}</td>
+        <td *ngIf="ColumnVisibility.QuestionOutcomeHeaders.length > 19" class="QuestionColOutcome">{{oo.aqo20}}</td>
+
         <td *ngIf="ColumnVisibility.AnswerHeaders.length > 0" class="FirstAnswer AnswerCol">{{oo.aa1}}</td>
         <td *ngIf="ColumnVisibility.AnswerHeaders.length > 1" class="AnswerCol">{{oo.aa2}}</td>
         <td *ngIf="ColumnVisibility.AnswerHeaders.length > 2" class="AnswerCol">{{oo.aa3}}</td>
@@ -443,6 +701,8 @@
         <td *ngIf="ColumnVisibility.AnswerHeaders.length > 17" class="AnswerCol">{{oo.aa18}}</td>
         <td *ngIf="ColumnVisibility.AnswerHeaders.length > 18" class="AnswerCol">{{oo.aa19}}</td>
         <td *ngIf="ColumnVisibility.AnswerHeaders.length > 19" class="AnswerCol">{{oo.aa20}}</td>
+
+
 
         <td *ngIf="ColumnVisibility.QuestionHeaders.length > 0" class="FirstQuestion QuestionCol">{{oo.aq1}}</td>
         <td *ngIf="ColumnVisibility.QuestionHeaders.length > 1" class="QuestionCol">{{oo.aq2}}</td>

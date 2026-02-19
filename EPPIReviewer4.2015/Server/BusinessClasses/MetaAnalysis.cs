@@ -1530,6 +1530,9 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<string> AttributeIdQuestionProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeIdQuestion", "AttributeIdQuestion", string.Empty));
+        /// <summary>
+        /// Questions answered by applying child codes to items, not to outcomes
+        /// </summary>
         public string AttributeIdQuestion
         {
             get
@@ -1543,6 +1546,9 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<string> AttributeQuestionTextProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeQuestionText", "AttributeQuestionText", string.Empty));
+        /// <summary>
+        /// Code-names of Questions answered by applying child codes to items, not to outcomes
+        /// </summary>
         public string AttributeQuestionText
         {
             get
@@ -1556,6 +1562,9 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<string> AttributeIdAnswerProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeIdAnswer", "AttributeIdAnswer", string.Empty));
+        /// <summary>
+        /// Answers created by applying codes to items, not to outcomes
+        /// </summary>
         public string AttributeIdAnswer
         {
             get
@@ -1569,6 +1578,9 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<string> AttributeAnswerTextProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeAnswerText", "AttributeAnswerText", string.Empty));
+        /// <summary>
+        /// Code names of Answers created by applying codes to items, not to outcomes
+        /// </summary>
         public string AttributeAnswerText
         {
             get
@@ -1578,6 +1590,70 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(AttributeAnswerTextProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> AttributeIdQuestionOutcomeProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeIdQuestionOutcome", "AttributeIdQuestionOutcome", string.Empty));
+        /// <summary>
+        /// Questions answered by applying child codes to outcomes, not to items
+        /// </summary>
+        public string AttributeIdQuestionOutcome
+        {
+            get
+            {
+                return GetProperty(AttributeIdQuestionOutcomeProperty);
+            }
+            set
+            {
+                SetProperty(AttributeIdQuestionOutcomeProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> AttributeQuestionOutcomeTextProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeQuestionOutcomeText", "AttributeQuestionOutcomeText", string.Empty));
+        /// <summary>
+        /// Code Names of Questions answered by applying child codes to outcomes, not to items
+        /// </summary>
+        public string AttributeQuestionOutcomeText
+        {
+            get
+            {
+                return GetProperty(AttributeQuestionOutcomeTextProperty);
+            }
+            set
+            {
+                SetProperty(AttributeQuestionOutcomeTextProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> AttributeIdAnswerOutcomeProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeIdAnswerOutcome", "AttributeIdAnswerOutcome", string.Empty));
+        /// <summary>
+        /// Answers created by applying codes to outcomes, not to items
+        /// </summary>
+        public string AttributeIdAnswerOutcome
+        {
+            get
+            {
+                return GetProperty(AttributeIdAnswerOutcomeProperty);
+            }
+            set
+            {
+                SetProperty(AttributeIdAnswerOutcomeProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> AttributeAnswerOutcomeTextProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeAnswerOutcomeText", "AttributeAnswerOutcomeText", string.Empty));
+        /// <summary>
+        /// Code names of Answers created by applying codes to outcomes, not to items
+        /// </summary>
+        public string AttributeAnswerOutcomeText
+        {
+            get
+            {
+                return GetProperty(AttributeAnswerOutcomeTextProperty);
+            }
+            set
+            {
+                SetProperty(AttributeAnswerOutcomeTextProperty, value);
             }
         }
 
@@ -1945,6 +2021,10 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_OUTCOME", ReadProperty(AttributeIdOutcomeProperty)));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_ANSWER", ReadProperty(AttributeIdAnswerProperty)));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_QUESTION", ReadProperty(AttributeIdQuestionProperty)));
+
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_OUTCOME_ANSW", ReadProperty(AttributeIdAnswerOutcomeProperty)));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_OUTCOME_QST", ReadProperty(AttributeIdQuestionOutcomeProperty)));
+
                     command.Parameters.Add(new SqlParameter("@META_ANALYSIS_TYPE_ID", ReadProperty(MetaAnalysisTypeIdProperty)));
                     //command.Parameters.Add(new SqlParameter("@GRID_SETTINGS", ReadProperty(GridSettingsProperty)));
                     command.Parameters.Add(new SqlParameter("@OUTCOME_IDS", OutcomeIds()));
@@ -2015,7 +2095,18 @@ namespace BusinessLibrary.BusinessClasses
                     par3.Size = 4000;
                     command.Parameters.Add(par3);
                     command.Parameters["@ATTRIBUTE_QUESTION_TEXT"].Direction = System.Data.ParameterDirection.Output;
+
+                    SqlParameter par4 = new SqlParameter("@ATTRIBUTE_ANSWER_TEXT_O", System.Data.SqlDbType.NVarChar);
+                    par4.Size = 4000;
+                    par4.Direction = System.Data.ParameterDirection.Output;
+                    command.Parameters.Add(par4);
+                    SqlParameter par5 = new SqlParameter("@ATTRIBUTE_QUESTION_TEXT_O", System.Data.SqlDbType.NVarChar);
+                    par5.Size = 4000;
+                    par5.Direction = System.Data.ParameterDirection.Output;
+                    command.Parameters.Add(par5);
+
                     command.ExecuteNonQuery();
+
                     if (AttributeIdAnswer != "")
                         LoadProperty(AttributeAnswerTextProperty, command.Parameters["@ATTRIBUTE_ANSWER_TEXT"].Value);
                     else
@@ -2024,11 +2115,20 @@ namespace BusinessLibrary.BusinessClasses
                         LoadProperty(AttributeQuestionTextProperty, command.Parameters["@ATTRIBUTE_QUESTION_TEXT"].Value);
                     else
                         LoadProperty(AttributeQuestionTextProperty, "");
+
+                    if (AttributeIdAnswerOutcome != "")
+                        LoadProperty(AttributeAnswerOutcomeTextProperty, command.Parameters["@ATTRIBUTE_ANSWER_TEXT_O"].Value);
+                    else
+                        LoadProperty(AttributeAnswerOutcomeTextProperty, "");
+                    if (AttributeIdQuestionOutcome != "")
+                        LoadProperty(AttributeQuestionOutcomeTextProperty, command.Parameters["@ATTRIBUTE_QUESTION_TEXT_O"].Value);
+                    else
+                        LoadProperty(AttributeQuestionOutcomeTextProperty, "");
                 }
                 connection.Close();
                 SaveFilterSettings();
                 Outcomes = OutcomeList.GetOutcomeList(SetId, AttributeIdIntervention, AttributeIdControl,
-                        AttributeIdOutcome, AttributeId, MetaAnalysisId, AttributeIdQuestion, AttributeIdAnswer);
+                        AttributeIdOutcome, AttributeId, MetaAnalysisId, AttributeIdQuestion, AttributeIdAnswer, AttributeIdQuestionOutcome, AttributeIdAnswerOutcome);
                 MetaAnalysisModerators = MetaAnalysisModeratorList.GetMetaAnalysisModeratorList();
             }
         }
@@ -2056,7 +2156,9 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@OUTCOME_IDS", OutcomeIds()));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_ANSWER", ReadProperty(AttributeIdAnswerProperty)));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_QUESTION", ReadProperty(AttributeIdQuestionProperty)));
-                    //command.Parameters.Add(new SqlParameter("@GRID_SETTINGS", ReadProperty(GridSettingsProperty)));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_OUTCOME_ANSW", ReadProperty(AttributeIdAnswerOutcomeProperty)));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_OUTCOME_QST", ReadProperty(AttributeIdQuestionOutcomeProperty)));
+
                     command.Parameters.Add(new SqlParameter("@Randomised", ReadProperty(RandomisedProperty)));
                     command.Parameters.Add(new SqlParameter("@RoB", ReadProperty(RoBProperty)));
                     command.Parameters.Add(new SqlParameter("@RoBComment", ReadProperty(RoBCommentProperty)));
@@ -2121,6 +2223,7 @@ namespace BusinessLibrary.BusinessClasses
                     par.Value = 0;
                     command.Parameters.Add(par);
                     command.Parameters["@NEW_META_ANALYSIS_ID"].Direction = System.Data.ParameterDirection.Output;
+
                     SqlParameter par2 = new SqlParameter("@ATTRIBUTE_ANSWER_TEXT", System.Data.SqlDbType.NVarChar);
                     par2.Size = 4000;
                     command.Parameters.Add(par2);
@@ -2130,7 +2233,14 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(par3);
                     command.Parameters["@ATTRIBUTE_QUESTION_TEXT"].Direction = System.Data.ParameterDirection.Output;
 
-
+                    SqlParameter par4 = new SqlParameter("@ATTRIBUTE_ANSWER_TEXT_O", System.Data.SqlDbType.NVarChar);
+                    par4.Size = 4000; 
+                    par4.Direction = System.Data.ParameterDirection.Output;
+                    command.Parameters.Add(par3);
+                    SqlParameter par5 = new SqlParameter("@ATTRIBUTE_QUESTION_TEXT_O", System.Data.SqlDbType.NVarChar);
+                    par5.Size = 4000;
+                    par5.Direction = System.Data.ParameterDirection.Output;
+                    command.Parameters.Add(par5);
 
                     command.ExecuteNonQuery();
 
@@ -2144,9 +2254,19 @@ namespace BusinessLibrary.BusinessClasses
                         LoadProperty(AttributeQuestionTextProperty, command.Parameters["@ATTRIBUTE_QUESTION_TEXT"].Value);
                     else
                         LoadProperty(AttributeQuestionTextProperty, "");
+
+                    if (AttributeIdAnswerOutcome != "")
+                        LoadProperty(AttributeAnswerOutcomeTextProperty, command.Parameters["@ATTRIBUTE_ANSWER_TEXT_O"].Value);
+                    else
+                        LoadProperty(AttributeAnswerOutcomeTextProperty, "");
+                    if (AttributeIdQuestionOutcome != "")
+                        LoadProperty(AttributeQuestionOutcomeTextProperty, command.Parameters["@ATTRIBUTE_QUESTION_TEXT_O"].Value);
+                    else
+                        LoadProperty(AttributeQuestionOutcomeTextProperty, "");
+
                     SaveFilterSettings();
                     Outcomes = OutcomeList.GetOutcomeList(SetId, AttributeIdIntervention, AttributeIdControl,
-                        AttributeIdOutcome, AttributeId, MetaAnalysisId, AttributeIdQuestion, AttributeIdAnswer);
+                        AttributeIdOutcome, AttributeId, MetaAnalysisId, AttributeIdQuestion, AttributeIdAnswer, AttributeIdQuestionOutcome, AttributeIdAnswerOutcome);
                     MetaAnalysisModerators = MetaAnalysisModeratorList.GetMetaAnalysisModeratorList();
                 }
                 connection.Close();
@@ -2230,7 +2350,7 @@ namespace BusinessLibrary.BusinessClasses
         private void GetAllDetails()
         {
             OutcomeList.OutcomeListSelectionCriteria c2 = new OutcomeList.OutcomeListSelectionCriteria(typeof(OutcomeList), SetId, AttributeIdIntervention,
-                AttributeIdControl, AttributeIdOutcome, 0, MetaAnalysisId, AttributeIdQuestion, AttributeIdAnswer);
+                AttributeIdControl, AttributeIdOutcome, 0, MetaAnalysisId, AttributeIdQuestion, AttributeIdAnswer, AttributeIdQuestionOutcome, AttributeIdAnswerOutcome);
             OutcomeList outcomes = DataPortal.Fetch<OutcomeList>(c2);
             if (outcomes != null)
             {
@@ -2278,15 +2398,28 @@ namespace BusinessLibrary.BusinessClasses
             //returnValue.LoadProperty<string>(OutcomeTextProperty, reader.GetString("OUTCOME_TEXT"));
             returnValue.LoadProperty<string>(AttributeIdAnswerProperty, reader.GetString("ATTRIBUTE_ID_ANSWER"));
             returnValue.LoadProperty<string>(AttributeIdQuestionProperty, reader.GetString("ATTRIBUTE_ID_QUESTION"));
+            returnValue.LoadProperty<string>(AttributeIdAnswerOutcomeProperty, reader.GetString("ATTRIBUTE_ID_OUTCOME_ANSW"));
+            returnValue.LoadProperty<string>(AttributeIdQuestionOutcomeProperty, reader.GetString("ATTRIBUTE_ID_OUTCOME_QST"));
             //returnValue.LoadProperty<string>(GridSettingsProperty, reader.GetString("GRID_SETTINGS"));
             if (returnValue.AttributeIdAnswer != "")
                 returnValue.LoadProperty<string>(AttributeAnswerTextProperty, reader.GetString("ATTRIBUTE_ANSWER_TEXT"));
             else
                 returnValue.LoadProperty<string>(AttributeAnswerTextProperty, "");
+
             if (returnValue.AttributeIdQuestion != "")
                 returnValue.LoadProperty<string>(AttributeQuestionTextProperty, reader.GetString("ATTRIBUTE_QUESTION_TEXT"));
             else
                 returnValue.LoadProperty<string>(AttributeQuestionTextProperty, "");
+
+            if (returnValue.AttributeIdAnswerOutcome != "")
+                returnValue.LoadProperty(AttributeAnswerOutcomeTextProperty, reader.GetString("ATTRIBUTE_ANSWER_TEXT_O"));
+            else
+                returnValue.LoadProperty(AttributeAnswerOutcomeTextProperty, "");
+            if (returnValue.AttributeIdQuestionOutcome != "")
+                returnValue.LoadProperty(AttributeQuestionOutcomeTextProperty, reader.GetString("ATTRIBUTE_QUESTION_TEXT_O"));
+            else
+                returnValue.LoadProperty(AttributeQuestionOutcomeTextProperty, "");
+
 
             returnValue.LoadProperty<int>(RandomisedProperty, reader.GetInt32("Randomised"));
             returnValue.LoadProperty<string>(RoBCommentProperty, reader.GetString("RoBComment"));

@@ -209,11 +209,13 @@ namespace BusinessLibrary.BusinessClasses
     public class RobotCoderSetting: BusinessBase<RobotCoderSetting>
     {
         public RobotCoderSetting() { }
+#if !SILVERLIGHT
         internal RobotCoderSetting(SafeDataReader reader) {
             SettingName = reader.GetString("SETTING_NAME");
             SettingValue = reader.GetString("SETTING_VALUE");
             SettingIsInternal = reader.GetBoolean("INTERNAL_SETTING");
         }
+#endif
         public static readonly PropertyInfo<string> SettingNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SettingName", "SettingName"));
         public string SettingName
         {

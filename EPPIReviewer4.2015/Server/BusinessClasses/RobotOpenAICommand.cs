@@ -54,9 +54,8 @@ namespace BusinessLibrary.BusinessClasses
         private string _DocsList = "";
         private bool _Succeded = false;
         private int errors = 0;
-
-
-
+        private int _n_iterations = 0; // when we're doing an evaluation, this indicates the number of iterations to run
+        private int _openai_prompt_evaluation_id = 0; // if > 0, indicates that this is an evaluation of prompts and contains the relevant evaluation ID, which we will need to save the results in the right place
 
         public bool Succeded
         {
@@ -68,7 +67,7 @@ namespace BusinessLibrary.BusinessClasses
         }
         public int RobotContactId { get { return _robotContactId; } }
         public RobotOpenAICommand(RobotCoderReadOnly robot, int reviewSetId, Int64 itemId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true
-            , bool useFullTextDocument = false, int creditId = 0)
+            , bool useFullTextDocument = false, int creditId = 0, int n_iterations = 0, int openai_prompt_evaluation_id = 0)
         {
             RobotCoder = robot;
             _reviewSetId = reviewSetId;
@@ -78,10 +77,12 @@ namespace BusinessLibrary.BusinessClasses
             _lockTheCoding = lockTheCoding;
             _useFullTextDocument = useFullTextDocument;
             CreditId = creditId;
+            _n_iterations = n_iterations;
+            _openai_prompt_evaluation_id = openai_prompt_evaluation_id;
         }
         public RobotOpenAICommand(RobotCoderReadOnly robot, int reviewSetId, Int64 itemId, bool isLastInBatch, int JobId, int robotContactId, int reviewId, 
             int JobOwnerId, bool onlyCodeInTheRobotName = true, bool lockTheCoding = true, bool useFullTextDocument = false, string docsList = "",
-            string ExplicitEndpoint = "", string ExplicitEndpointKey = "", int creditId = 0)
+            string ExplicitEndpoint = "", string ExplicitEndpointKey = "", int creditId = 0, int n_iterations = 0, int openai_prompt_evaluation_id = 0)
         {
             RobotCoder = robot;
             _reviewSetId = reviewSetId;
@@ -99,6 +100,8 @@ namespace BusinessLibrary.BusinessClasses
             _useFullTextDocument = useFullTextDocument;
             _DocsList = docsList;
             CreditId = creditId;
+            _n_iterations = n_iterations;
+            _openai_prompt_evaluation_id = openai_prompt_evaluation_id;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
@@ -120,6 +123,8 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_Succeded", _Succeded);
             info.AddValue("_useFullTextDocument", _useFullTextDocument); 
             info.AddValue("_DocsList", _DocsList);
+            info.AddValue("_n_iterations", _n_iterations);
+            info.AddValue("_openai_prompt_evaluation_id", _openai_prompt_evaluation_id);
             info.AddValue("errors", errors);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
@@ -140,6 +145,8 @@ namespace BusinessLibrary.BusinessClasses
             _Succeded = info.GetValue<bool>("_Succeded");
             _useFullTextDocument = info.GetValue<bool>("_useFullTextDocument");
             _DocsList = info.GetValue<string>("_DocsList");
+            _openai_prompt_evaluation_id = info.GetValue<int>("_openai_prompt_evaluation_id");
+            _n_iterations = info.GetValue<int>("_n_iterations");
             errors = info.GetValue<int>("errors");
         }
 
@@ -252,6 +259,8 @@ namespace BusinessLibrary.BusinessClasses
                         command.Parameters.Add(new SqlParameter("@FORCE_CODING_IN_ROBOT_NAME", _onlyCodeInTheRobotName));
                         command.Parameters.Add(new SqlParameter("@LOCK_CODING", _lockTheCoding));
                         command.Parameters.Add(new SqlParameter("@USE_PDFS", _useFullTextDocument));
+                        command.Parameters.Add(new SqlParameter("@N_ITERATIONS", _n_iterations));
+                        command.Parameters.Add(new SqlParameter("@OPENAI_PROMPT_EVALUATION_ID", _openai_prompt_evaluation_id));
                         command.Parameters.Add(new SqlParameter("@result", SqlDbType.VarChar));
                         command.Parameters["@result"].Size = 50;
                         command.Parameters["@result"].Direction = System.Data.ParameterDirection.Output;
@@ -344,16 +353,19 @@ namespace BusinessLibrary.BusinessClasses
             }
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
+                string status;
+                if (_isLastInBatch == false) status = "Running";
+                else
+                {
+                    if (_Succeded == false) status = "Failed";
+                    else
+                    {
+                        status = "Finished";
+                    }
+                }
                 connection.Open();
                 using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
                 {
-                    string status;
-                    if (_isLastInBatch == false) status = "Running";
-                    else
-                    {
-                        if (_Succeded == false) status = "Failed";
-                        else status = "Finished";
-                    }
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", _reviewId));
                     command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", _jobId));
@@ -362,6 +374,16 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", _inputTokens));
                     command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", _outputTokens));
                     command.ExecuteNonQuery();
+                }
+                if ((status == "Finished" || status == "Failed") && _openai_prompt_evaluation_id > 0)
+                {
+                    using (SqlCommand command = new SqlCommand("st_UpdateOpenAiPromptEvaluation", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@OPENAI_PROMPT_EVALUATION_ID", _openai_prompt_evaluation_id));
+                        command.Parameters.Add(new SqlParameter("@STATUS", status));
+                        command.ExecuteNonQuery();
+                    }
                 }
             }
         }
@@ -548,6 +570,11 @@ namespace BusinessLibrary.BusinessClasses
 
             string userprompt = "";
             string sysprompt = "";
+            string configuredSysprompt = "";
+            if (rs.SetDescription.StartsWith("contextual_prompt:"))
+            {
+                configuredSysprompt = rs.SetDescription.Replace("contextual_prompt:", "").Trim() + "\n\n";
+            }
 
             // *** Create the prompt for the LLM
             if (_useFullTextDocument == false)
@@ -559,10 +586,10 @@ namespace BusinessLibrary.BusinessClasses
                     if (i.Title.Trim().Length <= 1) { hastitle = false; }
                     if (i.Abstract.Trim().Length <= 1) { hasabstract = false; }
                     userprompt = "";
-                    sysprompt = "You extract data from the text provided below into a JSON object of the shape provided below. If the data is not in the text return 'false' for that field. \nShape: {" + prompt + "}";
+                    sysprompt = configuredSysprompt + "You extract data from the text provided below into a JSON object of the shape provided below. If the data is not in the text return 'false' for that field. \nShape: {" + prompt + "}";
                     if (hasabstract && hastitle)
                     {
-                        sysprompt = "You extract data from the title and text provided below into a JSON object of the shape provided below. If the data is not in the text return 'false' for that field. \nShape: {" + prompt + "}";
+                        sysprompt = configuredSysprompt + "You extract data from the title and text provided below into a JSON object of the shape provided below. If the data is not in the text return 'false' for that field. \nShape: {" + prompt + "}";
                         userprompt = "Title: " + i.Title + "\nText: " + i.Abstract;
                     }
                     else if (hastitle == true && hasabstract == false)
@@ -605,7 +632,7 @@ namespace BusinessLibrary.BusinessClasses
                     _message = "Error: no PDF text to process";
                     return false;
                 }
-                sysprompt = "You extract data from the markdown text provided below into a JSON object of the shape provided below. If the data is not in the text return 'false' for that field. \nShape: {" + prompt + "}";
+                sysprompt = configuredSysprompt + "You extract data from the markdown text provided below into a JSON object of the shape provided below. If the data is not in the text return 'false' for that field. \nShape: {" + prompt + "}";
                 userprompt = AllText;
                
             }
@@ -641,81 +668,103 @@ namespace BusinessLibrary.BusinessClasses
             };
             if (IsDeepSeekLike(RobotCoder)) Merge2Prompts(messages);
 
-            result = await MyRobotSubmitRequest(messages, false);
-
-            if (result)
+            // we're not doing an evaluation, so max times through is 1
+            if (_openai_prompt_evaluation_id == 0)
             {
-                // *** Go through each of the responses, find the right code, and save results
-                foreach (var kv in resultDict)
+                _n_iterations = 1;
+            }
+            for (int CurrentIteration = 1; CurrentIteration <= _n_iterations; CurrentIteration++)
+            {
+                result = await MyRobotSubmitRequest(messages, false);
+
+                if (result)
                 {
-                    AttributeSet matched = null;
-                    foreach (AttributeSet subSet in rs.Attributes)
+                    // *** Go through each of the responses, find the right code, and save results
+                    foreach (var kv in resultDict)
                     {
-                        matched = getAttributeFromPromptKey(kv.Key, subSet);
-                        if (matched != null)
+                        AttributeSet matched = null;
+                        foreach (AttributeSet subSet in rs.Attributes)
                         {
-                            SaveAttribute(matched, _itemId, kv.Value, ReviewId, UserId);
-                            break;
+                            matched = getAttributeFromPromptKey(kv.Key, subSet);
+                            if (matched != null)
+                            {
+                                if (_openai_prompt_evaluation_id > 0)
+                                {
+                                    SaveOpenAiPromptEvaluationAttribute(matched, _itemId, kv.Value, ReviewId, UserId, CurrentIteration);
+                                    break;
+                                }
+                                else
+                                    SaveAttribute(matched, _itemId, kv.Value, ReviewId, UserId);
+                                break;
+                            }
                         }
                     }
-                }
 
-                // if there are RAG_ prompts then go through them now
-                foreach (string c in RagPrompts.Keys)
-                {
-                    string ragKey = getRagKeyFromPrompt(c);
-                    if (resultDict.ContainsKey(ragKey))
+                    // if there are RAG_ prompts then go through them now
+                    foreach (string c in RagPrompts.Keys)
                     {
-                        userprompt = resultDict[ragKey];
-                        if (userprompt != "")
+                        string ragKey = getRagKeyFromPrompt(c);
+                        if (resultDict.ContainsKey(ragKey))
                         {
-                            sysprompt = "You extract data from the text provided below into a JSON object of the shape provided below. If the data requested is not in the text return 'false' for that field. \nShape: {" + RagPrompts[c] + "}";
-                            messages = new List<OpenAIChatClass>
+                            userprompt = resultDict[ragKey];
+                            if (userprompt != "")
                             {
-                                new OpenAIChatClass { role = "system", content = sysprompt}, 
+                                sysprompt = configuredSysprompt + "You extract data from the text provided below into a JSON object of the shape provided below. If the data requested is not in the text return 'false' for that field. \nShape: {" + RagPrompts[c] + "}";
+                                messages = new List<OpenAIChatClass>
+                            {
+                                new OpenAIChatClass { role = "system", content = sysprompt},
                                 new OpenAIChatClass { role = "user", content = userprompt},
                             };
 
-                            result = await MyRobotSubmitRequest(messages, true);
+                                result = await MyRobotSubmitRequest(messages, true);
 
-                            if (result)
-                            {
-                                AttributeSet matched = null;
-                                foreach (AttributeSet subSet in rs.Attributes)
+                                if (result)
                                 {
-                                    string ragPromptKey = c.Replace("\"", "");
-                                    matched = getAttributeFromPromptKey(ragPromptKey, subSet);
-                                    if (matched != null && resultRagDict.ContainsKey(getRagSubKeyFromPrompt(ragPromptKey)))
+                                    AttributeSet matched = null;
+                                    foreach (AttributeSet subSet in rs.Attributes)
                                     {
-                                        SaveAttribute(matched, _itemId, resultRagDict[getRagSubKeyFromPrompt(ragPromptKey)], ReviewId, UserId);
-                                        break;
+                                        string ragPromptKey = c.Replace("\"", "");
+                                        matched = getAttributeFromPromptKey(ragPromptKey, subSet);
+                                        if (matched != null && resultRagDict.ContainsKey(getRagSubKeyFromPrompt(ragPromptKey)))
+                                        {
+                                            if (_openai_prompt_evaluation_id > 0)
+                                            {
+                                                SaveOpenAiPromptEvaluationAttribute(matched, _itemId, resultRagDict[getRagSubKeyFromPrompt(ragPromptKey)], ReviewId, UserId, CurrentIteration);
+                                                break;
+                                            }
+                                            else
+                                            {
+                                                SaveAttribute(matched, _itemId, resultRagDict[getRagSubKeyFromPrompt(ragPromptKey)], ReviewId, UserId);
+                                                break;
+                                            }
+                                        }
                                     }
                                 }
-                            }
-                            if (AppIsShuttingDown)
-                            {
-                                result = false;
-                                ErrorLogSink("Cancelled RobotOpenAICommand while submitting Rag prompts.");
-                                break; //DoRobot will be returning false (result is false) and job will be marked as paused...
+                                if (AppIsShuttingDown)
+                                {
+                                    result = false;
+                                    ErrorLogSink("Cancelled RobotOpenAICommand while submitting Rag prompts.");
+                                    break; //DoRobot will be returning false (result is false) and job will be marked as paused...
+                                }
                             }
                         }
                     }
-                }
 
-                if (_Item_set_id > 0 && _onlyCodeInTheRobotName == false && _lockTheCoding == true)
-                {//_Item_set_id > 0 => there is coding to lock/unlock
-                 //_onlyCodeInTheRobotName == false && _lockTheCoding == true => we did not call st_ItemSetPrepareForRobot so we may need to lock the coding still
-                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-                    {
-                        connection.Open();
-                        string sql = "UPDATE TB_ITEM_SET set IS_LOCKED = @IS_LOCKED where ITEM_SET_ID = @ITEM_SET_ID";
-                        using (SqlCommand commandEx = new SqlCommand(sql, connection))
+                    if (_Item_set_id > 0 && _onlyCodeInTheRobotName == false && _lockTheCoding == true && _openai_prompt_evaluation_id == 0)
+                    {//_Item_set_id > 0 => there is coding to lock/unlock
+                     //_onlyCodeInTheRobotName == false && _lockTheCoding == true => we did not call st_ItemSetPrepareForRobot so we may need to lock the coding still
+                        using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                         {
-                            commandEx.Parameters.Add(new SqlParameter("@IS_LOCKED", System.Data.SqlDbType.Bit));
-                            commandEx.Parameters["@IS_LOCKED"].Value = _lockTheCoding;
-                            commandEx.Parameters.Add(new SqlParameter("@ITEM_SET_ID", System.Data.SqlDbType.BigInt));
-                            commandEx.Parameters["@ITEM_SET_ID"].Value = _Item_set_id;
-                            commandEx.ExecuteNonQuery();
+                            connection.Open();
+                            string sql = "UPDATE TB_ITEM_SET set IS_LOCKED = @IS_LOCKED where ITEM_SET_ID = @ITEM_SET_ID";
+                            using (SqlCommand commandEx = new SqlCommand(sql, connection))
+                            {
+                                commandEx.Parameters.Add(new SqlParameter("@IS_LOCKED", System.Data.SqlDbType.Bit));
+                                commandEx.Parameters["@IS_LOCKED"].Value = _lockTheCoding;
+                                commandEx.Parameters.Add(new SqlParameter("@ITEM_SET_ID", System.Data.SqlDbType.BigInt));
+                                commandEx.Parameters["@ITEM_SET_ID"].Value = _Item_set_id;
+                                commandEx.ExecuteNonQuery();
+                            }
                         }
                     }
                 }
@@ -899,19 +948,22 @@ namespace BusinessLibrary.BusinessClasses
 
         internal static bool AuthorisationInHeader(RobotCoderReadOnly robot)
         {
-            int index = robot.RobotSettings.FindIndex(f => f.SettingIsInternal == true && f.SettingName == "AuthorisationInHeader");
-            return (index != -1);
+            string lowname = robot.RobotName.ToLower();
+            if (lowname.Contains("deepseek")) return true;
+            else if (lowname.Contains("mistral")) return true;
+            else if (lowname.Contains("llama")) return true;
+            else return false;
         }
         internal static bool UsesExtraParameters(RobotCoderReadOnly robot)
         {
-            int index = robot.RobotSettings.FindIndex(f => f.SettingIsInternal == true && f.SettingName == "UsesExtraParameters");
-            return (index != -1);
+            string lowname = robot.RobotName.ToLower();
+            if (lowname.Contains("mistral")) return true;
+            else return false;
         }
 
         internal static bool IsDeepSeekLike(RobotCoderReadOnly robot)
-        {
-            int index = robot.RobotSettings.FindIndex(f => f.SettingIsInternal == true && f.SettingName == "DeepSeekLike");
-            return (index != -1);
+        {//simple logic, for now!!
+            return robot.RobotName.ToLower().Contains("deepseek");            
         }
 
         internal static string BuildJsonRequestBody(RobotCoderReadOnly Robot, List<OpenAIChatClass> messages, List<string> SettingNamesToIgnore)
@@ -1003,30 +1055,30 @@ namespace BusinessLibrary.BusinessClasses
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-                    if (_Item_set_id == 0 && _onlyCodeInTheRobotName == true)
-                    {//this condition evaluates to TRUE only the first time we try saving a code, after which _Item_set_id will have a value > 0
-                        //we do this special thing, only for ROBOTS, so to have the Robot Coding always created in the ROBOT's name
-                        using (SqlCommand command = new SqlCommand("st_ItemSetPrepareForRobot", connection))
-                        {
-                            command.CommandType = System.Data.CommandType.StoredProcedure;
-                            command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
-                            command.Parameters.Add(new SqlParameter("@ROBOT_CONTACT_ID", ContactId));
-                            command.Parameters.Add(new SqlParameter("@ITEM_ID", ItemId));
-                            command.Parameters.Add(new SqlParameter("@REVIEW_SET_ID", _reviewSetId));
-                            command.Parameters.Add(new SqlParameter("@IS_LOCKED", _lockTheCoding));
-                            command.Parameters.Add(new SqlParameter("@NEW_ITEM_SET_ID", 0));
-                            command.Parameters["@NEW_ITEM_SET_ID"].Direction = System.Data.ParameterDirection.Output; 
-                            //command.Parameters.Add(new SqlParameter("@IS_CODING_FINAL", false));
-                            //command.Parameters["@IS_CODING_FINAL"].Direction = System.Data.ParameterDirection.Output; 
-                            command.ExecuteNonQuery();
-                            Int64 Item_set_id = (Int64)command.Parameters["@NEW_ITEM_SET_ID"].Value;
-                            if (Item_set_id < 1)
-                            {//can't save this code, st_ItemSetPrepareForRobot failed
-                                throw new Exception("Could not create the coding record for the Robot");
-                            }
-                            //_CodingIsFinal = (bool)command.Parameters["@IS_CODING_FINAL"].Value;
-                            _Item_set_id = Item_set_id;
+                if (_Item_set_id == 0 && _onlyCodeInTheRobotName == true)
+                {//this condition evaluates to TRUE only the first time we try saving a code, after which _Item_set_id will have a value > 0
+                    //we do this special thing, only for ROBOTS, so to have the Robot Coding always created in the ROBOT's name
+                    using (SqlCommand command = new SqlCommand("st_ItemSetPrepareForRobot", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                        command.Parameters.Add(new SqlParameter("@ROBOT_CONTACT_ID", ContactId));
+                        command.Parameters.Add(new SqlParameter("@ITEM_ID", ItemId));
+                        command.Parameters.Add(new SqlParameter("@REVIEW_SET_ID", _reviewSetId));
+                        command.Parameters.Add(new SqlParameter("@IS_LOCKED", _lockTheCoding));
+                        command.Parameters.Add(new SqlParameter("@NEW_ITEM_SET_ID", 0));
+                        command.Parameters["@NEW_ITEM_SET_ID"].Direction = System.Data.ParameterDirection.Output; 
+                        //command.Parameters.Add(new SqlParameter("@IS_CODING_FINAL", false));
+                        //command.Parameters["@IS_CODING_FINAL"].Direction = System.Data.ParameterDirection.Output; 
+                        command.ExecuteNonQuery();
+                        Int64 Item_set_id = (Int64)command.Parameters["@NEW_ITEM_SET_ID"].Value;
+                        if (Item_set_id < 1)
+                        {//can't save this code, st_ItemSetPrepareForRobot failed
+                            throw new Exception("Could not create the coding record for the Robot");
                         }
+                        //_CodingIsFinal = (bool)command.Parameters["@IS_CODING_FINAL"].Value;
+                        _Item_set_id = Item_set_id;
+                    }
                 }
                 try
                 {
@@ -1055,6 +1107,60 @@ namespace BusinessLibrary.BusinessClasses
                         }
                     }
                 } 
+                catch (Exception e)
+                {
+                    errors++;
+                    using (SqlCommand command = new SqlCommand("st_UpdateRobotApiCallLog", connection))
+                    {//this should NOT update the token numbers, and thus the cost, as it will be done later
+                        string SavedMsg = e.Message;
+                        if (SavedMsg.Length > 200) SavedMsg = SavedMsg.Substring(0, 200);
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID ", ReviewId));
+                        command.Parameters.Add(new SqlParameter("@ROBOT_API_CALL_ID", _jobId));
+                        command.Parameters.Add(new SqlParameter("@STATUS", "Running"));
+                        command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", _itemId));
+                        command.Parameters.Add(new SqlParameter("@INPUT_TOKENS_COUNT", 0));
+                        command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", 0));
+                        command.Parameters.Add(new SqlParameter("@ERROR_MESSAGE", SavedMsg));
+                        command.Parameters.Add(new SqlParameter("@STACK_TRACE", e.StackTrace));
+                        command.ExecuteNonQuery();
+                    }
+                }
+                connection.Close();
+            }
+        }
+
+        private void SaveOpenAiPromptEvaluationAttribute(AttributeSet aSet, Int64 ItemId, string info, int ReviewId, int ContactId, int CurrentIteration)
+        {
+            string LowerCaseInfo = info.ToLower();
+            string desc = aSet.AttributeSetDescription.ToLower();
+            if (LowerCaseInfo == "false")
+            {// i.e. it's a Boolean type field, or the attribute wasn't found and we don't want the box 'ticked'
+                return;
+            }
+            if ((LowerCaseInfo == "true") && RobotOpenAICommand.BooleanPromptRx.IsMatch(desc))
+            {
+                //we Will NOT put anything in the infobox if the prompt is genuinely a boolean one
+                //no need to tick the checkbox and then say "true" in the infobox
+                info = "";
+            }
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                try
+                {
+                    using (SqlCommand command = new SqlCommand("st_RobotOpenAIPromptEvaluationDataInsert", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@ITERATION", CurrentIteration));
+                        command.Parameters.Add(new SqlParameter("@ADDITIONAL_TEXT", info));
+                        command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", aSet.AttributeId));
+                        command.Parameters.Add(new SqlParameter("@ITEM_ID", ItemId));
+                        command.Parameters.Add(new SqlParameter("@GOLD_STANDARD", false));
+                        command.Parameters.Add(new SqlParameter("@OPENAI_PROMPT_EVALUATION_ID", _openai_prompt_evaluation_id));
+                        command.ExecuteNonQuery();
+                    }
+                }
                 catch (Exception e)
                 {
                     errors++;
@@ -1131,9 +1237,9 @@ namespace BusinessLibrary.BusinessClasses
             public int created { get; set; }
             public string model { get; set; }
             public Prompt_Filter_Results[] prompt_filter_results { get; set; }
-            public Choice[] choices { get; set; } = [];
+            public Choice[] choices { get; set; } = new Choice[0];
 
-            public Output[] output { get; set; } = [];
+            public Output[] output { get; set; } = new Output[0];
             public Usage usage { get; set; }
 
             public string Content
@@ -1232,7 +1338,7 @@ namespace BusinessLibrary.BusinessClasses
             public string status { get; set; }
             public string role { get; set; }
 
-            public Content[] content { get; set; } = [];
+            public Content[] content { get; set; } = new Content[0];
 
         }
         public class Content

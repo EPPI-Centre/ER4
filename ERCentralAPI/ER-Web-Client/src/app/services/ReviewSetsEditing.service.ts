@@ -1439,7 +1439,31 @@ export class ReviewSetsEditingService extends BusyAwareService {
 					this.RemoveBusy("RandomlyAssignCodeToItem");
 				}
 			);
-    }
+  } 
+  public RandomlyAssignTrainTestCodeToItem(assignParameters: PerformRandomAllocateTrainTestCommand) {
+
+    // is there a need for busy methods here I would say yes...
+    this._BusyMethods.push("RandomlyAssignTrainTestCodeToItem");
+
+    this._httpC.post<PerformRandomAllocateTrainTestCommand>(this._baseUrl +
+      'api/Codeset/PerformRandomAllocateTrainTest', assignParameters)
+      .subscribe(() => {
+
+        // do not want to change the below but it seems
+        // to return an array here
+        this.ReviewSetsService.GetReviewSets();
+        this.RemoveBusy("RandomlyAssignTrainTestCodeToItem");
+
+      },
+        error => {
+          this.modalService.GenericError(error);
+          this.RemoveBusy("RandomlyAssignTrainTestCodeToItem");
+        }
+        , () => {
+          this.RemoveBusy("RandomlyAssignTrainTestCodeToItem");
+        }
+      );
+  }
     public async GetChangeDataEntryMessage(Set: ReviewSet, screeningCodeSetId: number): Promise<ChangeDataEntryMessage>{
         let res: ChangeDataEntryMessage = new ChangeDataEntryMessage();
             if (Set) {
@@ -1600,6 +1624,12 @@ export class PerformRandomAllocateCommand {
 	howMany: number = 0;
 	numericRandomSample: number = 0;
 	RandomSampleIncluded: string = '';
+}
+export class PerformRandomAllocateTrainTestCommand {
+  attributeIdGoldStandard: number = 0;
+  attributeIdPlaceBelow: number = 0;
+  setIdPlaceBelow: number = 0;
+  howManyToTrain: number = 0;
 }
 
 export interface singleNode4move extends singleNode {

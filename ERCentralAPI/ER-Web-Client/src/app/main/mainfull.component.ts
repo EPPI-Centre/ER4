@@ -154,7 +154,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
       (item: any) => {
         this.router.navigate(['Main']);
         this.GoToItemList();
-        this.LoadMAGAllocList(item);
+        if (item != "") this.LoadMAGAllocList(item);
       }
 
     )
@@ -1072,59 +1072,19 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
   public RefreshCodingTools() {
     this.reviewSetsService.GetReviewSets(false);
   }
-  public PrintCodingTool() {
-    if (this.selectedNode == null || this.selectedNode.nodeType != 'ReviewSet') return;
-    let report: string = "";
-    let reviewSet = this.selectedNode as ReviewSet;
-    report += "<h2>" + reviewSet.set_name;
-    if (this.printCsetShowIds) report += " (ID: " + reviewSet.set_id + ")";
-    if (this.printCsetShowTypes) report += " [" + reviewSet.setType.setTypeName + "]";
-    report += "</h2>";
 
-    if (this.printCsetShowDescriptions && reviewSet.description.trim().length > 0) {
-      let desc: string = reviewSet.description;
-      desc = desc.replace("\r\n", "<br>");
-      desc = desc.replace("\n", "<br>");
-      desc = desc.replace("\r", "<br>");
-      report += "<i>" + desc + " </i>";
-    }
-    report += "<p><ul>";
-    for (let attributeSet of reviewSet.attributes) {
-      report = this.PrintSelectedReviewSetAddAttributes(report, attributeSet, this.printCsetShowIds, this.printCsetShowDescriptions, this.printCsetShowTypes);
-    }
-    report += "</ul></p>";
+  public PrintSelectedCodingTool() {
+    if (this.selectedNode == null || this.selectedNode.nodeType != 'ReviewSet') return;
+    let report: string = (this.selectedNode as ReviewSet).printHtml(this.printCsetShowIds, this.printCsetShowTypes, this.printCsetShowDescriptions);
     const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(report, this._baseUrl, "Coding Tool Printout"));
     //console.log("Savign report:", dataURI)
     saveAs(dataURI, "Coding Tool printout.html");
   }
-  PrintSelectedReviewSetAddAttributes(report: string, attributeSet: SetAttribute, showIDs: boolean, showDescriptions: boolean, ShowTypes: boolean): string {
-    let desc: string = attributeSet.description;
-    desc = desc.replace("\r\n", "<br>");
-    desc = desc.replace("\n", "<br>");
-    desc = desc.replace("\r", "<br>");
-    report += "<li>" + attributeSet.attribute_name;
-    if (showIDs) report += " (ID = " + attributeSet.attribute_id + ")";
-    if (ShowTypes) report += " [" + attributeSet.attribute_type + "]";
-    if (showDescriptions && desc.trim().length > 0) report += "<br><i>" + desc + " </i>";
-
-    if (attributeSet.attributes != null && attributeSet.attributes.length > 0) {
-      report += "<ul>";
-      for (let child of attributeSet.attributes) {
-        report = this.PrintSelectedReviewSetAddAttributes(report, child, showIDs, showDescriptions, ShowTypes);
-      }
-      report += "</ul>";
-    }
-    report += "</li>";
-    return report;
-  }
-
+  
   public get ReviewPanelTogglingSymbol(): string {
     if (this.isReviewPanelCollapsed) return '&uarr;';
     else return '&darr;';
   }
-
-
-
 
   public get WorkAllocationsPanelTogglingSymbol(): string {
     if (this.isWorkAllocationsPanelCollapsed) return '&uarr;';
@@ -1134,7 +1094,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     if (this.isSourcesPanelVisible) return '&uarr;';
     else return '&darr;';
   }
-
 
   IncludedItemsList() {
     this.IncludedItemsListNoTabChange();
