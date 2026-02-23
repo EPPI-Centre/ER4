@@ -2236,7 +2236,7 @@ namespace BusinessLibrary.BusinessClasses
                     SqlParameter par4 = new SqlParameter("@ATTRIBUTE_ANSWER_TEXT_O", System.Data.SqlDbType.NVarChar);
                     par4.Size = 4000; 
                     par4.Direction = System.Data.ParameterDirection.Output;
-                    command.Parameters.Add(par3);
+                    command.Parameters.Add(par4);
                     SqlParameter par5 = new SqlParameter("@ATTRIBUTE_QUESTION_TEXT_O", System.Data.SqlDbType.NVarChar);
                     par5.Size = 4000;
                     par5.Direction = System.Data.ParameterDirection.Output;
