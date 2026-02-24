@@ -224,8 +224,12 @@
             </div>
             <div>
               <h6>Evaluation run by {{ currentSelectedEvaluationContactName }} on {{ currentSelectedEvaluationDateRun ? (currentSelectedEvaluationDateRun | date:'medium') : 'no date' }} using the LLM: {{currentSelectedEvaluationRobotName}}. There were {{currentSelectedEvaluationNCodes}} codes in the codeset and {{currentSelectedEvaluationNRecords}} items (studies) evaluated over {{currentSelectedEvaluationNIterations}} iteration(s).</h6>
+              <div>
               <button (click)="DownloadSelectedEvaluationCodingTool()" class="btn btn-link px-1 py-0">Download the stored copy of the coding tool as used in this evaluation</button>
-
+            </div>
+            <div>
+              <button (click)="DownloadSelectedEvaluationData()" class="btn btn-link px-1 py-0">Download the raw data from this evaluation</button>
+            </div>
             </div>
             <h5 class="mt-4">Summary performance metrics</h5>
             <table class="table table-sm table-striped">

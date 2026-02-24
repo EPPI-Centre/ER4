@@ -292,6 +292,25 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     //console.log("Savign report:", dataURI)
     saveAs(dataURI, "Coding Tool printout.html");
   }
+
+  public DownloadSelectedEvaluationData() {
+    const data = this._robotsService.CurrentRobotOpenAiPromptEvaluationDataList;
+    if (data && data.length > 1 && this._robotsService.CurrentRobotOpenAiPromptEvaluation) {
+      let tsv = ["iteration", "itemId", "attributeId", "attributeName", "additionalText", "goldStandard"].join("\t") + "\n";
+      for (const row of data) {
+        const line = [
+        row.iteration,
+        row.itemId,
+        row.attributeId,
+        row.attributeName.replace(/\t/g, " ").replace(/\n/g, " "),
+        row.additionalText.replace(/\t/g, " ").replace(/\n/g, " "),
+        row.goldStandard].join("\t");
+        tsv += line + "\n";
+      }
+      const dataURI = "data:text/plain;base64," + encodeBase64(tsv);
+      saveAs(dataURI, this._robotsService.CurrentRobotOpenAiPromptEvaluation.title + ".tsv");
+    }
+  }
   
   public confirmDeleteEvaluation(item: iRobotOpenAiPromptEvaluation) {
     this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to delete this evaluation?', false, '')
