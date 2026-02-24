@@ -291,11 +291,11 @@
                     </td>
                     <td class="text-center" style="cursor: pointer;" [ngClass]="{'table-success': row.llmClassification, 'table-danger': !row.llmClassification}" (click)="listItems(row, true)">
                       {{ row.llm_human_true }}
-                      <small class="text-muted">{{ row.llmClassification ? '(TP)' : '(FN)' }}</small>
+                      <small class="text-muted">{{ row.llmClassification ? '(TP' : '(FN' }} mean over {{currentSelectedEvaluationNIterations}} iterations: {{row.llm_human_true / currentSelectedEvaluationNIterations | number:'1.0-2'}})</small>
                     </td>
                     <td class="text-center" style="cursor: pointer;" [ngClass]="{'table-danger': row.llmClassification, 'table-success': !row.llmClassification}" (click)="listItems(row, false)">
                       {{ row.llm_human_false }}
-                      <small class="text-muted">{{ row.llmClassification ? '(FP)' : '(TN)' }}</small>
+                      <small class="text-muted">{{ row.llmClassification ? '(FP' : '(TN' }} mean over {{currentSelectedEvaluationNIterations}} iterations: {{row.llm_human_false / currentSelectedEvaluationNIterations | number:'1.0-2'}})</small>
                     </td>
                   </tr>
                 </tbody>

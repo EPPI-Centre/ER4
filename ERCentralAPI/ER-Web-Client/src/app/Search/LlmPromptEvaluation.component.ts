@@ -210,7 +210,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   public currentSelectedEvaluationRobotName: string = '';
   public currentSelectedEvaluationNCodes: string = '';
   public currentSelectedEvaluationNRecords: string = '';
-  public currentSelectedEvaluationNIterations: string = '';
+  public currentSelectedEvaluationNIterations: number = 0;
 
   
   public evaluationNameText: string = '';
@@ -265,7 +265,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     this.currentSelectedEvaluationRobotName = item.robotName;
     this.currentSelectedEvaluationNCodes = item.nCodes.toString();
     this.currentSelectedEvaluationNRecords = item.nRecords.toString();
-    this.currentSelectedEvaluationNIterations = item.nIterations.toString();
+    this.currentSelectedEvaluationNIterations = item.nIterations;
     this._robotsService.FetchRobotOpenAiPromptEvaluationDataList(item);
   }
 
