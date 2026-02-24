@@ -274,16 +274,6 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
       , { name: "Arm 2", value: "grp2ArmName" }
     ];
     let i = 1;
-    for (let col of this.ColumnVisibility.AnswerHeaders) {
-      Cols.push({ name: col.Name, value: "aa" + i.toString() });
-      i++;
-    }
-    i = 1;
-    for (let col of this.ColumnVisibility.QuestionHeaders) {
-      Cols.push({ name: col.Name, value: "aq" + i.toString() });
-      i++;
-    }
-    i = 1;
     for (let col of this.ColumnVisibility.AnswerOutcomeHeaders) {
       Cols.push({ name: col.Name, value: "ao" + i.toString() });
       i++;
@@ -291,6 +281,16 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
     i = 1;
     for (let col of this.ColumnVisibility.QuestionOutcomeHeaders) {
       Cols.push({ name: col.Name, value: "aoq" + i.toString() });
+      i++;
+    }
+    i = 1;
+    for (let col of this.ColumnVisibility.AnswerHeaders) {
+      Cols.push({ name: col.Name, value: "aa" + i.toString() });
+      i++;
+    }
+    i = 1;
+    for (let col of this.ColumnVisibility.QuestionHeaders) {
+      Cols.push({ name: col.Name, value: "aq" + i.toString() });
       i++;
     }
     i = 1;
@@ -412,18 +412,24 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
     if (this.MetaAnalysisService.CurrentMetaAnalysis && this.Outcomes.length > 0) {
       const data = this.Outcomes;
       let ToSend: any[] = [];
-      //1st the headers
+      
+      const ColVis = this.ColumnVisibility;
+      //1st the data
+      for (const outc of data) {
+        ToSend.push(new RawDataOutcome(outc, ColVis));
+      }
+      //2nd the headers
       if (this.ExportTo !== "ExcelRD") {
-        const row1 = data[0] as any;
+        const row1 = ToSend[0] as any;
         let headerRow: any = {};
         for (var prop in row1) {
           if (Object.prototype.hasOwnProperty.call(row1, prop) && prop.toString() != "outcomeCodes" && prop.toString() != "manuallyEnteredOutcomeTypeId" && prop.toString() != "outcomeTimePoint") {
             headerRow[prop] = prop.toString();
           }
         }
-        ToSend.push(headerRow);
+        ToSend.unshift(headerRow);
       }
-      ToSend = ToSend.concat(data);
+
       if (this.ExportTo == "ExcelRD") this.ExportThisDataToExcel(ToSend);
       else if (this.ExportTo == "HtmlRD") this.ExportThisDataToHTML(ToSend);
       else if (this.ExportTo == "CSVRD") this.ExportThisDataToCSV(ToSend);
@@ -438,4 +444,302 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
 class NameValuePair {
   name: string = "";
   value: string = "";
+}
+class RawDataOutcome {
+  public static OutcomeTypeMapper(TypeId: number): string { return ""; }
+  constructor(outc: ExtendedOutcome, ColVis: DynamicColumnsOutcomes) {
+    this.isSelected = outc.isSelected;
+    this.outcomeId = outc.outcomeId;
+    this.shortTitle = outc.shortTitle;
+    this.itemId = outc.itemId;
+    this.title = outc.title;
+    this.outcomeDescription = outc.outcomeDescription;
+    this.outcomeTypeName = outc.outcomeTypeName; //continuous,binary,correlation??
+    this.outcomeTypeDetail = RawDataOutcome.OutcomeTypeMapper(outc.outcomeTypeId);
+    this.timepointDisplayValue = outc.timepointDisplayValue;
+    this.itemTimepointValue = Number(outc.itemTimepointValue);
+    this.itemTimepointMetric = outc.itemTimepointMetric;
+    this.outcomeText = outc.outcomeText; //(name of the outcome code, if any)
+    this.itemAttributeIdOutcome = outc.itemAttributeIdOutcome;
+    this.interventionText = outc.interventionText;
+    this.itemAttributeIdIntervention = outc.itemAttributeIdIntervention;
+    this.controlText = outc.controlText;
+    this.itemAttributeIdControl = outc.itemAttributeIdControl;
+    this.grp1ArmName = outc.grp1ArmName;
+    this.itemArmIdGrp1 = outc.itemArmIdGrp1;
+    this.grp2ArmName = outc.grp2ArmName;
+    this.itemArmIdGrp2 = outc.itemArmIdGrp2;
+    this.Data1 = outc.data1;
+    this.Data1Desc = outc.data1Desc;
+    this.Data2 = outc.data2;
+    this.Data2Desc = outc.data2Desc;
+    this.Data3 = outc.data3;
+    this.Data3Desc = outc.data3Desc;
+    this.Data4 = outc.data4;
+    this.Data4Desc = outc.data4Desc;
+    this.Data5 = outc.data5;
+    this.Data5Desc = outc.data5Desc;
+    this.Data6 = outc.data6;
+    this.Data6Desc = outc.data6Desc;
+    this.Data7 = outc.data7;
+    this.Data7Desc = outc.data7Desc;
+    this.Data8 = outc.data8;
+    this.Data8Desc = outc.data8Desc;
+    this.Data9 = outc.data9;
+    this.Data9Desc = outc.data9Desc;
+    this.Data10 = outc.data10;
+    this.Data10Desc = outc.data10Desc;
+    this.Data11 = outc.data11;
+    this.Data11Desc = outc.data11Desc;
+    this.Data12 = outc.data12;
+    this.Data12Desc = outc.data12Desc;
+    this.Data13 = outc.data13;
+    this.Data13Desc = outc.data13Desc;
+    this.Data14 = outc.data14;
+    this.Data14Desc = outc.data14Desc;
+    this.feWeight = outc.feWeight;
+    this.reWeight = outc.reWeight;
+    this.smd = outc.smd;
+    this.sesmd = outc.sesmd;
+    this.r = outc.r;
+    this.ser = outc.ser;
+    this.oddsRatio = outc.oddsRatio;
+    this.seOddsRatio = outc.seOddsRatio;
+    this.riskRatio = outc.riskRatio;
+    this.seRiskRatio = outc.seRiskRatio;
+    this.ciUpperSMD = outc.ciUpperSMD;
+    this.ciLowerSMD = outc.ciLowerSMD;
+    this.ciUpperR = outc.ciUpperR;
+    this.ciLowerR = outc.ciLowerR;
+    this.ciUpperOddsRatio = outc.ciUpperOddsRatio;
+    this.ciLowerOddsRatio = outc.ciLowerOddsRatio;
+    this.ciUpperRiskRatio = outc.ciUpperRiskRatio;
+    this.ciLowerRiskRatio = outc.ciLowerRiskRatio;
+    this.ciUpperRiskDifference = outc.ciUpperRiskDifference;
+    this.ciLowerRiskDifference = outc.ciLowerRiskDifference;
+    this.ciUpperPetoOddsRatio = outc.ciUpperPetoOddsRatio;
+    this.ciLowerPetoOddsRatio = outc.ciLowerPetoOddsRatio;
+    this.ciUpperMeanDifference = outc.ciUpperMeanDifference;
+    this.ciLowerMeanDifference = outc.ciLowerMeanDifference;
+    this.riskDifference = outc.riskDifference;
+    this.seRiskDifference = outc.seRiskDifference;
+    this.meanDifference = outc.meanDifference;
+    this.seMeanDifference = outc.seMeanDifference;
+    this.petoOR = outc.petoOR;
+    this.sePetoOR = outc.sePetoOR;
+    this.es = outc.es;
+    this.esDesc = outc.esDesc;
+    this.sees = outc.sees;
+    this.seDesc = outc.seDesc;
+    this.ciLower = outc.ciLower;
+    this.ciUpper = outc.ciUpper;
+    let OptionalPropName: string = "";
+    let index = 0;
+    for (const oA of ColVis.AnswerOutcomeHeaders) {
+      OptionalPropName = oA.Name + " (Outc. Lev. A." + (index+1).toString() + ")";
+      (this as any)[OptionalPropName] = (outc as any)["ao" + (index + 1).toString()];
+      console.log("testing1: ", (this as any)[OptionalPropName]);
+      index++;
+    }
+    index = 0;
+    for (const oA of ColVis.QuestionOutcomeHeaders) {
+      OptionalPropName = oA.Name + " (Outc. Lev. Q." + (index + 1).toString() + ")";
+      (this as any)[OptionalPropName] = (outc as any)["aqo" + (index + 1).toString()];
+      console.log("testing2: ", (this as any)[OptionalPropName]);
+      index++;
+    }
+    index = 0;
+    for (const oA of ColVis.AnswerHeaders) {
+      OptionalPropName = oA.Name + " (Item Lev. A." + (index + 1).toString() + ")";
+      (this as any)[OptionalPropName] = (outc as any)["aa" + (index + 1).toString()];
+      console.log("testing3: ", (this as any)[OptionalPropName]);
+      index++;
+    }
+    index = 0;
+    for (const oA of ColVis.QuestionHeaders) {
+      OptionalPropName = oA.Name + " (Item Lev. Q." + (index + 1).toString() + ")";
+      (this as any)[OptionalPropName] = (outc as any)["aq" + (index + 1).toString()];
+      console.log("testing4: ", (this as any)[OptionalPropName]);
+      index++;
+    }
+    index = 0;
+    for (const oA of ColVis.ClassificationHeaders) {
+      OptionalPropName = oA.Name + " (Outc. Classif." + (index + 1).toString() + ")";
+      (this as any)[OptionalPropName] = (outc as any)["occ" + (index + 1).toString()];
+      console.log("testing5: ", (this as any)[OptionalPropName]);
+      index++;
+      if (index == 30) break;
+    }
+  }
+  isSelected: boolean = false;
+  outcomeId: number = 0;
+  shortTitle: string = "";
+  itemId: number = 0;
+  title: string = "";
+  outcomeDescription: string = "";
+  outcomeTypeName: string = ""; //continuous,binary,correlation??
+  outcomeTypeDetail: string = ""; //see bottom list
+  timepointDisplayValue: string = "";
+  itemTimepointValue: number = 0;
+  itemTimepointMetric: string = "";
+  outcomeText: string = ""; //(name of the outcome code, if any)
+  itemAttributeIdOutcome: number = 0;
+  interventionText: string = "";
+  itemAttributeIdIntervention: number = 0;
+  controlText: string = "";
+  itemAttributeIdControl: number = 0;
+  grp1ArmName: string = "";
+  itemArmIdGrp1: number = 0;
+  grp2ArmName: string = "";
+  itemArmIdGrp2: number = 0;
+  Data1: number = 0;
+  Data1Desc: string = "";
+  Data2: number = 0;
+  Data2Desc: string = "";
+  Data3: number = 0;
+  Data3Desc: string = "";
+  Data4: number = 0;
+  Data4Desc: string = "";
+  Data5: number = 0;
+  Data5Desc: string = "";
+  Data6: number = 0;
+  Data6Desc: string = "";
+  Data7: number = 0;
+  Data7Desc: string = "";
+  Data8: number = 0;
+  Data8Desc: string = "";
+  Data9: number = 0;
+  Data9Desc: string = "";
+  Data10: number = 0;
+  Data10Desc: string = "";
+  Data11: number = 0;
+  Data11Desc: string = "";
+  Data12: number = 0;
+  Data12Desc: string = "";
+  Data13: number = 0;
+  Data13Desc: string = "";
+  Data14: number = 0;
+  Data14Desc: string = "";
+  es: number = 0;
+  esDesc: string = "";
+  sees: number = 0;
+  seDesc: string = "";
+  ciLower: number = 0;
+  ciUpper: number = 0;
+  feWeight: number = 0;
+  reWeight: number = 0;
+  smd: number = 0;
+  sesmd: number = 0;
+  r: number = 0;
+  ser: number = 0;
+  oddsRatio: number = 0;
+  seOddsRatio: number = 0;
+  riskRatio: number = 0;
+  seRiskRatio: number = 0;
+  ciUpperSMD: number = 0;
+  ciLowerSMD: number = 0;
+  ciUpperR: number = 0;
+  ciLowerR: number = 0;
+  ciUpperOddsRatio: number = 0;
+  ciLowerOddsRatio: number = 0;
+  ciUpperRiskRatio: number = 0;
+  ciLowerRiskRatio: number = 0;
+  ciUpperRiskDifference: number = 0;
+  ciLowerRiskDifference: number = 0;
+  ciUpperPetoOddsRatio: number = 0;
+  ciLowerPetoOddsRatio: number = 0;
+  ciUpperMeanDifference: number = 0;
+  ciLowerMeanDifference: number = 0;
+  riskDifference: number = 0;
+  seRiskDifference: number = 0;
+  meanDifference: number = 0;
+  seMeanDifference: number = 0;
+  petoOR: number = 0;
+  sePetoOR: number = 0;
+
+  //OutcomeLevelAnswer1: boolean = false;
+  //OutcomeLevelAnswerName1: string = "";
+  //OutcomeLevelAnswer2: boolean = false;
+  //OutcomeLevelAnswerName2: string = "";
+  //OutcomeLevelAnswer3: boolean = false;
+  //OutcomeLevelAnswerName3: string = "";
+  //OutcomeLevelAnswer4: boolean = false;
+  //OutcomeLevelAnswerName4: string = "";
+  //OutcomeLevelAnswer5: boolean = false;
+  //OutcomeLevelAnswerName5: string = "";
+  //OutcomeLevelAnswer6: boolean = false;
+  //OutcomeLevelAnswerName6: string = "";
+  //OutcomeLevelAnswer7: boolean = false;
+  //OutcomeLevelAnswerName7: string = "";
+  //OutcomeLevelAnswer8: boolean = false;
+  //OutcomeLevelAnswerName8: string = "";
+  //OutcomeLevelAnswer9: boolean = false;
+  //OutcomeLevelAnswerName9: string = "";
+  //OutcomeLevelAnswer10: boolean = false;
+  //OutcomeLevelAnswerName10: string = "";
+  //OutcomeLevelAnswer11: boolean = false;
+  //OutcomeLevelAnswerName11: string = "";
+  //OutcomeLevelAnswer12: boolean = false;
+  //OutcomeLevelAnswerName12: string = "";
+  //OutcomeLevelAnswer13: boolean = false;
+  //OutcomeLevelAnswerName13: string = "";
+  //OutcomeLevelAnswer14: boolean = false;
+  //OutcomeLevelAnswerName14: string = "";
+  //OutcomeLevelAnswer15: boolean = false;
+  //OutcomeLevelAnswerName15: string = "";
+  //OutcomeLevelAnswer16: boolean = false;
+  //OutcomeLevelAnswerName16: string = "";
+  //OutcomeLevelAnswer17: boolean = false;
+  //OutcomeLevelAnswerName17: string = "";
+  //OutcomeLevelAnswer18: boolean = false;
+  //OutcomeLevelAnswerName18: string = "";
+  //OutcomeLevelAnswer19: boolean = false;
+  //OutcomeLevelAnswerName19: string = "";
+  //OutcomeLevelAnswer20: boolean = false;
+  //OutcomeLevelAnswerName20: string = "";
+
+  //OutcomeLevelQuestion1: boolean = false;
+  //OutcomeLevelQuestionName1: string = "";
+  //OutcomeLevelQuestion2: boolean = false;
+  //OutcomeLevelQuestionName2: string = "";
+  //OutcomeLevelQuestion3: boolean = false;
+  //OutcomeLevelQuestionName3: string = "";
+  //OutcomeLevelQuestion4: boolean = false;
+  //OutcomeLevelQuestionName4: string = "";
+  //OutcomeLevelQuestion5: boolean = false;
+  //OutcomeLevelQuestionName5: string = "";
+  //OutcomeLevelQuestion6: boolean = false;
+  //OutcomeLevelQuestionName6: string = "";
+  //OutcomeLevelQuestion7: boolean = false;
+  //OutcomeLevelQuestionName7: string = "";
+  //OutcomeLevelQuestion8: boolean = false;
+  //OutcomeLevelQuestionName8: string = "";
+  //OutcomeLevelQuestion9: boolean = false;
+  //OutcomeLevelQuestionName9: string = "";
+  //OutcomeLevelQuestion10: boolean = false;
+  //OutcomeLevelQuestionName10: string = "";
+  //OutcomeLevelQuestion11: boolean = false;
+  //OutcomeLevelQuestionName11: string = "";
+  //OutcomeLevelQuestion12: boolean = false;
+  //OutcomeLevelQuestionName12: string = "";
+  //OutcomeLevelQuestion13: boolean = false;
+  //OutcomeLevelQuestionName13: string = "";
+  //OutcomeLevelQuestion14: boolean = false;
+  //OutcomeLevelQuestionName14: string = "";
+  //OutcomeLevelQuestion15: boolean = false;
+  //OutcomeLevelQuestionName15: string = "";
+  //OutcomeLevelQuestion16: boolean = false;
+  //OutcomeLevelQuestionName16: string = "";
+  //OutcomeLevelQuestion17: boolean = false;
+  //OutcomeLevelQuestionName17: string = "";
+  //OutcomeLevelQuestion18: boolean = false;
+  //OutcomeLevelQuestionName18: string = "";
+  //OutcomeLevelQuestion19: boolean = false;
+  //OutcomeLevelQuestionName19: string = "";
+  //OutcomeLevelQuestion20: boolean = false;
+  //OutcomeLevelQuestionName20: string = "";
+
+  //ItemLevelAnswers: NameValuePair[] = [];//0-20
+  //ItemLevelQuestions: NameValuePair[] = [];//0-20
+  //OutcomeClassificationCodes: NameValuePair[] = [];//0-30
 }
