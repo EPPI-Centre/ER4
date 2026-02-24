@@ -770,7 +770,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
             return result;
-        }
+        } // END ITERATIONS
 
         internal static void Merge2Prompts(List<OpenAIChatClass> messages)
         {
