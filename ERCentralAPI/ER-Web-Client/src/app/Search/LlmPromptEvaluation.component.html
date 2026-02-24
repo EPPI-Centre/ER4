@@ -45,7 +45,7 @@
                 <div *ngIf="NCodesInSelectedGoldStandard == 0">There are <strong>no</strong> items assigned to this code</div>
                 <div *ngIf="NCodesInSelectedGoldStandard == 1">There is <strong>one</strong> item that has been assigned to this code</div>
                 <div *ngIf="NCodesInSelectedGoldStandard > 1">There are <strong>{{NCodesInSelectedGoldStandard}}</strong> items assigned to this code</div>
-                <div *ngIf="NCodesInSelectedGoldStandard > 1000">(That's too many!)</div>
+                <div *ngIf="NCodesInSelectedGoldStandard * n_iterations > maxNToGoToLLM">(That's too many!)</div>
               </div>
               </div>
             </div>

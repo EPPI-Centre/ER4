@@ -52,6 +52,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   public selectedCodeSet: ReviewSet = new ReviewSet();
   public n_iterations: number = 3;
   public n_in_train_set: number = 50;
+  public maxNToGoToLLM: number = 1000;
   public SelectedGoldStandardEvaluationAttribute: SetAttribute | null = null;
   public SelectedGoldStandardTrainTestAttribute: SetAttribute | null = null;
   public SelectedTrainTestBelowHereAttribute: SetAttribute | null = null;
@@ -380,7 +381,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     if (this.RobotSettings.robotName == "") return false;
     if (this.evaluationNameIsInvalid) return false;
     if (this.NCodesInSelectedGoldStandard == 0) return false;
-    if (this.NCodesInSelectedGoldStandard > 1000) return false;
+    if (this.NCodesInSelectedGoldStandard * this.n_iterations > this.maxNToGoToLLM) return false;
     return true;
   }
 
