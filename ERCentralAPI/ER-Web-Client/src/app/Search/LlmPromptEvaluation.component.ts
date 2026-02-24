@@ -58,6 +58,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   public showManualModalRobotOptions: boolean = false;
   public showManualModalUncompleteWarning: boolean = false;
   public showRobotDetails = true;
+  public NCodesInSelectedGoldStandard: number = 0;
 
   public CreateTrainTestSplitsSection: boolean = false;
 
@@ -95,7 +96,11 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   CanWrite(): boolean {
     return this.ReviewerIdentityServ.HasWriteRights;
   }
-  
+  private _ShowPanel: string = "";
+  public get ShowPanel(): string {
+    return this._ShowPanel
+  }
+
 
   public get nodeSelected(): singleNode | null | undefined {
     return this._eventEmitterService.nodeSelected;
@@ -107,6 +112,21 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
       this.selectedModelDropDown1 = node.name;
       this.SelectedGoldStandardEvaluationAttribute = node as SetAttribute;
       this._eventEmitterService.nodeSelected = undefined;
+
+
+
+      this._reviewSetsEditingService.AttributeOrSetDeleteCheck(0, node.attributeSetId).then(
+          success => {
+            //alert("did it");
+
+          this._ShowPanel = 'NCodesInSelectedGoldStandardPanel';
+          this.NCodesInSelectedGoldStandard = success.numItems;          },
+          error => {
+            //alert("Sorry, creating the new codeset failed.");
+            //this.modalService.GenericErrorMessage(ErrMsg);
+          });
+      
+
     }
     else {
       this.selectedModelDropDown1 = "";
@@ -299,12 +319,12 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
       let tsv = ["iteration", "itemId", "attributeId", "attributeName", "additionalText", "goldStandard"].join("\t") + "\n";
       for (const row of data) {
         const line = [
-        row.iteration,
-        row.itemId,
-        row.attributeId,
-        row.attributeName.replace(/\t/g, " ").replace(/\n/g, " "),
-        row.additionalText.replace(/\t/g, " ").replace(/\n/g, " "),
-        row.goldStandard].join("\t");
+          row.iteration,
+          row.itemId,
+          row.attributeId,
+          row.attributeName.replace(/\t/g, " ").replace(/\n/g, " "),
+          row.additionalText.replace(/\t/g, " ").replace(/\n/g, " "),
+          row.goldStandard].join("\t");
         tsv += line + "\n";
       }
       const dataURI = "data:text/plain;base64," + encodeBase64(tsv);
@@ -359,6 +379,8 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     if (this.SelectedGoldStandardEvaluationAttribute == null) return false;
     if (this.RobotSettings.robotName == "") return false;
     if (this.evaluationNameIsInvalid) return false;
+    if (this.NCodesInSelectedGoldStandard == 0) return false;
+    if (this.NCodesInSelectedGoldStandard > 1000) return false;
     return true;
   }
 
