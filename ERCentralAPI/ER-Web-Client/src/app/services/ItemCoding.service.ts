@@ -6,7 +6,7 @@ import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Item, ItemListService, Criteria, ItemList, StringKeyValue } from './ItemList.service';
 import { ReviewSet, SetAttribute, ReviewSetsService, singleNode, ItemAttributeSaveCommand, iSetType } from './ReviewSets.service';
-import { ArmTimepointLinkListService } from './ArmTimepointLinkList.service';
+import { ArmTimepointLinkListService, iArm, iTimePoint } from './ArmTimepointLinkList.service';
 import { ItemDocsService } from './itemdocs.service';
 import { Outcome, OutcomeItemList, OutcomeItemAttributesList, OutcomeItemAttribute } from './outcomes.service';
 import { EventEmitterService } from './EventEmitter.service';
@@ -573,8 +573,8 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
       //initiate recursion, ugh!
       if (isJson) {
         this.SelfSubscription4QuickCodingReport = this.DataChanged.subscribe(
-          () => {
-            this.AddToJSONQuickCodingReport();
+         async () => {
+            await this.AddToJSONQuickCodingReport();
             this._CurrentItemIndex4QuickCodingReport++;
             this.InterimGetItemCodingForReport(isJson);
           }//no error handling: any error in this.Fetch(...) sends back home!!
@@ -650,8 +650,9 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
       }
     }
   }
-  private AddToJSONQuickCodingReport() {
+  private async AddToJSONQuickCodingReport() {
     const currentItem = this._ItemsToReport[this._CurrentItemIndex4QuickCodingReport];
+    await this.ArmsService.FetchAll(currentItem, false);
     let jItem: Item4ER4Json = new Item4ER4Json(currentItem);
     for (let i = 0; i < this._ReviewSetsToReportOn.length; i++) {
       let reviewSet: ReviewSet = this._ReviewSetsToReportOn[i];
@@ -1576,7 +1577,7 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
         this._ItemCodingList = Data.itemSets.filter(found => found.itemId == itm.itemId).map(im => { return new ItemSet(im); });
 
         //console.log("Reporting on item (Item id, len):", this._ItemsToReport[0].itemId, this._ItemCodingList.length);
-        if (isJson) this.AddToJSONQuickCodingReport();
+        if (isJson) await this.AddToJSONQuickCodingReport();
         else this.AddToQuickCodingReport();
       }
       this._ItemsToReport = [];
@@ -1853,6 +1854,8 @@ class Item4ER4Json {
     this.ItemStatus = item.itemStatus;
     this.ItemStatusTooltip = item.itemStatusTooltip;
     this.QuickCitation = item.quickCitation;
+    this.Arms = item.arms;
+    this.Timepoints = item.timepoints;
   }
 
   ItemId: number;
@@ -1888,6 +1891,8 @@ class Item4ER4Json {
   ItemStatusTooltip: string;
   Codes: Attribute4ER4Json[] = [];
   Outcomes: Outcome4ER4Json[] = [];
+  Arms: iArm[] = [];
+  Timepoints: iTimePoint[] = [];
   QuickCitation: string;
 }
 class Outcome4ER4Json {
