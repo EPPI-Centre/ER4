@@ -46,6 +46,15 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
       //2nd set up the list of columns that can be filtered
       this._CurrentColumns = this._FixedColumns.concat();
       let i: number = 1;
+      for (let col of this.MetaAnalysisService.ColumnVisibility.AnswerOutcomeHeaders) {
+        this._CurrentColumns.push(new StringKeyValue("ao" + i.toString(), col.Name));
+        i++;
+      }
+      i = 1;
+      for (let col of this.MetaAnalysisService.ColumnVisibility.QuestionOutcomeHeaders) {
+        this._CurrentColumns.push(new StringKeyValue("aqo" + i.toString(), col.Name));
+        i++;
+      }
       for (let col of this.MetaAnalysisService.ColumnVisibility.AnswerHeaders) {
         this._CurrentColumns.push(new StringKeyValue("aa" + i.toString(), col.Name));
         i++;
