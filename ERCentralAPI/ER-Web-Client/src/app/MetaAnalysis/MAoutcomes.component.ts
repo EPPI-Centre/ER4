@@ -275,29 +275,31 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
     ];
     let i = 1;
     for (let col of this.ColumnVisibility.AnswerOutcomeHeaders) {
-      Cols.push({ name: col.Name, value: "ao" + i.toString() });
+      let colName = this.CalculateColName(Cols, col);
+      Cols.push({ name: colName, value: "ao" + i.toString() });
       i++;
     }
     i = 1;
     for (let col of this.ColumnVisibility.QuestionOutcomeHeaders) {
-      Cols.push({ name: col.Name, value: "aoq" + i.toString() });
+      let colName = this.CalculateColName(Cols, col);
+      Cols.push({ name: colName, value: "aqo" + i.toString() });
       i++;
     }
     i = 1;
     for (let col of this.ColumnVisibility.AnswerHeaders) {
-      Cols.push({ name: col.Name, value: "aa" + i.toString() });
+      let colName = this.CalculateColName(Cols, col);
+      Cols.push({ name: colName, value: "aa" + i.toString() });
       i++;
     }
     i = 1;
     for (let col of this.ColumnVisibility.QuestionHeaders) {
-      Cols.push({ name: col.Name, value: "aq" + i.toString() });
+      let colName = this.CalculateColName(Cols, col);
+      Cols.push({ name: colName, value: "aq" + i.toString() });
       i++;
     }
     i = 1;
     for (let col of this.ColumnVisibility.ClassificationHeaders) {
-      let count = Cols.filter(f => f.name == col.Name).length;
-      let colName = col.Name;
-      if (count > 0) colName += " (" + (count + 1).toString() + ")";
+      let colName = this.CalculateColName(Cols, col);
       Cols.push({ name: colName, value: "occ" + i.toString() });
       i++;
     }
@@ -327,6 +329,17 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
       else if (this.ExportTo == "CSV") { this.ExportThisDataToCSV(ExportingData);}
       else if (this.ExportTo == "TSV") { this.ExportThisDataToTSV(ExportingData); }
     }
+  }
+  private CalculateColName(Cols: NameValuePair[], col:IdAndNamePair):string {
+    let count = Cols.filter(f => f.name == col.Name).length;
+    if (count == 0) return col.Name;
+    count = 1;
+    let AdjustedName = col.Name + " (" + (count + 1).toString() + ")";
+    while (Cols.filter(f => f.name == AdjustedName).length > 0) {
+      count++;
+      AdjustedName = col.Name + " (" + (count + 1).toString() + ")";
+    }
+    return AdjustedName;
   }
   private ExportThisDataToExcel(data: any[]) {
     if (this.MetaAnalysisService.CurrentMetaAnalysis) {
@@ -396,7 +409,7 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
           if (Object.prototype.hasOwnProperty.call(row, prop) && prop.toString() != "outcomeCodes" && prop.toString() != "manuallyEnteredOutcomeTypeId" &&  prop.toString() != "outcomeTimePoint") {
             let val = "";
             if (row[prop] != undefined) val = row[prop].toString().replace(/\t/g, ' ') + "\t";
-            else val = ",";
+            else val = "\t";
             report += val;
           }
         }
