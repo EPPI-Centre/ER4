@@ -203,6 +203,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   public selectedModelDropDown1: string = '';
   public selectedModelDropDown2: string = '';
   public selectedModelDropDown3: string = '';
+  public usePdfs: boolean = false;
   public currentSelectedEvaluationCodeSetName: string = '';
   public currentSelectedEvaluationDateRun: Date | null = null;
   public currentSelectedEvaluationTitle: string = '';
@@ -392,7 +393,14 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     return selected;
   }
   public openConfirmationDialogPromptEvaluation() {
-    this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to run the evaluation with these codes?', false, '')
+    let message = "";
+    if (this.usePdfs) {
+      message = "Are you sure you wish to run the evaluation on full-text pdf files with these codes?";
+    }
+    else {
+      message = "Are you sure you wish to run the evaluation with these codes?";
+    }
+    this.confirmationDialogService.confirm('Please confirm', message, false, '')
       .then(
         (confirmed: any) => {
           //console.log('User confirmed:', confirmed);
@@ -421,7 +429,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
       reviewSetId: this.selectedCodeSet.reviewSetId,
       reviewSetHtml: this.selectedCodeSet.printHtml(false, false, true),
       goldStandardAttributeId: (this.SelectedGoldStandardEvaluationAttribute as SetAttribute).attribute_id,
-      useFullTextDocument: this.RobotSettings.useFullTextDocument,
+      useFullTextDocument: this.usePdfs,
       returnMessage: "",
       nIterations: this.n_iterations
     };

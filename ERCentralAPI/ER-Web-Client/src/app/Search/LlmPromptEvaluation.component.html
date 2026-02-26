@@ -17,7 +17,7 @@
             <div class="col-12 col-md-8">
               <input class="form-control bg-white w-100 mb-1" id="evaluationName" name="evaluationName"
                      required #evaluationNameInput="ngModel" [(ngModel)]="evaluationNameText" type="text" />
-              
+
               <div *ngIf="evaluationNameIsInvalid > 0"
                    class="alert alert-danger small mt-1 px-1 py-0 d-inline-block">
                 <ng-container [ngSwitch]="evaluationNameIsInvalid">
@@ -28,8 +28,8 @@
                   <!-- no need for *ngSwitchDefault -->
                 </ng-container>
               </div>
-              </div>
             </div>
+          </div>
 
           <div class="row align-items-center mt-2">
             <div class="mx-0 px-1 col-12 col-md-4 text-md-right align-self-start">Gold standard records have this code</div>
@@ -47,8 +47,8 @@
                 <div *ngIf="NCodesInSelectedGoldStandard > 1">There are <strong>{{NCodesInSelectedGoldStandard}}</strong> items assigned to this code</div>
                 <div *ngIf="NCodesInSelectedGoldStandard * n_iterations > maxNToGoToLLM">(That's too many!)</div>
               </div>
-              </div>
             </div>
+          </div>
 
           <div class="row align-items-center mt-2">
             <div class="mx-0 px-1 col-12 col-md-4 my-auto text-md-right align-self-start">Evaluate the prompts in this code set</div>
@@ -61,7 +61,21 @@
                 </option>
               </select>
             </div>
+          </div>
+
+          <div class="row align-items-center mt-2">
+            <div class="mx-0 px-1 col-12 col-md-4 my-auto text-md-right align-self-start">Include full-text PDFs</div>
+            <div class="col-12 col-md-8">
+              <div class="form-check mb-1">
+                <input class="form-check-input" type="checkbox" id="usePdfsCheckbox"
+                       name="usePdfs" [(ngModel)]="usePdfs"
+                       (change)="RobotSettings.useFullTextDocument = usePdfs" />
+                <label class="form-check-label" for="usePdfsCheckbox">
+                  
+                </label>
+              </div>
             </div>
+          </div>
 
           <div class="row align-items-center mt-2">
             <div class="mx-0 px-1 col-12 col-md-4 my-auto text-md-right align-self-start">Robot</div>
@@ -74,38 +88,38 @@
               </select>
             </div>
           </div>
-            <div *ngIf="showRobotDetails && SelectedRobot" class="px-1 mx-0 my-1 border border-info rounded small alert-info">
-              <div class="row mx-0">
-                <!--<div class="mx-1 font-weight-bold col-12">Robot name: {{SelectedRobot.robotName}}</div>-->
-                <div class="col mx-1 px-1">
-                  <div class="mx-0">Cost per million input tokens: £{{SelectedRobot.inputTokenCostPerMillion}}</div>
-                  <div class="mx-0">Cost per million output tokens: £{{SelectedRobot.outputTokenCostPerMillion}}</div>
-                  <div class="mx-0">Current retirement date: {{FormatDate(SelectedRobot.retirementDate)}}</div>
-                </div>
-                <div class="col mx-0 rounded bg-light px-1"><span class="font-weight-bold">Description:</span> {{SelectedRobot.description}}</div>
+          <div *ngIf="showRobotDetails && SelectedRobot" class="px-1 mx-0 my-1 border border-info rounded small alert-info">
+            <div class="row mx-0">
+              <!--<div class="mx-1 font-weight-bold col-12">Robot name: {{SelectedRobot.robotName}}</div>-->
+              <div class="col mx-1 px-1">
+                <div class="mx-0">Cost per million input tokens: £{{SelectedRobot.inputTokenCostPerMillion}}</div>
+                <div class="mx-0">Cost per million output tokens: £{{SelectedRobot.outputTokenCostPerMillion}}</div>
+                <div class="mx-0">Current retirement date: {{FormatDate(SelectedRobot.retirementDate)}}</div>
               </div>
-              <button class="btn btn-sm btn-outline-dark mr-1 py-0 small" (click)="showRobotDetails = false">Hide Details</button>
+              <div class="col mx-0 rounded bg-light px-1"><span class="font-weight-bold">Description:</span> {{SelectedRobot.description}}</div>
             </div>
+            <button class="btn btn-sm btn-outline-dark mr-1 py-0 small" (click)="showRobotDetails = false">Hide Details</button>
+          </div>
 
-            <div class="row align-items-center mt-2">
-              <div class="mx-0 px-1 col-12 col-md-4 my-auto text-md-right align-self-start">Number of iterations</div>
-              <div class="col-12 col-md-8">
-                <div class="w-100 mb-1">
-                  <kendo-numerictextbox [(ngModel)]="n_iterations"
-                                        [min]="1" [format]="'n0'"
-                                        [max]="20"
-                                        [step]="1"
-                                        [autoCorrect]="true"
-                                        class="border border-dark rounded"
-                                        style="width: 100px;">
-                  </kendo-numerictextbox>
-                </div>
+          <div class="row align-items-center mt-2">
+            <div class="mx-0 px-1 col-12 col-md-4 my-auto text-md-right align-self-start">Number of iterations</div>
+            <div class="col-12 col-md-8">
+              <div class="w-100 mb-1">
+                <kendo-numerictextbox [(ngModel)]="n_iterations"
+                                      [min]="1" [format]="'n0'"
+                                      [max]="20"
+                                      [step]="1"
+                                      [autoCorrect]="true"
+                                      class="border border-dark rounded"
+                                      style="width: 100px;">
+                </kendo-numerictextbox>
               </div>
             </div>
+          </div>
 
-              <button class="btn btn-sm btn-outline-danger mr-1 my-auto py-0 font-weight-bold" (click)="openConfirmationDialogPromptEvaluation()" [disabled]="!CanRunOpenAIrobot">Submit</button>
-              <button class="btn btn-sm btn-outline-danger mr-1 my-auto py-0 font-weight-bold float-right" (click)="OpenCreateTrainTestSplitsSection()">Create train / test datasets</button>
-            </div>
+          <button class="btn btn-sm btn-outline-danger mr-1 my-auto py-0 font-weight-bold" (click)="openConfirmationDialogPromptEvaluation()" [disabled]="!CanRunOpenAIrobot">Submit</button>
+          <button class="btn btn-sm btn-outline-danger mr-1 my-auto py-0 font-weight-bold float-right" (click)="OpenCreateTrainTestSplitsSection()">Create train / test datasets</button>
+        </div>
         </div>
     </div>
     <div class="col-12 col-md-6 mx-0 px-1 mb-1">
