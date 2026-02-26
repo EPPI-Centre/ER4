@@ -172,9 +172,17 @@
                         <a href="{{URLLink}}" target="_blank">Url</a>
                     </div>
                 </ng-template>
-                <div class="col p-1 m-1 bg-white text-nowrap" style="overflow:auto">
-                    {{item.url}}
-                </div>
+								<div class="col p-1 m-1 bg-white text-nowrap" style="overflow:auto">
+									{{item.url}}
+									<button type="button"
+													class="btn btn-sm p-0 ml-2 d-flex justify-content-center align-items-center"
+													style="position:absolute; right:8px; top:50%; transform:translateY(-50%); width:28px; height:24px; display:flex; align-items:center; justify-content:center;"
+													title="Copy DOI"
+													(click)="copyToClipboard(item?.url || URLLink)">
+										<fa-icon [icon]="faCopy" class="my-0"></fa-icon>
+										<span class="sr-only">Copy DOI</span>
+									</button>
+								</div>
             </div>
             <div class="row w-100 p-0 m-0 border-bottom  ">
                 <div class="w-50 row p-0 m-0">
@@ -186,9 +194,17 @@
                             <a href="{{DOILink}}" target="_blank">DOI</a>
                         </div>
                     </ng-template>
-                    <div class="col p-1 m-1 bg-white ">
-                        {{item.doi}}
-                    </div>
+										<div class="col p-1 m-1 bg-white ">
+											{{item.doi}}
+											<button type="button"
+															class="btn btn-sm p-0 ml-2 d-flex justify-content-center align-items-center"
+															style="position:absolute; right:8px; top:50%; transform:translateY(-50%); width:28px; height:24px; display:flex; align-items:center; justify-content:center;"
+															title="Copy DOI"
+															(click)="copyToClipboard(item?.doi || DOILink)">
+												<fa-icon [icon]="faCopy"></fa-icon>
+												<span class="sr-only">Copy DOI</span>
+											</button>
+										</div>
                 </div>
                 <div class="w-50 row p-0 m-0">
                     <div class="p-1 ml-1 mt-1" style="min-width:90px;">Availability</div>

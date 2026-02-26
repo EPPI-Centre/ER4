@@ -11,7 +11,7 @@ import { ItemCodingService } from '../services/ItemCoding.service';
 import { ReviewerIdentityService, PersistingOptions } from '../services/revieweridentity.service';
 import { Subscription } from 'rxjs';
 import { ItemDocListComp } from '../ItemDocumentList/itemDocListComp.component';
-import { faBook } from '@fortawesome/free-solid-svg-icons';
+import { faBook, faCopy } from '@fortawesome/free-solid-svg-icons';
 
 // COPYRIGHTS BELONG TO THE FOLLOWING FOR ABILITY TO SELECT TEXT AND CAPTURE EVENT
 // https://www.bennadel.com/blog/3439-creating-a-medium-inspired-text-selection-directive-in-angular-5-2-10.htm
@@ -93,6 +93,7 @@ export class itemDetailsComp implements OnInit, OnDestroy {
     }
   }];
   public faBook = faBook;
+  public faCopy = faCopy;
   public get HighlightsStyle(): string {
     if (this.ReviewerIdentityServ.userOptions.persistingOptions) return this.ReviewerIdentityServ.userOptions.persistingOptions.HighlightsStyle;
     return "";
@@ -113,7 +114,31 @@ export class itemDetailsComp implements OnInit, OnDestroy {
       return this.ItemListService.CurrentItemAdditionalData;
     }
   }
+  copyToClipboard(text: string) {
+    if (!text) { return; }
 
+    if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).catch(() => this.fallbackCopyTextToClipboard(text));
+    } else {
+      this.fallbackCopyTextToClipboard(text);
+    }
+  }
+  private fallbackCopyTextToClipboard(text: string) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'absolute';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand('copy');
+    } catch (err) {
+      console.error('Copy to clipboard failed', err);
+    } finally {
+      document.body.removeChild(textarea);
+    }
+  }
 
   private selectedText!: string;
   private subscr: Subscription = new Subscription();
