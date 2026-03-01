@@ -177,10 +177,10 @@
 									<button type="button"
 													class="btn btn-sm p-0 ml-2 d-flex justify-content-center align-items-center"
 													style="position:absolute; right:8px; top:50%; transform:translateY(-50%); width:28px; height:24px; display:flex; align-items:center; justify-content:center;"
-													title="Copy DOI"
-													(click)="copyToClipboard(item?.url || URLLink)">
+													title="Copy URL"
+													(click)="copyToClipboard(item.url || URLLink)">
 										<fa-icon [icon]="faCopy" class="my-0"></fa-icon>
-										<span class="sr-only">Copy DOI</span>
+										<span class="sr-only">Copy URL</span>
 									</button>
 								</div>
             </div>
@@ -200,7 +200,7 @@
 															class="btn btn-sm p-0 ml-2 d-flex justify-content-center align-items-center"
 															style="position:absolute; right:8px; top:50%; transform:translateY(-50%); width:28px; height:24px; display:flex; align-items:center; justify-content:center;"
 															title="Copy DOI"
-															(click)="copyToClipboard(item?.doi || DOILink)">
+															(click)="copyToClipboard(item.doi || DOILink)">
 												<fa-icon [icon]="faCopy"></fa-icon>
 												<span class="sr-only">Copy DOI</span>
 											</button>
