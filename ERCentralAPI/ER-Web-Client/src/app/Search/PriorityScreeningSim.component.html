@@ -123,15 +123,39 @@
                     </ng-template>
                   </kendo-chart-series-item-tooltip>
                 </kendo-chart-series-item>
+
+                <kendo-chart-series-item *ngIf="scatterData && scatterData.length"
+                                         type="scatter"
+                                         [data]="scatterData"
+                                         name="Buscar"
+                                         [yAxis]="'rightAxis'"
+                                         [markers]="{ visible: true, size: 8 }"
+                                         [tooltip]="{ visible: true }">
+                  <kendo-chart-series-item-tooltip>
+                    <ng-template let-category="category" let-value="value" let-dataItem="dataItem" let-series="series">
+                      <div>N screened: {{dataItem[0]}}; p-value: {{+dataItem[1] | number:'1.2-2'}}</div>
+                      <div>Workload reduction: {{(GetSimulationDataItemCount - dataItem[0]) / GetSimulationDataItemCount * 100 | number:'1.2-2'}}%</div>
+                    </ng-template>
+                  </kendo-chart-series-item-tooltip>
+                </kendo-chart-series-item>
+
               </kendo-chart-series>
               <kendo-chart-x-axis>
                 <kendo-chart-x-axis-item [title]="{ text: xAxisText }"
-                                         [max]="simulationDataItemCountRoundedUp">
+                                         [max]="simulationDataItemCountRoundedUp"
+                                         [min]="0"
+                                         [axisCrossingValue]="crossingValues">
                 </kendo-chart-x-axis-item>
               </kendo-chart-x-axis>
               <kendo-chart-y-axis>
                 <kendo-chart-y-axis-item [title]="{ text: yAxisText }"
                                          [max]="simulationDataIncludedItemsCountRoundedUp">
+                </kendo-chart-y-axis-item>
+                <kendo-chart-y-axis-item *ngIf="scatterData && scatterData.length"
+                                         name="rightAxis"
+                                         [min]="0"
+                                         [max]="1.03"
+                                         [title]="{ text: 'p score for H0 that recall target ' + recallLevel + '% missed' }">
                 </kendo-chart-y-axis-item>
               </kendo-chart-y-axis>
             </kendo-chart>
@@ -141,7 +165,6 @@
           <div class="col">
             <button class="btn btn-info" (click)="exportChart()" *ngIf="simulationDataContainer && simulationDataContainer.length > 0 ">Save chart</button>
             <button class="btn btn-outline-info ml-1" (click)="exportChart2x()" *ngIf="simulationDataContainer && simulationDataContainer.length > 0 ">Save chart (higher res)</button>
-            &nbsp;
           </div>
 
         </div>
@@ -182,7 +205,7 @@
         </div>
         <div class="row px-0 mx-0 justify-content-around">
           <div class="col px-0">
-            Specific recall: <kendo-numerictextbox [(ngModel)]="recallLevel"
+            Target recall: <kendo-numerictextbox [(ngModel)]="recallLevel"
                                                    [min]="85" [format]="'n0'"
                                                    [max]="100"
                                                    [autoCorrect]="true"
@@ -191,12 +214,16 @@
                                                    (valueChange)="processSimulation(false)"></kendo-numerictextbox>
           </div>
 
-            <div class="col px-1">
-              <button title="Download data" (click)="downloadData()" *ngIf="simulationDataContainer && simulationDataContainer.length > 0 "
-                      class="btn btn-sm btn-outline-success float-right ml-1 mr-0 my-0 pt-1 pb-0 px-2">
-                Download data
-              </button>
-            </div>
+          <div class="col px-1">
+            <button title="Download data" (click)="downloadData()" *ngIf="simulationDataContainer && simulationDataContainer.length > 0 "
+                    class="btn btn-sm btn-outline-success float-right ml-1 mr-0 my-0 pt-1 pb-0 px-2">
+              Download simulation data
+            </button>
+            <button title="Download data" (click)="downloadBuscarData()" *ngIf="simulationDataContainer && simulationDataContainer.length > 0 && scatterData && scatterData.length"
+                    class="btn btn-sm btn-outline-success float-right ml-1 mr-0 my-0 pt-1 pb-0 px-2">
+              Download Buscar data
+            </button>
+          </div>
         </div>
       </div>
     </div>

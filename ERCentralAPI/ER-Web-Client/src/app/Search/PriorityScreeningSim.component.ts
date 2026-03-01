@@ -13,6 +13,7 @@ import { ChartComponent } from '@progress/kendo-angular-charts';
 import { saveAs } from '@progress/kendo-file-saver';
 import 'hammerjs';
 import { NgModel } from '@angular/forms';
+import { PriorityScreeningService } from '../services/PriorityScreening.service';
 
 function nextMultipleOfTen(num: number): number {
   return Math.ceil(num / 10) * 10;
@@ -99,7 +100,12 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
   public get PriorityScreeningSimulationName(): string {
     return this.classifierService.PriorityScreeningSimulationName;
   }
-
+  public get PriorityScreeningSimulationBuscar(): string {
+    return this.classifierService.PriorityScreeningSimulationBuscar;
+  }
+  public get GetSimulationDataItemCount(): number {
+    return this.simulationDataItemCount;
+  }
   refreshPriorityScreeningSimulationList() {
     this.classifierService.FetchPriorityScreeningSimulationList();
   }
@@ -125,6 +131,7 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
       this.processSimulation(true);
     }
   }
+  public crossingValues: number[] = [0, 100000];
 
   processSimulation(redrawGraph: boolean)
   {
@@ -185,6 +192,21 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
         }
       }
 
+      // prepare the scatter dataset for right axis and request a redraw so the axis appears on right
+      this.prepareRightAxisScatter();
+
+      //// request redraw of the chart widget (guarded)
+      //try {
+      //  const chart = (this.VisualiseChart as any);
+      //  if (chart && chart.instance && chart.instance.redraw) {
+      //    chart.instance.redraw();
+      //  }
+      //} catch (e) {
+      //  // ignore if redraw not available
+      //}
+    
+
+
       // now calculate the statistics
       let nScreenedArray = [];
       let workloadReductionArray = [];
@@ -231,7 +253,45 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
           (ciLower / this.simulationDataItemCount * 100))) + ")";
     }
   }
+  public scatterData: Array<[number, number]> = [];
+  public rightAxisMax = 100;
 
+  public tsvToPairs(
+    tsv: string,
+    filterColumn: string,
+    filterValue: number
+  ): Array<[number, number]> {
+
+  const rows = tsv
+    .trim()
+    .split("\n")
+    .map(r => r.split("\t"));
+
+  // Extract header → index mapping
+  const header = rows[0];
+  const colIndex = (name: string) => header.indexOf(name);
+
+  const fValue = (filterValue as number) / 100
+  const idxFilter = colIndex(filterColumn);
+  const idxA = colIndex(header[0]);   // second column
+  const idxB = colIndex(header[1]);   // third column
+
+  return rows
+    .slice(1) // skip header
+    .filter(r => r[idxFilter] === (fValue == 1 ? "1.0" : String(fValue)))
+    .map(r => [Number(r[idxA]), Number(r[idxB])]);
+}
+  private prepareRightAxisScatter(): void {
+    if (this.PriorityScreeningSimulationBuscar == "") {
+      this.scatterData = [];
+    }
+    else {
+      this.scatterData = this.tsvToPairs(this.PriorityScreeningSimulationBuscar, 'recall_target', this.recallLevel);
+      // Compute a max for the right axis with a little padding
+      const maxValue = Math.max(...this.scatterData.map(p => p[1]), 1);
+      this.rightAxisMax = Math.ceil(maxValue * 1.1);
+    }
+  }
 
   public exportChart(): void {
     let title = this.PriorityScreeningSimulationName;
@@ -262,6 +322,19 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
       const url = URL.createObjectURL(blob);
       link.setAttribute('href', url);
       link.setAttribute('download', this.PriorityScreeningSimulationName);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  }
+  downloadBuscarData() {
+    if (this.PriorityScreeningSimulationBuscar != null) {
+      const blob = new Blob([this.PriorityScreeningSimulationBuscar], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', this.PriorityScreeningSimulationName + "_Buscar.tsv");
       link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();
