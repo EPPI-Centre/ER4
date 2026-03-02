@@ -27,7 +27,8 @@ namespace BusinessLibrary.BusinessClasses
 
         private Int64 _attributeSetId;
         private int _setId;
-        private Int64 _numItems;
+        private int _numItems;
+        private int _numOutcomes;
         private int _numAllocations;
         private int _numVisMaps;
 
@@ -38,9 +39,13 @@ namespace BusinessLibrary.BusinessClasses
             _setId = setId;
         }
 
-        public Int64 NumItems
+        public int NumItems
         {
             get { return _numItems; }
+        }
+        public int NumOutcomes
+        {
+            get { return _numOutcomes; }
         }
 
         public int NumAllocations
@@ -58,13 +63,15 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_attributeSetId", _attributeSetId);
             info.AddValue("_setId", _setId);
             info.AddValue("_numItems", _numItems);
+            info.AddValue("_numOutcomes", _numOutcomes);
             info.AddValue("_numAllocations", _numAllocations);
             info.AddValue("_numVisMaps", _numVisMaps);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
             _attributeSetId = info.GetValue<Int64>("_attributeSetId");
-            _numItems = info.GetValue<Int64>("_numItems");
+            _numItems = info.GetValue<int>("_numItems");
+            _numOutcomes = info.GetValue<int>("_numOutcomes");
             _numAllocations = info.GetValue<int>("_numAllocations");
             _numVisMaps = info.GetValue<int>("_numVisMaps");
             _setId = info.GetValue<int>("_setId");
@@ -81,12 +88,19 @@ namespace BusinessLibrary.BusinessClasses
                 connection.Open();
                 using (SqlCommand command = new SqlCommand("st_AttributeSetDeleteWarning", connection))
                 {
+                    
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
                     if (_setId != 0)
                     {
                         command.CommandText = "st_ReviewSetDeleteWarning";
                     }
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@NUM_ITEMS", 0));
+                    else
+                    {
+                        command.Parameters.Add(new SqlParameter("@NUM_OUTCOMES", System.Data.SqlDbType.Int));
+                        command.Parameters["@NUM_OUTCOMES"].Direction = System.Data.ParameterDirection.Output;
+                    }
+                    command.Parameters.Add(new SqlParameter("@NUM_ITEMS", System.Data.SqlDbType.Int));
+                    command.Parameters["@NUM_ITEMS"].Value = 0;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_SET_ID", _attributeSetId));
                     command.Parameters.Add(new SqlParameter("@SET_ID", _setId));
@@ -96,7 +110,9 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@NUM_VIS_MAPS", System.Data.SqlDbType.Int));
                     command.Parameters["@NUM_VIS_MAPS"].Direction = System.Data.ParameterDirection.Output;
                     command.ExecuteNonQuery();
-                    _numItems = (Int64)command.Parameters["@NUM_ITEMS"].Value;
+                    _numItems = (int)command.Parameters["@NUM_ITEMS"].Value;
+                    if (_setId != 0) _numOutcomes = -1;
+                    else _numOutcomes = (int)command.Parameters["@NUM_OUTCOMES"].Value;
                     _numAllocations = (int)command.Parameters["@NUM_ALLOCATIONS"].Value;
                     _numVisMaps = (int)command.Parameters["@NUM_VIS_MAPS"].Value;
                 }

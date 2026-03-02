@@ -2488,12 +2488,12 @@ namespace BusinessLibrary.BusinessClasses
 
             returnValue.MetaAnalysisModerators = MetaAnalysisModeratorList.GetMetaAnalysisModeratorList();
             returnValue.FilterSettingsList = MetaAnalysisFilterSettingList.GetMetaAnalysisFilterSettingList(returnValue.MetaAnalysisId);
-
+            
             returnValue.MarkOld();
 
             return returnValue;
         }
-
+        
 
 #endif
 

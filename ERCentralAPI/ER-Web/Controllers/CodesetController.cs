@@ -198,6 +198,7 @@ namespace ERxWebClient2.Controllers
                     result.NumAllocations = cmd.NumAllocations;
                     result.NumItems = cmd.NumItems;
                     result.NumVisMaps = cmd.NumVisMaps;
+                    result.NumOutcomes = cmd.NumOutcomes;
                     return Ok(result);
                 }
                 else return Forbid();
@@ -501,9 +502,10 @@ namespace ERxWebClient2.Controllers
     }
     public class AttributeSetDeleteWarningCommandResult
     {
-        public Int64 NumItems;
+        public int NumItems;
         public int NumAllocations;
         public int NumVisMaps;
+        public int NumOutcomes;
     }
     public class AttributeSetCreateOrUpdateJSON
     {
