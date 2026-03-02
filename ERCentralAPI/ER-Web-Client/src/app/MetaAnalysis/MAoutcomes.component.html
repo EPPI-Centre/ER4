@@ -18,10 +18,10 @@
   <table class="table table-sm OutcomesTable tableFixHead" id="OutcomesTable">
     <thead>
       <tr *ngIf="ColSpanOnOCC > 0 || ColSpanOnOutcomes > 0 || ColSpanOnItems > 0">
-        <td colspan="12"></td>
+        <td colspan="13"></td>
         <td *ngIf="ColSpanOnOutcomes > 0" [attr.colspan]="ColSpanOnOutcomes" class="text-center FirstQuestion">Outcome Level</td>
         <td *ngIf="ColSpanOnItems > 0" [attr.colspan]="ColSpanOnItems" class="text-center FirstQuestion">Item Level</td>
-        <td *ngIf="ColSpanOnOCC > 0" [attr.colspan]="ColSpanOnOCC" class="FirstQuestion">Outcome Classification codes</td>
+        <td *ngIf="ColSpanOnOCC > 0" [attr.colspan]="ColSpanOnOCC" class="FirstQuestion">Auto-generated Answers (Outcome level)</td>
       </tr>
       <tr>
         <th style="text-align: center; vertical-align: bottom;" class="sortableTH ConstantCol" (click)="Sort('isSelected')">
@@ -48,8 +48,12 @@
           <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('titleColumn')}" (click)="DoEditThisFilter('shortTitle', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
         </th>
         <th class="sortableTH ConstantCol" (click)="Sort('title')" id="col-title">
-          Outc. Desc.<span [innerHTML]="SortingSymbol('title')"></span>
+          Outc. Name<span [innerHTML]="SortingSymbol('title')"></span>
           <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('DescColumn')}" (click)="DoEditThisFilter('title', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
+        </th>
+        <th class="sortableTH ConstantCol" (click)="Sort('outcomeDescription')" id="col-outcDesc">
+          Outc. Descr.<span [innerHTML]="SortingSymbol('outcomeDescription')"></span>
+          <kendo-icon [ngClass]="{'text-primary' : IsFilteringOnThisCol('outcomeDescription')}" (click)="DoEditThisFilter('outcomeDescription', $event)" class=" clickableIcon" name="filter" size="small"></kendo-icon>
         </th>
         <th class="sortableTH ConstantCol" (click)="Sort('timepointDisplayValue')" id="col-timepointDisplayValue">
           Timepoint<span [innerHTML]="SortingSymbol('timepointDisplayValue')"></span>
@@ -631,6 +635,7 @@
         <!--<td>{{oo.outcomeId}}</td>-->
         <td>{{oo.shortTitle}}</td>
         <td>{{oo.title}}</td>
+        <td>{{oo.outcomeDescription}}</td>
         <td>{{oo.timepointDisplayValue}}</td>
         <td>{{oo.outcomeTypeName}}</td>
         <td>{{oo.outcomeText}}</td>

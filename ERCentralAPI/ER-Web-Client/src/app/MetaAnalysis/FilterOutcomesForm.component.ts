@@ -55,6 +55,7 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
         this._CurrentColumns.push(new StringKeyValue("aqo" + i.toString(), col.Name));
         i++;
       }
+      i = 1;
       for (let col of this.MetaAnalysisService.ColumnVisibility.AnswerHeaders) {
         this._CurrentColumns.push(new StringKeyValue("aa" + i.toString(), col.Name));
         i++;
@@ -139,6 +140,7 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
   public get FilterOperators(): StringKeyValue[] {
     if (this.CurrentFilterSetting.columnName == "titleColumn"
       || this.CurrentFilterSetting.columnName == "DescColumn"
+      || this.CurrentFilterSetting.columnName == "outcomeDescription"
       || this.CurrentFilterSetting.columnName == "TimepointColumn"
       || this.CurrentFilterSetting.columnName == "OutcomeTypeName"
       || this.CurrentFilterSetting.columnName == "OutcomeColumn"
@@ -174,7 +176,8 @@ export class FilterOutcomesFormComp implements OnInit, OnDestroy {
     new StringKeyValue("es", "Effect Size"),
     new StringKeyValue("sees", "Standard Error"),
     new StringKeyValue("shortTitle", "Study"),
-    new StringKeyValue("title", "Outc. Desc."),
+    new StringKeyValue("title", "Outc. Name"),
+    new StringKeyValue("outcomeDescription", "Outc. Descr."),
     new StringKeyValue("timepointDisplayValue", "Timepoint"),
     new StringKeyValue("outcomeTypeName", "Type"),
     new StringKeyValue("outcomeText", "Outcome"),

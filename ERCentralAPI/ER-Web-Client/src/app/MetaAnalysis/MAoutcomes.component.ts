@@ -262,9 +262,11 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
       { name: "Is Selected", value: "isSelected" }
       , { name: "ES", value: "esRounded" }
       , { name: "SE", value: "seesRounded" }
-      , { name: "ID", value: "outcomeId" }
+      , { name: "Outcome ID", value: "outcomeId" }
+      , { name: "Item ID", value: "itemId" }
       , { name: "Study", value: "shortTitle" }
-      , { name: "Outc. Desc.", value: "title" }
+      , { name: "Outc. Name", value: "title" }
+      , { name: "Outc. Desc.", value: "outcomeDescription" }
       , { name: "Timepoint", value: "timepointDisplayValue" }
       , { name: "Type", value: "outcomeTypeName" }
       , { name: "Outcome", value: "outcomeText" }
@@ -465,7 +467,7 @@ class RawDataOutcome {
     this.outcomeId = outc.outcomeId;
     this.shortTitle = outc.shortTitle;
     this.itemId = outc.itemId;
-    this.title = outc.title;
+    this.outcomeName = outc.title;
     this.outcomeDescription = outc.outcomeDescription;
     this.outcomeTypeName = outc.outcomeTypeName; //continuous,binary,correlation??
     this.outcomeTypeDetail = RawDataOutcome.OutcomeTypeMapper(outc.outcomeTypeId);
@@ -588,7 +590,7 @@ class RawDataOutcome {
   outcomeId: number = 0;
   shortTitle: string = "";
   itemId: number = 0;
-  title: string = "";
+  outcomeName: string = "";
   outcomeDescription: string = "";
   outcomeTypeName: string = ""; //continuous,binary,correlation??
   outcomeTypeDetail: string = ""; //see bottom list
@@ -669,90 +671,4 @@ class RawDataOutcome {
   seMeanDifference: number = 0;
   petoOR: number = 0;
   sePetoOR: number = 0;
-
-  //OutcomeLevelAnswer1: boolean = false;
-  //OutcomeLevelAnswerName1: string = "";
-  //OutcomeLevelAnswer2: boolean = false;
-  //OutcomeLevelAnswerName2: string = "";
-  //OutcomeLevelAnswer3: boolean = false;
-  //OutcomeLevelAnswerName3: string = "";
-  //OutcomeLevelAnswer4: boolean = false;
-  //OutcomeLevelAnswerName4: string = "";
-  //OutcomeLevelAnswer5: boolean = false;
-  //OutcomeLevelAnswerName5: string = "";
-  //OutcomeLevelAnswer6: boolean = false;
-  //OutcomeLevelAnswerName6: string = "";
-  //OutcomeLevelAnswer7: boolean = false;
-  //OutcomeLevelAnswerName7: string = "";
-  //OutcomeLevelAnswer8: boolean = false;
-  //OutcomeLevelAnswerName8: string = "";
-  //OutcomeLevelAnswer9: boolean = false;
-  //OutcomeLevelAnswerName9: string = "";
-  //OutcomeLevelAnswer10: boolean = false;
-  //OutcomeLevelAnswerName10: string = "";
-  //OutcomeLevelAnswer11: boolean = false;
-  //OutcomeLevelAnswerName11: string = "";
-  //OutcomeLevelAnswer12: boolean = false;
-  //OutcomeLevelAnswerName12: string = "";
-  //OutcomeLevelAnswer13: boolean = false;
-  //OutcomeLevelAnswerName13: string = "";
-  //OutcomeLevelAnswer14: boolean = false;
-  //OutcomeLevelAnswerName14: string = "";
-  //OutcomeLevelAnswer15: boolean = false;
-  //OutcomeLevelAnswerName15: string = "";
-  //OutcomeLevelAnswer16: boolean = false;
-  //OutcomeLevelAnswerName16: string = "";
-  //OutcomeLevelAnswer17: boolean = false;
-  //OutcomeLevelAnswerName17: string = "";
-  //OutcomeLevelAnswer18: boolean = false;
-  //OutcomeLevelAnswerName18: string = "";
-  //OutcomeLevelAnswer19: boolean = false;
-  //OutcomeLevelAnswerName19: string = "";
-  //OutcomeLevelAnswer20: boolean = false;
-  //OutcomeLevelAnswerName20: string = "";
-
-  //OutcomeLevelQuestion1: boolean = false;
-  //OutcomeLevelQuestionName1: string = "";
-  //OutcomeLevelQuestion2: boolean = false;
-  //OutcomeLevelQuestionName2: string = "";
-  //OutcomeLevelQuestion3: boolean = false;
-  //OutcomeLevelQuestionName3: string = "";
-  //OutcomeLevelQuestion4: boolean = false;
-  //OutcomeLevelQuestionName4: string = "";
-  //OutcomeLevelQuestion5: boolean = false;
-  //OutcomeLevelQuestionName5: string = "";
-  //OutcomeLevelQuestion6: boolean = false;
-  //OutcomeLevelQuestionName6: string = "";
-  //OutcomeLevelQuestion7: boolean = false;
-  //OutcomeLevelQuestionName7: string = "";
-  //OutcomeLevelQuestion8: boolean = false;
-  //OutcomeLevelQuestionName8: string = "";
-  //OutcomeLevelQuestion9: boolean = false;
-  //OutcomeLevelQuestionName9: string = "";
-  //OutcomeLevelQuestion10: boolean = false;
-  //OutcomeLevelQuestionName10: string = "";
-  //OutcomeLevelQuestion11: boolean = false;
-  //OutcomeLevelQuestionName11: string = "";
-  //OutcomeLevelQuestion12: boolean = false;
-  //OutcomeLevelQuestionName12: string = "";
-  //OutcomeLevelQuestion13: boolean = false;
-  //OutcomeLevelQuestionName13: string = "";
-  //OutcomeLevelQuestion14: boolean = false;
-  //OutcomeLevelQuestionName14: string = "";
-  //OutcomeLevelQuestion15: boolean = false;
-  //OutcomeLevelQuestionName15: string = "";
-  //OutcomeLevelQuestion16: boolean = false;
-  //OutcomeLevelQuestionName16: string = "";
-  //OutcomeLevelQuestion17: boolean = false;
-  //OutcomeLevelQuestionName17: string = "";
-  //OutcomeLevelQuestion18: boolean = false;
-  //OutcomeLevelQuestionName18: string = "";
-  //OutcomeLevelQuestion19: boolean = false;
-  //OutcomeLevelQuestionName19: string = "";
-  //OutcomeLevelQuestion20: boolean = false;
-  //OutcomeLevelQuestionName20: string = "";
-
-  //ItemLevelAnswers: NameValuePair[] = [];//0-20
-  //ItemLevelQuestions: NameValuePair[] = [];//0-20
-  //OutcomeClassificationCodes: NameValuePair[] = [];//0-30
 }
