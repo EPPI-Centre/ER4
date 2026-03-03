@@ -439,7 +439,13 @@ export class MAoutcomesComp implements OnInit, OnDestroy {
         let headerRow: any = {};
         for (var prop in row1) {
           if (Object.prototype.hasOwnProperty.call(row1, prop) && prop.toString() != "outcomeCodes" && prop.toString() != "manuallyEnteredOutcomeTypeId" && prop.toString() != "outcomeTimePoint") {
-            headerRow[prop] = prop.toString();
+            if (this.ExportTo == "CSVRD") {
+              headerRow[prop] = prop.toString().replace(/,/g, '');
+            }
+            else if (this.ExportTo == "TSVRD") {
+              headerRow[prop] = prop.toString().replace(/\t/g, ' ');
+            }
+            else headerRow[prop] = prop.toString();
           }
         }
         ToSend.unshift(headerRow);
@@ -461,7 +467,28 @@ class NameValuePair {
   value: string = "";
 }
 class RawDataOutcome {
-  public static OutcomeTypeMapper(TypeId: number): string { return ""; }
+  public static OutcomeTypeMapper(TypeId: number): string {
+    switch (TypeId) {
+      case 0: // manual entry
+        return "Manual Entry";
+      case 1: // n, mean, SD
+        return "N, Mean, SD";
+      case 2: // binary 2 x 2 table
+        return "Binary 2 x 2 table";
+      case 3: //n, mean SE
+        return "N, Mean, SE";
+      case 4: //n, mean CI
+        return "N, Mean, CI";
+      case 5: //n, t or p value
+        return "N, T or P value";
+      case 6: // diagnostic test 2 x 2 table
+        return "Diagnostic Test 2 x 2 table";
+      case 7: // correlation coeffiCIent r
+        return "Correlation Coefficient r";
+      default:
+        return "";
+    }
+  }
   constructor(outc: ExtendedOutcome, ColVis: DynamicColumnsOutcomes) {
     this.isSelected = outc.isSelected;
     this.outcomeId = outc.outcomeId;
@@ -553,35 +580,35 @@ class RawDataOutcome {
     for (const oA of ColVis.AnswerOutcomeHeaders) {
       OptionalPropName = oA.Name + " (Outc. Lev. A." + (index+1).toString() + ")";
       (this as any)[OptionalPropName] = (outc as any)["ao" + (index + 1).toString()];
-      console.log("testing1: ", (this as any)[OptionalPropName]);
+      //console.log("testing1: ", (this as any)[OptionalPropName]);
       index++;
     }
     index = 0;
     for (const oA of ColVis.QuestionOutcomeHeaders) {
       OptionalPropName = oA.Name + " (Outc. Lev. Q." + (index + 1).toString() + ")";
       (this as any)[OptionalPropName] = (outc as any)["aqo" + (index + 1).toString()];
-      console.log("testing2: ", (this as any)[OptionalPropName]);
+      //console.log("testing2: ", (this as any)[OptionalPropName]);
       index++;
     }
     index = 0;
     for (const oA of ColVis.AnswerHeaders) {
       OptionalPropName = oA.Name + " (Item Lev. A." + (index + 1).toString() + ")";
       (this as any)[OptionalPropName] = (outc as any)["aa" + (index + 1).toString()];
-      console.log("testing3: ", (this as any)[OptionalPropName]);
+      //console.log("testing3: ", (this as any)[OptionalPropName]);
       index++;
     }
     index = 0;
     for (const oA of ColVis.QuestionHeaders) {
       OptionalPropName = oA.Name + " (Item Lev. Q." + (index + 1).toString() + ")";
       (this as any)[OptionalPropName] = (outc as any)["aq" + (index + 1).toString()];
-      console.log("testing4: ", (this as any)[OptionalPropName]);
+      //console.log("testing4: ", (this as any)[OptionalPropName]);
       index++;
     }
     index = 0;
     for (const oA of ColVis.ClassificationHeaders) {
       OptionalPropName = oA.Name + " (Auto generated Q." + (index + 1).toString() + ")";
       (this as any)[OptionalPropName] = (outc as any)["occ" + (index + 1).toString()];
-      console.log("testing5: ", (this as any)[OptionalPropName]);
+      //console.log("testing5: ", (this as any)[OptionalPropName]);
       index++;
       if (index == 30) break;
     }

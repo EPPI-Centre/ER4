@@ -119,8 +119,8 @@ export class MetaAnalysisService extends BusyAwareService {
   public FetchMAsList() {
     this._BusyMethods.push("FetchMAsList");
     this.MetaAnalysisList = [];
-    this._httpC.get<iMetaAnalysis[]>(this._baseUrl + 'api/MetaAnalysis/GetMAList')
-      .subscribe(
+    lastValueFrom(this._httpC.get<iMetaAnalysis[]>(this._baseUrl + 'api/MetaAnalysis/GetMAList'))
+      .then(
         (res) => {
           this.RemoveBusy("FetchMAsList");
           for (let iMa of res) {
@@ -233,8 +233,8 @@ export class MetaAnalysisService extends BusyAwareService {
     if (this._MAreportSource && this._MAreportSource.metaAnalaysisObject.metaAnalysisId == Id) this.Clear(true);
     const crit: MetaAnalysisSelectionCrit = { MetaAnalysisId: Id, GetAllDetails: false };
     this._BusyMethods.push("DeleteMetaAnalysis");
-    this._httpC.post<void>(this._baseUrl + 'api/MetaAnalysis/DeleteMetaAnalysis',
-      crit).subscribe(() => {
+    lastValueFrom(this._httpC.post<void>(this._baseUrl + 'api/MetaAnalysis/DeleteMetaAnalysis',
+      crit)).then(() => {
         if (this.CurrentMetaAnalysis != null && this.CurrentMetaAnalysis.metaAnalysisId == Id) {
           this.CurrentMetaAnalysis = null;
           this.CurrentMetaAnalysisUnchanged = null;
