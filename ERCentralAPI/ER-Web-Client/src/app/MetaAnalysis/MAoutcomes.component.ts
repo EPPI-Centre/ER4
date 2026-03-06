@@ -606,7 +606,7 @@ class RawDataOutcome {
     }
     index = 0;
     for (const oA of ColVis.ClassificationHeaders) {
-      OptionalPropName = oA.Name + " (Auto generated Q." + (index + 1).toString() + ")";
+      OptionalPropName = oA.Name + " (Auto generated A." + (index + 1).toString() + ")";
       (this as any)[OptionalPropName] = (outc as any)["occ" + (index + 1).toString()];
       //console.log("testing5: ", (this as any)[OptionalPropName]);
       index++;
