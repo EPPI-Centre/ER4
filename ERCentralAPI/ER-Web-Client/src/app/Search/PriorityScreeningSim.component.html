@@ -172,101 +172,112 @@
       </div>
     </div>
 
-      <div class="col-12 col-md-6 mx-0 px-1 mb-1" *ngIf="heatMapData && heatMapData.length > 0">
+    <div class="col-12 col-md-6 mx-0 px-1 mb-1">
+      <div class="container-fluid mt-1 bg-light border border-primary rounded m-0 p-1">
+        <div><strong>Statistics re: <span class="text-info">{{PriorityScreeningSimulationName}}</span></strong></div>
+        <div style="overflow:auto;">
+          <table class="table-sm table-bordered">
+            <thead>
+              <tr>
+                <th>Simulation</th>
+                <th>N included</th>
+                <th>N screened</th>
+                <th>N screened@{{ recallLevel }}</th>
+                <th>Simulated workload reduction</th>
+                <th>Workload reduction %</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let statistic of statistics">
+                <td>{{ statistic.simulation }}</td>
+                <td>{{ statistic.nIncludes }}</td>
+                <td>{{ statistic.nScreened }}</td>
+                <td>{{ statistic.nScreenedAt100 }}</td>
+                <td>{{ statistic.workloadReduction }}</td>
+                <td>{{ statistic.workloadReductionPercent }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <br />
+          <div>{{ summaryStatisticsAgg }}</div>
+          <div>{{ workloadReductionStats }}</div>
+          <div>{{ workloadReductionPercentStats }}</div>
+        </div>
+        <div class="row px-0 mx-0 justify-content-around">
+          <div class="col px-0">
+            Target recall: <kendo-numerictextbox [(ngModel)]="recallLevel"
+                                                 [min]="85" [format]="'n0'"
+                                                 [max]="100"
+                                                 [autoCorrect]="true"
+                                                 class="border border-dark rounded"
+                                                 style="width: 110px;"
+                                                 (valueChange)="processSimulation(false)"></kendo-numerictextbox>
+          </div>
+
+          <div class="col px-1">
+            <button title="Download data" (click)="downloadData()" *ngIf="simulationDataContainer && simulationDataContainer.length > 0 "
+                    class="btn btn-sm btn-outline-success float-right ml-1 mr-0 my-0 pt-1 pb-0 px-2">
+              Download simulation data
+            </button>
+            <button title="Download data" (click)="downloadBuscarData()" *ngIf="simulationDataContainer && simulationDataContainer.length > 0 && scatterData && scatterData.length"
+                    class="btn btn-sm btn-outline-success float-right ml-1 mr-0 my-0 pt-1 pb-0 px-2">
+              Download Buscar data
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6 mx-0 px-1 mb-1" *ngIf="heatMapData && heatMapData.length > 0">
+      <div class="container-fluid mt-1 bg-light border border-primary rounded m-0 p-1">
+        <div>
+          <figure class="figure col-12" style="height:52vh; min-height:400px; display:flex; flex-direction:column;">
+            <kendo-chart #VisualiseChartBuscar style="min-height:400px; height:52vh;">
+              <kendo-chart-title [text]="PriorityScreeningSimulationName.replace('.tsv', '') + ': mean workload reduction by recall target and p value'"></kendo-chart-title>
+              <kendo-chart-legend [visible]="false"></kendo-chart-legend>
+
+              <kendo-chart-series>
+                <kendo-chart-series-item type="heatmap"
+                                         [data]="heatMapSeriesData"
+                                         xField="x"
+                                         yField="y"
+                                         valueField="value">
+                </kendo-chart-series-item>
+              </kendo-chart-series>
+
+              <kendo-chart-x-axis>
+                <kendo-chart-x-axis-item [title]="{ text: 'recall target' }" [labels]="{ rotation: -45 }"></kendo-chart-x-axis-item>
+              </kendo-chart-x-axis>
+
+              <kendo-chart-y-axis>
+                <kendo-chart-y-axis-item [title]="{ text: 'p value' }"></kendo-chart-y-axis-item>
+              </kendo-chart-y-axis>
+
+            </kendo-chart>
+          </figure>
+        </div>
+        <div class="row">
+          <div class="col">
+            <button class="btn btn-info" (click)="exportChartBuscar()">Save chart</button>
+            <button class="btn btn-outline-info ml-1" (click)="exportChartBuscar2x()">Save chart (higher res)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 px-0 mb-1" *ngIf="heatMapData && heatMapData.length > 0">
         <div class="container-fluid mt-1 bg-light border border-primary rounded m-0 p-1">
           <div>
-            <figure class="figure col-12" style="height:52vh; min-height:400px; display:flex; flex-direction:column;">
-              <kendo-chart #VisualiseChartBuscar style="min-height:400px; height:52vh;">
-                <kendo-chart-title [text]="'Heatmap (' + PriorityScreeningSimulationName.replace('.tsv', '') + '): mean workload reduction by recall target and p value'"></kendo-chart-title>
-                <kendo-chart-legend [visible]="false"></kendo-chart-legend>
-
-                <kendo-chart-series>
-                  <kendo-chart-series-item type="heatmap"
-                                           [data]="heatMapSeriesData"
-                                           xField="x"
-                                           yField="y"
-                                           valueField="value">
-                  </kendo-chart-series-item>
-                </kendo-chart-series>
-
-                <kendo-chart-x-axis>
-                  <kendo-chart-x-axis-item [title]="{ text: 'recall target' }" [labels]="{ rotation: -45 }"></kendo-chart-x-axis-item>
-                </kendo-chart-x-axis>
-
-                <kendo-chart-y-axis>
-                  <kendo-chart-y-axis-item [title]="{ text: 'p value' }"></kendo-chart-y-axis-item>
-                </kendo-chart-y-axis>
-
-              </kendo-chart>
-            </figure>
-          </div>
-          <div class="row">
-            <div class="col">
-              <button class="btn btn-info" (click)="exportChartBuscar()">Save chart</button>
-              <button class="btn btn-outline-info ml-1" (click)="exportChartBuscar2x()">Save chart (higher res)</button>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-        <div class="col-12 col-md-6 mx-0 px-1 mb-1">
-          <div class="container-fluid mt-1 bg-light border border-primary rounded m-0 p-1">
-            <div><strong>Statistics re: <span class="text-info">{{PriorityScreeningSimulationName}}</span></strong></div>
-            <div style="overflow:auto;">
-              <table class="table-sm table-bordered">
-                <thead>
-                  <tr>
-                    <th>Simulation</th>
-                    <th>N included</th>
-                    <th>N screened</th>
-                    <th>N screened@{{ recallLevel }}</th>
-                    <th>Simulated workload reduction</th>
-                    <th>Workload reduction %</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let statistic of statistics">
-                    <td>{{ statistic.simulation }}</td>
-                    <td>{{ statistic.nIncludes }}</td>
-                    <td>{{ statistic.nScreened }}</td>
-                    <td>{{ statistic.nScreenedAt100 }}</td>
-                    <td>{{ statistic.workloadReduction }}</td>
-                    <td>{{ statistic.workloadReductionPercent }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div>
-              <br />
-              <div>{{ summaryStatisticsAgg }}</div>
-              <div>{{ workloadReductionStats }}</div>
-              <div>{{ workloadReductionPercentStats }}</div>
-            </div>
-            <div class="row px-0 mx-0 justify-content-around">
-              <div class="col px-0">
-                Target recall: <kendo-numerictextbox [(ngModel)]="recallLevel"
-                                                     [min]="85" [format]="'n0'"
-                                                     [max]="100"
-                                                     [autoCorrect]="true"
-                                                     class="border border-dark rounded"
-                                                     style="width: 110px;"
-                                                     (valueChange)="processSimulation(false)"></kendo-numerictextbox>
-              </div>
-
-              <div class="col px-1">
-                <button title="Download data" (click)="downloadData()" *ngIf="simulationDataContainer && simulationDataContainer.length > 0 "
-                        class="btn btn-sm btn-outline-success float-right ml-1 mr-0 my-0 pt-1 pb-0 px-2">
-                  Download simulation data
-                </button>
-                <button title="Download data" (click)="downloadBuscarData()" *ngIf="simulationDataContainer && simulationDataContainer.length > 0 && scatterData && scatterData.length"
-                        class="btn btn-sm btn-outline-success float-right ml-1 mr-0 my-0 pt-1 pb-0 px-2">
-                  Download Buscar data
-                </button>
-              </div>
+            <div class="figure col-12" style="padding:0.5rem;">
+              This implementation of simulated stopping criteria implements the <i>buscarpy</i> python package as defined in:
+              Callaghan, M.W., Müller-Hansen, F. Statistical stopping criteria for automated screening in systematic reviews.
+              <i>Systematic Reviews</i> 9, 273 (2020). <a href="https://doi.org/10.1186/s13643-020-01521-4" target="_blank" class="text-break">https://doi.org/10.1186/s13643-020-01521-4</a>
             </div>
           </div>
         </div>
       </div>
+      </div>
+    </div>
   </div>
 <statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body"></statusbar>
