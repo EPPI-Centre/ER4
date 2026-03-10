@@ -768,9 +768,14 @@ namespace BusinessLibrary.BusinessClasses
                         }
                     }
                 }
-            }
+                else if (AppIsShuttingDown)
+                {
+                    ErrorLogSink("Cancelling RobotOpenAICommand after an iteration.");
+                    return false;//code calling this will notice the app-cancellation request
+                }
+            }// END ITERATIONS
             return result;
-        } // END ITERATIONS
+        } 
 
         internal static void Merge2Prompts(List<OpenAIChatClass> messages)
         {
