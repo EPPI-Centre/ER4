@@ -288,6 +288,28 @@ ul.k-tabstrip-items li.k-item.k-state-active {
   border-bottom: 1px dotted lightpink;
 }
 
+
+.checkbox-round {
+  appearance: none;
+  border-radius: 50%;
+  width: 13px;
+  height: 13px;
+  border: 2px solid #858585;
+  background-color: #fff;
+  vertical-align: top;
+}
+
+.checkbox-round-selected {
+  appearance: none;
+  border-radius: 50%;
+  width: 13px;
+  height: 13px;
+  border: 4px solid #007bff;
+  background-color: #fff;
+  vertical-align: top;
+}
+
+
 #kgFsProgress tr.RowShowingCurrentRun {
   font-weight: bold;
   background-color: #d4edda;

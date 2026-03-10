@@ -56,7 +56,7 @@
           <img *ngIf="!data.allowEditingCodeset" title="You can't edit this Coding Tool" src="assets/CodeSetLocked.png" class="mr-1" />
         </span>
 
-        <input class="my-1 mr-1" type="checkbox" id="attributeID-{{data.id}}" [(ngModel)]="data.isSelected"
+        <input [ngClass]="data.isSelected ? 'my-1 mr-1 checkbox-round-selected' : 'my-1 mr-1 checkbox-round'" type="checkbox" id="attributeID-{{data.id}}" [(ngModel)]="data.isSelected"
                [disabled]="!CanWriteCoding(data)"
                *ngIf="data.showCheckBox && data.isExclusive" (change)="CheckBoxClicked($event, data)" />
 
