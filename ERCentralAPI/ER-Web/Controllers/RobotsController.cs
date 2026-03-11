@@ -236,8 +236,9 @@ namespace ERxWebClient2.Controllers
                         data.returnMessage = "Error. Could not find credit available to spend on the OpenAI Robot.";
                         return Ok(data);
                     }
-                    RobotOpenAiQueueBatchJobEvaluationCommand res = new RobotOpenAiQueueBatchJobEvaluationCommand(data.evaluationName, data.robotName,
-                        CreditId, data.reviewSetId, data.reviewSetHtml, data.goldStandardAttributeId, data.goldStandardAttributeName, data.useFullTextDocument, data.nIterations);
+                    RobotOpenAiQueueBatchJobEvaluationCommand res = new RobotOpenAiQueueBatchJobEvaluationCommand(data.evaluationName, data.robotName
+                        , CreditId, data.reviewSetId, data.reviewSetHtml, data.goldStandardAttributeId
+                        , data.goldStandardAttributeName, data.useFullTextDocument, data.nIterations, data.nCodes);
                     res = DataPortal.Execute(res);
                     data.returnMessage = res.Result;
                     return Ok(data);
@@ -370,6 +371,7 @@ public class RobotOpenAiQueueBatchJobEvaluationCommandJson
     public bool useFullTextDocument { get; set; }
     public string returnMessage = "";
     public int nIterations { get; set; }
+    public int nCodes { get; set; }
     public string reviewSetHtml { get; set; } = "";
     public Int64 goldStandardAttributeId;
     public string goldStandardAttributeName { get; set; } = "";

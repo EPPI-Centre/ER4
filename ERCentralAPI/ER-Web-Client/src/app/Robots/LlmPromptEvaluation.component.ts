@@ -383,7 +383,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   public get CanRunOpenAIrobot(): boolean {
     if (!this.HasWriteRights) return false;
     if (!this.reviewInfoService.ReviewInfo.canUseRobots) return false;
-    if (this.selectedCodeSet == null) return false;
+    if (this.selectedCodeSet == null || this.selectedCodeSet.set_id < 1) return false;
     if (this.SelectedGoldStandardEvaluationAttribute == null) return false;
     if (this.RobotSettings.robotName == "") return false;
     if (this.evaluationNameIsInvalid) return false;
@@ -420,9 +420,6 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
       )
       .catch(() => { });
   }
-  public RunRobotOpenAICommandEvaluation() {
-    this.ActuallyRunRobotOpenAICommandEvaluation();
-  }
 
   public async ActuallyRunRobotOpenAICommandEvaluation() {
     let rname = this.RobotSettings.robotName;
@@ -434,6 +431,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
       robotName: this.RobotSettings.robotName,
       reviewSetId: this.selectedCodeSet.reviewSetId,
       reviewSetHtml: this.selectedCodeSet.printHtml(false, false, true),
+      nCodes: this.selectedCodeSet.NumberOfChildren,
       goldStandardAttributeId: (this.SelectedGoldStandardEvaluationAttribute as SetAttribute).attribute_id,
       useFullTextDocument: this.usePdfs,
       returnMessage: "",

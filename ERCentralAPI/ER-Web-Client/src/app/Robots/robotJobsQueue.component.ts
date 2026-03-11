@@ -35,8 +35,9 @@ export class robotJobsQueue implements OnInit, OnDestroy {
   ngOnInit() {
     this.robotsService.GetCurrentQueue().then(() => {
       if (this.robotsService.CurrentQueue.length > 0) this.ShowQueue = true;
-      else this.ShowQueue = false;
-      if (this.robotsService.RobotsList.length == 0) this.robotsService.GetRobotsList();
+      else {
+        this.PleaseCloseMe.emit();
+      }
     });
   }
   HasWriteRights(): boolean {

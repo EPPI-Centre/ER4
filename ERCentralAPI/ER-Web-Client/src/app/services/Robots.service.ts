@@ -590,6 +590,7 @@ export interface iRobotOpenAiQueueBatchJobEvaluationCommand {
   useFullTextDocument: boolean;
   returnMessage: string;
   nIterations: number;
+  nCodes: number;
 }
 
 export interface iRobotSettings {

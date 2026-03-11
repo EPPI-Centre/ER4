@@ -132,57 +132,61 @@
             </button>
           </div>
           <div style="max-height:40vh; min-height:185px;overflow:auto;">
-            <table class="table-sm w-100 table-striped">
+            <table class="table-sm w-100 table-striped tableFixHead">
               <thead>
                 <tr>
-                  <th class="">Name</th>
-                  <th class="">User</th>
-                  <th class="">Robot</th>
-                  <th class=""># records</th>
-                  <th class=""># codes</th>
-                  <th class=""># iterations</th>
-                  <th class="">TP</th>
-                  <th class="">TN</th>
-                  <th class="">FP</th>
-                  <th class="">FN</th>
-                  <th class=""></th>
+                  <th class="px-1 py-0">Name</th>
+                  <th class="px-1 py-0">User</th>
+                  <th class="px-1 py-0">Robot</th>
+                  <th class="px-1 py-0"># records</th>
+                  <th class="px-1 py-0"># codes</th>
+                  <th class="px-1 py-0"># iterations</th>
+                  <th class="px-1 py-0">TOT</th>
+                  <th class="px-1 py-0">TP</th>
+                  <th class="px-1 py-0">TN</th>
+                  <th class="px-1 py-0">FP</th>
+                  <th class="px-1 py-0">FN</th>
+                  <th class="px-1 py-0"></th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let item of RobotOpenAiPromptEvaluationList">
-                  <td class="">
+                  <td class="px-1 py-0">
                     <button (click)="showEvaluation(item)" class="btn btn-link px-1 py-0">{{item.title}}</button>
                   </td>
-                  <td class="">
+                  <td class="px-1 py-0">
                     {{item.contactName}}
                   </td>
-                  <td class="">
+                  <td class="px-1 py-0">
                     {{item.robotName}}
                   </td>
-                  <td class="">
+                  <td class="px-1 py-0">
                     {{item.nRecords}}
                   </td>
-                  <td class="">
+                  <td class="px-1 py-0">
                     {{item.nCodes}}
                   </td>
-                  <td class="">
+                  <td class="px-1 py-0">
                     {{item.nIterations}}
                   </td>
-                  <td class="">
+                  <td class="px-1 py-0">
+                    {{item.nRecords * item.nCodes * item.nIterations}}
+                  </td>
+                  <td class="px-1 py-0">
                     {{item.tp}}
                   </td>
-                  <td class="">
+                  <td class="px-1 py-0">
                     {{item.tn}}
                   </td>
-                  <td class="">
+                  <td class="px-1 py-0">
                     {{item.fp}}
                   </td>
-                  <td class="">
+                  <td class="px-1 py-0">
                     {{item.fn}}
                   </td>
 
-                  <td class="" style="min-width: 65px; max-width: 65px; text-align:right">
-                    <button class="btn btn-sm btn-danger" title="Delete this evaluation" (click)="confirmDeleteEvaluation(item)">
+                  <td class="" style="text-align:right">
+                    <button class="btn btn-sm btn-danger px-1 py-0 " title="Delete this evaluation" (click)="confirmDeleteEvaluation(item)">
                       <span class="k-icon k-i-trash" size="small" style="position: relative; top:-2px;"></span>
                     </button>
                   </td>
