@@ -62,7 +62,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   public NCodesInSelectedGoldStandard: number = 0;
 
   public CreateTrainTestSplitsSection: boolean = false;
-
+  public ShowQueue: boolean = false;
 
 
   public get AllCodeSets(): ReviewSet[] {
@@ -73,6 +73,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     if (DateSt == "0001-01-01T00:00:00") return "None";
     return Helpers.FormatDate2(DateSt);
   }
+  
 
   @ViewChild('evaluationNameInput') evaluationNameInput!: NgModel;
   ngOnInit() {
@@ -101,7 +102,12 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   public get ShowPanel(): string {
     return this._ShowPanel
   }
-
+  public get BatchSelectionState(): number {
+    //0 if all is good, 1 if code selected has zero items, 2 if actual batch size is too big
+    if (this.NCodesInSelectedGoldStandard == 0) return 1;
+    else if (this.NCodesInSelectedGoldStandard * this.n_iterations > this.maxNToGoToLLM) return 2;
+    return 0;
+  }
 
   public get nodeSelected(): singleNode | null | undefined {
     return this._eventEmitterService.nodeSelected;

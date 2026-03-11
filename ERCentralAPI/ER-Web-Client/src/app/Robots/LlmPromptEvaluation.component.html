@@ -40,12 +40,12 @@
                   <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown1()" [rootsOnly]=false></codesetSelector>
                 </div>
               </div>
-              <div *ngIf="ShowPanel == 'NCodesInSelectedGoldStandardPanel'"
-                   class="alert alert-danger small mt-1 px-1 py-0 d-inline-block">
+              <div *ngIf="ShowPanel == 'NCodesInSelectedGoldStandardPanel'" [ngClass]="{'alert-danger' : BatchSelectionState > 0, 'alert-success': BatchSelectionState == 0 }"
+                   class="alert small mt-1 px-1 py-0 d-inline-block">
                 <div *ngIf="NCodesInSelectedGoldStandard == 0">There are <strong>no</strong> items assigned to this code</div>
                 <div *ngIf="NCodesInSelectedGoldStandard == 1">There is <strong>one</strong> item that has been assigned to this code</div>
                 <div *ngIf="NCodesInSelectedGoldStandard > 1">There are <strong>{{NCodesInSelectedGoldStandard}}</strong> items assigned to this code</div>
-                <div *ngIf="NCodesInSelectedGoldStandard * n_iterations > maxNToGoToLLM">(That's too many!)</div>
+                <div *ngIf="BatchSelectionState == 2">(That's too many!)</div>
               </div>
             </div>
           </div>
@@ -71,7 +71,7 @@
                        name="usePdfs" [(ngModel)]="usePdfs"
                        (change)="RobotSettings.useFullTextDocument = usePdfs" />
                 <label class="form-check-label" for="usePdfsCheckbox">
-                  
+
                 </label>
               </div>
             </div>
@@ -120,7 +120,7 @@
           <button class="btn btn-sm btn-outline-danger mr-1 my-auto py-0 font-weight-bold" (click)="openConfirmationDialogPromptEvaluation()" [disabled]="!CanRunOpenAIrobot">Submit</button>
           <button class="btn btn-sm btn-outline-danger mr-1 my-auto py-0 font-weight-bold float-right" (click)="OpenCreateTrainTestSplitsSection()">Create train / test datasets</button>
         </div>
-        </div>
+      </div>
     </div>
     <div class="col-12 col-md-6 mx-0 px-1 mb-1">
       <div class="card container-fluid mt-1 bg-light border border-primary rounded px-1 mx-0">
@@ -192,8 +192,13 @@
           </div>
         </div>
       </div>
+      <div class="card container-fluid mt-1 bg-light border border-primary rounded px-1 mx-0">
+        <button *ngIf="!ShowQueue" class="btn btn-sm btn-outline-info ml-1 mr-auto my-1 py-0" (click)="ShowQueue = !ShowQueue">Jobs Queue</button>
+        <robotJobsQueue [ShowQueue]="ShowQueue" (PleaseCloseMe)="ShowQueue = false"></robotJobsQueue>
+      </div>
     </div>
-  </div>
+    
+    </div>
     <div class="row mx-0">
       <div class="col-12 col-md-6 mx-0 px-1 mb-1">
         <div class="card container-fluid mt-1 bg-light border border-primary rounded px-1 mx-0">
@@ -203,12 +208,12 @@
             <div class="row align-items-center mt-2">
               <div class="mx-0 px-1 col-12 col-sm-6 col-md-4 my-auto text-sm-right">Split records with this code</div>
 
-                <div ngbDropdown class="d-inline-block mx-0 px-1 col-12 col-md-8 my-auto">
-                  <button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree2" (click)="isCollapsedSetSelectedGoldStandardTrainTestAttribute = !isCollapsedSetSelectedGoldStandardTrainTestAttribute; isCollapsed2SetSelectedGoldStandardTrainTestAttribute=false" [attr.aria-expanded]="!isCollapsedSetSelectedGoldStandardTrainTestAttribute" aria-controls="collapseCodeTree">{{selectedModelDropDown2}}&nbsp;</button>
-                  <div (click)="SetSelectedGoldStandardTrainTestAttribute(nodeSelected)" class="dropdown-menu" id="collapseCodeTree2" [ngbCollapse]="!isCollapsedSetSelectedGoldStandardTrainTestAttribute">
-                    <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown2()" [rootsOnly]=false></codesetSelector>
-                  </div>
+              <div ngbDropdown class="d-inline-block mx-0 px-1 col-12 col-md-8 my-auto">
+                <button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree2" (click)="isCollapsedSetSelectedGoldStandardTrainTestAttribute = !isCollapsedSetSelectedGoldStandardTrainTestAttribute; isCollapsed2SetSelectedGoldStandardTrainTestAttribute=false" [attr.aria-expanded]="!isCollapsedSetSelectedGoldStandardTrainTestAttribute" aria-controls="collapseCodeTree">{{selectedModelDropDown2}}&nbsp;</button>
+                <div (click)="SetSelectedGoldStandardTrainTestAttribute(nodeSelected)" class="dropdown-menu" id="collapseCodeTree2" [ngbCollapse]="!isCollapsedSetSelectedGoldStandardTrainTestAttribute">
+                  <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown2()" [rootsOnly]=false></codesetSelector>
                 </div>
+              </div>
             </div>
 
             <div class="row align-items-center mt-2">
@@ -219,30 +224,30 @@
                   <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown3()" [rootsOnly]=false></codesetSelector>
                 </div>
               </div>
-              </div>
+            </div>
 
-              <div class="col-12 mx-0 px-1 row form-group pt-1 mt-1 mt-md-0">
-                <div class="mx-0 px-1 col-12 col-sm-6 col-md-4 my-auto text-sm-right">Number in train set</div>
-                <div class="my-auto">
-                  <kendo-numerictextbox [(ngModel)]="n_in_train_set"
-                                        [min]="5" [format]="'n0'"
-                                        [max]="10000"
-                                        [step]="1"
-                                        [autoCorrect]="true"
-                                        class="border border-dark rounded"
-                                        style="width: 100px;">
+            <div class="col-12 mx-0 px-1 row form-group pt-1 mt-1 mt-md-0">
+              <div class="mx-0 px-1 col-12 col-sm-6 col-md-4 my-auto text-sm-right">Number in train set</div>
+              <div class="my-auto">
+                <kendo-numerictextbox [(ngModel)]="n_in_train_set"
+                                      [min]="5" [format]="'n0'"
+                                      [max]="10000"
+                                      [step]="1"
+                                      [autoCorrect]="true"
+                                      class="border border-dark rounded"
+                                      style="width: 100px;">
 
-                  </kendo-numerictextbox>
-                </div>
-              </div>
-              <div>
-                <button class="btn btn-sm btn-outline-danger mr-1 my-auto py-0 font-weight-bold" (click)="SetupTrainTestData()" [disabled]="!HasWriteRights">Create train / test split</button>
-
+                </kendo-numerictextbox>
               </div>
             </div>
+            <div>
+              <button class="btn btn-sm btn-outline-danger mr-1 my-auto py-0 font-weight-bold" (click)="SetupTrainTestData()" [disabled]="!HasWriteRights">Create train / test split</button>
+
+            </div>
           </div>
+        </div>
       </div>
-    
+
       <div *ngIf="currentSelectedEvaluationTitle != ''" class="col-12 mx-0 px-1 mb-1">
         <div class="card container-fluid mt-1 bg-light border border-primary rounded px-1 mx-0">
           <div class="p-1 m-0 ">
@@ -255,11 +260,11 @@
             <div>
               <h6>Evaluation run by {{ currentSelectedEvaluationContactName }} on {{ currentSelectedEvaluationDateRun ? (currentSelectedEvaluationDateRun | date:'medium') : 'no date' }} using the LLM: {{currentSelectedEvaluationRobotName}}. There were {{currentSelectedEvaluationNCodes}} codes in the codeset and {{currentSelectedEvaluationNRecords}} items (studies) evaluated over {{currentSelectedEvaluationNIterations}} iteration(s).</h6>
               <div>
-              <button (click)="DownloadSelectedEvaluationCodingTool()" class="btn btn-link px-1 py-0">Download the stored copy of the coding tool as used in this evaluation</button>
-            </div>
-            <div>
-              <button (click)="DownloadSelectedEvaluationData()" class="btn btn-link px-1 py-0">Download the raw data from this evaluation</button>
-            </div>
+                <button (click)="DownloadSelectedEvaluationCodingTool()" class="btn btn-link px-1 py-0">Download the stored copy of the coding tool as used in this evaluation</button>
+              </div>
+              <div>
+                <button (click)="DownloadSelectedEvaluationData()" class="btn btn-link px-1 py-0">Download the raw data from this evaluation</button>
+              </div>
             </div>
             <h5 class="mt-4">Summary performance metrics</h5>
             <table class="table table-sm table-striped">
@@ -327,10 +332,10 @@
           </div>
         </div>
       </div>
-      </div>
+    </div>
 
 
 
-    
+
   </div>
       <statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body"></statusbar>
