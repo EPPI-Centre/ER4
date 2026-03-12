@@ -782,6 +782,23 @@ export class ReviewSet implements singleNode {
     }
     return countSoFar;
   }
+  public get HasChildrenWithPrompt(): boolean {
+    let res = false;
+    for (const A of this.attributes) {
+      if (A.IsCodeWithLlmPrompt) return true;
+      if (A.HasChildrenWithPrompt) return true;
+    }
+    return false;
+  }
+  public get AllChildrentWithPrompts(): SetAttribute[] {
+    let listSoFar: SetAttribute[] = []
+    for (const A of this.attributes) {
+      if (A.IsCodeWithLlmPrompt) listSoFar.push(A);
+      listSoFar = A.AllChildrentWithPrompts(listSoFar);
+    }
+    
+    return listSoFar;
+  }
 }
 //
 export class SetAttribute implements singleNode {
@@ -846,6 +863,29 @@ export class SetAttribute implements singleNode {
       countSoFar = A.NumberOfChildren(countSoFar);
     }
     return countSoFar;
+  }
+  public get IsCodeWithLlmPrompt(): boolean {
+    //(possiblePrompt.IndexOf(':') > 1 && possiblePrompt.IndexOf("//") > possiblePrompt.IndexOf(':'))
+    const ColIndex = this.attribute_set_desc.indexOf(':');
+    if (ColIndex == -1) return false;
+    const SlashesIndex = this.attribute_set_desc.indexOf('//');
+    if (SlashesIndex == -1) return false;
+    if (SlashesIndex > ColIndex + 4) return true;
+    return false;
+  }
+  public get HasChildrenWithPrompt(): boolean {
+    for (const A of this.attributes) {
+      if (A.IsCodeWithLlmPrompt) return true;
+      if (A.HasChildrenWithPrompt) return true;
+    }
+    return false;
+  }
+  public AllChildrentWithPrompts(listSoFar: SetAttribute[] = []): SetAttribute[] {
+    for (const A of this.attributes) {
+      if (A.IsCodeWithLlmPrompt) listSoFar.push(A);
+      listSoFar = A.AllChildrentWithPrompts(listSoFar);
+    }
+    return listSoFar;
   }
 }
 

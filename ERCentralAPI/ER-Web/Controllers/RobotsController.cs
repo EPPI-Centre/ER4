@@ -237,8 +237,8 @@ namespace ERxWebClient2.Controllers
                         return Ok(data);
                     }
                     RobotOpenAiQueueBatchJobEvaluationCommand res = new RobotOpenAiQueueBatchJobEvaluationCommand(data.evaluationName, data.robotName
-                        , CreditId, data.reviewSetId, data.reviewSetHtml, data.goldStandardAttributeId
-                        , data.goldStandardAttributeName, data.useFullTextDocument, data.nIterations, data.nCodes);
+                        , CreditId, data.reviewSetId, data.reviewSetHtml, data.goldStandardAttributeId, data.goldStandardAttributeName
+                        , data.useFullTextDocument, data.nIterations, data.nCodes, data.attributeIdsWithPrompts);
                     res = DataPortal.Execute(res);
                     data.returnMessage = res.Result;
                     return Ok(data);
@@ -372,6 +372,8 @@ public class RobotOpenAiQueueBatchJobEvaluationCommandJson
     public string returnMessage = "";
     public int nIterations { get; set; }
     public int nCodes { get; set; }
+
+    public string attributeIdsWithPrompts { get; set; } = "";
     public string reviewSetHtml { get; set; } = "";
     public Int64 goldStandardAttributeId;
     public string goldStandardAttributeName { get; set; } = "";

@@ -39,6 +39,7 @@ namespace BusinessLibrary.BusinessClasses
         private string _RobotName = "";
         private int _n_iterations = 0;
         private int _n_codes = 0;
+        private string _attributeIdsWithPrompts = "";
         private string _reviewSetHtml = "";
         private string _evaluationName = "";
         private Int64 _gold_standard_attribute_id = 0;
@@ -55,7 +56,8 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public RobotOpenAiQueueBatchJobEvaluationCommand(string evaluationName, string robotName, int creditPurchaseId, int reviewSetId,
-            string reviewSetHtml, Int64 goldStandardAttributeId, string goldStandardAttributeName, bool useFullTextDocument, int n_iterations, int n_codes)
+            string reviewSetHtml, Int64 goldStandardAttributeId, string goldStandardAttributeName, 
+            bool useFullTextDocument, int n_iterations, int n_codes, string attributeIdsWithPrompts)
         {
             _evaluationName = evaluationName;
             _RobotName = robotName;
@@ -67,6 +69,7 @@ namespace BusinessLibrary.BusinessClasses
             _useFullTextDocument = useFullTextDocument;
             _n_iterations = n_iterations;
             _n_codes = n_codes;
+            _attributeIdsWithPrompts = attributeIdsWithPrompts; 
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
@@ -83,6 +86,7 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_RobotName", _RobotName);
             info.AddValue("_n_iterations", _n_iterations);
             info.AddValue("_n_codes", _n_codes);
+            info.AddValue("_attributeIdsWithPrompts", _attributeIdsWithPrompts); 
             info.AddValue("_reviewSetHtml", _reviewSetHtml); 
 
         }
@@ -96,6 +100,7 @@ namespace BusinessLibrary.BusinessClasses
             _RobotName = info.GetValue<string>("_RobotName");
             _n_iterations = info.GetValue<int>("_n_iterations");
             _n_codes = info.GetValue<int>("_n_codes");
+            _attributeIdsWithPrompts = info.GetValue<string>("_attributeIdsWithPrompts"); 
             _reviewSetHtml = info.GetValue<string>("_reviewSetHtml");
             _evaluationName = info.GetValue<string>("_evaluationName");
             _gold_standard_attribute_id = info.GetValue<Int64>("_gold_standard_attribute_id");
@@ -147,6 +152,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@N_RECORDS", itemList.Count(c => c == ',') + 1));
                     command.Parameters.Add(new SqlParameter("@N_CODES", _n_codes));
                     command.Parameters.Add(new SqlParameter("@REVIEW_SET_HTML", _reviewSetHtml));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTES_WITH_PROMPTS", _attributeIdsWithPrompts));
                     command.Parameters.Add(new SqlParameter("@USE_PDFS", _useFullTextDocument));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
                     command.Parameters.Add(new SqlParameter("@CONTACT_NAME", ri.Name));

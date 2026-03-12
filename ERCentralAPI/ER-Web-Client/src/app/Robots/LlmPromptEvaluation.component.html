@@ -45,7 +45,7 @@
                 <div *ngIf="NCodesInSelectedGoldStandard == 0">There are <strong>no</strong> items assigned to this code</div>
                 <div *ngIf="NCodesInSelectedGoldStandard == 1">There is <strong>one</strong> item that has been assigned to this code</div>
                 <div *ngIf="NCodesInSelectedGoldStandard > 1">There are <strong>{{NCodesInSelectedGoldStandard}}</strong> items assigned to this code</div>
-                <div *ngIf="BatchSelectionState == 2">(That's too many!)</div>
+                <div *ngIf="BatchSelectionState == 2">(That's too many! {{NCodesInSelectedGoldStandard}} * {{n_iterations}} = {{NCodesInSelectedGoldStandard * n_iterations}}. Limit is {{maxNToGoToLLM}})</div>
               </div>
             </div>
           </div>
@@ -60,6 +60,9 @@
                   {{item.name}}
                 </option>
               </select>
+              <div *ngIf="selectedCodeSet.set_id > 0 && selectedCodeSet.HasChildrenWithPrompt == false" class="alert alert-danger small mt-1 px-1 py-0 d-inline-block">
+                Selected tool appears to contain no prompts!
+              </div>
             </div>
           </div>
 
@@ -118,7 +121,7 @@
           </div>
 
           <button class="btn btn-sm btn-outline-danger mr-1 my-auto py-0 font-weight-bold" (click)="openConfirmationDialogPromptEvaluation()" [disabled]="!CanRunOpenAIrobot">Submit</button>
-          <button class="btn btn-sm btn-outline-danger mr-1 my-auto py-0 font-weight-bold float-right" (click)="OpenCreateTrainTestSplitsSection()">Create train / test datasets</button>
+          <button class="btn btn-sm btn-outline-secondary mr-1 my-auto py-0 font-weight-bold float-right" (click)="OpenCreateTrainTestSplitsSection()">Create train / test datasets</button>
         </div>
       </div>
     </div>
@@ -205,8 +208,8 @@
     </div>
     <div class="row mx-0">
       <div class="col-12 col-md-6 mx-0 px-1 mb-1">
-        <div class="card container-fluid mt-1 bg-light border border-primary rounded px-1 mx-0">
-          <div class="card-body p-1 m-0" id="CreateTrainTestSplitsSection" [ngbCollapse]="!CreateTrainTestSplitsSection">
+        <div class="card container-fluid mt-1 bg-light border border-primary rounded px-1 mx-0" id="CreateTrainTestSplitsSection" [ngbCollapse]="!CreateTrainTestSplitsSection">
+          <div class="card-body p-1 m-0" >
             <div><b>Create train / test splits from gold standard data</b></div>
 
             <div class="row align-items-center mt-2">
@@ -277,6 +280,8 @@
                   <th>Code name</th>
                   <th class="text-center">Sensitivity (Recall)</th>
                   <th class="text-center">Specificity</th>
+                  <th class="text-center">Target Hits</th>
+                  <th class="text-center">Actual Hits</th>
                   <th class="text-center">Precision</th>
                   <th class="text-center">F1 Score</th>
                   <th class="text-center">Accuracy</th>
@@ -287,50 +292,59 @@
                   <td>{{ getAttributeName(m.attributeId) }}</td>
                   <td class="text-center">{{ m.sensitivity | number:'1.3-3' }}</td>
                   <td class="text-center">{{ m.specificity | number:'1.3-3' }}</td>
+                  <td class="text-center">{{ m.tp + m.fn }}</td>
+                  <td class="text-center">
+                    <div [ngClass]="{'alert-danger font-weight-bold': m.tp + m.fp != m.tp + m.fn}" class="px-1">{{ m.tp + m.fp }}</div>
+                  </td>
                   <td class="text-center">{{ m.precision | number:'1.3-3' }}</td>
-                  <td class="text-center">{{ m.f1Score | number:'1.3-3' }}</td>
+                  <td class="text-center" *ngIf="m.tp + m.fn > 0; else NotApplicable">{{ m.f1Score | number:'1.3-3' }}</td>
+                  <ng-template #NotApplicable><td class="text-center">N/A</td></ng-template>
                   <td class="text-center">{{ m.accuracy | number:'1.3-3' }}</td>
                 </tr>
               </tbody>
             </table>
           </div>
-          <div class="confusion-matrices-container">
-            <h5 class="mt-4">Contingency tables for each code</h5>
-            <div *ngFor="let attributeId of uniqueAttributeIds" class="mb-4">
-              <h5 class="mb-2">{{ getAttributeName(attributeId) }}</h5>
+          <div class="confusion-matrices-container mx-1 rounded border-top border-primary">
+            <div class="row mx-0 px-1  border-right border-left border-primary alert-primary"><h5 class="my-2">Contingency tables for each code</h5></div>
+            <div style="max-height:60vh; overflow-y:auto;" class="border-right border-left border-primary">
+              <div *ngFor="let attributeId of uniqueAttributeIds" class="px-1">
+                <div class="border-top border-primary">
+                  <h6 class="my-2 font-weight-bold text-primary">{{ getAttributeName(attributeId) }}</h6>
+                </div>
 
-              <table class="table table-bordered table-sm mb-2">
-                <thead class="table-light">
-                  <tr>
-                    <th class="text-center" style="width: 33%"></th>
-                    <th class="text-center" style="width: 33%">Gold standard True</th>
-                    <th class="text-center" style="width: 33%">Gold standard False</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let row of getRowsForAttribute(attributeId)">
-                    <td class="table-light">
-                      <strong>{{ row.llmClassification ? 'LLM True' : 'LLM False' }}</strong>
-                    </td>
-                    <td class="text-center" style="cursor: pointer;" [ngClass]="{'table-success': row.llmClassification, 'table-danger': !row.llmClassification}" (click)="listItems(row, true)">
-                      {{ row.llm_human_true }}
-                      <small class="text-muted">{{ row.llmClassification ? '(TP' : '(FN' }} mean over {{currentSelectedEvaluationNIterations}} iterations: {{row.llm_human_true / currentSelectedEvaluationNIterations | number:'1.0-2'}})</small>
-                    </td>
-                    <td class="text-center" style="cursor: pointer;" [ngClass]="{'table-danger': row.llmClassification, 'table-success': !row.llmClassification}" (click)="listItems(row, false)">
-                      {{ row.llm_human_false }}
-                      <small class="text-muted">{{ row.llmClassification ? '(FP' : '(TN' }} mean over {{currentSelectedEvaluationNIterations}} iterations: {{row.llm_human_false / currentSelectedEvaluationNIterations | number:'1.0-2'}})</small>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                <table class="table table-bordered table-sm mb-2">
+                  <thead class="table-light">
+                    <tr>
+                      <th class="text-center py-0" style="width: 33%"></th>
+                      <th class="text-center py-0" style="width: 33%">Gold standard True</th>
+                      <th class="text-center py-0" style="width: 33%">Gold standard False</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let row of getRowsForAttribute(attributeId)">
+                      <td class="table-light">
+                        <strong>{{ row.llmClassification ? 'LLM True' : 'LLM False' }}</strong>
+                      </td>
+                      <td class="text-center" style="cursor: pointer;" [ngClass]="{'table-success': row.llmClassification, 'table-danger': !row.llmClassification}" (click)="listItems(row, true)">
+                        {{ row.llm_human_true }}
+                        <small class="text-muted">{{ row.llmClassification ? '(TP' : '(FN' }} mean over {{currentSelectedEvaluationNIterations}} iterations: {{row.llm_human_true / currentSelectedEvaluationNIterations | number:'1.0-2'}})</small>
+                      </td>
+                      <td class="text-center" style="cursor: pointer;" [ngClass]="{'table-danger': row.llmClassification, 'table-success': !row.llmClassification}" (click)="listItems(row, false)">
+                        {{ row.llm_human_false }}
+                        <small class="text-muted">{{ row.llmClassification ? '(FP' : '(TN' }} mean over {{currentSelectedEvaluationNIterations}} iterations: {{row.llm_human_false / currentSelectedEvaluationNIterations | number:'1.0-2'}})</small>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
 
-              <!-- Metrics for this attribute -->
-              <div *ngIf="getMetricsForAttribute(attributeId) as m" class="small text-muted">
-                <span class="me-3"><strong>Sensitivity/Recall:</strong> {{ m.sensitivity | number:'1.3-3' }} | </span>
-                <span class="me-3"><strong>Specificity:</strong> {{ m.specificity | number:'1.3-3' }} | </span>
-                <span class="me-3"><strong>Precision:</strong> {{ m.precision | number:'1.3-3' }} | </span>
-                <span class="me-3"><strong>F1:</strong> {{ m.f1Score | number:'1.3-3' }} | </span>
-                <span><strong>Accuracy:</strong> {{ m.accuracy | number:'1.3-3' }}</span>
+                <!-- Metrics for this attribute -->
+                <div *ngIf="getMetricsForAttribute(attributeId) as m" class="small text-muted">
+                  <span class="me-3"><strong>Sensitivity/Recall:</strong> {{ m.sensitivity | number:'1.3-3' }} | </span>
+                  <span class="me-3"><strong>Specificity:</strong> {{ m.specificity | number:'1.3-3' }} | </span>
+                  <span class="me-3"><strong>Precision:</strong> {{ m.precision | number:'1.3-3' }} | </span>
+                  <span class="me-3"><strong>F1:</strong> {{ m.f1Score | number:'1.3-3' }} | </span>
+                  <span><strong>Accuracy:</strong> {{ m.accuracy | number:'1.3-3' }}</span>
+                </div>
               </div>
             </div>
           </div>

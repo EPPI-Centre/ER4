@@ -281,13 +281,13 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
 
   public FetchRobotOpenAiPromptEvaluationList() {
     this._BusyMethods.push("FetchRobotOpenAiPromptEvaluationList");
-    lastValueFrom(this._httpC.get<iRobotOpenAiPromptEvaluation[]>(this._baseUrl + 'api/Robots/FetchRobotOpenAiPromptEvaluationList'))
+    return lastValueFrom(this._httpC.get<iRobotOpenAiPromptEvaluation[]>(this._baseUrl + 'api/Robots/FetchRobotOpenAiPromptEvaluationList'))
       .then(result => {
         this.RemoveBusy("FetchRobotOpenAiPromptEvaluationList");
         if (result != null) {
           this.RobotOpenAiPromptEvaluationList = result;
 
-          console.log('this.FetchRobotOpenAiPromptEvaluationList', this.RobotOpenAiPromptEvaluationList);
+          //console.log('this.FetchRobotOpenAiPromptEvaluationList', this.RobotOpenAiPromptEvaluationList);
         }
       },
         error => {
@@ -383,6 +383,8 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
     this.RobotInvestigateResults = [];
     this.RobotSetting = this.DefaultRobotSetting;
     this.ShowSettingsInBatchPanel = true;
+    this._currentRobotOpenAiPromptEvaluationDataList = [];
+    this._RobotOpenAiPromptEvaluationList = [];
   }
   ngOnDestroy() {
     this.Clear();
@@ -415,12 +417,12 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
   }
 
   // Separate gold standard (human) and LLM data  
-  const goldStandardData = data.filter(d => d.goldStandard);
+  const goldStandardData = data.filter(d => d.goldStandard && d.itemId > 0);
   const llmData = data.filter(d => !d.goldStandard);
 
   // Get unique values  
   const attributeIds = [...new Set(data.map(d => d.attributeId))].sort((a, b) => a - b);
-  const itemIds = [...new Set(data.map(d => d.itemId))].sort((a, b) => a - b);
+  const itemIds = [...new Set(data.filter(f=> f.itemId > 0).map(d => d.itemId))].sort((a, b) => a - b);
   const iterations = [...new Set(llmData.map(d => d.iteration))].sort((a, b) => a - b);
 
   if (iterations.length === 0) {
@@ -591,6 +593,7 @@ export interface iRobotOpenAiQueueBatchJobEvaluationCommand {
   returnMessage: string;
   nIterations: number;
   nCodes: number;
+  attributeIdsWithPrompts: string;
 }
 
 export interface iRobotSettings {

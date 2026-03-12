@@ -389,6 +389,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     if (this.evaluationNameIsInvalid) return false;
     if (this.NCodesInSelectedGoldStandard == 0) return false;
     if (this.NCodesInSelectedGoldStandard * this.n_iterations > this.maxNToGoToLLM) return false;
+    if (this.selectedCodeSet.HasChildrenWithPrompt == false) return false;
     return true;
   }
 
@@ -430,12 +431,13 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
       evaluationName: this.evaluationNameText,
       robotName: this.RobotSettings.robotName,
       reviewSetId: this.selectedCodeSet.reviewSetId,
-      reviewSetHtml: this.selectedCodeSet.printHtml(false, false, true),
+      reviewSetHtml: this.selectedCodeSet.printHtml(true, false, true),
       nCodes: this.selectedCodeSet.NumberOfChildren,
       goldStandardAttributeId: (this.SelectedGoldStandardEvaluationAttribute as SetAttribute).attribute_id,
       useFullTextDocument: this.usePdfs,
       returnMessage: "",
-      nIterations: this.n_iterations
+      nIterations: this.n_iterations,
+      attributeIdsWithPrompts: this.selectedCodeSet.AllChildrentWithPrompts.map(m => m.attribute_id.toString()).join()
     };
     this._robotsService.EnqueueRobotOpenAIBatchJobEvaluationCommand(data).then(
       (res: boolean) => {
@@ -447,8 +449,8 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
             type: { style: "info", icon: true },
             hideAfter: 4000
           });
-          this._robotsService.GetCurrentQueue();
-          //this.ShowQueue = true;
+          this._robotsService.GetCurrentQueue().then(()=> this.refreshRobotOpenAiPromptEvaluationList());
+          this.ShowQueue = true;
         }
       }
 

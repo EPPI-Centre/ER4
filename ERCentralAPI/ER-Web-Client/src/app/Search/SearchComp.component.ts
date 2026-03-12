@@ -21,6 +21,7 @@ import { Helpers } from '../helpers/HelperMethods';
 import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import 'hammerjs';
 import { SearchFromOpenAlexImport } from './SearchFromOpenAlexImport.component';
+import { RobotsService } from '../services/Robots.service';
 
 @Component({
   selector: 'SearchComp',
@@ -42,7 +43,8 @@ export class SearchComp implements OnInit, OnDestroy {
     private _sourcesService: SourcesService,
     private confirmationDialogService: ConfirmationDialogService,
     private _reviewInfoService: ReviewInfoService,
-    public _reviewerIdentityServ: ReviewerIdentityService
+    private _reviewerIdentityServ: ReviewerIdentityService,
+    private _robotsService: RobotsService
   ) {
 
   }
@@ -64,6 +66,7 @@ export class SearchComp implements OnInit, OnDestroy {
       this.clearSub = this._eventEmitter.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); })
       this._searchService.Fetch().then(() => {
         if (this._sourcesService.ReviewSources.length == 0 && !this._sourcesService.IsBusy) this._sourcesService.FetchSources();
+        if (this._robotsService.RobotOpenAiPromptEvaluationList.length == 0) this._robotsService.FetchRobotOpenAiPromptEvaluationList();
       });
     }
   }
@@ -195,7 +198,11 @@ export class SearchComp implements OnInit, OnDestroy {
   public get SearchVisualiseData() {
     return this._searchService.SearchVisualiseData;
   }
-
+  public get CanRunOpenAIrobot(): boolean {
+    if (this._reviewInfoService.ReviewInfo.hasCreditForRobots == true) return true;
+    else if (this._robotsService.RobotOpenAiPromptEvaluationList.length > 0) return true;
+    return false;
+  }
 
   CancelVisualise() {
 

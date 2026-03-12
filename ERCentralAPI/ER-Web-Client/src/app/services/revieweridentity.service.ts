@@ -200,8 +200,8 @@ export class ReviewerIdentityService implements OnDestroy {
     //(this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
     this.userOptions = new UserOptions();
     let reqpar = new LoginCreds(u, p);
-    return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/Login',
-      reqpar).subscribe(ri => {
+    return lastValueFrom( this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/Login',
+      reqpar)).then(ri => {
 
         this.reviewerIdentity = ri;
 
