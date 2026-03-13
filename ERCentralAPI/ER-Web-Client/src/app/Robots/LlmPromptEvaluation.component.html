@@ -23,7 +23,7 @@
                 <ng-container [ngSwitch]="evaluationNameIsInvalid">
                   <div *ngSwitchCase=1>Evaluation name is required.</div>
                   <div *ngSwitchCase=2>Evaluation name must be at least 4 characters long.</div>
-                  <div *ngSwitchCase=3>Only letters, numbers, spaces, dashes and underscores are allowed.</div>
+                  <!--<div *ngSwitchCase=3>Only letters, numbers, spaces, dashes and underscores are allowed.</div>-->
                   <div *ngSwitchCase=4>You've already used this Evaluation name.</div>
                   <!-- no need for *ngSwitchDefault -->
                 </ng-container>
@@ -83,7 +83,7 @@
           <div class="row align-items-center mt-2">
             <div class="mx-0 px-1 col-12 col-md-4 my-auto text-md-right align-self-start">Robot</div>
             <div class="col-12 col-md-8">
-              <select class="w-100 mb-1 form-control" (change)="RobotChanged($event)">
+              <select class="w-100 mb-1 py-1" (change)="RobotChanged($event)" id="LLMevalRobotlist">
                 <option value="">Please select</option>
                 <option [ngValue]="r.robotName" *ngFor="let r of RobotsList" [selected]="r.robotName == RobotSettings.robotName" [disabled]="r.isRetired">
                   {{r.robotName}}
@@ -91,7 +91,7 @@
               </select>
             </div>
           </div>
-          <div *ngIf="showRobotDetails && SelectedRobot" class="px-1 mx-0 my-1 border border-info rounded small alert-info">
+          <div *ngIf="showRobotDetails && SelectedRobot" class="p-1 mx-0 my-1 border border-info rounded small alert-info">
             <div class="row mx-0">
               <!--<div class="mx-1 font-weight-bold col-12">Robot name: {{SelectedRobot.robotName}}</div>-->
               <div class="col mx-1 px-1">
@@ -101,7 +101,7 @@
               </div>
               <div class="col mx-0 rounded bg-light px-1"><span class="font-weight-bold">Description:</span> {{SelectedRobot.description}}</div>
             </div>
-            <button class="btn btn-sm btn-outline-dark mr-1 py-0 small" (click)="showRobotDetails = false">Hide Details</button>
+            <!--<button class="btn btn-sm btn-outline-dark mr-1 py-0 small" (click)="showRobotDetails = false">Hide Details</button>-->
           </div>
 
           <div class="row align-items-center mt-2">
@@ -128,10 +128,10 @@
     <div class="col-12 col-md-6 mx-0 px-1 mb-1">
       <div class="card container-fluid mt-1 bg-light border border-primary rounded px-1 mx-0">
         <div class="p-1 m-0  ">
-          <div><b>Completed Evaluations</b></div>
+          <div><b>Evaluations List:</b></div>
           <div>
             <button title="Refresh list" (click)="refreshRobotOpenAiPromptEvaluationList()" class="btn btn-sm btn-outline-success ml-1 mr-0 mb-1 pt-1 pb-0 px-2">
-              Refresh list  <fa-icon [icon]="faArrowsRotate" class="my-0"></fa-icon>
+              Refresh <fa-icon [icon]="faArrowsRotate" class="my-0"></fa-icon>
             </button>
           </div>
           <div style="max-height:40vh; min-height:185px;overflow:auto;">
@@ -141,9 +141,9 @@
                   <th class="px-1 py-0">Name</th>
                   <th class="px-1 py-0">User</th>
                   <th class="px-1 py-0">Robot</th>
-                  <th class="px-1 py-0"># records</th>
-                  <th class="px-1 py-0"># codes</th>
-                  <th class="px-1 py-0"># iterations</th>
+                  <th class="px-1 py-0 small font-weight-bold">Records</th>
+                  <th class="px-1 py-0 small font-weight-bold">Codes</th>
+                  <th class="px-1 py-0 small font-weight-bold">Iterations</th>
                   <th class="px-1 py-0">TOT</th>
                   <th class="px-1 py-0">TP</th>
                   <th class="px-1 py-0">TN</th>
@@ -153,7 +153,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let item of RobotOpenAiPromptEvaluationList">
+                <tr *ngFor="let item of RobotOpenAiPromptEvaluationList" [ngClass]="{'disableThisAndChildren': EvalDisableClass(item)}" >
                   <td class="px-1 py-0">
                     <button (click)="showEvaluation(item)" class="btn btn-link px-1 py-0">{{item.title}}</button>
                   </td>
@@ -172,7 +172,7 @@
                   <td class="px-1 py-0">
                     {{item.nIterations}}
                   </td>
-                  <td class="px-1 py-0">
+                  <td class="px-1 py-0 font-weight-bold">
                     {{item.nRecords * item.nCodes * item.nIterations}}
                   </td>
                   <td class="px-1 py-0">
@@ -189,7 +189,8 @@
                   </td>
 
                   <td class="" style="text-align:right">
-                    <button class="btn btn-sm btn-danger px-1 py-0 " title="Delete this evaluation" (click)="confirmDeleteEvaluation(item)">
+                    <button class="btn btn-sm btn-danger px-1 py-0 " title="Delete this evaluation" (click)="confirmDeleteEvaluation(item)"
+                            [disabled]="HasWriteRights == false || EvalDisableClass(item)">
                       <span class="k-icon k-i-trash" size="small" style="position: relative; top:-2px;"></span>
                     </button>
                   </td>
@@ -259,7 +260,7 @@
         <div class="card container-fluid mt-1 bg-light border border-primary rounded px-1 mx-0">
           <div class="p-1 m-0 ">
             <div>
-              <h4>{{ currentSelectedEvaluationTitle }}</h4>
+              <h4>Evaluation name: {{currentSelectedEvaluationTitle }}</h4>
             </div>
             <div>
               <h5>Codeset: {{ currentSelectedEvaluationCodeSetName }} </h5>

@@ -77,6 +77,9 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
 
   @ViewChild('evaluationNameInput') evaluationNameInput!: NgModel;
   ngOnInit() {
+    if (this.reviewInfoService.ReviewInfo.reviewId != this.ReviewerIdentityServ.reviewerIdentity.reviewId) {
+      this.reviewInfoService.Fetch();
+    }
     if (this.reviewSetsService.ReviewSets.length == 0) this.reviewSetsService.GetReviewSets();
     if (this._robotsService.RobotsList.length == 0) this._robotsService.GetRobotsList();
     this.refreshRobotOpenAiPromptEvaluationList();
@@ -290,7 +293,14 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   }
   getAttributeName(attributeId: number): string {
     return this._robotsService.getAttributeName(this._robotsService.attributeLookup, attributeId);
-  }  
+  }
+
+  public EvalDisableClass(item: iRobotOpenAiPromptEvaluation): boolean {
+    if (this.RobotOpenAiPromptEvaluationList[this.RobotOpenAiPromptEvaluationList.length - 1] == item
+      && item.tp == 0 && item.tn == 0 && item.fp == 0 && item.fn == 0) return true;
+    return false;
+  }
+
   public getCodeSetName(item: iRobotOpenAiPromptEvaluation): string {
     let html = item.reviewSetHtml;
     const start = html.indexOf("<h2>") + 4;
@@ -308,7 +318,9 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     cr.llmTrue = thisRow.llmClassification;
     cr.goldTrue = trueOrFalseHuman;
     cr.listType = "RobotOpenAIPromptEvaluationResults";
-    this.itemListService.FetchWithCrit(cr, "LLM eval list");
+    let suffix = (trueOrFalseHuman ? ", Gold True" : ", Gold False");
+
+    this.itemListService.FetchWithCrit(cr, "LLM eval list - " + thisRow.attribute_id_row_descriptor + suffix);
     this._eventEmitterService.criteriaMAGChange.emit("");
     // grab: attributeId, trueOrFalseHuman, and the LLM true / false from the first field in the row
     // then put this information through the system into the searchlist object.
@@ -372,11 +384,11 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     }
     return false;
   }
-  private readonly pattern = /^[A-Za-z0-9\-_ ]+$/;
+  //private readonly pattern = /^[A-Za-z0-9\-_ ]+$/;
   public get evaluationNameIsInvalid(): number {
     if (this.evaluationNameText.length == 0) return 1;
     else if (this.evaluationNameText.length < 4) return 2;
-    else if (this.pattern.test(this.evaluationNameText) == false) return 3;
+    //else if (this.pattern.test(this.evaluationNameText) == false) return 3;
     else if (this.SimulationNameAlreadyExists) return 4;
     return 0;
   }

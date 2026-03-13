@@ -457,11 +457,12 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
           else tn++;
         }
       }
-
+      let attName = data.find(f => f.attributeId == attributeId)?.attributeName;
+      if (!attName) attName = "[unknown]";
       // Row for LLM = True  
       result.push({
         attributeId,
-        attribute_id_row_descriptor: `Attribute ${attributeId} - LLM True`,
+        attribute_id_row_descriptor: `Code: ${attName} (${attributeId}) - LLM True`,
         llm_human_true: tp,
         llm_human_false: fp,
         llmClassification: true
@@ -470,7 +471,7 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
       // Row for LLM = False  
       result.push({
         attributeId,
-        attribute_id_row_descriptor: `Attribute ${attributeId} - LLM False`,
+        attribute_id_row_descriptor: `Attribute: ${attName} (${attributeId}) - LLM False`,
         llm_human_true: fn,
         llm_human_false: tn,
         llmClassification: false
