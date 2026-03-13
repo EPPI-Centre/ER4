@@ -47,6 +47,13 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     private _reviewSetsEditingService: ReviewSetsEditingService,
   ) { }
 
+  public get IsServiceBusy(): boolean {
+    if (this._reviewSetsEditingService.IsBusy
+      || this._robotsService.IsBusy
+      || this.reviewSetsService.IsBusy
+      || this.reviewInfoService.IsBusy) return true;
+    return false;
+  }
   @Output() PleaseCloseMe = new EventEmitter();
 
   public selectedCodeSet: ReviewSet = new ReviewSet();
@@ -84,7 +91,6 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     if (this._robotsService.RobotsList.length == 0) this._robotsService.GetRobotsList();
     this.refreshRobotOpenAiPromptEvaluationList();
   }
-
   DropdownSelectCodingToolPromptEvaluation() {
     //this.BulkDeleteCodingCommand = this.GetNewBulkDeleteCodingCommand();
     //this.showMessage = false;
@@ -221,6 +227,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   public currentSelectedEvaluationNCodes: string = '';
   public currentSelectedEvaluationNRecords: string = '';
   public currentSelectedEvaluationNIterations: number = 0;
+  public currentSelectedEvaluationId: number = 0;
 
   
   public evaluationNameText: string = '';
@@ -276,6 +283,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     this.currentSelectedEvaluationNCodes = item.nCodes.toString();
     this.currentSelectedEvaluationNRecords = item.nRecords.toString();
     this.currentSelectedEvaluationNIterations = item.nIterations;
+    this.currentSelectedEvaluationId = item.openAiPromptEvaluationId;
     this._robotsService.FetchRobotOpenAiPromptEvaluationDataList(item);
   }
 
