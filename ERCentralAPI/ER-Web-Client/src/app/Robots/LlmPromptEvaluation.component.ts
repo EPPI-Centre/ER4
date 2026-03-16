@@ -47,6 +47,13 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     private _reviewSetsEditingService: ReviewSetsEditingService,
   ) { }
 
+  public get IsServiceBusy(): boolean {
+    if (this._reviewSetsEditingService.IsBusy
+      || this._robotsService.IsBusy
+      || this.reviewSetsService.IsBusy
+      || this.reviewInfoService.IsBusy) return true;
+    return false;
+  }
   @Output() PleaseCloseMe = new EventEmitter();
 
   public selectedCodeSet: ReviewSet = new ReviewSet();
@@ -62,7 +69,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   public NCodesInSelectedGoldStandard: number = 0;
 
   public CreateTrainTestSplitsSection: boolean = false;
-
+  public ShowQueue: boolean = false;
 
 
   public get AllCodeSets(): ReviewSet[] {
@@ -73,14 +80,17 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     if (DateSt == "0001-01-01T00:00:00") return "None";
     return Helpers.FormatDate2(DateSt);
   }
+  
 
   @ViewChild('evaluationNameInput') evaluationNameInput!: NgModel;
   ngOnInit() {
+    if (this.reviewInfoService.ReviewInfo.reviewId != this.ReviewerIdentityServ.reviewerIdentity.reviewId) {
+      this.reviewInfoService.Fetch();
+    }
     if (this.reviewSetsService.ReviewSets.length == 0) this.reviewSetsService.GetReviewSets();
     if (this._robotsService.RobotsList.length == 0) this._robotsService.GetRobotsList();
     this.refreshRobotOpenAiPromptEvaluationList();
   }
-
   DropdownSelectCodingToolPromptEvaluation() {
     //this.BulkDeleteCodingCommand = this.GetNewBulkDeleteCodingCommand();
     //this.showMessage = false;
@@ -101,7 +111,12 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   public get ShowPanel(): string {
     return this._ShowPanel
   }
-
+  public get BatchSelectionState(): number {
+    //0 if all is good, 1 if code selected has zero items, 2 if actual batch size is too big
+    if (this.NCodesInSelectedGoldStandard == 0) return 1;
+    else if (this.NCodesInSelectedGoldStandard * this.n_iterations > this.maxNToGoToLLM) return 2;
+    return 0;
+  }
 
   public get nodeSelected(): singleNode | null | undefined {
     return this._eventEmitterService.nodeSelected;
@@ -212,6 +227,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   public currentSelectedEvaluationNCodes: string = '';
   public currentSelectedEvaluationNRecords: string = '';
   public currentSelectedEvaluationNIterations: number = 0;
+  public currentSelectedEvaluationId: number = 0;
 
   
   public evaluationNameText: string = '';
@@ -267,6 +283,7 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     this.currentSelectedEvaluationNCodes = item.nCodes.toString();
     this.currentSelectedEvaluationNRecords = item.nRecords.toString();
     this.currentSelectedEvaluationNIterations = item.nIterations;
+    this.currentSelectedEvaluationId = item.openAiPromptEvaluationId;
     this._robotsService.FetchRobotOpenAiPromptEvaluationDataList(item);
   }
 
@@ -284,7 +301,14 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   }
   getAttributeName(attributeId: number): string {
     return this._robotsService.getAttributeName(this._robotsService.attributeLookup, attributeId);
-  }  
+  }
+
+  public EvalDisableClass(item: iRobotOpenAiPromptEvaluation): boolean {
+    if (this.RobotOpenAiPromptEvaluationList[this.RobotOpenAiPromptEvaluationList.length - 1] == item
+      && item.tp == 0 && item.tn == 0 && item.fp == 0 && item.fn == 0) return true;
+    return false;
+  }
+
   public getCodeSetName(item: iRobotOpenAiPromptEvaluation): string {
     let html = item.reviewSetHtml;
     const start = html.indexOf("<h2>") + 4;
@@ -302,7 +326,9 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     cr.llmTrue = thisRow.llmClassification;
     cr.goldTrue = trueOrFalseHuman;
     cr.listType = "RobotOpenAIPromptEvaluationResults";
-    this.itemListService.FetchWithCrit(cr, "LLM eval list");
+    let suffix = (trueOrFalseHuman ? ", Gold True" : ", Gold False");
+
+    this.itemListService.FetchWithCrit(cr, "LLM eval list - " + thisRow.attribute_id_row_descriptor + suffix);
     this._eventEmitterService.criteriaMAGChange.emit("");
     // grab: attributeId, trueOrFalseHuman, and the LLM true / false from the first field in the row
     // then put this information through the system into the searchlist object.
@@ -366,23 +392,24 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     }
     return false;
   }
-  private readonly pattern = /^[A-Za-z0-9\-_ ]+$/;
+  //private readonly pattern = /^[A-Za-z0-9\-_ ]+$/;
   public get evaluationNameIsInvalid(): number {
     if (this.evaluationNameText.length == 0) return 1;
     else if (this.evaluationNameText.length < 4) return 2;
-    else if (this.pattern.test(this.evaluationNameText) == false) return 3;
+    //else if (this.pattern.test(this.evaluationNameText) == false) return 3;
     else if (this.SimulationNameAlreadyExists) return 4;
     return 0;
   }
   public get CanRunOpenAIrobot(): boolean {
     if (!this.HasWriteRights) return false;
     if (!this.reviewInfoService.ReviewInfo.canUseRobots) return false;
-    if (this.selectedCodeSet == null) return false;
+    if (this.selectedCodeSet == null || this.selectedCodeSet.set_id < 1) return false;
     if (this.SelectedGoldStandardEvaluationAttribute == null) return false;
     if (this.RobotSettings.robotName == "") return false;
     if (this.evaluationNameIsInvalid) return false;
     if (this.NCodesInSelectedGoldStandard == 0) return false;
     if (this.NCodesInSelectedGoldStandard * this.n_iterations > this.maxNToGoToLLM) return false;
+    if (this.selectedCodeSet.HasChildrenWithPrompt == false) return false;
     return true;
   }
 
@@ -414,9 +441,6 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
       )
       .catch(() => { });
   }
-  public RunRobotOpenAICommandEvaluation() {
-    this.ActuallyRunRobotOpenAICommandEvaluation();
-  }
 
   public async ActuallyRunRobotOpenAICommandEvaluation() {
     let rname = this.RobotSettings.robotName;
@@ -427,11 +451,13 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
       evaluationName: this.evaluationNameText,
       robotName: this.RobotSettings.robotName,
       reviewSetId: this.selectedCodeSet.reviewSetId,
-      reviewSetHtml: this.selectedCodeSet.printHtml(false, false, true),
+      reviewSetHtml: this.selectedCodeSet.printHtml(true, false, true),
+      nCodes: this.selectedCodeSet.NumberOfChildren,
       goldStandardAttributeId: (this.SelectedGoldStandardEvaluationAttribute as SetAttribute).attribute_id,
       useFullTextDocument: this.usePdfs,
       returnMessage: "",
-      nIterations: this.n_iterations
+      nIterations: this.n_iterations,
+      attributeIdsWithPrompts: this.selectedCodeSet.AllChildrentWithPrompts.map(m => m.attribute_id.toString()).join()
     };
     this._robotsService.EnqueueRobotOpenAIBatchJobEvaluationCommand(data).then(
       (res: boolean) => {
@@ -443,8 +469,8 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
             type: { style: "info", icon: true },
             hideAfter: 4000
           });
-          this._robotsService.GetCurrentQueue();
-          //this.ShowQueue = true;
+          this._robotsService.GetCurrentQueue().then(()=> this.refreshRobotOpenAiPromptEvaluationList());
+          this.ShowQueue = true;
         }
       }
 

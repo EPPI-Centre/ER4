@@ -425,6 +425,10 @@ namespace BusinessLibrary.BusinessClasses
                             done = index;
                         }
                     }
+                    if (RT.OpenAiPromptEvaluationId > 0)
+                    {//need to remove records we might have saved while iterating across the item that was being processed
+                        PromptEvaluationDataDeleteItemRecords(RT, RT.ItemIDsList[done]);
+                    }
                 }
                 int ApiLatency = 0; DateTime start;
                 int ApiUnresponsiveRetries = 0;
@@ -664,6 +668,27 @@ namespace BusinessLibrary.BusinessClasses
         {
             Debug.WriteLine(message);
             Logger.LogInformation(message);
+        }
+        private void PromptEvaluationDataDeleteItemRecords(RobotOpenAiTaskReadOnly RT, long ItemId)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                {
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand("st_RobotOpenAIPromptEvaluationDataDeleteItemRecords", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@OPENAI_PROMPT_EVALUATION_ID", RT.OpenAiPromptEvaluationId));
+                        command.Parameters.Add(new SqlParameter("@ITEM_ID", ItemId));
+                        command.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                LogRobotJobException(RT, "RobotOpenAiHostedService PromptEvaluationDataDeleteItemRecords error", false, e, ItemId);
+            }
         }
     }
 }

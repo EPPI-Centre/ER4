@@ -142,13 +142,14 @@ import { RobotBatchJobs } from './Robots/robotBatchJobs.component';
 import { RobotInvestigate } from './Robots/robotInvestigate.component';
 import { CheckScreening } from './Search/CheckScreening.component';
 import { PriorityScreeningSim } from './Search/PriorityScreeningSim.component';
-import { LlmPromptEvaluation } from './Search/LlmPromptEvaluation.component';
+import { LlmPromptEvaluation } from './Robots/LlmPromptEvaluation.component';
 import { RobotJobsLog } from './Robots/RobotJobsLog.component';
 import { JobsContainer } from './Review/JobsContainer.component';
 import { ReviewJobs } from './Review/reviewJobs.component';
 import { EditorModule } from '@progress/kendo-angular-editor';
 import { EditTrainingListComp } from './WorkAllocations/EditTrainingList.component';
 import { SearchFromOpenAlexImport } from './Search/SearchFromOpenAlexImport.component';
+import { robotJobsQueue } from './Robots/robotJobsQueue.component';
 
 
 
@@ -299,6 +300,7 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
     RobotInvestigate,
     PriorityScreeningSim,
     LlmPromptEvaluation,
+    robotJobsQueue,
     CheckScreening,
     RobotJobsLog,
     JobsContainer,

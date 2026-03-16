@@ -281,13 +281,13 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
 
   public FetchRobotOpenAiPromptEvaluationList() {
     this._BusyMethods.push("FetchRobotOpenAiPromptEvaluationList");
-    lastValueFrom(this._httpC.get<iRobotOpenAiPromptEvaluation[]>(this._baseUrl + 'api/Robots/FetchRobotOpenAiPromptEvaluationList'))
+    return lastValueFrom(this._httpC.get<iRobotOpenAiPromptEvaluation[]>(this._baseUrl + 'api/Robots/FetchRobotOpenAiPromptEvaluationList'))
       .then(result => {
         this.RemoveBusy("FetchRobotOpenAiPromptEvaluationList");
         if (result != null) {
           this.RobotOpenAiPromptEvaluationList = result;
 
-          console.log('this.FetchRobotOpenAiPromptEvaluationList', this.RobotOpenAiPromptEvaluationList);
+          //console.log('this.FetchRobotOpenAiPromptEvaluationList', this.RobotOpenAiPromptEvaluationList);
         }
       },
         error => {
@@ -383,6 +383,8 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
     this.RobotInvestigateResults = [];
     this.RobotSetting = this.DefaultRobotSetting;
     this.ShowSettingsInBatchPanel = true;
+    this._currentRobotOpenAiPromptEvaluationDataList = [];
+    this._RobotOpenAiPromptEvaluationList = [];
   }
   ngOnDestroy() {
     this.Clear();
@@ -415,12 +417,12 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
   }
 
   // Separate gold standard (human) and LLM data  
-  const goldStandardData = data.filter(d => d.goldStandard);
+  const goldStandardData = data.filter(d => d.goldStandard && d.itemId > 0);
   const llmData = data.filter(d => !d.goldStandard);
 
   // Get unique values  
   const attributeIds = [...new Set(data.map(d => d.attributeId))].sort((a, b) => a - b);
-  const itemIds = [...new Set(data.map(d => d.itemId))].sort((a, b) => a - b);
+  const itemIds = [...new Set(data.filter(f=> f.itemId > 0).map(d => d.itemId))].sort((a, b) => a - b);
   const iterations = [...new Set(llmData.map(d => d.iteration))].sort((a, b) => a - b);
 
   if (iterations.length === 0) {
@@ -455,11 +457,12 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
           else tn++;
         }
       }
-
+      let attName = data.find(f => f.attributeId == attributeId)?.attributeName;
+      if (!attName) attName = "[unknown]";
       // Row for LLM = True  
       result.push({
         attributeId,
-        attribute_id_row_descriptor: `Attribute ${attributeId} - LLM True`,
+        attribute_id_row_descriptor: `Code: ${attName} (${attributeId}) - LLM True`,
         llm_human_true: tp,
         llm_human_false: fp,
         llmClassification: true
@@ -468,7 +471,7 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
       // Row for LLM = False  
       result.push({
         attributeId,
-        attribute_id_row_descriptor: `Attribute ${attributeId} - LLM False`,
+        attribute_id_row_descriptor: `Attribute: ${attName} (${attributeId}) - LLM False`,
         llm_human_true: fn,
         llm_human_false: tn,
         llmClassification: false
@@ -590,6 +593,8 @@ export interface iRobotOpenAiQueueBatchJobEvaluationCommand {
   useFullTextDocument: boolean;
   returnMessage: string;
   nIterations: number;
+  nCodes: number;
+  attributeIdsWithPrompts: string;
 }
 
 export interface iRobotSettings {

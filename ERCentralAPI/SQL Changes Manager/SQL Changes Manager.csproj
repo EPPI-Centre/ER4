@@ -404,6 +404,9 @@
     <None Update="SQLScripts\776.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="SQLScripts\778.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="SQLScripts\780.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
