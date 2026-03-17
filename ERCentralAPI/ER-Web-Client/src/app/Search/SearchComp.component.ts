@@ -66,7 +66,6 @@ export class SearchComp implements OnInit, OnDestroy {
       this.clearSub = this._eventEmitter.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); })
       this._searchService.Fetch().then(() => {
         if (this._sourcesService.ReviewSources.length == 0 && !this._sourcesService.IsBusy) this._sourcesService.FetchSources();
-        if (this._robotsService.RobotOpenAiPromptEvaluationList.length == 0) this._robotsService.FetchRobotOpenAiPromptEvaluationList();
       });
     }
   }

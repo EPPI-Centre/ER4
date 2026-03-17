@@ -835,6 +835,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
       this.configurablereportServ.FetchReports();
   }
 
+  private CheckForLLMEvaluations() {
+    if (this.reviewInfoService.ReviewInfo.canUseRobots == false) {//no need to check if there is credit to use!
+      if (this.robotsService.RobotOpenAiPromptEvaluationList.length == 0) this.robotsService.FetchRobotOpenAiPromptEvaluationList();
+    }
+  }
+
   public RunConfigurableReports2() {
     this.RunReportsShow2 = !this.RunReportsShow2;
   }
@@ -1231,7 +1237,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     //else console.log("work allocs comp is undef :-(");
     if (this.ItemListService.ListCriteria && this.ItemListService.ListCriteria.listType == "")
       this.IncludedItemsListNoTabChange();
-    setTimeout(() => { this.GetReports(true); }, 1000);//always get reports list, but we can wait 1s before doing so...
+    setTimeout(() => {
+      this.GetReports(true);
+      this.CheckForLLMEvaluations();
+    }, 1000);//always get reports list, but we can wait 1s before doing so...
 
   }
   //GetStatsFromSubscription() {
