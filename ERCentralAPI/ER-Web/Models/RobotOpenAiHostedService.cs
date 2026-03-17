@@ -1,26 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using BusinessLibrary.Data;
 using Csla;
-using Csla.Security;
-using Csla.Core;
-using Csla.Serialization;
-using Csla.Silverlight;
-//using Csla.Validation;
-using System.ComponentModel;
-using Csla.DataPortalClient;
-using System.Threading;
-using System.Diagnostics;
-
-
-using System.Data.SqlClient;
-using BusinessLibrary.Data;
-using BusinessLibrary.Security;
-using Microsoft.Azure.Search.Models;
-using System.Reflection;
 using EPPIDataServices.Helpers;
 using System.Data;
+using System.Data.SqlClient;
+using System.Diagnostics;
 
 
 namespace BusinessLibrary.BusinessClasses
@@ -433,6 +416,7 @@ namespace BusinessLibrary.BusinessClasses
                 int ApiLatency = 0; DateTime start;
                 int ApiUnresponsiveRetries = 0;
                 bool isLastinBatch = false;
+                bool NeedToSaveEvalResults = RT.OpenAiPromptEvaluationId > 0;
                 while (done < todo && !ct.IsCancellationRequested)
                 {
                     if (CurrentDelayInMs > DefaultDelayInMs + delayIncrement && DelayedCallsWithoutError >= 10)
@@ -518,6 +502,10 @@ namespace BusinessLibrary.BusinessClasses
                         LogInfo("(+)Incrementing CurrentDelayInMs at Item = " + RT.ItemIDsList[done].ToString());
                         CurrentDelayInMs += delayIncrement;
                         DelayedCallsWithoutError = 0;
+                        if (NeedToSaveEvalResults)
+                        {//need to remove records we might have saved while iterating across the item that was being processed
+                            PromptEvaluationDataDeleteItemRecords(RT, RT.ItemIDsList[done]);
+                        }
                     }
                     else if (cmd.ReturnMessage == "Cancelled")
                     {
@@ -527,22 +515,42 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         Exception e = new Exception("Coding tool supplied contains no valid prompts");
                         LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork error - no prompts", true, e, 0);
+                        if (NeedToSaveEvalResults)
+                        {
+                            NeedToSaveEvalResults = false;
+                            MarkEvaluationAtEndOfRun(RT, "Failed");
+                        }
                         break;
                     }
                     else if (cmd.ReturnMessage.Contains("There are too many prompts, leaving no room for the data to classify!"))
                     {
                         Exception e = new Exception("There are too many prompts, leaving no room for the data to classify!");
                         LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork error - too many prompts", true, e, 0);
+                        if (NeedToSaveEvalResults)
+                        {
+                            NeedToSaveEvalResults = false;
+                            MarkEvaluationAtEndOfRun(RT, "Failed");
+                        }
                         break;
                     }
                     else if (cmd.ReturnMessage.StartsWith("Error.") && cmd.ReturnMessage.Contains("An item with the same key has already been added. Key:"))
                     {//this happens if a RAG label appears twice in the coding tool - I.e. exactly the same label, as in when "**RefToRegularPrompt**details" (the whole thing) is repeated exactly.
+                        if (NeedToSaveEvalResults)
+                        {
+                            NeedToSaveEvalResults = false;
+                            MarkEvaluationAtEndOfRun(RT, "Failed");
+                        }
                         break; //an exception is caught inside RobotOpenAICommand and logged therein, so we just stop processing this whole batch.
                     }
                     else if (cmd.ReturnMessage == "Error: There is no credit (left) to use.")
                     {//for now (June 2025) if credit has been consumed during a batch, the batch ends 
                         Exception e = new Exception("There is no credit (left) to use.");
                         LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork error - no credit", true, e, RT.ItemIDsList[done]);
+                        if (NeedToSaveEvalResults)
+                        {
+                            NeedToSaveEvalResults = false;
+                            MarkEvaluationAtEndOfRun(RT, "Failed");
+                        }
                         break;
                     }
                     else if (cmd.ReturnMessage == "Error: Cancelling RobotOpenAICommand, timeout expired.")
@@ -551,9 +559,19 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             Exception e = new Exception("Call to robot API timed out 5 consequtive times. Aborting the batch.");
                             LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork error - 5 timeouts", true, e, RT.ItemIDsList[done]);
+                            if (NeedToSaveEvalResults)
+                            {
+                                PromptEvaluationDataDeleteItemRecords(RT, RT.ItemIDsList[done]);
+                                NeedToSaveEvalResults = false;
+                                MarkEvaluationAtEndOfRun(RT, "Failed");
+                            }
                             break;
                         }
                         ApiUnresponsiveRetries++;//increase the count of failures of this type
+                        if (NeedToSaveEvalResults)
+                        {//need to remove records we might have saved while iterating across the item that was being processed
+                            PromptEvaluationDataDeleteItemRecords(RT, RT.ItemIDsList[done]);
+                        }
                         //we do not alter DelayedCallsWithoutError: don't know if we're currently counting DelayedCalls, but we sure did have an error
                         //we do not alter "done" counter, so that we will retry to call the API using the same (current) Item (for up to 5 times)
                     }
@@ -609,9 +627,13 @@ namespace BusinessLibrary.BusinessClasses
                         }
                     }
                 }
+                else if (NeedToSaveEvalResults)
+                {
+                    MarkEvaluationAtEndOfRun(RT, "Finished");
+                }
                 LogInfo("Batch finished. CurrentDelayInMs = " + CurrentDelayInMs.ToString()
-                    + "; DefaultDelayInMs = " + DefaultDelayInMs.ToString()
-                    + "; DelayedCallsWithoutError = " + DelayedCallsWithoutError.ToString());
+                        + "; DefaultDelayInMs = " + DefaultDelayInMs.ToString()
+                        + "; DelayedCallsWithoutError = " + DelayedCallsWithoutError.ToString());
                 return "Done";
             }
             catch (Exception e)
@@ -668,6 +690,27 @@ namespace BusinessLibrary.BusinessClasses
         {
             Debug.WriteLine(message);
             Logger.LogInformation(message);
+        }
+        private void MarkEvaluationAtEndOfRun(RobotOpenAiTaskReadOnly RT, string status)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                {
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand("st_UpdateOpenAiPromptEvaluation", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@OPENAI_PROMPT_EVALUATION_ID", RT.OpenAiPromptEvaluationId));
+                        command.Parameters.Add(new SqlParameter("@STATUS", status));
+                        command.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                LogRobotJobException(RT, "RobotOpenAiHostedService PromptEvaluationDataDeleteItemRecords error", false, e, 0);
+            }
         }
         private void PromptEvaluationDataDeleteItemRecords(RobotOpenAiTaskReadOnly RT, long ItemId)
         {

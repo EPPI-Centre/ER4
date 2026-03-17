@@ -375,16 +375,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@OUTPUT_TOKENS_COUNT", _outputTokens));
                     command.ExecuteNonQuery();
                 }
-                if ((status == "Finished" || status == "Failed") && _openai_prompt_evaluation_id > 0)
-                {
-                    using (SqlCommand command = new SqlCommand("st_UpdateOpenAiPromptEvaluation", connection))
-                    {
-                        command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@OPENAI_PROMPT_EVALUATION_ID", _openai_prompt_evaluation_id));
-                        command.Parameters.Add(new SqlParameter("@STATUS", status));
-                        command.ExecuteNonQuery();
-                    }
-                }
+                
             }
         }
 
@@ -773,6 +764,11 @@ namespace BusinessLibrary.BusinessClasses
                     ErrorLogSink("Cancelling RobotOpenAICommand after an iteration.");
                     return false;//code calling this will notice the app-cancellation request
                 }
+                else if (_message == "Error: Cancelling RobotOpenAICommand, timeout expired."
+                    || _message == "Error: Too Many Requests")
+                {//we break the loop, the batch-execution service will detect and react to this
+                    break;
+                }
             }// END ITERATIONS
             return result;
         } 
@@ -863,7 +859,10 @@ namespace BusinessLibrary.BusinessClasses
             HttpResponseMessage response = null;
             try
             {
+                //client.Timeout = new TimeSpan(0, 0, 0, 0,5);//giving only 5ms to the api to respond, for testing API call timeouts/fails
                 response = await client.PostAsync(endpoint, content, CancelToken);
+                //Random r = new Random();//to generate execptions on command, for testing
+                //if (r.Next() > 0.0000001) throw new Exception("done manually for testing purpose...", new Exception("this is the inner exception"));
             }
             catch (OperationCanceledException e)
             {// this can happen if the CancelToken requests to cancel, or if the API call didn't get an answer within the timeout:

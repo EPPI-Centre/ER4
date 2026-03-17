@@ -156,7 +156,9 @@
               <tbody>
                 <tr *ngFor="let item of RobotOpenAiPromptEvaluationList" [ngClass]="{'disableThisAndChildren': EvalDisableClass(item), 'font-weight-bold': item.openAiPromptEvaluationId == currentSelectedEvaluationId}">
                   <td class="px-1 py-0">
-                    <button (click)="showEvaluation(item)" class="btn btn-link px-1 py-0">{{item.title}}</button>
+                    <button (click)="showEvaluation(item)" class="btn btn-link px-1 py-0" [disabled]="item.tp + item.tn + item.fp + item.fn == -4">
+                      {{item.title}}
+                    </button>
                   </td>
                   <td class="px-1 py-0">
                     {{item.contactName}}
