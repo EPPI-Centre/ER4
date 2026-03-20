@@ -448,6 +448,29 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [HttpPost("[action]")]
+        public IActionResult ItemAttributeWithThisCodeCountCommand([FromBody] AttributeOrSetDeleteCheckCommandJSON MVCcmd)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ItemAttributeWithThisCodeCountCommand cmd = new ItemAttributeWithThisCodeCountCommand(MVCcmd.attributeSetId, MVCcmd.setId);
+                    DataPortal<ItemAttributeWithThisCodeCountCommand> dp = new DataPortal<ItemAttributeWithThisCodeCountCommand>();
+                    cmd = dp.Execute(cmd);
+                    return Ok(cmd);
+                }
+                else return Forbid();
+
+            }
+            catch (Exception e)
+            {
+                string json = JsonConvert.SerializeObject(MVCcmd);
+                _logger.LogError(e, "Dataportal Error in ItemAttributeWithThisCodeCountCommand: {0}", json);
+                return StatusCode(500, e.Message);
+            }
+        }
     }
 
     public class MVCItemAttributeSaveCommand
@@ -604,4 +627,5 @@ namespace ERxWebClient2.Controllers
         }
 
     }
+   
 }
