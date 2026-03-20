@@ -802,6 +802,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_DESC", ReadProperty(AttributeDescriptionProperty)));
                     command.Parameters.Add(new SqlParameter("@Ext_URL", ReadProperty(ExtURLProperty)));
                     command.Parameters.Add(new SqlParameter("@Ext_Type", ReadProperty(ExtTypeProperty)));
+                    command.Parameters.Add(new SqlParameter("IS_EXCLUSIVE", ReadProperty(IsExclusiveProperty)));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ReadProperty(ContactIdProperty)));
                     command.Parameters.Add(new SqlParameter("@ORIGINAL_ATTRIBUTE_ID", OriginalAttributeID));
                     if (OldestKnownId > 0)command.Parameters.Add(new SqlParameter("@OLDEST_KNOWN_ATTRIBUTE_ID", OldestKnownId));
@@ -834,6 +835,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_DESC", NewAttributeSet.ReadProperty(AttributeDescriptionProperty)));
                     command.Parameters.Add(new SqlParameter("@Ext_URL", NewAttributeSet.ReadProperty(ExtURLProperty)));
                     command.Parameters.Add(new SqlParameter("@Ext_Type", NewAttributeSet.ReadProperty(ExtTypeProperty)));
+                    command.Parameters.Add(new SqlParameter("IS_EXCLUSIVE", NewAttributeSet.ReadProperty(IsExclusiveProperty)));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", NewAttributeSet.ReadProperty(ContactIdProperty)));
                     command.Parameters.Add(new SqlParameter("@ORIGINAL_ATTRIBUTE_ID", NewAttributeSet.OriginalAttributeID));
                     if (NewAttributeSet.OldestKnownId > 0) command.Parameters.Add(new SqlParameter("@OLDEST_KNOWN_ATTRIBUTE_ID", NewAttributeSet.OldestKnownId));

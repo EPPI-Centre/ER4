@@ -250,6 +250,7 @@ namespace ERxWebClient2.Controllers
                     newCode.OriginalAttributeID = data.originalAttributeID;
                     newCode.ParentAttributeId = data.parentAttributeId;
                     newCode.SetId = data.setId;
+                    newCode.IsExclusive = data.isExclusive;
                     newCode = newCode.Save();
                     return Ok(newCode);//will be used on client side!
                 }
@@ -523,6 +524,7 @@ namespace ERxWebClient2.Controllers
         public Int64 attributeId;
         public string extURL;
         public string extType;
+        public Boolean isExclusive;
     }
     public class ReviewSetCopyCommandJSON
     {

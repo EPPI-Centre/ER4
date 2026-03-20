@@ -71,16 +71,18 @@
         </div>
         <form *ngIf="ShowPanel !== 'MoveCode' && UpdatingCode" class="row" #EditCodeFrom="ngForm" (ngSubmit)="onSubmit()">
             <div class="col-12">
-                <div class="form-group">
-                    <label for="Codeset_Type">Code Type*</label>
-                    <select #EditCodeTypeSelect class="col-md-6 form-control"
-                            (change)="AttributeTypeChanged($event)" name="Code_Type"
-                            [(ngModel)]="UpdatingCode.attribute_type_id">
-                        <option *ngFor="let type of AllowedChildTypes" [value]="type.key" [selected]="UpdatingCode && type.key == UpdatingCode.attribute_type_id">
-                            {{type.value}}
-                        </option>
-                    </select>
-                </div>
+              <div class="form-group">
+                <label for="Codeset_Type">Code Type*</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <input *ngIf="UpdatingCode.isExclusive" type="checkbox" checked="checked" (click)="radioButtonEntryClicked($event)" name="radioButtonCB">&nbsp;
+                <label *ngIf="UpdatingCode.isExclusive" for="Codeset_TypeCollaborate">Radio-button code   (untick for normal code)</label>
+                <select #EditCodeTypeSelect class="col-md-6 form-control"
+                        (change)="AttributeTypeChanged($event)" name="Code_Type"
+                        [(ngModel)]="UpdatingCode.attribute_type_id">
+                  <option *ngFor="let type of AllowedChildTypes" [value]="type.key" [selected]="UpdatingCode && type.key == UpdatingCode.attribute_type_id">
+                    {{type.value}}
+                  </option>
+                </select>
+              </div>
             </div>
             <div class="form-group col-12">
                 <label for="source_Name">Code Name*</label>

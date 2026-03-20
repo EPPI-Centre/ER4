@@ -42,6 +42,16 @@ export class EditCodeComp implements OnInit, OnDestroy {
     this._ShowPanel = "MoveCode";
   }
 
+  public radioButtonEntry: boolean = true;
+
+  public radioButtonEntryClicked(event: Event) {
+    if (this.radioButtonEntry == true)
+      this.radioButtonEntry = false;
+    else 
+      this.radioButtonEntry = true;
+  }
+
+
   ErrorMessage4CodeMove: string = "";
   //public get UpdatingCode2(): SetAttribute | null {
   //    console.log("UpdatingCode2");
