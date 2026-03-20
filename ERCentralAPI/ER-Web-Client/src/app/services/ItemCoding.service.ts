@@ -11,6 +11,7 @@ import { ItemDocsService } from './itemdocs.service';
 import { Outcome, OutcomeItemList, OutcomeItemAttributesList, OutcomeItemAttribute } from './outcomes.service';
 import { EventEmitterService } from './EventEmitter.service';
 import { ConfigService } from './config.service';
+import { AttributeOrSetDeleteCheckCommandJSON } from './ReviewSetsEditing.service';
 
 @Injectable({
   providedIn: 'root',
@@ -440,7 +441,7 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
       return;
     }
     let body = JSON.stringify({ Value: existing.itemAttributePDFId });
-    this._httpC.post<number>(this._baseUrl + "api/ItemSetList/DeletePDFCodingPage",
+     this._httpC.post<number>(this._baseUrl + "api/ItemSetList/DeletePDFCodingPage",
       body).subscribe(result => {
         //console.log("DeleteItemAttPDFCodingPage", result, this._BusyMethods);
         if (this._CurrentItemAttPDFCoding.ItemAttPDFCoding == null) {
@@ -1622,9 +1623,36 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
           return ErrResult;
         });
   }
+
+  public GetWithThisCodeCounts(attributeSetId: number, setId: number): Promise<iItemAttributeWithThisCodeCountCommand | boolean> {
+    this._BusyMethods.push("GetWithThisCodeCounts");
+    let body: AttributeOrSetDeleteCheckCommandJSON = {
+      attributeSetId: attributeSetId,
+      setId: setId
+    }
+    this._CurrentItemAttPDFCoding = new ItemAttPDFCoding();
+    return lastValueFrom(this._httpC.post<iItemAttributeWithThisCodeCountCommand>(this._baseUrl + 'api/ItemSetList/ItemAttributeWithThisCodeCountCommand',
+      body)).then(result => {
+        this.RemoveBusy("GetWithThisCodeCounts");
+        return result;
+        //this.ItemAttPDFCodingChanged.emit();
+      }, error => {
+        this.RemoveBusy("GetWithThisCodeCounts");
+        this.modalService.GenericError(error);
+        return false;
+      }).catch(caught => {
+        this.RemoveBusy("GetWithThisCodeCounts");
+        this.modalService.GenericError(caught);
+        return false;
+      });
+  }
 }
 
-
+export interface iItemAttributeWithThisCodeCountCommand {
+  numIncluded: number;
+  numExcluded: number;
+  numDeletedOrShadow: number;
+}
 export interface iItemSet {
   itemSetId: number;
   setId: number;

@@ -24,6 +24,7 @@ import { NgModel } from '@angular/forms';
 import { Helpers } from '../helpers/HelperMethods';
 import { Attribute, NONE_TYPE } from '@angular/compiler';
 import { Criteria, ItemListService } from '../services/ItemList.service';
+import { iItemAttributeWithThisCodeCountCommand, ItemCodingService } from '../services/ItemCoding.service';
 
 
 @Component({
@@ -40,11 +41,12 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     private notificationService: NotificationService,
     private modalService: ModalService,
     private _robotsService: RobotsService,
-    public reviewSetsService: ReviewSetsService,
+    private reviewSetsService: ReviewSetsService,
     private ReviewerIdentityServ: ReviewerIdentityService,
     private reviewInfoService: ReviewInfoService,
     private itemListService: ItemListService,
     private _reviewSetsEditingService: ReviewSetsEditingService,
+    private itemCodingService: ItemCodingService
   ) { }
 
   public get IsServiceBusy(): boolean {
@@ -129,20 +131,14 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
       this.SelectedGoldStandardEvaluationAttribute = node as SetAttribute;
       this._eventEmitterService.nodeSelected = undefined;
 
-
-
-      this._reviewSetsEditingService.AttributeOrSetDeleteCheck(0, node.attributeSetId).then(
+      this.itemCodingService.GetWithThisCodeCounts(node.attributeSetId, node.set_id).then(
           success => {
-            //alert("did it");
-
+          //alert("did it");
+          if (success == false) return;
+          const res = success as iItemAttributeWithThisCodeCountCommand;
           this._ShowPanel = 'NCodesInSelectedGoldStandardPanel';
-          this.NCodesInSelectedGoldStandard = success.numItems;          },
-          error => {
-            //alert("Sorry, creating the new codeset failed.");
-            //this.modalService.GenericErrorMessage(ErrMsg);
-          });
-      
-
+          this.NCodesInSelectedGoldStandard = res.numIncluded + res.numExcluded;
+        });
     }
     else {
       this.selectedModelDropDown1 = "";

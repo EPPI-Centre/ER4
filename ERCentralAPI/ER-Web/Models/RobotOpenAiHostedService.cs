@@ -325,6 +325,7 @@ namespace BusinessLibrary.BusinessClasses
         /// <returns></returns>
         private string DoGPTWork(RobotOpenAiTaskReadOnly RT, CancellationToken ct, List<MarkdownItemsPdfCommand.MiniPdfDoc> Pdfs)
         {
+            bool NeedToSaveEvalResults = RT.OpenAiPromptEvaluationId > 0;
             try
             {
                 //if (CreditWorker != null) throw new InvalidOperationException("fake for testing");
@@ -416,7 +417,6 @@ namespace BusinessLibrary.BusinessClasses
                 int ApiLatency = 0; DateTime start;
                 int ApiUnresponsiveRetries = 0;
                 bool isLastinBatch = false;
-                bool NeedToSaveEvalResults = RT.OpenAiPromptEvaluationId > 0;
                 while (done < todo && !ct.IsCancellationRequested)
                 {
                     if (CurrentDelayInMs > DefaultDelayInMs + delayIncrement && DelayedCallsWithoutError >= 10)
@@ -577,7 +577,7 @@ namespace BusinessLibrary.BusinessClasses
                     }
                     else
                     {
-                        //checks for non-batch-fatal failures, batch will continue execution, but we log per-item errors here
+                        //checks for non-batch-fatal failures, regular coding batch will continue execution, but we log per-item errors here
                         if (cmd.ReturnMessage == "Error: Null item")
                         {
                             Exception e = new Exception("Failed to retrieve this item");
@@ -638,6 +638,10 @@ namespace BusinessLibrary.BusinessClasses
             }
             catch (Exception e)
             {
+                if (NeedToSaveEvalResults)
+                {
+                    MarkEvaluationAtEndOfRun(RT, "Failed");
+                }
                 LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork error", true, e, 0);
                 return "Error";
             }
