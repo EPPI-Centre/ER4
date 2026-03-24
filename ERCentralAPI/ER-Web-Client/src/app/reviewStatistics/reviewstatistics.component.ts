@@ -151,12 +151,29 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     if (this.DetailsForSetId) return this._showAllCodingReportOptions;
     else return false;
   }
-  public set showAllCodingReportOptions(val: boolean) {
-    this._showAllCodingReportOptions = val;
+  public flipShowAllCodingReportOptions() {
+    this._showAllCodingReportOptions = !this._showAllCodingReportOptions;
+    if (this._showAllCodingReportOptions == false) this.AllCodingReportWithThisCode = false;
   }
   public get showAllCodingReportOptionsText(): string {
-    if (this._showAllCodingReportOptions) return "Close Excel Options";
+    if (this._showAllCodingReportOptions) return "Close Options";
     else return "More...";
+  }
+  public AllCodingReportWithThisCode: boolean = false;
+
+  public get CurrenltySelectedNode(): singleNode | null {
+    return this.reviewSetsService.selectedNode;
+  }
+  public get CurrenltySelectedNodeString(): string {
+    if (this.CurrenltySelectedNode == null) return "Please select a code from the right";
+    else if (this.CurrenltySelectedNode.nodeType == "ReviewSet") return "Invalid selection, please select a code";
+    else return this.CurrenltySelectedNode.name;
+  }
+  public get CanGetAllCodingReport(): boolean {
+    if (this.AllCodingReportWithThisCode == false) return true;
+    if (this.CurrenltySelectedNode == null) return false;
+    else if (this.CurrenltySelectedNode.nodeType == "ReviewSet") return false;
+    return true;
   }
 
   ngOnInit() {
@@ -230,7 +247,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
   }
   Clear() {
     this.PanelName = "";
-    this.showAllCodingReportOptions = false;
+    this._showAllCodingReportOptions = false;
     this.ClearBulkFields();
   }
   EditCodeSets() {
