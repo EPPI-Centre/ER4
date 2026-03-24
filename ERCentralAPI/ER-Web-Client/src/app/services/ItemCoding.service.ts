@@ -128,6 +128,7 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
     lastValueFrom(this._httpC.post<ItemAttributePDF[]>(this._baseUrl + 'api/ItemSetList/FetchPDFCoding',
       criteria)).then(result => {
         //console.log("FetchItemAttPDFCoding", result);
+        this.RemoveBusy("FetchItemAttPDFCoding");
         this._CurrentItemAttPDFCoding.Criteria = criteria;
         this._CurrentItemAttPDFCoding.ItemAttPDFCoding = result;
         this.ItemAttPDFCodingChanged.emit();

@@ -412,33 +412,33 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
   }  
 
   calculateConfusionMatrices(data: RobotOpenAiPromptEvaluationData[]): ConfusionMatrixRow[] {
-  if (!data || data.length === 0) {
-    return [];
-  }
+    if (!data || data.length === 0) {
+      return [];
+    }
 
-  // Separate gold standard (human) and LLM data  
-  const goldStandardData = data.filter(d => d.goldStandard && d.itemId > 0);
-  const llmData = data.filter(d => !d.goldStandard);
+    // Separate gold standard (human) and LLM data  
+    const goldStandardData = data.filter(d => d.goldStandard && d.itemId > 0);
+    const llmData = data.filter(d => !d.goldStandard);
 
-  // Get unique values  
-  const attributeIds = [...new Set(data.map(d => d.attributeId))].sort((a, b) => a - b);
-  const itemIds = [...new Set(data.filter(f=> f.itemId > 0).map(d => d.itemId))].sort((a, b) => a - b);
-  const iterations = [...new Set(llmData.map(d => d.iteration))].sort((a, b) => a - b);
+    // Get unique values  
+    const attributeIds = [...new Set(data.map(d => d.attributeId))].sort((a, b) => a - b);
+    const itemIds = [...new Set(data.filter(f => f.itemId > 0).map(d => d.itemId))].sort((a, b) => a - b);
+    const iterations = [...new Set(llmData.map(d => d.iteration))].sort((a, b) => a - b);
 
-  if (iterations.length === 0) {
-    return [];
-  }
+    if (iterations.length === 0) {
+      return [];
+    }
 
-  // Create sets for O(1) lookup  
-  // Gold standard: presence of record means human classified as POSITIVE  
-  const goldStandardSet = new Set<string>(
-    goldStandardData.map(d => `${d.itemId}-${d.attributeId}`)
-  );
+    // Create sets for O(1) lookup  
+    // Gold standard: presence of record means human classified as POSITIVE  
+    const goldStandardSet = new Set<string>(
+      goldStandardData.map(d => `${d.itemId}-${d.attributeId}`)
+    );
 
-  // LLM: presence of record means LLM classified as POSITIVE  
-  const llmSet = new Set<string>(
-    llmData.map(d => `${d.iteration}-${d.itemId}-${d.attributeId}`)
-  );
+    // LLM: presence of record means LLM classified as POSITIVE  
+    const llmSet = new Set<string>(
+      llmData.map(d => `${d.iteration}-${d.itemId}-${d.attributeId}`)
+    );
 
     const result: ConfusionMatrixRow[] = [];
 

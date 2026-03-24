@@ -2,7 +2,7 @@
   "profiles": {
     "ExportPDFs": {
       "commandName": "Project",
-      "commandLineArgs": "revid:431 exportbin excl"
+      "commandLineArgs": "revid:7 exportbin onlythiscode:1095 incl"
     }
   }
 }
