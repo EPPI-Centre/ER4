@@ -65,8 +65,15 @@ namespace BusinessLibrary.BusinessClasses
             {
                 Logger.LogException(ex, "RobotOpenAiHostedService Error, at marking failed jobs");
             }
-            await Task.Delay(1000);
             CancellationToken InternalToken = TokenSource.Token;
+            try
+            {
+                await Task.Delay(15000, InternalToken);
+            }
+            catch (Exception e)
+            {
+                Logger.LogException(e, "RobotOpenAiHostedService halting BEFORE main loop (in pre-loop Task.Delay)");
+            }
             while (!cancellationToken.IsCancellationRequested && !InternalToken.IsCancellationRequested)
             {
                 try
@@ -77,7 +84,7 @@ namespace BusinessLibrary.BusinessClasses
                         FetchAndStartNextCreditJob(InternalToken);
                     }
                 } 
-                catch (Exception e)
+                catch(Exception e)
                 {
                     Logger.LogException(e, "RobotOpenAiHostedService main loop error");
                 }
@@ -85,9 +92,9 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     await Task.Delay(30000, InternalToken);
                 }
-                catch
+                catch(Exception e)
                 {
-                    Logger.LogInformation("RobotOpenAiHostedService main loop halting in Task.Delay");
+                    Logger.LogException(e, "RobotOpenAiHostedService main loop halting in Task.Delay");
                 }
             }
             if (ApiKeyTasks.Count > 0) Task.WaitAll(ApiKeyTasks.ToArray());
@@ -610,7 +617,7 @@ namespace BusinessLibrary.BusinessClasses
                 //If the last item has been processed (done == todo) job has been marked as "Finished" by RobotOpenAICommand and we don't need to do anything
                 if (ct.IsCancellationRequested && done < todo)
                 {
-                    long ItemId = (done - 1 <= 0) ? 0 : RT.ItemIDsList[done - 1];//the last ID that was actually done
+                    long ItemId = RT.ItemIDsList[done];//the last ID that we sent out for processing
                     using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                     {
                         connection.Open();
@@ -626,6 +633,7 @@ namespace BusinessLibrary.BusinessClasses
                             command.ExecuteNonQuery();
                         }
                     }
+                    LogInfo("Marked job " + RT.RobotApiCallId.ToString() + " as Paused on Item " + ItemId.ToString());
                 }
                 else if (NeedToSaveEvalResults)
                 {

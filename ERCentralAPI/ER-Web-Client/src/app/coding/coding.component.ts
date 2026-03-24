@@ -381,7 +381,9 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     this.item = this.PriorityScreeningService.CurrentItem;
     //this.itemID = this.item.itemId;
     this.GetItemCoding();
+    if (this.tabstrip) this.SelectTab(0);
   }
+
   private GetItemCoding() {
     //console.log('sdjghklsdjghfjklh ' + this.itemID);
     this.ItemDocsService.FetchDocList(this.itemID);
