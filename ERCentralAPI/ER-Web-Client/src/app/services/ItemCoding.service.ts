@@ -44,6 +44,7 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
   @Output() DataChanged = new EventEmitter();
   @Output() ItemAttPDFCodingChanged = new EventEmitter();//used to build the PDFtron annotations on the fly
   @Output() ToggleLiveComparison = new EventEmitter();
+  @Output() PleaseDoCompleteUncompleteCoding: EventEmitter<singleNode> = new EventEmitter();
   private _ItemCodingList: ItemSet[] = [];
   //public itemID = new Subject<number>();
   private _CurrentItemAttPDFCoding: ItemAttPDFCoding = new ItemAttPDFCoding();
