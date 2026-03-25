@@ -280,34 +280,34 @@ namespace ERxWebClient2.Controllers
 		}
 
 		[HttpPost("[action]")]
-		public IActionResult FetchReportAllCoding([FromBody] SingleIntCriteria setId)
+		public IActionResult FetchReportAllCoding([FromBody] AttributeOrSetDeleteCheckCommandJSON crit)
 		{
 			try
 			{
 				if (!SetCSLAUser()) return Unauthorized();
-				ReportAllCodingCommand cmd = new ReportAllCodingCommand(setId.Value);
+				ReportAllCodingCommand cmd = new ReportAllCodingCommand(crit.setId, crit.attributeSetId);
 				cmd = DataPortal.Execute<ReportAllCodingCommand>(cmd);
 				return Json(cmd.Result);
 			}
 			catch (Exception e)
 			{
-				_logger.LogError(e, "Error with FetchReportAllCoding (setId={0})", setId.Value);
+				_logger.LogError(e, "Error with FetchReportAllCoding (setId={0}, attSetId={1})", crit.setId, crit.attributeSetId);
 				return StatusCode(500, e.Message);
 			}
 		}
         [HttpPost("[action]")]
-        public IActionResult FetchReportAllCodingData([FromBody] SingleIntCriteria setId)
+        public IActionResult FetchReportAllCodingData([FromBody] AttributeOrSetDeleteCheckCommandJSON crit)
         {
             try
             {
                 if (!SetCSLAUser()) return Unauthorized();
-                ReportAllCodingCommand cmd = new ReportAllCodingCommand(setId.Value, false);
+                ReportAllCodingCommand cmd = new ReportAllCodingCommand(crit.setId, crit.attributeSetId, false);
                 cmd = DataPortal.Execute<ReportAllCodingCommand>(cmd);
                 return Ok(cmd);
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error with FetchReportAllCodingData (setId={0})", setId.Value);
+                _logger.LogError(e, "Error with FetchReportAllCodingData (setId={0}, attSetId={1})", crit.setId, crit.attributeSetId);
                 return StatusCode(500, e.Message);
             }
         }
