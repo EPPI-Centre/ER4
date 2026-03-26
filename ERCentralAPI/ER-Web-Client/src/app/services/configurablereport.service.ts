@@ -6,6 +6,7 @@ import { EventEmitterService } from './EventEmitter.service';
 import { lastValueFrom, Subscription } from 'rxjs';
 import { ConfigService } from './config.service';
 import { iOutcome } from './outcomes.service';
+import { AttributeOrSetDeleteCheckCommandJSON } from './ReviewSetsEditing.service';
 
 @Injectable({
     providedIn: 'root',
@@ -133,9 +134,12 @@ export class ConfigurableReportService extends BusyAwareService {
 		);
 	}
 
-	FetchAllCodingReportBySet(setId: number): Promise<string> {
+	FetchAllCodingReportBySet(setId: number, attributeSetId: number = 0): Promise<string> {
 
-		let body = JSON.stringify({ Value: setId });
+    let body: AttributeOrSetDeleteCheckCommandJSON = {
+      attributeSetId: attributeSetId,
+      setId: setId
+    }
 		this._BusyMethods.push("FetchAllCodingReportBySet");
     return lastValueFrom(this._httpC.post<string>(this._baseUrl + 'api/ReportList/FetchReportAllCoding',
 			body
@@ -160,9 +164,12 @@ export class ConfigurableReportService extends BusyAwareService {
 			}
 		);
     }
-  FetchAllCodingReportDataBySet(setId: number): Promise<iReportAllCodingCommand | boolean> {
-
-    let body = JSON.stringify({ Value: setId });
+  FetchAllCodingReportDataBySet(setId: number, attributeSetId: number = 0): Promise<iReportAllCodingCommand | boolean> {
+    let body: AttributeOrSetDeleteCheckCommandJSON = {
+      attributeSetId: attributeSetId,
+      setId: setId
+    }
+    
     this._BusyMethods.push("FetchReportAllCodingData");
     return lastValueFrom(this._httpC.post<iReportAllCodingCommand>(this._baseUrl + 'api/ReportList/FetchReportAllCodingData',
       body

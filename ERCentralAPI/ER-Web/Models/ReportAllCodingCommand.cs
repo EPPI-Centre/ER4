@@ -28,19 +28,22 @@ namespace BusinessLibrary.BusinessClasses
         public ReportAllCodingCommand() { _result = ""; }
 
         private int _setId;
+        private long _attributeSetId;
         private string _result;
         private bool _buildReport = true;
 
 
-        public ReportAllCodingCommand(int setId)
+        public ReportAllCodingCommand(int setId, long attributeSetId)
         {
             _result = "";
             _setId = setId;
+            _attributeSetId = attributeSetId;
         }
-        public ReportAllCodingCommand(int setId, bool buildReport)
+        public ReportAllCodingCommand(int setId, long attributeSetId, bool buildReport)
         {
             _result = "";
             _setId = setId;
+            _attributeSetId = attributeSetId;
             _buildReport = buildReport;
         }
         public string Result
@@ -54,12 +57,14 @@ namespace BusinessLibrary.BusinessClasses
             base.OnGetState(info, mode);
             info.AddValue("_result", _result);
             info.AddValue("_setId", _setId);
+            info.AddValue("_attributeSetId", _attributeSetId); 
             info.AddValue("_buildReport", _buildReport);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
             _result = info.GetValue<string>("_result");
             _setId = info.GetValue<int>("_setId"); ;
+            _attributeSetId = info.GetValue<int>("_attributeSetId"); ;
             _buildReport = info.GetValue<bool>("_buildReport"); 
         }
 
@@ -79,6 +84,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@ReviewId", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@SetId", _setId));
+                    command.Parameters.Add(new SqlParameter("@AttributeSetId", _attributeSetId));
                     command.CommandTimeout = 60;//we might have to retreive hundred of thousands of rows...
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
@@ -144,7 +150,7 @@ namespace BusinessLibrary.BusinessClasses
                         while (reader.Read())
                         {
                             HasOutcomes = true;
-                            long tmpId = reader.GetInt64("ItemId");
+                            long tmpId = reader.GetInt64("ITEM_ID");
                             int tmpContactId = reader.GetInt32("ContactId");
 
                             int miIndex = Items.FindIndex(f => f.ItemId == tmpId);

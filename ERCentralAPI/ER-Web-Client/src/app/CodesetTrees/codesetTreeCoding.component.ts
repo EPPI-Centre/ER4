@@ -63,6 +63,8 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
   @Input() Context: string = "CodingFull";
   @Input() HotKeysOn: boolean = false;
   subRedrawTree: Subscription | null = null;
+  subDoCompleteUncomplete: Subscription | null = null;
+  subCancelCompleteUncomplete: Subscription | null = null;
   @Output() RemoveCodeModalOpened = new EventEmitter<void>();
   @Output() RemoveCodeModalClosed = new EventEmitter<void>();
   @Output() PleaseOpenOutcomesPanel = new EventEmitter<ItemSet>();//emits the ItemSetId where outcomesList is
@@ -100,9 +102,12 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
     }
     else {
       //if (this.ReviewInfoService.Contacts.length == 0) this.ReviewInfoService.FetchReviewMembers();
-      this.ItemCodingService.DataChanged.subscribe(() => { this.CancelCompleteUncomplete(); });
+      this.subCancelCompleteUncomplete = this.ItemCodingService.DataChanged.subscribe(() => { this.CancelCompleteUncomplete(); });
       this.subRedrawTree = this.ReviewSetsEditingService.PleaseRedrawTheTree.subscribe(
         () => { this.UpdateTree(); }
+      );
+      this.subDoCompleteUncomplete = this.ItemCodingService.PleaseDoCompleteUncompleteCoding.subscribe(
+        (data) => { this.ApplyCompleteUncomplete(data); }
       );
       //console.log("Review Ticket: " + this.ReviewerIdentityServ.reviewerIdentity.ticket);
       //let modalComp = this.modalService.open(InfoBoxModalContent);
@@ -447,6 +452,8 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     //this.ReviewerIdentityServ.reviewerIdentity = new ReviewerIdentity();
     if (this.subRedrawTree) this.subRedrawTree.unsubscribe();
+    if (this.subCancelCompleteUncomplete) this.subCancelCompleteUncomplete.unsubscribe();
+    if (this.subDoCompleteUncomplete) this.subDoCompleteUncomplete.unsubscribe();
     //console.log('killing reviewSets comp');
   }
 
