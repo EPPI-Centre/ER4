@@ -2,11 +2,11 @@ import { Component, OnInit, OnDestroy, Input, Inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { ItemListService, Item } from '../services/ItemList.service';
 import { ItemCodingService, ReadOnlyItemAttribute } from '../services/ItemCoding.service';
-import { ReviewSetsService, ReviewSet, SetAttribute, singleNode } from '../services/ReviewSets.service';
+import { ReviewSetsService, ReviewSet, SetAttribute, singleNode, ItemSetCompleteCommand } from '../services/ReviewSets.service';
 import { Subscription } from 'rxjs';
-import { ComparisonsService } from '../services/comparisons.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
+
 
 @Component({
 
@@ -22,12 +22,11 @@ export class LiveComparisonComp implements OnInit, OnDestroy {
     public ItemListService: ItemListService,
     private reviewerIdentityService: ReviewerIdentityService,
     private ItemCodingService: ItemCodingService,
-    private ReviewSetsService: ReviewSetsService,
-    private NotificationService: NotificationService
+    private ReviewSetsService: ReviewSetsService
   ) { }
   ngOnInit() {
     this.ItemCodingServiceDataChanged = this.ItemCodingService.DataChanged.subscribe(
-      () => { let pointless = this.CodesByReviewers; }
+      () => { this.liveComparisonContent.NodeToReportOn = null; const pointless = this.CodesByReviewers; }
     );
   }
   @Input() item: Item | undefined;
@@ -41,23 +40,48 @@ export class LiveComparisonComp implements OnInit, OnDestroy {
   public get HasAdminRights(): boolean {
     return this.reviewerIdentityService.HasAdminRights;
   }
+  public get HasWriteRights(): boolean {
+    return this.reviewerIdentityService.HasWriteRights;
+  }
   public EnableEditingCompletion = false;
+  public CurrentSetIsScreening: boolean = false;
 
   public get HasCompleteVersion(): boolean {
     const check = this.CodesByReviewers.filter(f => f.codingComplete);
     if (check.length > 0) return true;
     return false;
   }
-  CompleteThisCoding(coding: LiveComparisonWrapper) {
-    alert("HEY!");
-  }
+  CompleteThisCoding(coding: LiveComparisonWrapper, LockTheCoding:boolean) {
+    if (coding.ROIAs.length == 0) return;
+    const roia = coding.ROIAs[0];
+    const found = this.ItemCodingService.FindItemSetByItemAttributeId(roia.itemAttributeId);
+    if (found == null) return;
 
-  //public AttsToReportOn: SetAttribute[] = [];
+    let cmd: ItemSetCompleteCommand = new ItemSetCompleteCommand();
+    cmd.itemSetId = found.itemSetId;
+    cmd.isLocked = LockTheCoding == true ? LockTheCoding : found.isLocked;
+    cmd.complete = true;
+    this.ItemCodingService.ExecuteItemSetCompleteCommand(cmd);
+    
+  }
+  UnCompleteThisCoding(coding: LiveComparisonWrapper) {
+    if (coding.ROIAs.length == 0) return;
+    const roia = coding.ROIAs[0];
+    const found = this.ItemCodingService.FindItemSetByItemAttributeId(roia.itemAttributeId);
+    if (found == null) return;
+   
+    let cmd: ItemSetCompleteCommand = new ItemSetCompleteCommand();
+    cmd.itemSetId = found.itemSetId;
+    cmd.isLocked = found.isLocked;
+    cmd.complete = false;
+    this.ItemCodingService.ExecuteItemSetCompleteCommand(cmd);
+  }
+  
   public get CodesByReviewers(): LiveComparisonWrapper[] {
     //console.log('CodesByReviewers');
     if (this.ReviewSetsService.selectedNode == null || this.ReviewSetsService.selectedNode.set_id < 1) {
       //nothing to compare with...
-      console.log('CodesByReviewers: remove stale results');
+      //console.log('CodesByReviewers: remove stale results');
       if (this.liveComparisonContent.AttsToReportOn.length > 0) this.liveComparisonContent.AttsToReportOn = [];
       if (this.liveComparisonContent.NodeToReportOn) this.liveComparisonContent.NodeToReportOn = null;
       if (this.liveComparisonContent.results.length > 0) this.liveComparisonContent.results = [];
@@ -70,18 +94,19 @@ export class LiveComparisonComp implements OnInit, OnDestroy {
       //console.log('CodesByReviewers NO Change');
       return this.liveComparisonContent.results;
     }
+
     //we need to do work...
-    console.log('CodesByReviewers: doing work...');
+    //console.log('CodesByReviewers: doing work...');
     this.liveComparisonContent.NodeToReportOn = this.ReviewSetsService.selectedNode;
     this.liveComparisonContent.results = [];
     this.liveComparisonContent.AttsToReportOn = [];
     if (this.ItemCodingService.IsBusy) {
-      console.log("CodesByReviewers: still getting codings...")
+      //console.log("CodesByReviewers: still getting codings...")
       return this.liveComparisonContent.results;
     }
     this.liveComparisonContent.item = this.item;
     if (this.liveComparisonContent.item == undefined) {
-      console.log('CodesByReviewers: no item!');
+      //console.log('CodesByReviewers: no item!');
       return this.liveComparisonContent.results;
     }
     let RelevantItmSets = this.ItemCodingService.ItemCodingList.filter(found => this.ReviewSetsService.selectedNode && found.setId == this.ReviewSetsService.selectedNode.set_id);
@@ -107,6 +132,9 @@ export class LiveComparisonComp implements OnInit, OnDestroy {
         if (Currentcontact.ROIAs.length > 0) this.liveComparisonContent.results.push(Currentcontact);
       }
     }
+    const set = this.ReviewSetsService.FindSetById(this.ReviewSetsService.selectedNode.set_id)
+    if (set && set.setType.setTypeName == "Screening") this.CurrentSetIsScreening = true;
+    else this.CurrentSetIsScreening = false;
     //if (this.liveComparisonContent.results.length == 0) return null;
     return this.liveComparisonContent.results;
   }
