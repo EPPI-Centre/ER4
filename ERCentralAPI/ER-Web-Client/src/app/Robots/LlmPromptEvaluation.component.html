@@ -220,7 +220,7 @@
             <div class="mx-0 px-1 col-12 col-sm-6 col-md-4 my-auto text-sm-right">Split records with this code</div>
 
             <div ngbDropdown class="d-inline-block mx-0 px-1 col-12 col-sm-6 col-md-8 my-auto">
-              <button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree2" (click)="isCollapsedSetSelectedGoldStandardTrainTestAttribute = !isCollapsedSetSelectedGoldStandardTrainTestAttribute; isCollapsed2SetSelectedGoldStandardTrainTestAttribute=false" [attr.aria-expanded]="!isCollapsedSetSelectedGoldStandardTrainTestAttribute" aria-controls="collapseCodeTree">{{selectedModelDropDown2}}&nbsp;</button>
+              <button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree2" (click)="isCollapsedSetSelectedGoldStandardTrainTestAttribute = !isCollapsedSetSelectedGoldStandardTrainTestAttribute; isCollapsedSetSelectedTrainTestBelowHereAttribute=false" [attr.aria-expanded]="!isCollapsedSetSelectedGoldStandardTrainTestAttribute" aria-controls="collapseCodeTree">{{selectedModelDropDown2}}&nbsp;</button>
               <div (click)="SetSelectedGoldStandardTrainTestAttribute(nodeSelected)" class="dropdown-menu" id="collapseCodeTree2" [ngbCollapse]="!isCollapsedSetSelectedGoldStandardTrainTestAttribute">
                 <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown2()" [rootsOnly]=false></codesetSelector>
               </div>
@@ -239,7 +239,7 @@
             <div class="mx-0 px-1 col-12 col-sm-6 col-md-4 my-auto text-sm-right">Create below here</div>
             <div ngbDropdown class="d-inline-block mx-0 px-1 col-12 col-sm-6 col-md-8 my-auto" >
               <button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree3"
-                      (click)="isCollapsedSetSelectedTrainTestBelowHereAttribute = !isCollapsedSetSelectedTrainTestBelowHereAttribute; isCollapsed2SetSelectedTrainTestBelowHereAttribute=false"
+                      (click)="isCollapsedSetSelectedTrainTestBelowHereAttribute = !isCollapsedSetSelectedTrainTestBelowHereAttribute; isCollapsedSetSelectedGoldStandardTrainTestAttribute=false"
                       [attr.aria-expanded]="!isCollapsedSetSelectedTrainTestBelowHereAttribute" aria-controls="collapseCodeTree">
                 {{selectedModelDropDown3}}&nbsp;
               </button>
@@ -263,12 +263,13 @@
               </kendo-numerictextbox>
             </div>
           </div>
-          <div *ngIf="CanCreateTrainTestSplit" class="col-12 mx-0 px-1 row form-group pt-1 mt-1 mt-md-0">
+          <div *ngIf="NCodesInSelectedGoldStandardTrainTest - n_in_train_set > 1" class="col-12 mx-0 px-1 row form-group pt-1 mt-1 mt-md-0">
             <div class="mx-0 px-1 col-12 col-sm-6 col-md-4 my-auto text-sm-right">Number in test set:</div>
             <div class="ml-1 mr-auto rounded bg-white p-1 border border-dark" style="font-size:14px;">{{NCodesInSelectedGoldStandardTrainTest - n_in_train_set}}</div>
           </div>
-          <div>
+          <div class="row mx-0 px-0">
             <button class="btn btn-sm btn-outline-danger mr-1 my-auto py-0 font-weight-bold" (click)="SetupTrainTestData()" [disabled]="!CanCreateTrainTestSplit">Create train / test split</button>
+            <button class="btn btn-sm btn-outline-dark mr-1 my-auto py-0 font-weight-bold" (click)="CreateTrainTestSplitsSection = false" >Close</button>
           </div>
         </div>
       </div>

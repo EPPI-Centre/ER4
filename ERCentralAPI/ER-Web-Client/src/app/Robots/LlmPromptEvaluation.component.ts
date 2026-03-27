@@ -160,7 +160,11 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
       this._eventEmitterService.nodeSelected = undefined;
       this.itemCodingService.GetWithThisCodeCounts(node.attributeSetId, node.set_id).then(
         success => {
-          if (success == false) return;
+          if (success == false) {
+            this.NCodesInSelectedGoldStandardTrainTest = 0;
+            this.n_in_train_set = 0;
+            return;
+          }
           const res = success as iItemAttributeWithThisCodeCountCommand;
           this.NCodesInSelectedGoldStandardTrainTest = res.numIncluded + res.numExcluded;
           let tmp = Math.floor(this.NCodesInSelectedGoldStandardTrainTest / 2);
