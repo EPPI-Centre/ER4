@@ -53,26 +53,32 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
     if (this._reviewSetsEditingService.IsBusy
       || this._robotsService.IsBusy
       || this.reviewSetsService.IsBusy
-      || this.reviewInfoService.IsBusy) return true;
+      || this.reviewInfoService.IsBusy
+      || this.itemCodingService.IsBusy) return true;
     return false;
   }
   @Output() PleaseCloseMe = new EventEmitter();
 
   public selectedCodeSet: ReviewSet = new ReviewSet();
   public n_iterations: number = 3;
-  public n_in_train_set: number = 50;
+  public n_in_train_set: number = 10;
   public maxNToGoToLLM: number = 1000;
   public SelectedGoldStandardEvaluationAttribute: SetAttribute | null = null;
   public SelectedGoldStandardTrainTestAttribute: SetAttribute | null = null;
-  public SelectedTrainTestBelowHereAttribute: SetAttribute | null = null;
+  public SelectedTrainTestBelowHereAttribute: singleNode | null = null;
   public showManualModalRobotOptions: boolean = false;
   public showManualModalUncompleteWarning: boolean = false;
   public showRobotDetails = true;
-  public NCodesInSelectedGoldStandard: number = 0;
+  public NCodesInSelectedGoldStandard: number = 20;
+  public NCodesInSelectedGoldStandardTrainTest: number = 10;
 
   public CreateTrainTestSplitsSection: boolean = false;
   public ShowQueue: boolean = false;
 
+  public get MaxNCodesInSelectedGoldStandardTrainTest(): number {
+    if (this.NCodesInSelectedGoldStandardTrainTest - 2 > this.maxTrainSize) return this.maxTrainSize;
+    else return this.NCodesInSelectedGoldStandardTrainTest - 2;
+  }
 
   public get AllCodeSets(): ReviewSet[] {
 
@@ -145,26 +151,55 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
       this.SelectedGoldStandardEvaluationAttribute = null ;
     }
   }
+  private maxTotSplitSize: number = 500000;
+  private maxTrainSize: number = 100000;
   SetSelectedGoldStandardTrainTestAttribute(node: singleNode | null | undefined) {
-    //alert(JSON.stringify(node));
     if (node != null) {
-      //let a = node as SetAttribute;
       this.selectedModelDropDown2 = node.name;
       this.SelectedGoldStandardTrainTestAttribute = node as SetAttribute;
       this._eventEmitterService.nodeSelected = undefined;
+      this.itemCodingService.GetWithThisCodeCounts(node.attributeSetId, node.set_id).then(
+        success => {
+          if (success == false) return;
+          const res = success as iItemAttributeWithThisCodeCountCommand;
+          this.NCodesInSelectedGoldStandardTrainTest = res.numIncluded + res.numExcluded;
+          let tmp = Math.floor(this.NCodesInSelectedGoldStandardTrainTest / 2);
+          if (tmp < 5) tmp = 5;
+          else if (tmp > this.maxTrainSize) tmp = this.maxTrainSize;
+          this.n_in_train_set = tmp;
+        });
     }
     else {
+      this.NCodesInSelectedGoldStandardTrainTest = 0;
       this.selectedModelDropDown2 = "";
       this.SelectedGoldStandardTrainTestAttribute = null;
     }
   }
+  public get CanCreateTrainTestSplit(): boolean {
+    if (!this.HasWriteRights) return false;
+    if (this.SelectedGoldStandardTrainTestAttribute == null) return false;
+    if (this.SelectedTrainTestBelowHereAttribute == null) return false;
+    if (this.NCodesInSelectedGoldStandardTrainTest > this.maxTotSplitSize) return false;
+    if (this.n_in_train_set > this.maxTrainSize || this.NCodesInSelectedGoldStandardTrainTest < 7) return false;
+   
+    return true;
+  }
+  public get TrainTestSplitAlertClass(): string {
+    const batchN = this.NCodesInSelectedGoldStandardTrainTest;
+    if (batchN >= 12 && batchN <= 50000) return "alert-success";//green
+    else if (
+      (batchN < 12 && batchN >= 7)
+      || (batchN > 50000 && batchN <= this.maxTotSplitSize)
+    ) return "alert-warning";//yellow
+    else return "alert-danger";//red
+  }
+
   SetSelectedTrainTestBelowHereAttribute(node: singleNode | null | undefined) {
     //alert(JSON.stringify(node));
-    if (node != null && node != undefined && node.nodeType == "SetAttribute") {
-      let a = node as SetAttribute;
+    if (node != null && node != undefined) {
       this.selectedModelDropDown3 = node.name;
-      this.SelectedTrainTestBelowHereAttribute = node as SetAttribute;
-      this._eventEmitterService.nodeSelected = undefined;
+      this.SelectedTrainTestBelowHereAttribute = node;
+      //this._eventEmitterService.nodeSelected = undefined;
     }
     else {
       this.selectedModelDropDown3 = "";
