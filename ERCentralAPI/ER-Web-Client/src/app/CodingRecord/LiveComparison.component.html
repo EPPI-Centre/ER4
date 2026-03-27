@@ -2,7 +2,7 @@
   <div class="col-12 row p-0 m-0">
     <div class="float-left col border-bottom font-weight-bold">Live Comparison</div>
     <div class="col row justify-content-end border-bottom p-0 m-0">
-      <div *ngIf="HasAdminRights" class="mr-1 d-flex px-1 small rounded alert-danger">
+      <div *ngIf="HasAdminRights && HasWriteRights" class="mr-1 d-flex px-1 small rounded alert-danger">
         <div class="my-auto">Enable Editing:</div>
         <input type="checkbox" [(ngModel)]="EnableEditingCompletion" class="my-auto" />
       </div>
@@ -12,18 +12,45 @@
     </div>
   </div>
   <div *ngIf="CodesByReviewers && CodesByReviewers.length > 0" class="row w-100 m-0">
+    <div *ngIf="EnableEditingCompletion == true && CurrentSetIsScreening == false" class="small col-12 mx-0 my-2">
+      <div class="rounded alert-warning px-2 py-1 ">
+        <strong>Warning:</strong> live comparisons show codes at one level only, thus <strong>may not show all the coding</strong> in one go. Please check thoroughly before Completing/Un-completing anyone's coding!
+      </div>
+    </div>
     <div *ngFor="let coding of CodesByReviewers" class="col " style="max-height:150px;overflow:auto;">
       <div class="row mx-0 px-0">
         {{coding.contactName}}
         <div *ngIf="EnableEditingCompletion == false; else EditingVersion">
           <img *ngIf="coding.codingComplete" title="Coding complete: these codes can appear in reports and be found in searches" src="assets/CodingComplete.png" class="mx-1" />
           <img *ngIf="!coding.codingComplete" title="Coding not complete: these codes will not appear in reports or be found in searches" src="assets/CodingNotComplete.png" class="mx-1" />
+          <img *ngIf="coding.codingLocked" title="Coding is locked" src="assets/CodingLocked.png" class="mr-1" />
         </div>
         <ng-template #EditingVersion>
           <div>
-            <img *ngIf="coding.codingComplete" title="Coding complete: these codes can appear in reports and be found in searches" src="assets/CodingComplete.png" class="mx-1" />
-            <img *ngIf="!coding.codingComplete && HasCompleteVersion" title="Coding not complete: these codes will not appear in reports or be found in searches" src="assets/CodingNotComplete.png" class="mx-1" />
-            <img *ngIf="!coding.codingComplete && !HasCompleteVersion" title="!!Coding not complete: these codes will not appear in reports or be found in searches" src="assets/CodingNotComplete.png" (click)="CompleteThisCoding(coding)" class="mx-1" />
+            <div *ngIf="coding.codingComplete">
+              <img title="Coding complete: these codes can appear in reports and be found in searches" src="assets/CodingComplete.png"
+                   class="mx-1" />
+              <img *ngIf="coding.codingLocked" title="Coding is locked" src="assets/CodingLocked.png" class="mr-1" />
+              <div class="btn btn-sm btn-outline-danger m-0 py-0 px-1" (click)="UnCompleteThisCoding(coding)" style="font-size:0.7em;">
+                Uncomplete
+              </div>
+            </div>
+            <div *ngIf="!coding.codingComplete && !HasCompleteVersion">
+              <img title="Coding not complete: these codes will not appear in reports or be found in searches" src="assets/CodingNotComplete.png"
+                   class="mx-1" />
+              <img *ngIf="coding.codingLocked" title="Coding is locked" src="assets/CodingLocked.png" class="mr-1" />
+              <div class="btn btn-sm btn-outline-success m-0 py-0 px-1" (click)="CompleteThisCoding(coding, false)" style="font-size:0.7em;">
+                Complete
+              </div>
+              <div *ngIf="!coding.codingLocked" class="btn btn-sm btn-outline-info m-0 py-0 px-1" (click)="CompleteThisCoding(coding, true)" style="font-size:0.7em;">
+                Complete & Lock
+              </div>
+            </div>
+            <div *ngIf="!coding.codingComplete && HasCompleteVersion">
+              <img src="assets/CodingNotComplete.png"
+                   title="Coding not complete: these codes will not appear in reports or be found in searches" class="mx-1" />
+              <img *ngIf="coding.codingLocked" title="Coding is locked" src="assets/CodingLocked.png" class="mr-1" />
+            </div>
           </div>
         </ng-template>
       </div>

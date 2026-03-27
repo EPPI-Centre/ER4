@@ -5,7 +5,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Item, ItemListService, Criteria, ItemList, StringKeyValue } from './ItemList.service';
-import { ReviewSet, SetAttribute, ReviewSetsService, singleNode, ItemAttributeSaveCommand, iSetType } from './ReviewSets.service';
+import { ReviewSet, SetAttribute, ReviewSetsService, singleNode, ItemAttributeSaveCommand, iSetType, ItemSetCompleteCommand } from './ReviewSets.service';
 import { ArmTimepointLinkListService, iArm, iTimePoint } from './ArmTimepointLinkList.service';
 import { ItemDocsService } from './itemdocs.service';
 import { Outcome, OutcomeItemList, OutcomeItemAttributesList, OutcomeItemAttribute } from './outcomes.service';
@@ -44,7 +44,6 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
   @Output() DataChanged = new EventEmitter();
   @Output() ItemAttPDFCodingChanged = new EventEmitter();//used to build the PDFtron annotations on the fly
   @Output() ToggleLiveComparison = new EventEmitter();
-  @Output() PleaseDoCompleteUncompleteCoding: EventEmitter<singleNode> = new EventEmitter();
   private _ItemCodingList: ItemSet[] = [];
   //public itemID = new Subject<number>();
   private _CurrentItemAttPDFCoding: ItemAttPDFCoding = new ItemAttPDFCoding();
@@ -65,7 +64,7 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
     this._stopQuickReport = val;
     if (this._stopQuickReport == true) {
       //this request is coming from the outside (or a failure), so we'll clear the reports contents to avoid presenting incomplete data
-      console.log("cancelling report...");
+      //console.log("cancelling report...");
       this.jsonReport = new JsonReport();
       this._CodingReport = "";
     }
@@ -133,6 +132,7 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
         this._CurrentItemAttPDFCoding.Criteria = criteria;
         this._CurrentItemAttPDFCoding.ItemAttPDFCoding = result;
         this.ItemAttPDFCodingChanged.emit();
+        this.ngZone.run(() => this.IsBusy);
       }, error => {
         this.RemoveBusy("FetchItemAttPDFCoding");
         this.modalService.SendBackHomeWithError(error);
@@ -443,8 +443,8 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
       return;
     }
     let body = JSON.stringify({ Value: existing.itemAttributePDFId });
-     this._httpC.post<number>(this._baseUrl + "api/ItemSetList/DeletePDFCodingPage",
-      body).subscribe(result => {
+     lastValueFrom(this._httpC.post<number>(this._baseUrl + "api/ItemSetList/DeletePDFCodingPage",
+      body)).then(result => {
         //console.log("DeleteItemAttPDFCodingPage", result, this._BusyMethods);
         if (this._CurrentItemAttPDFCoding.ItemAttPDFCoding == null) {
           this._CurrentItemAttPDFCoding.ItemAttPDFCoding = [];
@@ -452,21 +452,13 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
         let indexOfRes = this._CurrentItemAttPDFCoding.ItemAttPDFCoding.findIndex((found: ItemAttributePDF) => result == found.itemAttributePDFId)
         //console.log("ItemAttPDFCoding before:", this._CurrentItemAttPDFCoding.ItemAttPDFCoding.length, this._CurrentItemAttPDFCoding.ItemAttPDFCoding);
         if (indexOfRes >= -1) this._CurrentItemAttPDFCoding.ItemAttPDFCoding.splice(indexOfRes, 1);
-        //console.log("ItemAttPDFCoding after:",
-        //    this._CurrentItemAttPDFCoding.ItemAttPDFCoding.length, this._CurrentItemAttPDFCoding.ItemAttPDFCoding
-        //    , this._BusyMethods
-        //);
-        //if (indexOfRes == -1) this._CurrentItemAttPDFCoding.ItemAttPDFCoding.push(result);//add new page
-        //else this._CurrentItemAttPDFCoding.ItemAttPDFCoding.splice(indexOfRes, 1, result);//replace existing - maybe we don't need to...
-        //this._CurrentItemAttPDFCoding.Criteria = criteria;
-        //this._CurrentItemAttPDFCoding.ItemAttPDFCoding = result;
-        //this.ItemAttPDFCodingChanged.emit();
+        this.RemoveBusy("DeleteItemAttPDFCodingPage");
+        this.ngZone.run(() => this.IsBusy);
       }, error => {
         this.RemoveBusy("DeleteItemAttPDFCodingPage");
         this.modalService.SendBackHomeWithError(error);
-      }
-        , () => {
-          this.RemoveBusy("DeleteItemAttPDFCodingPage");
+      }).then(
+        () => {
           this.ngZone.run(() => this.IsBusy);
         }
       );
@@ -487,6 +479,127 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
       this.ItemAttPDFCodingChanged.emit();
     }
   }
+
+  public ExecuteItemSetCompleteCommand(cmd: ItemSetCompleteCommand): Promise<boolean> {
+    //returns FALSE if something didn't work, error messages get triggered from within
+    //updates data whithin this service, but NOT in ItemCodingService, components calling this method should do it, if method returns TRUE;
+    let itemSet = this.ItemCodingList.find(found => found.itemSetId == cmd.itemSetId);
+    //get rSet upfront so that when the API call returns it's easy to know if we need to update it or not.
+    //this is because the user could move to a different item while this call is happening...
+    if (itemSet == undefined) {
+      this.modalService.GenericErrorMessage("Sorry, the 'apply' operation failed. We could not find the data needed to save the change.<br />"
+        + "Please navigate to the next item and then back, to reload the coding data and then try again. " +
+        "If the problem persists please contact EPPISupport.");
+      return new Promise<boolean>((resolve, reject) => { resolve(false); });
+    }
+    this._BusyMethods.push("ExecuteItemSetCompleteCommand");
+    return lastValueFrom(this._httpC.post<ItemSetCompleteCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemSetCompleteCommand', cmd))
+      .then(
+        data => {
+          this.RemoveBusy("ExecuteItemSetCompleteCommand");
+          if (data.successful != null && data.successful) {
+            if (itemSet !== undefined && itemSet.itemSetId == cmd.itemSetId) {
+              //the rSet identified before calling the API has coding from the same Item that was shown when user clicked "apply", so we can update it
+              itemSet.isCompleted = cmd.complete;
+              itemSet.isLocked = cmd.isLocked;
+              this.DataChanged.emit();
+            }
+            else {
+              this.modalService.GenericErrorMessage("Sorry your changes have been saved, but we could not update it here. "
+                  + "Please navigate to the next item and then back, to check if the expected changes did happen. " +
+                  "If the problem persists please contact EPPISupport.");
+              return false;
+            }
+            return true;
+          }
+          else {
+            this.modalService.GenericErrorMessage("Sorry, saving your data reported a failure. <br />"
+              + "Please navigate to the next item and then back, to reload the coding data and then try again. " +
+              "If the problem persists please contact EPPISupport.");
+            return false;
+          }
+        }, error => {
+          this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. <br />"
+            + "Please navigate to the next item and then back, to reload the coding data and then try again. " +
+            "If the problem persists please contact EPPISupport.");
+          //this.ItemCodingItemAttributeSaveCommandError.emit(error);
+          //this._IsBusy = false;
+          console.log("Error in ExecuteItemSetCompleteCommand:", error);
+          this.RemoveBusy("ExecuteItemSetCompleteCommand");
+          return false;
+        }
+      ).catch(catched => {
+        this.modalService.GenericError("Sorry, an ERROR occurred when saving your data. Please try again. If the problem persists please contact EPPISupport.");
+        //this.ItemCodingItemAttributeSaveCommandError.emit(error);
+        //this._IsBusy = false;
+        console.log("Error(catch) in ExecuteItemSetCompleteCommand:", catched);
+        this.RemoveBusy("ExecuteItemSetCompleteCommand");
+        return false;
+      });
+
+  }
+  //public ExecuteItemSetCompleteCommand(cmd: ItemSetCompleteCommand): Promise<boolean> {
+  //  //returns FALSE if something didn't work, error messages get triggered from within
+  //  //updates data whithin this service, but NOT in ItemCodingService, components calling this method should do it, if method returns TRUE;
+  //  let rSet = this.ReviewSetsService.ReviewSets.find(found => found.ItemSetId == cmd.itemSetId);
+  //  //get rSet upfront so that when the API call returns it's easy to know if we need to update it or not.
+  //  //this is because the user could move to a different item while this call is happening...
+  //  if (rSet == undefined) {
+  //    this.modalService.GenericErrorMessage("Sorry, the 'apply' operation failed. We could not find the data needed to save the change.<br />"
+  //      + "Please navigate to the next item and then back, to reload the coding data and then try again. " +
+  //      "If the problem persists please contact EPPISupport.");
+  //    return new Promise<boolean>((resolve, reject) => { resolve(false); });
+  //  }
+  //  this._BusyMethods.push("ExecuteItemSetCompleteCommand");
+  //  return lastValueFrom(this._httpC.post<ItemSetCompleteCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemSetCompleteCommand', cmd))
+  //    .then(
+  //      data => {
+  //        this.RemoveBusy("ExecuteItemSetCompleteCommand");
+  //        if (data.successful != null && data.successful) {
+  //          if (rSet !== undefined && rSet.ItemSetId == cmd.itemSetId) {
+  //            //the rSet identified before calling the API has coding from the same Item that was shown when user clicked "apply", so we can update it
+  //            rSet.codingComplete = cmd.complete;
+  //            rSet.itemSetIsLocked = cmd.isLocked;
+  //          }
+  //          else {
+  //            //the rSet identified before calling the API has coding for a different item, or no coding => user changed item while API call was executed;
+  //            //do nothing...
+
+  //            //this.modalService.GenericErrorMessage("Sorry your changes have been saved, but we could not update it here. "
+  //            //    + "Please navigate to the next item and then back, to check if the expected changes did happen. " +
+  //            //    "If the problem persists please contact EPPISupport.");
+  //            return false;
+  //          }
+  //          return true;
+  //        }
+  //        else {
+  //          this.modalService.GenericErrorMessage("Sorry, saving your data reported a failure. <br />"
+  //            + "Please navigate to the next item and then back, to reload the coding data and then try again. " +
+  //            "If the problem persists please contact EPPISupport.");
+  //          return false;
+  //        }
+  //      }, error => {
+  //        this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. <br />"
+  //          + "Please navigate to the next item and then back, to reload the coding data and then try again. " +
+  //          "If the problem persists please contact EPPISupport.");
+  //        //this.ItemCodingItemAttributeSaveCommandError.emit(error);
+  //        //this._IsBusy = false;
+  //        console.log("Error in ExecuteItemSetCompleteCommand:", error);
+  //        this.RemoveBusy("ExecuteItemSetCompleteCommand");
+  //        return false;
+  //      }
+  //    ).catch(catched => {
+  //      this.modalService.GenericError("Sorry, an ERROR occurred when saving your data. Please try again. If the problem persists please contact EPPISupport.");
+  //      //this.ItemCodingItemAttributeSaveCommandError.emit(error);
+  //      //this._IsBusy = false;
+  //      console.log("Error(catch) in ExecuteItemSetCompleteCommand:", catched);
+  //      this.RemoveBusy("ExecuteItemSetCompleteCommand");
+  //      return false;
+  //    });
+
+  //}
+
+
   private SelfSubscription4QuickCodingReport: Subscription | null = null;
 
   public Clear() {
@@ -747,7 +860,7 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
     } else {
       this.MatchOutcomeInPairs(Outcomes1, Outcomes2, result);
     }
-    console.log("MatchOutcomesResult:", result);
+    //console.log("MatchOutcomesResult:", result);
     return result;
   }
 
@@ -781,7 +894,7 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
   }
 
   private MatchOutcomeInTriplets(Outcomes1: Outcome[], Outcomes2: Outcome[], Outcomes3: Outcome[], result: any[]): any[] {
-    console.log('MatchOutcomeInTriplets!!!!!');
+    //console.log('MatchOutcomeInTriplets!!!!!');
     for (const o1 of Outcomes1) {
       o1.SetCalculatedValues();
       const o2s = Outcomes2.filter(f => f.es == o1.es && f.sees == o1.sees);
@@ -1463,6 +1576,14 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
     if (ind != -1) return this._ItemCodingList[ind];
     else return result;
   }
+  public FindItemSetByItemAttributeId(ItemAttributeId:number): ItemSet | null {
+    let result: ItemSet | null = null;
+    for (const ItemSet of this._ItemCodingList) {
+      let ind = ItemSet.itemAttributesList.findIndex(found => found.itemAttributeId == ItemAttributeId);
+      if (ind != -1) return ItemSet;
+    }
+  return result;
+} 
   public FetchAllFullTextData(itemid: number): Promise<boolean> {
     this._BusyMethods.push("FetchAllFullTextData");
     return lastValueFrom(this._httpC.post<ItemAttributeFullTextDetails[]>(
@@ -1525,7 +1646,7 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
       this._CodingReport = "";
       this.jsonReport = new JsonReport();
     }
-    console.log("FetchCurrentQuickCodingReportPage: ", crit.pageNumber, crit.pageSize, ReviewSetsToReportOn.length);
+    //console.log("FetchCurrentQuickCodingReportPage: ", crit.pageNumber, crit.pageSize, ReviewSetsToReportOn.length);
     this._ItemsToReport = [];
     this._ReviewSetsToReportOn = [];
     this._PerItemReport = false;
