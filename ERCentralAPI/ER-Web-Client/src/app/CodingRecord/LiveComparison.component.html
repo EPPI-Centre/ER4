@@ -23,12 +23,14 @@
         <div *ngIf="EnableEditingCompletion == false; else EditingVersion">
           <img *ngIf="coding.codingComplete" title="Coding complete: these codes can appear in reports and be found in searches" src="assets/CodingComplete.png" class="mx-1" />
           <img *ngIf="!coding.codingComplete" title="Coding not complete: these codes will not appear in reports or be found in searches" src="assets/CodingNotComplete.png" class="mx-1" />
+          <img *ngIf="coding.codingLocked" title="Coding is locked" src="assets/CodingLocked.png" class="mr-1" />
         </div>
         <ng-template #EditingVersion>
           <div>
             <div *ngIf="coding.codingComplete">
               <img title="Coding complete: these codes can appear in reports and be found in searches" src="assets/CodingComplete.png"
                    class="mx-1" />
+              <img *ngIf="coding.codingLocked" title="Coding is locked" src="assets/CodingLocked.png" class="mr-1" />
               <div class="btn btn-sm btn-outline-danger m-0 py-0 px-1" (click)="UnCompleteThisCoding(coding)" style="font-size:0.7em;">
                 Uncomplete
               </div>
@@ -36,15 +38,19 @@
             <div *ngIf="!coding.codingComplete && !HasCompleteVersion">
               <img title="Coding not complete: these codes will not appear in reports or be found in searches" src="assets/CodingNotComplete.png"
                    class="mx-1" />
+              <img *ngIf="coding.codingLocked" title="Coding is locked" src="assets/CodingLocked.png" class="mr-1" />
               <div class="btn btn-sm btn-outline-success m-0 py-0 px-1" (click)="CompleteThisCoding(coding, false)" style="font-size:0.7em;">
                 Complete
               </div>
-              <div class="btn btn-sm btn-outline-info m-0 py-0 px-1" (click)="CompleteThisCoding(coding, true)" style="font-size:0.7em;">
+              <div *ngIf="!coding.codingLocked" class="btn btn-sm btn-outline-info m-0 py-0 px-1" (click)="CompleteThisCoding(coding, true)" style="font-size:0.7em;">
                 Complete & Lock
               </div>
             </div>
-            <img *ngIf="!coding.codingComplete && HasCompleteVersion" src="assets/CodingNotComplete.png"
-                  title="Coding not complete: these codes will not appear in reports or be found in searches" class="mx-1" />
+            <div *ngIf="!coding.codingComplete && HasCompleteVersion">
+              <img src="assets/CodingNotComplete.png"
+                   title="Coding not complete: these codes will not appear in reports or be found in searches" class="mx-1" />
+              <img *ngIf="coding.codingLocked" title="Coding is locked" src="assets/CodingLocked.png" class="mr-1" />
+            </div>
           </div>
         </ng-template>
       </div>

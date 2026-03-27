@@ -102,11 +102,13 @@ export class LiveComparisonComp implements OnInit, OnDestroy {
     this.liveComparisonContent.AttsToReportOn = [];
     if (this.ItemCodingService.IsBusy) {
       //console.log("CodesByReviewers: still getting codings...")
+      this.liveComparisonContent.NodeToReportOn = null;
       return this.liveComparisonContent.results;
     }
     this.liveComparisonContent.item = this.item;
     if (this.liveComparisonContent.item == undefined) {
       //console.log('CodesByReviewers: no item!');
+      this.liveComparisonContent.NodeToReportOn = null;
       return this.liveComparisonContent.results;
     }
     let RelevantItmSets = this.ItemCodingService.ItemCodingList.filter(found => this.ReviewSetsService.selectedNode && found.setId == this.ReviewSetsService.selectedNode.set_id);
@@ -124,6 +126,7 @@ export class LiveComparisonComp implements OnInit, OnDestroy {
         Currentcontact.contactId = ItmS.contactId;
         Currentcontact.contactName = ItmS.contactName;
         Currentcontact.codingComplete = ItmS.isCompleted;
+        Currentcontact.codingLocked = ItmS.isLocked;
         for (let AttToReportOn of this.AttsToReportOn) {
           let res = ItmS.itemAttributesList.filter(found => found.attributeId == AttToReportOn.attribute_id);
 
@@ -156,6 +159,7 @@ export class LiveComparisonWrapper {
   contactId: number = 0;
   contactName: string = "";
   codingComplete: boolean = false;
+  codingLocked: boolean = false;
   ROIAs: ReadOnlyItemAttribute[] = []
 }
 export class LiveComparisonContent {
