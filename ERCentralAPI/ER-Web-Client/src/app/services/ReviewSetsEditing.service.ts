@@ -40,7 +40,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
   }
   public FetchSetTypes() {
     this._BusyMethods.push("FetchSetTypes");
-    this._httpC.get<iSetType[]>(this._baseUrl + 'api/Codeset/SetTypes').subscribe(
+    lastValueFrom( this._httpC.get<iSetType[]>(this._baseUrl + 'api/Codeset/SetTypes')).then(
       (res) => {
         this._SetTypes = res;
         this.RemoveBusy("FetchSetTypes");
@@ -49,7 +49,6 @@ export class ReviewSetsEditingService extends BusyAwareService {
         this.modalService.GenericError(error);
         this.RemoveBusy("FetchSetTypes");
       }
-
     );
   }
   private _ReadOnlyTemplateReviews: ReadOnlyTemplateReview[] = [];
@@ -58,7 +57,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
   }
   public FetchReviewTemplates() {
     this._BusyMethods.push("FetchReviewTemplates");
-    this._httpC.get<ReadOnlyTemplateReview[]>(this._baseUrl + 'api/Review/GetReadOnlyTemplateReviews').subscribe(
+    lastValueFrom(this._httpC.get<ReadOnlyTemplateReview[]>(this._baseUrl + 'api/Review/GetReadOnlyTemplateReviews')).then(
       (res) => {
         this._ReadOnlyTemplateReviews = res;
         this.RemoveBusy("FetchReviewTemplates");
@@ -83,7 +82,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
       setTypeId: rs.setType ? rs.setType.setTypeId : -1
     }
     //console.log("saving reviewSet via command", rs, rsC);
-    this._httpC.post<ReviewSetUpdateCommand>(this._baseUrl + 'api/Codeset/SaveReviewSet', rsC).subscribe(
+    lastValueFrom(this._httpC.post<ReviewSetUpdateCommand>(this._baseUrl + 'api/Codeset/SaveReviewSet', rsC)).then(
       data => {
         this.RemoveBusy("SaveReviewSet");
         //this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
@@ -1393,7 +1392,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
   public FetchReviewSets4Copy(fetchPrivateSets: boolean) {
     this._BusyMethods.push("FetchReviewSets4Copy");
     let body = JSON.stringify({ Value: fetchPrivateSets });
-    this._httpC.post<iReviewSet[]>(this._baseUrl + 'api/Codeset/GetReviewSetsForCopying', body).subscribe(
+    lastValueFrom(this._httpC.post<iReviewSet[]>(this._baseUrl + 'api/Codeset/GetReviewSetsForCopying', body)).then(
       (res) => {
         this._ReviewSets4Copy = ReviewSetsService.digestJSONarray(res);
         this.RemoveBusy("FetchReviewSets4Copy");
@@ -1407,7 +1406,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
   public PerformClusterCommand(command: PerformClusterCommand) {
     this._BusyMethods.push("PerformClusterCommand");
     command.reviewSetIndex = this.ReviewSetsService.ReviewSets.length;
-    this._httpC.post(this._baseUrl + 'api/Codeset/PerformClusterCommand', command).subscribe(
+    lastValueFrom(this._httpC.post(this._baseUrl + 'api/Codeset/PerformClusterCommand', command)).then(
       () => {
         this.RemoveBusy("PerformClusterCommand");
         this.ReviewSetsService.GetReviewSets();
@@ -1420,52 +1419,33 @@ export class ReviewSetsEditingService extends BusyAwareService {
   }
 
   public RandomlyAssignCodeToItem(assignParameters: PerformRandomAllocateCommand) {
-
-    // is there a need for busy methods here I would say yes...
     this._BusyMethods.push("RandomlyAssignCodeToItem");
 
-    this._httpC.post<PerformRandomAllocateCommand>(this._baseUrl +
+    lastValueFrom(this._httpC.post<PerformRandomAllocateCommand>(this._baseUrl +
       'api/Codeset/PerformRandomAllocate', assignParameters)
-      .subscribe(() => {
-
-        // do not want to change the below but it seems
-        // to return an array here
+    ).then(() => {
         this.ReviewSetsService.GetReviewSets();
         this.RemoveBusy("RandomlyAssignCodeToItem");
-
       },
         error => {
           this.modalService.GenericError(error);
           this.RemoveBusy("RandomlyAssignCodeToItem");
-        }
-        , () => {
-          this.RemoveBusy("RandomlyAssignCodeToItem");
-        }
-      );
+        });
   }
   public RandomlyAssignTrainTestCodeToItem(assignParameters: PerformRandomAllocateTrainTestCommand) {
 
-    // is there a need for busy methods here I would say yes...
     this._BusyMethods.push("RandomlyAssignTrainTestCodeToItem");
 
-    this._httpC.post<PerformRandomAllocateTrainTestCommand>(this._baseUrl +
+    lastValueFrom(this._httpC.post<PerformRandomAllocateTrainTestCommand>(this._baseUrl +
       'api/Codeset/PerformRandomAllocateTrainTest', assignParameters)
-      .subscribe(() => {
-
-        // do not want to change the below but it seems
-        // to return an array here
+    ).then(() => {
         this.ReviewSetsService.GetReviewSets();
         this.RemoveBusy("RandomlyAssignTrainTestCodeToItem");
-
       },
         error => {
           this.modalService.GenericError(error);
           this.RemoveBusy("RandomlyAssignTrainTestCodeToItem");
-        }
-        , () => {
-          this.RemoveBusy("RandomlyAssignTrainTestCodeToItem");
-        }
-      );
+        });
   }
   public async GetChangeDataEntryMessage(Set: ReviewSet, screeningCodeSetId: number): Promise<ChangeDataEntryMessage> {
     let res: ChangeDataEntryMessage = new ChangeDataEntryMessage();

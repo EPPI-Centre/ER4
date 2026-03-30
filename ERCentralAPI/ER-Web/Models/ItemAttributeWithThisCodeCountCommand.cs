@@ -83,6 +83,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     
                     command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.CommandTimeout = 60;
                    
                     command.Parameters.Add(new SqlParameter("@ReviewId", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@AttributeSetId", _attributeSetId));

@@ -216,33 +216,45 @@
         <div class="card-body p-1 m-0">
           <div><b>Create train / test splits from gold standard data</b></div>
 
-          <div class="row align-items-center mt-2">
+          <div class="row align-items-center mt-2 mx-0">
             <div class="mx-0 px-1 col-12 col-sm-6 col-md-4 my-auto text-sm-right">Split records with this code</div>
 
-            <div ngbDropdown class="d-inline-block mx-0 px-1 col-12 col-md-8 my-auto">
-              <button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree2" (click)="isCollapsedSetSelectedGoldStandardTrainTestAttribute = !isCollapsedSetSelectedGoldStandardTrainTestAttribute; isCollapsed2SetSelectedGoldStandardTrainTestAttribute=false" [attr.aria-expanded]="!isCollapsedSetSelectedGoldStandardTrainTestAttribute" aria-controls="collapseCodeTree">{{selectedModelDropDown2}}&nbsp;</button>
+            <div ngbDropdown class="d-inline-block mx-0 px-1 col-12 col-sm-6 col-md-8 my-auto">
+              <button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree2" (click)="isCollapsedSetSelectedGoldStandardTrainTestAttribute = !isCollapsedSetSelectedGoldStandardTrainTestAttribute; isCollapsedSetSelectedTrainTestBelowHereAttribute=false" [attr.aria-expanded]="!isCollapsedSetSelectedGoldStandardTrainTestAttribute" aria-controls="collapseCodeTree">{{selectedModelDropDown2}}&nbsp;</button>
               <div (click)="SetSelectedGoldStandardTrainTestAttribute(nodeSelected)" class="dropdown-menu" id="collapseCodeTree2" [ngbCollapse]="!isCollapsedSetSelectedGoldStandardTrainTestAttribute">
                 <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown2()" [rootsOnly]=false></codesetSelector>
               </div>
             </div>
+            <div *ngIf="SelectedGoldStandardTrainTestAttribute" class="mx-0 px-1 col-12 my-auto row text-center">
+              <div class="mx-0 px-1 col-12 col-sm-6 col-md-4 my-auto"></div>
+              <div class="mx-0 px-1 col-12 col-sm-6 col-md-8 d-flex">
+                <div class="px-1 my-1 small rounded mx-auto " [ngClass]="TrainTestSplitAlertClass">
+                  Selected code applies to <strong>{{NCodesInSelectedGoldStandardTrainTest}} items</strong>.
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div class="row align-items-center mt-2">
+          <div class="row align-items-center mt-2 mx-0" *ngIf="CreateTrainTestSplitsSection">
             <div class="mx-0 px-1 col-12 col-sm-6 col-md-4 my-auto text-sm-right">Create below here</div>
-            <div ngbDropdown class="d-inline-block mx-0 px-1 col-12 col-md-8 my-auto">
-              <button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree3" (click)="isCollapsedSetSelectedTrainTestBelowHereAttribute = !isCollapsedSetSelectedTrainTestBelowHereAttribute; isCollapsed2SetSelectedTrainTestBelowHereAttribute=false" [attr.aria-expanded]="!isCollapsedSetSelectedTrainTestBelowHereAttribute" aria-controls="collapseCodeTree">{{selectedModelDropDown3}}&nbsp;</button>
+            <div ngbDropdown class="d-inline-block mx-0 px-1 col-12 col-sm-6 col-md-8 my-auto" >
+              <button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree3"
+                      (click)="isCollapsedSetSelectedTrainTestBelowHereAttribute = !isCollapsedSetSelectedTrainTestBelowHereAttribute; isCollapsedSetSelectedGoldStandardTrainTestAttribute=false"
+                      [attr.aria-expanded]="!isCollapsedSetSelectedTrainTestBelowHereAttribute" aria-controls="collapseCodeTree">
+                {{selectedModelDropDown3}}&nbsp;
+              </button>
               <div (click)="SetSelectedTrainTestBelowHereAttribute(nodeSelected)" class="dropdown-menu" id="collapseCodeTree3" [ngbCollapse]="!isCollapsedSetSelectedTrainTestBelowHereAttribute">
-                <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown3()" [rootsOnly]=false></codesetSelector>
+                <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'RandomAllocation'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown3()" [rootsOnly]=false></codesetSelector>
               </div>
             </div>
           </div>
 
           <div class="col-12 mx-0 px-1 row form-group pt-1 mt-1 mt-md-0">
-            <div class="mx-0 px-1 col-12 col-sm-6 col-md-4 my-auto text-sm-right">Number in train set</div>
+            <div class="mx-0 px-1 col-12 col-sm-6 col-md-4 my-auto text-sm-right">Number in train set:</div>
             <div class="my-auto">
               <kendo-numerictextbox [(ngModel)]="n_in_train_set"
                                     [min]="5" [format]="'n0'"
-                                    [max]="10000"
+                                    [max]="MaxNCodesInSelectedGoldStandardTrainTest"
                                     [step]="1"
                                     [autoCorrect]="true"
                                     class="border border-dark rounded"
@@ -251,9 +263,13 @@
               </kendo-numerictextbox>
             </div>
           </div>
-          <div>
-            <button class="btn btn-sm btn-outline-danger mr-1 my-auto py-0 font-weight-bold" (click)="SetupTrainTestData()" [disabled]="!HasWriteRights">Create train / test split</button>
-
+          <div *ngIf="NCodesInSelectedGoldStandardTrainTest - n_in_train_set > 1" class="col-12 mx-0 px-1 row form-group pt-1 mt-1 mt-md-0">
+            <div class="mx-0 px-1 col-12 col-sm-6 col-md-4 my-auto text-sm-right">Number in test set:</div>
+            <div class="ml-1 mr-auto rounded bg-white p-1 border border-dark" style="font-size:14px;">{{NCodesInSelectedGoldStandardTrainTest - n_in_train_set}}</div>
+          </div>
+          <div class="row mx-0 px-0">
+            <button class="btn btn-sm btn-outline-danger mr-1 my-auto py-0 font-weight-bold" (click)="SetupTrainTestData()" [disabled]="!CanCreateTrainTestSplit">Create train / test split</button>
+            <button class="btn btn-sm btn-outline-dark mr-1 my-auto py-0 font-weight-bold" (click)="CreateTrainTestSplitsSection = false" >Close</button>
           </div>
         </div>
       </div>
