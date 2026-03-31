@@ -386,16 +386,14 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     client.DefaultRequestHeaders.Add("Authorization", $"Bearer {key}");
                 }
-                else
+                else if (RobotOpenAICommand.IsClaudeLike(RobotCoder))
                 {
-                    if (RobotOpenAICommand.IsClaudeLike(RobotCoder))
-                    {
-                        client.DefaultRequestHeaders.Add("x-api-key", $"{key}");
-                        var vIndex = RobotCoder.RobotSettings.FindIndex(f => f.SettingIsInternal == true && f.SettingName == "anthropic-version");
-                        if (vIndex > -1) client.DefaultRequestHeaders.Add("anthropic-version", $"{RobotCoder.RobotSettings[vIndex].SettingValue}");
-                    }
-                    else client.DefaultRequestHeaders.Add("api-key", $"{key}");
+                    client.DefaultRequestHeaders.Add("x-api-key", $"{key}");
+                    var vIndex = RobotCoder.RobotSettings.FindIndex(f => f.SettingIsInternal == true && f.SettingName == "anthropic-version");
+                    if (vIndex > -1) client.DefaultRequestHeaders.Add("anthropic-version", $"{RobotCoder.RobotSettings[vIndex].SettingValue}");
                 }
+                else client.DefaultRequestHeaders.Add("api-key", $"{key}");
+
                 //string type = "json_object"; as in this case, we're not requesting JSON in response and get an error if we do
                 //var response_format = new { type };
                 //var requestBody = new { /*response_format, */ messages, temperature, frequency_penalty, presence_penalty, top_p };
@@ -450,7 +448,7 @@ namespace BusinessLibrary.BusinessClasses
             var responseString = await response.Content.ReadAsStringAsync();
             var generatedText = Newtonsoft.Json.JsonConvert.DeserializeObject<RobotOpenAICommand.OpenAIResult>(responseString);
             _inputTokens = generatedText.usage.prompt_tokens;
-            if (generatedText.usage.output_tokens == 0) _outputTokens += generatedText.usage.total_tokens - generatedText.usage.prompt_tokens;
+            if (generatedText.usage.output_tokens == 0 || generatedText.usage.total_tokens > 0) _outputTokens += generatedText.usage.total_tokens - generatedText.usage.prompt_tokens;
             else _outputTokens += generatedText.usage.output_tokens;
             MarkdownPipeline pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
             var responses = Markdown.ToHtml(generatedText.Content, pipeline);

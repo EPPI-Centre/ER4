@@ -822,16 +822,14 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     client.DefaultRequestHeaders.Add("Authorization", $"Bearer {key}");
                 }
-                else
+                else if (IsClaudeLike(RobotCoder))
                 {
-                    if (IsClaudeLike(RobotCoder))
-                    {
-                        client.DefaultRequestHeaders.Add("x-api-key", $"{key}");
-                        var vIndex = RobotCoder.RobotSettings.FindIndex(f => f.SettingIsInternal == true && f.SettingName == "anthropic-version");
-                        if (vIndex > -1) client.DefaultRequestHeaders.Add("anthropic-version", $"{RobotCoder.RobotSettings[vIndex].SettingValue}");
-                    }
-                    else client.DefaultRequestHeaders.Add("api-key", $"{key}");
+                    client.DefaultRequestHeaders.Add("x-api-key", $"{key}");
+                    var vIndex = RobotCoder.RobotSettings.FindIndex(f => f.SettingIsInternal == true && f.SettingName == "anthropic-version");
+                    if (vIndex > -1) client.DefaultRequestHeaders.Add("anthropic-version", $"{RobotCoder.RobotSettings[vIndex].SettingValue}");
                 }
+                else client.DefaultRequestHeaders.Add("api-key", $"{key}");
+                
                 string type = "json_object";
                 var response_format = new { type };
                 //var requestBody = new { response_format, messages, temperature, frequency_penalty, presence_penalty, top_p };
@@ -902,7 +900,7 @@ namespace BusinessLibrary.BusinessClasses
             var responseString = await response.Content.ReadAsStringAsync();
             var generatedText = Newtonsoft.Json.JsonConvert.DeserializeObject<OpenAIResult>(responseString);
             _inputTokens += generatedText.usage.prompt_tokens;
-            if (generatedText.usage.output_tokens == 0) _outputTokens += generatedText.usage.total_tokens - generatedText.usage.prompt_tokens;
+            if (generatedText.usage.output_tokens == 0 || generatedText.usage.total_tokens > 0) _outputTokens += generatedText.usage.total_tokens - generatedText.usage.prompt_tokens;
             else _outputTokens += generatedText.usage.output_tokens;
             var responses = generatedText.Content;
 
@@ -917,9 +915,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             else
             {
-                
                 resultDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
-                //"<think>(.*?)</think>(.*)"
             }
             // seems a bit odd setting the _message to 'completed' here when it's not finished, but there are no points between here and returning that we're not returning true
             _message = "Completed " + (errors > 0 ? "with" : "without") + " errors. (" + generatedText.usage.UsageMessage() + ")";
