@@ -1210,6 +1210,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
     Data.attributeOrder = Att.order;
     Data.extType = Att.extType;
     Data.extURL = Att.extURL;
+    Data.isExclusive = Att.isExclusive;
     //console.log("saving reviewSet via command", rs, rsC);
     return lastValueFrom(this._httpC.post<boolean>(this._baseUrl + 'api/Codeset/AttributeUpdate', Data))
       .then((res) => {

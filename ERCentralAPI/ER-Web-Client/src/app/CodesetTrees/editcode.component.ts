@@ -43,12 +43,17 @@ export class EditCodeComp implements OnInit, OnDestroy {
   }
 
   public radioButtonEntry: boolean = true;
+  public radioToCheckChange: boolean = false;
 
   public radioButtonEntryClicked(event: Event) {
-    if (this.radioButtonEntry == true)
+    if (this.radioButtonEntry == true) {
       this.radioButtonEntry = false;
-    else 
+      this.radioToCheckChange = true;
+    }
+    else {
       this.radioButtonEntry = true;
+      this.radioToCheckChange = false;
+    }
   }
 
 
@@ -108,6 +113,13 @@ export class EditCodeComp implements OnInit, OnDestroy {
     if (this.UpdatingCode && this.UpdatingCode.attribute_name.trim() != "") return true;
     else return false;
   }
+  HasAnythingChanged(istheFormDirty: boolean | null): boolean {
+    if ((istheFormDirty == true) || (this.radioToCheckChange == true)) {
+      return true;
+    }
+    else return false;
+  }
+
   IsServiceBusy(): boolean {
     if (this.ReviewSetsService.IsBusy || this.ReviewSetsEditingService.IsBusy || this.ReviewInfoService.IsBusy) return true;
     else return false;
@@ -142,7 +154,9 @@ export class EditCodeComp implements OnInit, OnDestroy {
       this.CancelActivity();
       return;//fail silently, should be ok as it should never happen...
     }
+    
     let Att = this.UpdatingCode;
+    if (this.radioToCheckChange == true) Att.isExclusive = false;
     this.ReviewSetsEditingService.UpdateAttribute(Att)
       .then(
         success => {

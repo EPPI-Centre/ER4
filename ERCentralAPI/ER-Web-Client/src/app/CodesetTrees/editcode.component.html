@@ -100,7 +100,8 @@
                           [(ngModel)]="UpdatingCode.attribute_set_desc" name="newAttDescription" rows="3"></textarea>
             </div>
             <div class="col-12">
-                <button type="submit" (click)="UpdateCode()" class="btn btn-success ml-2 mr-2" [disabled]="!EditCodeFrom.dirty || !IsNewCodeNameValid() || !CanWrite() ">
+                <button type="submit" (click)="UpdateCode()" class="btn btn-success ml-2 mr-2"
+                        [disabled]="!HasAnythingChanged(EditCodeFrom.dirty) || !IsNewCodeNameValid() || !CanWrite()">
                     Update
                 </button>
                 <button *ngIf="UpdatingCode.attribute_type != 'Exclude' && UpdatingCode.attribute_type != 'Include'" class="btn btn-outline-primary ml-1" type="button"

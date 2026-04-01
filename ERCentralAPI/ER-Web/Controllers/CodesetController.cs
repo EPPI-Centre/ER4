@@ -277,7 +277,8 @@ namespace ERxWebClient2.Controllers
                         data.attributeSetDescription, 
                         data.attributeOrder,
                         data.extURL,
-                        data.extType);
+                        data.extType,
+                        data.isExclusive);
                     DataPortal<AttributeUpdateCommand> dp = new DataPortal<AttributeUpdateCommand>();
                     cmd = dp.Execute(cmd);
                     return Ok(true);//no point sending back anything, it worked...
