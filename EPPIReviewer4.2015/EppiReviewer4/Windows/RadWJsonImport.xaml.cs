@@ -47,30 +47,30 @@ namespace EppiReviewer4
 
         private void cmdGo_Click(object sender, RoutedEventArgs e)
         {
-            CslaDataProvider provider = (App.Current.Resources["CodeSetsData"] as CslaDataProvider);
-            if (provider != null)
-            {
-                ReviewSetsList rsl = provider.Data as ReviewSetsList;
-                if (rsl != null)
-                {
-                    DataPortal<ImportJsonCommand> dp2 = new DataPortal<ImportJsonCommand>();
-                    ImportJsonCommand ij = new ImportJsonCommand(tbPath.Text, "");
-                    ij.ReviewSets = rsl;
-                    dp2.ExecuteCompleted += (o, e2) =>
-                    {
-                        BusyDoingStuff.IsBusy = false;
-                        cmdGo.IsEnabled = true;
-                        {
-                            ImportJsonCommand rr2 = e2.Object as ImportJsonCommand;
-                            //this.closeWindowRobots.Invoke(sender, e);
-                            RadWindow.Alert("Imported. Refresh codesets and items lists");
-                        }
-                    };
-                    BusyDoingStuff.IsBusy = true;
-                    cmdGo.IsEnabled = false;
-                    dp2.BeginExecute(ij);
-                }
-            }
+            //CslaDataProvider provider = (App.Current.Resources["CodeSetsData"] as CslaDataProvider);
+            //if (provider != null)
+            //{
+            //    ReviewSetsList rsl = provider.Data as ReviewSetsList;
+            //    if (rsl != null)
+            //    {
+            //        DataPortal<ImportJsonCommand> dp2 = new DataPortal<ImportJsonCommand>();
+            //        ImportJsonCommand ij = new ImportJsonCommand(tbPath.Text, "");
+            //        ij.ReviewSets = rsl;
+            //        dp2.ExecuteCompleted += (o, e2) =>
+            //        {
+            //            BusyDoingStuff.IsBusy = false;
+            //            cmdGo.IsEnabled = true;
+            //            {
+            //                ImportJsonCommand rr2 = e2.Object as ImportJsonCommand;
+            //                //this.closeWindowRobots.Invoke(sender, e);
+            //                RadWindow.Alert("Imported. Refresh codesets and items lists");
+            //            }
+            //        };
+            //        BusyDoingStuff.IsBusy = true;
+            //        cmdGo.IsEnabled = false;
+            //        dp2.BeginExecute(ij);
+            //    }
+            //}
         }
     }
 }

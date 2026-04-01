@@ -382,17 +382,25 @@ namespace BusinessLibrary.BusinessClasses
             string json;
             if (_UserPrivateOpenAIKey == "")
             {
-                if (RobotOpenAICommand.AuthorisationInHeader(RobotCoder)) 
+                if (RobotOpenAICommand.AuthorisationInHeader(RobotCoder))
                 {
                     client.DefaultRequestHeaders.Add("Authorization", $"Bearer {key}");
                 }
+                else if (RobotOpenAICommand.IsClaudeLike(RobotCoder))
+                {
+                    client.DefaultRequestHeaders.Add("x-api-key", $"{key}");
+                    var vIndex = RobotCoder.RobotSettings.FindIndex(f => f.SettingIsInternal == true && f.SettingName == "anthropic-version");
+                    if (vIndex > -1) client.DefaultRequestHeaders.Add("anthropic-version", $"{RobotCoder.RobotSettings[vIndex].SettingValue}");
+                }
                 else client.DefaultRequestHeaders.Add("api-key", $"{key}");
+
                 //string type = "json_object"; as in this case, we're not requesting JSON in response and get an error if we do
                 //var response_format = new { type };
                 //var requestBody = new { /*response_format, */ messages, temperature, frequency_penalty, presence_penalty, top_p };
                 //json = JsonConvert.SerializeObject(requestBody);
                 List<string> toIgnore = new List<string>();
                 toIgnore.Add("response_format.type");
+                toIgnore.Add("text.format.type");
                 json = RobotOpenAICommand.BuildJsonRequestBody(RobotCoder, messages, toIgnore);
             }
             else
@@ -440,12 +448,13 @@ namespace BusinessLibrary.BusinessClasses
             var responseString = await response.Content.ReadAsStringAsync();
             var generatedText = Newtonsoft.Json.JsonConvert.DeserializeObject<RobotOpenAICommand.OpenAIResult>(responseString);
             _inputTokens = generatedText.usage.prompt_tokens;
-            _outputTokens = generatedText.usage.total_tokens - generatedText.usage.prompt_tokens;
+            if (generatedText.usage.output_tokens == 0 || generatedText.usage.total_tokens > 0) _outputTokens += generatedText.usage.total_tokens - generatedText.usage.prompt_tokens;
+            else _outputTokens += generatedText.usage.output_tokens;
             MarkdownPipeline pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
-            var responses = Markdown.ToHtml(generatedText.choices[0].message.content, pipeline);
+            var responses = Markdown.ToHtml(generatedText.Content, pipeline);
             //var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
 
-            _returnMessage = "Completed " + "without errors. (Tokens: prompt: " + generatedText.usage.prompt_tokens.ToString() + ", total: " + generatedText.usage.total_tokens.ToString() + ")";
+            _returnMessage = "Completed " + "without errors. (" + generatedText.usage.UsageMessage() + ")";
             _returnResultText = responses.ToString();
             //if (!_returnResultText.Contains("<TABLE") || !_returnResultText.Contains("<table"))
             //{

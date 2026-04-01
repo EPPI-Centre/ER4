@@ -822,10 +822,14 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     client.DefaultRequestHeaders.Add("Authorization", $"Bearer {key}");
                 }
-                else
+                else if (IsClaudeLike(RobotCoder))
                 {
-                    client.DefaultRequestHeaders.Add("api-key", $"{key}");
+                    client.DefaultRequestHeaders.Add("x-api-key", $"{key}");
+                    var vIndex = RobotCoder.RobotSettings.FindIndex(f => f.SettingIsInternal == true && f.SettingName == "anthropic-version");
+                    if (vIndex > -1) client.DefaultRequestHeaders.Add("anthropic-version", $"{RobotCoder.RobotSettings[vIndex].SettingValue}");
                 }
+                else client.DefaultRequestHeaders.Add("api-key", $"{key}");
+                
                 string type = "json_object";
                 var response_format = new { type };
                 //var requestBody = new { response_format, messages, temperature, frequency_penalty, presence_penalty, top_p };
@@ -896,10 +900,11 @@ namespace BusinessLibrary.BusinessClasses
             var responseString = await response.Content.ReadAsStringAsync();
             var generatedText = Newtonsoft.Json.JsonConvert.DeserializeObject<OpenAIResult>(responseString);
             _inputTokens += generatedText.usage.prompt_tokens;
-            _outputTokens += generatedText.usage.total_tokens - generatedText.usage.prompt_tokens;
+            if (generatedText.usage.output_tokens == 0 || generatedText.usage.total_tokens > 0) _outputTokens += generatedText.usage.total_tokens - generatedText.usage.prompt_tokens;
+            else _outputTokens += generatedText.usage.output_tokens;
             var responses = generatedText.Content;
 
-            if (IsDeepSeekLike(RobotCoder))
+            if (IsDeepSeekLike(RobotCoder) || IsClaudeLike(RobotCoder))
             {
                 responses = StripThinkTagAndJsonMarkdown(responses, _itemId);
             }
@@ -910,12 +915,10 @@ namespace BusinessLibrary.BusinessClasses
             }
             else
             {
-                
                 resultDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
-                //"<think>(.*?)</think>(.*)"
             }
             // seems a bit odd setting the _message to 'completed' here when it's not finished, but there are no points between here and returning that we're not returning true
-            _message = "Completed " + (errors > 0 ? "with" : "without") + " errors. (Tokens: prompt: " + generatedText.usage.prompt_tokens.ToString() + ", total: " + generatedText.usage.total_tokens.ToString() + ")";
+            _message = "Completed " + (errors > 0 ? "with" : "without") + " errors. (" + generatedText.usage.UsageMessage() + ")";
 
             return true;
         }
@@ -949,25 +952,27 @@ namespace BusinessLibrary.BusinessClasses
             
             return responses;
         }
-
         internal static bool AuthorisationInHeader(RobotCoderReadOnly robot)
         {
-            string lowname = robot.RobotName.ToLower();
-            if (lowname.Contains("deepseek")) return true;
-            else if (lowname.Contains("mistral")) return true;
-            else if (lowname.Contains("llama")) return true;
-            else return false;
+            int index = robot.RobotSettings.FindIndex(f => f.SettingIsInternal == true && f.SettingName == "AuthorisationInHeader");
+            return (index != -1);
         }
         internal static bool UsesExtraParameters(RobotCoderReadOnly robot)
         {
-            string lowname = robot.RobotName.ToLower();
-            if (lowname.Contains("mistral")) return true;
-            else return false;
+            int index = robot.RobotSettings.FindIndex(f => f.SettingIsInternal == true && f.SettingName == "UsesExtraParameters");
+            return (index != -1);
         }
 
         internal static bool IsDeepSeekLike(RobotCoderReadOnly robot)
-        {//simple logic, for now!!
-            return robot.RobotName.ToLower().Contains("deepseek");            
+        {
+            int index = robot.RobotSettings.FindIndex(f => f.SettingIsInternal == true && f.SettingName == "DeepSeekLike");
+            return (index != -1);
+        }
+
+        internal static bool IsClaudeLike(RobotCoderReadOnly robot)
+        {
+            int index = robot.RobotSettings.FindIndex(f => f.SettingIsInternal == true && f.SettingName == "ClaudeLike");
+            return (index != -1);
         }
 
         internal static string BuildJsonRequestBody(RobotCoderReadOnly Robot, List<OpenAIChatClass> messages, List<string> SettingNamesToIgnore)
@@ -1033,10 +1038,23 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         FieldNameForPrompts = pair.SettingValue;
                     }
+                    else if (pair.SettingName == "ClaudeLike")
+                    {
+                        MoveSystemPromptToRoot(res, jMessages);
+                    }
                 }
             }
             res.Add(FieldNameForPrompts, jMessages);
             return JsonConvert.SerializeObject(res);
+        }
+        private static void MoveSystemPromptToRoot(JObject res, JArray jMessages)
+        {
+            var sys = jMessages.First(f => f["role"] != null && f["role"].Value<string>() == "system");
+            if (sys != null && sys["content"] != null)
+            {
+                res.Add("system", sys["content"]);
+                jMessages.Remove(sys);
+            }
         }
 
         private static readonly Regex BooleanPromptRx = new Regex(@": ?boolean ?\/\/");
@@ -1242,6 +1260,7 @@ namespace BusinessLibrary.BusinessClasses
             public string model { get; set; }
             public Prompt_Filter_Results[] prompt_filter_results { get; set; }
             public Choice[] choices { get; set; } = new Choice[0];
+            public Content[] content { get; set; } = new Content[0];
 
             public Output[] output { get; set; } = new Output[0];
             public Usage usage { get; set; }
@@ -1257,6 +1276,10 @@ namespace BusinessLibrary.BusinessClasses
                     else if (output.Length > 0 && output[0].content.Length > 0)
                     {
                         return output[0].content[0].text;
+                    }
+                    else if (content.Length> 0)
+                    {
+                        return content[0].text;
                     }
                     else return "";
                 }
@@ -1275,11 +1298,22 @@ namespace BusinessLibrary.BusinessClasses
                 set
                 {
                     _prompt_tokens = value;
-                } 
+                }
             }
             public int input_tokens { get; set; } = 0;
+            public int output_tokens { get; set; } = 0;
             public int completion_tokens { get; set; }
             public int total_tokens { get; set; }
+
+            public string UsageMessage()
+            {
+                string res = "";
+                if (total_tokens > 0) res = "Tokens - prompt: " + prompt_tokens.ToString() + ", total: " + total_tokens.ToString();
+                else if (output_tokens > 0) res = "Tokens - prompt: " + prompt_tokens.ToString() + ", total: " + (output_tokens + prompt_tokens).ToString();
+                else if (completion_tokens > 0) res = "Tokens - prompt: " + prompt_tokens.ToString() + ", total: " + (completion_tokens + prompt_tokens).ToString();
+                else res = "Tokens count: N/A";
+                return res;
+            }
         }
 
         public class Prompt_Filter_Results
