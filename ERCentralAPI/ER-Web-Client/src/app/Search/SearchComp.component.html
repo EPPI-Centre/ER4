@@ -292,41 +292,41 @@
           </div>
         </div>
         <br />
-        <div id="OriginalRCT" *ngIf="prebuiltClassifier1Selected" style="max-height: 28vh; overflow: auto; white-space: pre-line;" class="card container-fluid mt-1 bg-light  m-1 p-1 form-group  border border-primary">
-          <b>Original RCT</b>
+        <div id="OriginalRCT" *ngIf="prebuiltClassifier1Selected" style="max-height: 28vh; overflow: auto;" class="mt-1 bg-light  m-1 p-1 form-group  border border-primary">
+          <b>Original RCT</b><br />
           This classifier identifies randomized trials and returns probabilities in order for users to determine their own thresholds for use.<br />
-          It was trained based on 280,620 coded records using data from the <a href="https://crowd.cochrane.org/" target="_blank">Cochrane Crowd</a>
+          It was trained based on 280,620 coded records using data from the <a href="https://crowd.cochrane.org/" target="_blank">Cochrane Crowd</a>.
         </div>
-        <div id="SystematicReview" *ngIf="prebuiltClassifier2Selected" style="max-height: 28vh; overflow: auto; white-space: pre-line;" class="card container-fluid mt-1 bg-light  m-1 p-1 form-group  border border-primary">
-          <b>Systematic Review</b>
+        <div id="SystematicReview" *ngIf="prebuiltClassifier2Selected" style="max-height: 28vh; overflow: auto;" class="mt-1 bg-light  m-1 p-1 form-group  border border-primary">
+          <b>Systematic Review</b><br />
           This classifier was built with data from the DARE database of reviews of effectiveness. It will be good at identifying these types of reviews, but less so identifying reviews answering other questions (such as those in non-health areas).<br />
-          The data for this classifier was supplied by the <a href="https://www.york.ac.uk/crd/" target="_blank">Centre for Reviews and Dissemination at the University of York</a>
+          The data for this classifier was supplied by the <a href="https://www.york.ac.uk/crd/" target="_blank">Centre for Reviews and Dissemination at the University of York</a>.
         </div>
-        <div id="EconomicEvaluation" *ngIf="prebuiltClassifier3Selected" style="max-height: 28vh; overflow: auto; white-space: pre-line;" class="card container-fluid mt-1 bg-light  m-1 p-1 form-group  border border-primary">
-          <b>Economic Evaluation</b>
+        <div id="EconomicEvaluation" *ngIf="prebuiltClassifier3Selected" style="max-height: 28vh; overflow: auto;" class="mt-1 bg-light  m-1 p-1 form-group  border border-primary">
+          <b>Economic Evaluation</b><br />
           This classifier was built with data from NHSEED, so is quite specifically about health economic evaluations.
-          The data for this classifier was supplied by the <a href="https://www.york.ac.uk/crd/" target="_blank">Centre for Reviews and Dissemination at the University of York</a>
+          The data for this classifier was supplied by the <a href="https://www.york.ac.uk/crd/" target="_blank">Centre for Reviews and Dissemination at the University of York</a>.
         </div>
-        <div id="CochraneRCT" *ngIf="prebuiltClassifier4Selected" style="max-height: 28vh; overflow: auto; white-space: pre-line;" class="card container-fluid mt-1 bg-light  m-1 p-1 form-group  border border-primary">
-          <b>Cochrane RCT</b>
+        <div id="CochraneRCT" *ngIf="prebuiltClassifier4Selected" style="max-height: 28vh; overflow: auto;" class="mt-1 bg-light  m-1 p-1 form-group  border border-primary">
+          <b>Cochrane RCT</b><br />
           The Cochrane RCT classifier divides records into two categories: those that are highly unlikely to be randomized trials and those that might be.
           It was trained based on 280,620 coded records using data from the <a href="https://crowd.cochrane.org/" target="_blank">Cochrane Crowd.</a><br />
-          More details can be found in this <a href="https://www.jclinepi.com/article/S0895-4356(20)31172-0/fulltext" style="display:inline" target="_blank">paper</a>
+          More details can be found in this <a href="https://www.jclinepi.com/article/S0895-4356(20)31172-0/fulltext" style="display:inline" target="_blank">paper</a>.
         </div>
-        <div id="COVID19MapCategories" *ngIf="prebuiltClassifier5Selected" style="max-height: 28vh; overflow: auto; white-space: pre-line;" class="card container-fluid mt-1 bg-light  m-1 p-1 form-group  border border-primary">
-          <b>COVID-19 map categories</b>
+        <div id="COVID19MapCategories" *ngIf="prebuiltClassifier5Selected" style="max-height: 28vh; overflow: auto;" class="mt-1 bg-light  m-1 p-1 form-group  border border-primary">
+          <b>COVID-19 map categories</b><br />
           This classifier divides the references into the categories based on those identified during the creation of evidence maps of COVID-19 research carried out between 2020 and 2023.<br />
-          More details on this project can be found <a href="https://eppi.ioe.ac.uk/cms/Projects/DepartmentofHealthandSocialCare/Publishedreviews(bydate)/COVID-19Livingsystematicmapoftheevidence/tabid/3765/Default.aspx" target="_blank">here</a>
+          More details on this project can be found <a href="https://eppi.ioe.ac.uk/cms/Projects/DepartmentofHealthandSocialCare/Publishedreviews(bydate)/COVID-19Livingsystematicmapoftheevidence/tabid/3765/Default.aspx" target="_blank">here</a>.
         </div>
-        <div id="LongCOVIDBinaryModel" *ngIf="prebuiltClassifier6Selected" style="max-height: 28vh; overflow: auto; white-space: pre-line;" class="card container-fluid mt-1 bg-light  m-1 p-1 form-group  border border-primary">
-          <b>Long COVID binary model</b>
+        <div id="LongCOVIDBinaryModel" *ngIf="prebuiltClassifier6Selected" style="max-height: 28vh; overflow: auto;" class="mt-1 bg-light  m-1 p-1 form-group  border border-primary">
+          <b>Long COVID binary model</b><br />
           This classifier will try to identify papers related to Long COVID based on COVID-19 research mapping carried out between 2020 and 2023.<br />
-          More details on this project can be found <a href="https://eppi.ioe.ac.uk/cms/Projects/DepartmentofHealthandSocialCare/Publishedreviews(bydate)/COVID-19Livingsystematicmapoftheevidence/tabid/3765/Default.aspx" target="_blank">here</a>
+          More details on this project can be found <a href="https://eppi.ioe.ac.uk/cms/Projects/DepartmentofHealthandSocialCare/Publishedreviews(bydate)/COVID-19Livingsystematicmapoftheevidence/tabid/3765/Default.aspx" target="_blank">here</a>.
         </div>
-        <div id="PubMedStudyDesigns" *ngIf="prebuiltClassifier9Selected" style="max-height: 28vh; overflow: auto; white-space: pre-line;" class="card container-fluid mt-1 bg-light  m-1 p-1 form-group  border border-primary">
-          <b>PubMed study designs</b>
+        <div id="PubMedStudyDesigns" *ngIf="prebuiltClassifier9Selected" style="max-height: 28vh; overflow: auto;" class="mt-1 bg-light  m-1 p-1 form-group  border border-primary">
+          <b>PubMed study designs</b><br />
           This classifier attempts to identify the type of study based on the title and abstract, and assign records into categories based on PubMed indexing.<br />
-          More details can be found in this <a href="https://eppi.ioe.ac.uk/CMS/Portals/35/PubMed%20study%20designs%20classifier%20v_1.pdf" style="display:inline" target="_blank">document</a>
+          More details can be found in this <a href="https://eppi.ioe.ac.uk/CMS/Portals/35/PubMed%20study%20designs%20classifier%20v_1.pdf" style="display:inline" target="_blank">document</a>.
         </div>
       </div>
 
