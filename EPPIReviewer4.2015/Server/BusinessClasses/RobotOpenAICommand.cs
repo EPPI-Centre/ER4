@@ -909,13 +909,23 @@ namespace BusinessLibrary.BusinessClasses
                 responses = StripThinkTagAndJsonMarkdown(responses, _itemId);
             }
 
+            var jObject = JsonConvert.DeserializeObject<JObject>(responses);
+            foreach (var property in jObject.Properties())
+            {
+                // If the value is a primitive, use its string value; otherwise serialize it back to JSON
+                resultDict[property.Name] = property.Value.Type == JTokenType.String
+                    ? property.Value.ToString()
+                    : property.Value.ToString(Formatting.None);
+            }
+
             if (isRag)
             {
-                resultRagDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
+                //resultRagDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
+                resultRagDict = resultDict;
             }
             else
             {
-                resultDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
+                //resultDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses); // addressed above now
             }
             // seems a bit odd setting the _message to 'completed' here when it's not finished, but there are no points between here and returning that we're not returning true
             _message = "Completed " + (errors > 0 ? "with" : "without") + " errors. (" + generatedText.usage.UsageMessage() + ")";
