@@ -1018,18 +1018,26 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         let encoded = Helpers.htmlEncode(this.reviewSetsService.selectedNode.name);
         //return doc.documentElement.textContent;
         if (IsBulkAssign) {
-          this.ConfirmationDialogService.confirm("Assign selected ("
-            + this.ItemListService.SelectedItems.length + ") items ? "
-            , "Are you sure you want to assign all selected items (<strong>"
-            + this.ItemListService.SelectedItems.length + "</strong>) to this code?<br>"
-            + "<div class='w-100 p-0 mx-0 my-2 text-center'><strong class='border mx-auto px-1 rounded border-success d-inline-block'>"
-            + encoded + "</strong></div>"
-            , false, '')
-            .then((confirm: any) => {
-              if (confirm) {
-                this.BulkAssingCodes(SetA.attribute_id, SetA.set_id);
-              }
-            });
+          if (this.reviewSetsService.selectedNode.isExclusive == true) {
+            this.ConfirmationDialogService.ShowInformationalModal(
+              "Bulk assigning of radio-button codes is <strong>not permitted</strong> as it would result in "
+              + "the unseen removal of any other radio-button codes assigned to the selected items."
+              , "The selected code is of type radio-button.")
+          }          
+          else {
+            this.ConfirmationDialogService.confirm("Assign selected ("
+              + this.ItemListService.SelectedItems.length + ") items ? "
+              , "Are you sure you want to assign all selected items (<strong>"
+              + this.ItemListService.SelectedItems.length + "</strong>) to this code?<br>"
+              + "<div class='w-100 p-0 mx-0 my-2 text-center'><strong class='border mx-auto px-1 rounded border-success d-inline-block'>"
+              + encoded + "</strong></div>"
+              , false, '')
+              .then((confirm: any) => {
+                if (confirm) {
+                  this.BulkAssingCodes(SetA.attribute_id, SetA.set_id);
+                }
+              });
+          }
         }
         else if (!IsBulkAssign) {
           this.ConfirmationDialogService.confirm("Remove selected ("
