@@ -4,8 +4,8 @@
         <div class="col-12">
           <div class="form-group">
             <label for="Codeset_TypeCollaborate">Code Type*</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <input *ngIf="showRadioButtonEntry" type="checkbox" (click)="radioButtonEntryClicked($event)" [(ngModel)]="radioButtonEntry" name="radioButtonCB">&nbsp;
-            <label *ngIf="showRadioButtonEntry" for="Codeset_TypeCollaborate">Radio button code</label>
+            <!--<input *ngIf="showRadioButtonEntry" type="checkbox" (click)="radioButtonEntryClicked($event)" [(ngModel)]="radioButtonEntry" name="radioButtonCB">&nbsp;
+            <label *ngIf="showRadioButtonEntry" for="Codeset_TypeCollaborate">Radio button code</label>-->
             <select #CodeTypeSelectCollaborate class="form-control" name="NewCode_TypeCollaborate"
                     [disabled]="!CurrentCodeCanHaveChildren" (change)="ChangeLastSelectedCodeType($event)">
               <option *ngFor="let type of AllowedChildTypesOfSelectedNode" [value]="type.key" [selected]="type.key == LastSelectedCodeTypeId">
