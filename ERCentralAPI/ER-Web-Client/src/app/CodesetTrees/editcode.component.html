@@ -71,16 +71,18 @@
         </div>
         <form *ngIf="ShowPanel !== 'MoveCode' && UpdatingCode" class="row" #EditCodeFrom="ngForm" (ngSubmit)="onSubmit()">
             <div class="col-12">
-                <div class="form-group">
-                    <label for="Codeset_Type">Code Type*</label>
-                    <select #EditCodeTypeSelect class="col-md-6 form-control"
-                            (change)="AttributeTypeChanged($event)" name="Code_Type"
-                            [(ngModel)]="UpdatingCode.attribute_type_id">
-                        <option *ngFor="let type of AllowedChildTypes" [value]="type.key" [selected]="UpdatingCode && type.key == UpdatingCode.attribute_type_id">
-                            {{type.value}}
-                        </option>
-                    </select>
-                </div>
+              <div class="form-group">
+                <label for="Codeset_Type">Code Type*</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <input *ngIf="UpdatingCode.isExclusive" type="checkbox" checked="checked" (click)="radioButtonEntryClicked($event)" name="radioButtonCB">&nbsp;
+                <label *ngIf="UpdatingCode.isExclusive" for="Codeset_TypeCollaborate">Radio-button code   (untick for normal code)</label>
+                <select #EditCodeTypeSelect class="col-md-6 form-control"
+                        (change)="AttributeTypeChanged($event)" name="Code_Type"
+                        [(ngModel)]="UpdatingCode.attribute_type_id">
+                  <option *ngFor="let type of AllowedChildTypes" [value]="type.key" [selected]="UpdatingCode && type.key == UpdatingCode.attribute_type_id">
+                    {{type.value}}
+                  </option>
+                </select>
+              </div>
             </div>
             <div class="form-group col-12">
                 <label for="source_Name">Code Name*</label>
@@ -98,7 +100,8 @@
                           [(ngModel)]="UpdatingCode.attribute_set_desc" name="newAttDescription" rows="3"></textarea>
             </div>
             <div class="col-12">
-                <button type="submit" (click)="UpdateCode()" class="btn btn-success ml-2 mr-2" [disabled]="!EditCodeFrom.dirty || !IsNewCodeNameValid() || !CanWrite() ">
+                <button type="submit" (click)="UpdateCode()" class="btn btn-success ml-2 mr-2"
+                        [disabled]="!HasAnythingChanged(EditCodeFrom.dirty) || !IsNewCodeNameValid() || !CanWrite()">
                     Update
                 </button>
                 <button *ngIf="UpdatingCode.attribute_type != 'Exclude' && UpdatingCode.attribute_type != 'Include'" class="btn btn-outline-primary ml-1" type="button"

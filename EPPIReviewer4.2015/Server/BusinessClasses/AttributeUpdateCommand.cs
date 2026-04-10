@@ -34,9 +34,10 @@ namespace BusinessLibrary.BusinessClasses
         private int _attributeOrder;
         private string _extURL;
         private string _extType;
+        private bool _isExclusive;
 
         public AttributeUpdateCommand(Int64 attributeId, Int64 attributeSetId, int attributeTypeId, string attributeName, string attributeDescription,
-            int attributeOrder, string extURL, string extType)
+            int attributeOrder, string extURL, string extType, bool isExclusive)
         {
             _attributeId = attributeId;
             _attributeSetId = attributeSetId;
@@ -46,6 +47,7 @@ namespace BusinessLibrary.BusinessClasses
             _attributeOrder = attributeOrder;
             _extURL = extURL;
             _extType = extType;
+            _isExclusive = isExclusive;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
@@ -59,6 +61,7 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_attributeOrder", _attributeOrder);
             info.AddValue("_extURL", _extURL);
             info.AddValue("_extType", _extType);
+            info.AddValue("_isExclusive", _isExclusive);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
@@ -70,6 +73,7 @@ namespace BusinessLibrary.BusinessClasses
             _attributeOrder = info.GetValue<int>("_attributeOrder");
             _extURL = info.GetValue<string>("_extURL");
             _extType = info.GetValue<string>("_extType");
+            _isExclusive = info.GetValue<bool>("_isExclusive");
         }
 
 
@@ -93,6 +97,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@Ext_URL", _extURL));
                     command.Parameters.Add(new SqlParameter("@Ext_Type", _extType));
+                    command.Parameters.Add(new SqlParameter("@IS_EXCLUSIVE", _isExclusive));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();
