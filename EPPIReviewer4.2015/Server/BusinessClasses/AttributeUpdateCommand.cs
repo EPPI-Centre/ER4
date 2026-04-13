@@ -97,7 +97,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@Ext_URL", _extURL));
                     command.Parameters.Add(new SqlParameter("@Ext_Type", _extType));
-                    command.Parameters.Add(new SqlParameter("@IS_EXCLUSIVE", _isExclusive));
+                    //command.Parameters.Add(new SqlParameter("@IS_EXCLUSIVE", _isExclusive));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();
