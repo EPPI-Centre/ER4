@@ -271,6 +271,7 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
       newAtt.extType = iAtt.extType;
       newAtt.originalAttributeID = iAtt.originalAttributeID;
       newAtt.oldestKnownId = iAtt.oldestKnownId;
+      newAtt.isExclusive = iAtt.isExclusive;
       newAtt.attributes = ReviewSetsService.childrenFromJSONarray(iAtt.attributes.attributesList);
       result.push(newAtt);
     }
@@ -457,8 +458,6 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
   }
   @Output() ItemCodingCheckBoxClickedEvent: EventEmitter<CheckBoxClickedEventData> = new EventEmitter<CheckBoxClickedEventData>();
   public PassItemCodingCeckboxChangedEvent(evdata: CheckBoxClickedEventData) {
-    //this._IsBusy = true;
-
     this.ItemCodingCheckBoxClickedEvent.emit(evdata);
   }
   @Output() ItemCodingItemAttributeSaveCommandExecuted: EventEmitter<ItemAttributeSaveCommand> = new EventEmitter<ItemAttributeSaveCommand>();
@@ -470,25 +469,42 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
     this._BusyMethods.push("ExecuteItemAttributeSaveCommand");
     //this "busy" situation is handled in ItemCodingItemAttributeSaveCommandHandled as it gets completed in the "coding" components...
     //thus, we don't simply remove it when the API call ends.
-    this._httpC.post<ItemAttributeSaveCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemAttributeSaveCommand', cmd).subscribe(
-      data => {
+    if (cmd.isExclusive == true) {
+      this._httpC.post<ItemAttributeSaveCommand>(this._baseUrl + 'api/ItemSetList/ExecuteItemAttributeExclusiveSaveCommand', cmd).subscribe(
+        data => {
 
-        this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
-        //this._IsBusy = false;
-      }, error => {
+          this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
+          //this._IsBusy = false;
+        }, error => {
 
-        this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
-        //this.ItemCodingItemAttributeSaveCommandError.emit(error);
-        //this._IsBusy = false;
-        this.RemoveBusy("ExecuteItemAttributeSaveCommand");
-      }
-    );
+          this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
+          //this.ItemCodingItemAttributeSaveCommandError.emit(error);
+          //this._IsBusy = false;
+          this.RemoveBusy("ExecuteItemAttributeSaveCommand");
+        }
+      );
+    }
+    else {
+      this._httpC.post<ItemAttributeSaveCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemAttributeSaveCommand', cmd).subscribe(
+        data => {
+
+          this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
+          //this._IsBusy = false;
+        }, error => {
+
+          this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
+          //this.ItemCodingItemAttributeSaveCommandError.emit(error);
+          //this._IsBusy = false;
+          this.RemoveBusy("ExecuteItemAttributeSaveCommand");
+        }
+      );
+    }
   }
   public ExecuteItemAttributeBulkInsertCommand(cmd: ItemAttributeBulkSaveCommand) {
     this._BusyMethods.push("ExecuteItemAttributeBulkInsertCommand");
     //this "busy" situation is handled in ItemCodingItemAttributeSaveCommandHandled as it gets completed in the "coding" components...
     //thus, we don't simply remove it when the API call ends.
-    this._httpC.post<ItemAttributeBulkSaveCommand>(this._baseUrl + 'api/ItemSetList/ExecuteItemAttributeBulkInsertCommand', cmd).subscribe(
+    lastValueFrom(this._httpC.post<ItemAttributeBulkSaveCommand>(this._baseUrl + 'api/ItemSetList/ExecuteItemAttributeBulkInsertCommand', cmd)).then(
       data => {
         this.RemoveBusy("ExecuteItemAttributeBulkInsertCommand");
         //this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
@@ -504,7 +520,7 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
     this._BusyMethods.push("ExecuteItemAttributeBulkDeleteCommand");
     //this "busy" situation is handled in ItemCodingItemAttributeSaveCommandHandled as it gets completed in the "coding" components...
     //thus, we don't simply remove it when the API call ends.
-    this._httpC.post<ItemAttributeBulkSaveCommand>(this._baseUrl + 'api/ItemSetList/ExecuteItemAttributeBulkDeleteCommand', cmd).subscribe(
+    lastValueFrom(this._httpC.post<ItemAttributeBulkSaveCommand>(this._baseUrl + 'api/ItemSetList/ExecuteItemAttributeBulkDeleteCommand', cmd)).then(
       data => {
         this.RemoveBusy("ExecuteItemAttributeBulkDeleteCommand");
         //this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
@@ -516,66 +532,7 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
       }
     );
   }
-  public ExecuteItemSetCompleteCommand(cmd: ItemSetCompleteCommand): Promise<boolean> {
-    //returns FALSE if something didn't work, error messages get triggered from within
-    //updates data whithin this service, but NOT in ItemCodingService, components calling this method should do it, if method returns TRUE;
-    let rSet = this._ReviewSets.find(found => found.ItemSetId == cmd.itemSetId);
-    //get rSet upfront so that when the API call returns it's easy to know if we need to update it or not.
-    //this is because the user could move to a different item while this call is happening...
-    if (rSet == undefined) {
-      this.modalService.GenericErrorMessage("Sorry, the 'apply' operation failed. We could not find the data needed to save the change.<br />"
-        + "Please navigate to the next item and then back, to reload the coding data and then try again. " +
-        "If the problem persists please contact EPPISupport.");
-      return new Promise<boolean>((resolve, reject) => { resolve(false); });
-    }
-    this._BusyMethods.push("ExecuteItemSetCompleteCommand");
-    return lastValueFrom(this._httpC.post<ItemSetCompleteCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemSetCompleteCommand', cmd))
-      .then(
-        data => {
-          this.RemoveBusy("ExecuteItemSetCompleteCommand");
-          if (data.successful != null && data.successful) {
-            if (rSet !== undefined && rSet.ItemSetId == cmd.itemSetId) {
-              //the rSet identified before calling the API has coding from the same Item that was shown when user clicked "apply", so we can update it
-              rSet.codingComplete = cmd.complete;
-              rSet.itemSetIsLocked = cmd.isLocked;
-            }
-            else {
-              //the rSet identified before calling the API has coding for a different item, or no coding => user changed item while API call was executed;
-              //do nothing...
-
-              //this.modalService.GenericErrorMessage("Sorry your changes have been saved, but we could not update it here. "
-              //    + "Please navigate to the next item and then back, to check if the expected changes did happen. " +
-              //    "If the problem persists please contact EPPISupport.");
-              return false;
-            }
-            return true;
-          }
-          else {
-            this.modalService.GenericErrorMessage("Sorry, saving your data reported a failure. <br />"
-              + "Please navigate to the next item and then back, to reload the coding data and then try again. " +
-              "If the problem persists please contact EPPISupport.");
-            return false;
-          }
-        }, error => {
-          this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. <br />"
-            + "Please navigate to the next item and then back, to reload the coding data and then try again. " +
-            "If the problem persists please contact EPPISupport.");
-          //this.ItemCodingItemAttributeSaveCommandError.emit(error);
-          //this._IsBusy = false;
-          console.log("Error in ExecuteItemSetCompleteCommand:", error);
-          this.RemoveBusy("ExecuteItemSetCompleteCommand");
-          return false;
-        }
-      ).catch(catched => {
-        this.modalService.GenericError("Sorry, an ERROR occurred when saving your data. Please try again. If the problem persists please contact EPPISupport.");
-        //this.ItemCodingItemAttributeSaveCommandError.emit(error);
-        //this._IsBusy = false;
-        console.log("Error(catch) in ExecuteItemSetCompleteCommand:", catched);
-        this.RemoveBusy("ExecuteItemSetCompleteCommand");
-        return false;
-      });
-
-  }
+  
 
   /*REGION: retain isExpanded data across all trees...*/
   public ExpandedNodeKeys: string[] = [];
@@ -647,6 +604,7 @@ export interface singleNode {
   description: string;
   attributeSetId: number;
   parent: number;
+  isExclusive: boolean;
 
   isSelected: boolean;
   additionalText: string;
@@ -684,6 +642,48 @@ export class ReviewSet implements singleNode {
     return res;
   }
 
+  public printHtml(printCsetShowIds: boolean, printCsetShowTypes: boolean, printCsetShowDescriptions: boolean): string {
+    let res: string = "";
+    res += "<h2>" + this.set_name;
+    if (printCsetShowIds) res += " (ID: " + this.set_id + ")";
+    if (printCsetShowTypes) res += " [" + this.setType.setTypeName + "]";
+    res += "</h2>";
+
+    if (printCsetShowDescriptions && this.description.trim().length > 0) {
+      let desc: string = this.description;
+      desc = desc.replace("\r\n", "<br>");
+      desc = desc.replace("\n", "<br>");
+      desc = desc.replace("\r", "<br>");
+      res += "<i>" + desc + " </i>";
+    }
+    res += "<p><ul>";
+    for (let attributeSet of this.attributes) {
+      res = this.PrintReviewSetAddAttributes(res, attributeSet, printCsetShowIds, printCsetShowDescriptions, printCsetShowTypes);
+    }
+    res += "</ul></p>";
+    return res;
+  }
+  PrintReviewSetAddAttributes(report: string, attributeSet: SetAttribute, showIDs: boolean, showDescriptions: boolean, ShowTypes: boolean): string {
+    let desc: string = attributeSet.description;
+    desc = desc.replace("\r\n", "<br>");
+    desc = desc.replace("\n", "<br>");
+    desc = desc.replace("\r", "<br>");
+    report += "<li>" + attributeSet.attribute_name;
+    if (showIDs) report += " (ID = " + attributeSet.attribute_id + ")";
+    if (ShowTypes) report += " [" + attributeSet.attribute_type + "]";
+    if (showDescriptions && desc.trim().length > 0) report += "<br><i>" + desc + " </i>";
+
+    if (attributeSet.attributes != null && attributeSet.attributes.length > 0) {
+      report += "<ul>";
+      for (let child of attributeSet.attributes) {
+        report = this.PrintReviewSetAddAttributes(report, child, showIDs, showDescriptions, ShowTypes);
+      }
+      report += "</ul>";
+    }
+    report += "</li>";
+    return report;
+  }
+
   public description: string = "";
   setType: iSetType = {
     setTypeId: 0,
@@ -712,6 +712,7 @@ export class ReviewSet implements singleNode {
   userCanEditURLs: boolean = false;
   originalSetId: number = 0;
   oldestKnownId: number = 0;
+  isExclusive: boolean = false;
 
   public get NumberOfChildren(): number {
     let countSoFar: number = 0;
@@ -721,6 +722,23 @@ export class ReviewSet implements singleNode {
       countSoFar = A.NumberOfChildren(countSoFar);
     }
     return countSoFar;
+  }
+  public get HasChildrenWithPrompt(): boolean {
+    let res = false;
+    for (const A of this.attributes) {
+      if (A.IsCodeWithLlmPrompt) return true;
+      if (A.HasChildrenWithPrompt) return true;
+    }
+    return false;
+  }
+  public get AllChildrentWithPrompts(): SetAttribute[] {
+    let listSoFar: SetAttribute[] = []
+    for (const A of this.attributes) {
+      if (A.IsCodeWithLlmPrompt) listSoFar.push(A);
+      listSoFar = A.AllChildrentWithPrompts(listSoFar);
+    }
+    
+    return listSoFar;
   }
 }
 //
@@ -734,6 +752,7 @@ export class SetAttribute implements singleNode {
   attribute_type: string = "";
   attribute_set_desc: string = "";
   attribute_desc: string = "";
+  isExclusive: boolean = false;
   set_id: number = 0;
   public get description(): string {
     return this.attribute_set_desc;
@@ -786,6 +805,29 @@ export class SetAttribute implements singleNode {
     }
     return countSoFar;
   }
+  public get IsCodeWithLlmPrompt(): boolean {
+    //(possiblePrompt.IndexOf(':') > 1 && possiblePrompt.IndexOf("//") > possiblePrompt.IndexOf(':'))
+    const ColIndex = this.attribute_set_desc.indexOf(':');
+    if (ColIndex == -1) return false;
+    const SlashesIndex = this.attribute_set_desc.indexOf('//');
+    if (SlashesIndex == -1) return false;
+    if (SlashesIndex > ColIndex + 4) return true;
+    return false;
+  }
+  public get HasChildrenWithPrompt(): boolean {
+    for (const A of this.attributes) {
+      if (A.IsCodeWithLlmPrompt) return true;
+      if (A.HasChildrenWithPrompt) return true;
+    }
+    return false;
+  }
+  public AllChildrentWithPrompts(listSoFar: SetAttribute[] = []): SetAttribute[] {
+    for (const A of this.attributes) {
+      if (A.IsCodeWithLlmPrompt) listSoFar.push(A);
+      listSoFar = A.AllChildrentWithPrompts(listSoFar);
+    }
+    return listSoFar;
+  }
 }
 
 export interface iReviewSet {
@@ -822,6 +864,7 @@ export interface iAttributeSet {
   extType: string;
   originalAttributeID: number;
   oldestKnownId: number;
+  isExclusive: boolean;
 }
 export interface iSetType {
   setTypeId: number;
@@ -846,7 +889,7 @@ export class ItemAttributeSaveCommand {
   public setId: number = 0;
   public itemId: number = 0;
   public itemArmId: number = 0;
-
+  public isExclusive: boolean = false;
   public revInfo: ReviewInfo | null = null;
 }
 export class ItemAttributeBulkSaveCommand {

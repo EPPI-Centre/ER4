@@ -289,7 +289,8 @@ function openReviewerList(ID) {
                     </td>
                   
                    <td style="background-color: #FFFFCC;vertical-align:top;padding:3px" colspan="3">
-                       OpenAI Credit<br />
+                       <asp:Label ID="lblLLMCreditHeading" runat="server" Font-Bold="True" Visible="False" Text="LLM Coding Credit"></asp:Label>
+                       <br />
                     <asp:GridView ID="gvCreditForRobots" runat="server" Width="100%" onrowdatabound="gvCreditForRobots_RowDataBound"
                         onrowcommand="gvCreditForRobots_RowCommand" AutoGenerateColumns="False" EnableModelValidation="True" 
                         DataKeyNames="CREDIT_FOR_ROBOTS_ID" Visible="true">
@@ -321,9 +322,39 @@ function openReviewerList(ID) {
                             <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
                             </asp:ButtonField>                         
                         </Columns>
-                    </asp:GridView>
-                    </td>
-                   
+                    </asp:GridView>                   
+                        <asp:Panel ID="pnlSiteLicenseCredit" runat="server" Visible="false">
+                            Site license # 
+                            <asp:Label ID="lblSiteLicenseNumber" runat="server" Font-Bold="True" Visible="True"></asp:Label>
+                            LLM Coding credit<br />
+                            <asp:GridView ID="gvCreditForRobotsSL" runat="server" Width="100%" 
+                                 AutoGenerateColumns="False" EnableModelValidation="True" 
+                                DataKeyNames="CREDIT_FOR_ROBOTS_ID" Visible="true">
+                                <Columns>
+                                    <asp:BoundField HeaderText="Robot Credit ID" DataField="CREDIT_FOR_ROBOTS_ID">
+                                    <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                        HorizontalAlign="Left" />
+                                    <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                    </asp:BoundField>
+                                    <asp:BoundField HeaderText="Purchase ID" DataField="CREDIT_PURCHASE_ID">
+                                    <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                        HorizontalAlign="Left" />
+                                    <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                    </asp:BoundField>
+                                    <asp:BoundField HeaderText="Credit purchaser (ID)" DataField="CREDIT_PURCHASER" >
+                                    <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                        HorizontalAlign="Left" />
+                                    <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                    </asp:BoundField>
+                                    <asp:BoundField HeaderText="Credit remaining" DataField="REMAINING" >
+                                    <HeaderStyle BackColor="#B6C6D6" BorderStyle="Solid" BorderWidth="1px" 
+                                        HorizontalAlign="Left" />
+                                    <ItemStyle BackColor="White" BorderStyle="Solid" BorderWidth="1px" />
+                                    </asp:BoundField>                        
+                                </Columns>
+                            </asp:GridView>
+                        </asp:Panel>
+                    </td>                 
                 </tr>
                 <tr>
                     <td style="width: 20%; background-color: #B6C6D6">

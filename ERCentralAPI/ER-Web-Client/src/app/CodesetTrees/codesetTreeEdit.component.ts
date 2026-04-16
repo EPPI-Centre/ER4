@@ -4,7 +4,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewSetsService, ReviewSet, singleNode, SetAttribute } from '../services/ReviewSets.service';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { TreeItem } from '@progress/kendo-angular-treeview';
-import { faCaretDown, faCaretUp, faAngleDoubleDown, faAngleDoubleUp, faEject, faPlaneDeparture } from '@fortawesome/free-solid-svg-icons';
+import { faCircle, faCircleDot, faCircleCheck, faCaretDown, faCaretUp, faAngleDoubleDown, faAngleDoubleUp, faEject, faPlaneDeparture } from '@fortawesome/free-solid-svg-icons';
 import { EditCodeComp } from '../CodesetTrees/editcode.component';
 
 @Component({
@@ -42,6 +42,9 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy, AfterViewIni
   faAngleDoubleDown = faAngleDoubleDown;
   faAngleDoubleUp = faAngleDoubleUp;
   faEject = faEject;
+  faCircle = faCircle;
+  faCircleDot = faCircleDot;
+  faCircleCheck = faCircleCheck;
   faPlaneDeparture = faPlaneDeparture;
   public CanWrite(): boolean {
     if (this.CanChangeSelectedCode) {

@@ -164,31 +164,47 @@
 				</div>
 			</div>
             <div class="row w-100 p-0 m-0 border-bottom   ">
-                <div *ngIf="URLLink == ''; else elseURLBlock" class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">
+                <div *ngIf="URLLink == ''; else elseURLBlock" class="p-1 ml-1 mt-1 font-weight-bold col-auto" style="min-width:90px; max-width:90px;">
                     Url
                 </div>
                 <ng-template #elseURLBlock>
-                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">
+                    <div class="p-1 ml-1 mt-1 font-weight-bold col-auto" style="min-width: 90px; max-width: 90px;">
                         <a href="{{URLLink}}" target="_blank">Url</a>
                     </div>
                 </ng-template>
-                <div class="col p-1 m-1 bg-white text-nowrap" style="overflow:auto">
-                    {{item.url}}
-                </div>
+								<div class="col px-1 m-1 bg-white d-flex justify-content-between ">
+									<div class="my-auto text-nowrap" style="overflow-x:auto;">{{item.url}}</div>
+									<button *ngIf="URLLink !== ''" type="button"
+													class="btn btn-sm btn-link p-0 my-auto"
+													style="width:28px; height:24px;"
+													title="Copy URL"
+													(click)="copyToClipboard(item.url || URLLink)">
+										<fa-icon [icon]="faCopy" class="my-0"></fa-icon>
+										<span class="sr-only">Copy URL</span>
+									</button>
+								</div>
             </div>
             <div class="row w-100 p-0 m-0 border-bottom  ">
                 <div class="w-50 row p-0 m-0">
-                    <div *ngIf="DOILink == ''; else elseDOIBlock" class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">
+                    <div *ngIf="DOILink == ''; else elseDOIBlock" class="px-1 ml-1 mt-1 font-weight-bold col-auto" style="min-width: 90px; max-width: 90px;">
                         DOI
                     </div>
                     <ng-template #elseDOIBlock>
-                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">
+                        <div class="p-1 ml-1 mt-1 font-weight-bold col-auto" style="min-width: 90px; max-width: 90px;">
                             <a href="{{DOILink}}" target="_blank">DOI</a>
                         </div>
                     </ng-template>
-                    <div class="col p-1 m-1 bg-white ">
-                        {{item.doi}}
-                    </div>
+										<div class="col px-1 m-1 bg-white d-flex justify-content-between ">
+                      <div class="my-auto text-nowrap" style="overflow-x:auto;" >{{item.doi}}</div>
+											<button *ngIf="DOILink !== ''" type="button"
+															class="btn btn-sm btn-link p-0 my-auto"
+															style="width:28px; height:24px; "
+															title="Copy DOI"
+															(click)="copyToClipboard(item.doi || DOILink)">
+												<fa-icon [icon]="faCopy"></fa-icon>
+												<span class="sr-only">Copy DOI</span>
+											</button>
+										</div>
                 </div>
                 <div class="w-50 row p-0 m-0">
                     <div class="p-1 ml-1 mt-1" style="min-width:90px;">Availability</div>

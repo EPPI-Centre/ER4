@@ -55,6 +55,18 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(BlobProperty, value);
             }
         }
+        public static readonly PropertyInfo<string> blobBuscarProperty = RegisterProperty<string>(new PropertyInfo<string>("blobBuscar", "blobBuscar"));
+        public string blobBuscar
+        {
+            get
+            {
+                return GetProperty(blobBuscarProperty);
+            }
+            set
+            {
+                SetProperty(blobBuscarProperty, value);
+            }
+        }
 
         //protected override void AddAuthorizationRules()
         //{
@@ -88,11 +100,24 @@ namespace BusinessLibrary.BusinessClasses
             string FolderAndFileName = DataFactoryHelper.NameBase + "ReviewId" + ri.ReviewId.ToString();
             string RemoteFolder = "priority_screening_simulation/" + FolderAndFileName + "/";
             string ScoresFile = RemoteFolder + criteria.Value;
+            LoadProperty<string>(SimulationNameProperty, criteria.Value);
 
+            // load simulation results file
             string blobConnection = AzureSettings.blobConnection;
             MemoryStream downloadedBlob = BlobOperations.DownloadBlobAsMemoryStream(blobConnection, "eppi-reviewer-data", ScoresFile);
             this.blob = Encoding.UTF8.GetString(downloadedBlob.GetBuffer(), 0, (int)downloadedBlob.Length);
             LoadProperty<string>(SimulationNameProperty, criteria.Value);
+
+            // load buscar values file
+            if (BlobOperations.ThisBlobExist(blobConnection, "eppi-reviewer-data", ScoresFile + "_buscar.tsv"))
+            {
+                MemoryStream downloadedBlobBuscar = BlobOperations.DownloadBlobAsMemoryStream(blobConnection, "eppi-reviewer-data", ScoresFile + "_buscar.tsv");
+                this.blobBuscar = Encoding.UTF8.GetString(downloadedBlobBuscar.GetBuffer(), 0, (int)downloadedBlobBuscar.Length);
+            }
+            else
+            {
+                this.blobBuscar = "";
+            }
         }
         protected override void DataPortal_Insert()
         {

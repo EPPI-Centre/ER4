@@ -42,11 +42,7 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
   @Output() PleaseCloseMe = new EventEmitter();
 
   ngOnInit() {
-    this.robotsService.GetCurrentQueue().then(() => {
-      if (this.robotsService.CurrentQueue.length > 0) this.ShowQueue = true;
-      else this.ShowQueue = false;
       if (this.robotsService.RobotsList.length == 0) this.robotsService.GetRobotsList();
-    });
   }
   HasWriteRights(): boolean {
     return this._reviewerIdentityServ.HasWriteRights;
@@ -54,10 +50,6 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
 
   public get RobotSettings(): iRobotSettings {
     return this.robotsService.RobotSetting;
-  }
-
-  public get CurrentQueue(): iRobotOpenAiTaskReadOnly[] {
-    return this.robotsService.CurrentQueue;
   }
 
   public get SelectedItems(): Item[] {
@@ -83,51 +75,8 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
       else return false;
     }
   }
-  public JobCSSclass(Job: iRobotOpenAiTaskReadOnly): string {
-    let res:string = "";
-    if (this._reviewerIdentityServ.reviewerIdentity.isSiteAdmin) {
-      if (Job.reviewId == this._reviewerIdentityServ.reviewerIdentity.reviewId
-        || Job.jobOwnerId == this._reviewerIdentityServ.reviewerIdentity.userId) res = "alert-primary";
-      else res = "";
-    } else {
-      if (Job.reviewId > 0) res = "alert-primary";
-      else res = "";
-    }
-    if (Job.robotApiCallId == this.DetailsJobId) {
-      res += (res == "" ? "" : " ") + "font-weight-bold";
-    }
-    return res;
-  }
-  public get DetailedJob(): iRobotOpenAiTaskReadOnly | undefined {
-    if (this.DetailsJobId > 0) {
-      const index = this.robotsService.CurrentQueue.findIndex(f => f.robotApiCallId == this.DetailsJobId);
-      if (index == -1) this.DetailsJobId = -1;
-      else if (this.robotsService.CurrentQueue[index].reviewId > 0) {
-        return this.robotsService.CurrentQueue[index];
-      }
-    }
-    return undefined;
-  }
+  
 
-  public JobDescription(Job: iRobotOpenAiTaskReadOnly): string {
-    if (Job.status == 'Running') {
-      let index = Job.itemIDsList.findIndex(f => f == Job.currentItemId) + 1;
-      return "Done Item " + index.toString() + " of " + Job.itemIDsList.length.toString();
-    }
-    else return 'Queued';
-  }
-  public JobDetails(robotApiCallId: number) {
-    if (this.DetailsJobId == robotApiCallId) {
-      this.DetailsJobId = -1;
-      return;
-    }
-    const index = this.robotsService.CurrentQueue.findIndex(f => f.robotApiCallId == robotApiCallId);
-    if (index == -1) this.DetailsJobId = -1;
-    else this.DetailsJobId = robotApiCallId;
-  }
-  public RefreshQueue() {
-    this.robotsService.GetCurrentQueue();
-  }
   public GoToPastJobs() {
     this.router.navigate(['JobsRecord']);
   }
@@ -183,7 +132,7 @@ export class RobotBatchJobs implements OnInit, OnDestroy {
       onlyCodeInTheRobotName: this.RobotSettings.onlyCodeInTheRobotName,
       lockTheCoding: this.RobotSettings.lockTheCoding,
       useFullTextDocument: this.RobotSettings.useFullTextDocument,
-      returnMessage: ""
+      returnMessage: "",
     };
     this.robotsService.EnqueueRobotOpenAIBatchCommand(data).then(
       (res:boolean) => {

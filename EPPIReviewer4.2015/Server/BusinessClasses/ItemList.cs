@@ -806,6 +806,15 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@WithOutAttributesIdsList", criteria.WithOutAttributesIdsList));
                     command.Parameters.Add(new SqlParameter("@WithOutSetIdsList", criteria.WithOutSetIdsList));
                     break;
+                case "RobotOpenAIPromptEvaluationResults":
+                    command = new SqlCommand("st_RobotOpenAIPromptEvaluationResults", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@ReviewId", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", criteria.AttributeId));
+                    command.Parameters.Add(new SqlParameter("@OPENAI_PROMPT_EVALUATION_ID", criteria.OpenAiPromptEvaluationId));
+                    command.Parameters.Add(new SqlParameter("@LlmTrue", criteria.llmTrue));
+                    command.Parameters.Add(new SqlParameter("@GoldTrue", criteria.goldTrue));
+                    break;
 #if WEBDB //little trick to avoid making this field add to routine costs in ER4 and ER-Web 
                 //this section contains special lists used only by WebDbs
                 case "WebDbWithThisCode":
@@ -1150,6 +1159,42 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(WithOutSetIdsListProperty, value);
             }
         }
+        public static readonly PropertyInfo<bool> goldTrueProperty = RegisterProperty<bool>(typeof(SelectionCriteria), new PropertyInfo<bool>("goldTrue", "goldTrue", true));
+        public bool goldTrue
+        {
+            get { return ReadProperty(goldTrueProperty); }
+            set
+            {
+                SetProperty(goldTrueProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<bool> llmTrueProperty = RegisterProperty<bool>(typeof(SelectionCriteria), new PropertyInfo<bool>("llmTrue", "llmTrue", true));
+        public bool llmTrue
+        {
+            get { return ReadProperty(llmTrueProperty); }
+            set
+            {
+                SetProperty(llmTrueProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<int> OpenAiPromptEvaluationIdProperty = RegisterProperty<int>(typeof(SelectionCriteria), new PropertyInfo<int>("OpenAiPromptEvaluationId", "OpenAiPromptEvaluationId", 0));
+        public int OpenAiPromptEvaluationId
+        {
+            get { return ReadProperty(OpenAiPromptEvaluationIdProperty); }
+            set
+            {
+                SetProperty(OpenAiPromptEvaluationIdProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(typeof(SelectionCriteria), new PropertyInfo<Int64>("AttributeId", "AttributeId", 0L));
+        public Int64 AttributeId
+        {
+            get { return ReadProperty(AttributeIdProperty); }
+            set
+            {
+                SetProperty(AttributeIdProperty, value);
+            }
+        }
 #if WEBDB //little trick to avoid making this field add to routine costs in ER4 and ER-Web
         public static readonly PropertyInfo<int> WebDbIdProperty = RegisterProperty<int>(typeof(SelectionCriteria), new PropertyInfo<int>("WebDbId", "WebDbId", 0));
         public int WebDbId
@@ -1178,6 +1223,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(SearchStringProperty, value);
             }
         }
+        
 #endif
     }
 #if !SILVERLIGHT

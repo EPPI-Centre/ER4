@@ -648,7 +648,7 @@ namespace BusinessLibrary.BusinessClasses
 
 
 
-        public static string doOaRequest(string expression)
+        public static string doOaRequest(string expression, int retries = 0)
         {
 
             string endpoint = AzureSettings.OpenAlexEndpoint;
@@ -657,7 +657,7 @@ namespace BusinessLibrary.BusinessClasses
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
             HttpWebRequest request = WebRequest.CreateHttp(endpoint + expression);
             request.UserAgent = "mailto:" + AzureSettings.OpenAlexEmailHeader;
-
+            int maxRetries = 5;
             try
             {
                 WebResponse response = request.GetResponse();
@@ -670,10 +670,17 @@ namespace BusinessLibrary.BusinessClasses
             }
             catch (WebException e)
             {
-                if (e.Message.Contains("429"))
+                if (e.Message.Contains("429") && retries < maxRetries * 4)
                 {
-                    System.Threading.Thread.Sleep(500);
-                    return doOaRequest(expression);
+                    retries++;
+                    System.Threading.Thread.Sleep(retries * 500);
+                    return doOaRequest(expression, retries);
+                }
+                else if (e.Message.Contains("503") && retries < maxRetries)
+                {
+                    retries++;
+                    System.Threading.Thread.Sleep(30*1000);
+                    return doOaRequest(expression, retries);
                 }
             }
             return responseText;

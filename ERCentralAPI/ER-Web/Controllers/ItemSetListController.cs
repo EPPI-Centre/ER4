@@ -96,6 +96,55 @@ namespace ERxWebClient2.Controllers
             MVCcmd.setId = cmd.SetId;
             return MVCcmd;
         }
+
+        [HttpPost("[action]")]
+        public IActionResult ExecuteItemAttributeExclusiveSaveCommand([FromBody] MVCItemAttributeSaveCommand MVCcmd)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    MVCcmd = InternalExecuteItemAttributeExclusiveSaveCommand(MVCcmd);
+                    return Ok(MVCcmd);
+                }
+                else return Forbid();
+
+            }
+            catch (Exception e)
+            {
+                string json = JsonConvert.SerializeObject(MVCcmd);
+                _logger.LogError(e, "Dataportal Error with Item Attributes: {0}", json);
+                return StatusCode(500, e.Message);
+            }
+        }
+        private MVCItemAttributeSaveCommand InternalExecuteItemAttributeExclusiveSaveCommand(MVCItemAttributeSaveCommand MVCcmd)
+        {
+            ItemAttributeSaveCommand cmd = new ItemAttributeSaveCommand(
+                        MVCcmd.saveType
+                        , MVCcmd.itemAttributeId
+                        , MVCcmd.itemSetId
+                        , MVCcmd.additionalText
+                        , MVCcmd.attributeId
+                        , MVCcmd.setId
+                        , MVCcmd.itemId
+                        , MVCcmd.itemArmId
+                        , MVCcmd.revInfo.ToCSLAReviewInfo()
+                        //,rinf
+                        );
+            DataPortal<ItemAttributeSaveCommand> dp = new DataPortal<ItemAttributeSaveCommand>();
+            cmd = dp.Execute(cmd);
+            MVCcmd.additionalText = cmd.AdditionalText;
+            MVCcmd.attributeId = cmd.AttributeId;
+            MVCcmd.itemArmId = cmd.ItemArmId;
+            MVCcmd.itemAttributeId = cmd.ItemAttributeId;
+            MVCcmd.itemId = cmd.ItemId;
+            MVCcmd.itemSetId = cmd.ItemSetId;
+            MVCcmd.setId = cmd.SetId;
+            return MVCcmd;
+        }
+
+
+
         [HttpPost("[action]")]
         public IActionResult ExecuteItemAttributeBulkInsertCommand([FromBody] MVCItemAttributeBulkSaveCommand MVCcmd)
         {//method is "..BulkInsert.." rather than "BulkSave" 'cause we NEVER use the CSLA object (ItemAttributeBulkSaveCommand) to delete (code in there wouldn't work!).
@@ -399,6 +448,29 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [HttpPost("[action]")]
+        public IActionResult ItemAttributeWithThisCodeCountCommand([FromBody] AttributeOrSetDeleteCheckCommandJSON MVCcmd)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ItemAttributeWithThisCodeCountCommand cmd = new ItemAttributeWithThisCodeCountCommand(MVCcmd.attributeSetId, MVCcmd.setId);
+                    DataPortal<ItemAttributeWithThisCodeCountCommand> dp = new DataPortal<ItemAttributeWithThisCodeCountCommand>();
+                    cmd = dp.Execute(cmd);
+                    return Ok(cmd);
+                }
+                else return Forbid();
+
+            }
+            catch (Exception e)
+            {
+                string json = JsonConvert.SerializeObject(MVCcmd);
+                _logger.LogError(e, "Dataportal Error in ItemAttributeWithThisCodeCountCommand: {0}", json);
+                return StatusCode(500, e.Message);
+            }
+        }
     }
 
     public class MVCItemAttributeSaveCommand
@@ -555,4 +627,5 @@ namespace ERxWebClient2.Controllers
         }
 
     }
+   
 }

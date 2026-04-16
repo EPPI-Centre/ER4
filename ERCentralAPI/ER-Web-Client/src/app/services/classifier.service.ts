@@ -70,6 +70,9 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
   } public get PriorityScreeningSimulationName(): string {
     if (this._currentSimulation == null) return "";
     return this._currentSimulation.simulationName;
+  } public get PriorityScreeningSimulationBuscar(): string {
+    if (this._currentSimulation == null) return "";
+    return this._currentSimulation.blobBuscar;
   }
 
 	private _CurrentUserId4ClassifierContactModelList: number = 0;
@@ -545,4 +548,5 @@ export interface ModelNameUpdate {
 export class PriorityScreeningSimulation {
   public simulationName: string = '';
   public blob: string = '';
+  public blobBuscar: string = '';
 }

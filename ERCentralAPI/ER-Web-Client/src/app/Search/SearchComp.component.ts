@@ -21,6 +21,7 @@ import { Helpers } from '../helpers/HelperMethods';
 import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import 'hammerjs';
 import { SearchFromOpenAlexImport } from './SearchFromOpenAlexImport.component';
+import { RobotsService } from '../services/Robots.service';
 
 @Component({
   selector: 'SearchComp',
@@ -42,7 +43,8 @@ export class SearchComp implements OnInit, OnDestroy {
     private _sourcesService: SourcesService,
     private confirmationDialogService: ConfirmationDialogService,
     private _reviewInfoService: ReviewInfoService,
-    public _reviewerIdentityServ: ReviewerIdentityService
+    private _reviewerIdentityServ: ReviewerIdentityService,
+    private _robotsService: RobotsService
   ) {
 
   }
@@ -95,6 +97,14 @@ export class SearchComp implements OnInit, OnDestroy {
   public modelResultsSection: boolean = false;
   public modelResultsAllReviewSection: boolean = false;
   public radioButtonApplyModelSection: boolean = false;
+  public prebuiltClassifier1Selected: boolean = false;
+  public prebuiltClassifier2Selected: boolean = false;
+  public prebuiltClassifier3Selected: boolean = false;
+  public prebuiltClassifier4Selected: boolean = false;
+  public prebuiltClassifier5Selected: boolean = false;
+  public prebuiltClassifier6Selected: boolean = false;
+  public prebuiltClassifier9Selected: boolean = false;
+  public prebuiltClassifierDescription: string = "";
   public isCollapsed: boolean = false;
   public isCollapsedVisualise: boolean = false;
   public firstName: string = '';
@@ -187,7 +197,11 @@ export class SearchComp implements OnInit, OnDestroy {
   public get SearchVisualiseData() {
     return this._searchService.SearchVisualiseData;
   }
-
+  public get CanRunOpenAIrobot(): boolean {
+    if (this._reviewInfoService.ReviewInfo.hasCreditForRobots == true) return true;
+    else if (this._robotsService.RobotOpenAiPromptEvaluationList.length > 0) return true;
+    return false;
+  }
 
   CancelVisualise() {
 
@@ -331,6 +345,13 @@ export class SearchComp implements OnInit, OnDestroy {
     this.ModelSection = false;
     this.modelResultsSection = false;
     this.radioButtonApplyModelSection = false;
+    this.prebuiltClassifier1Selected = false;
+    this.prebuiltClassifier2Selected = false;
+    this.prebuiltClassifier3Selected = false;
+    this.prebuiltClassifier4Selected = false;
+    this.prebuiltClassifier5Selected = false;
+    this.prebuiltClassifier6Selected = false;
+    this.prebuiltClassifier9Selected = false;
     this.ShowVisualiseSection = false;
     this.CheckScreeningSection = false;
     //this.PriorityScreeningSection = false;
@@ -437,9 +458,17 @@ export class SearchComp implements OnInit, OnDestroy {
 
   CustomModels(modelNum: number) {
     if (this.modelTitle == '') {
-
       this.ModelSelected = false;
     }
+
+    this.prebuiltClassifier1Selected = false;
+    this.prebuiltClassifier2Selected = false;
+    this.prebuiltClassifier3Selected = false;
+    this.prebuiltClassifier4Selected = false;
+    this.prebuiltClassifier5Selected = false;
+    this.prebuiltClassifier6Selected = false;
+    this.prebuiltClassifier9Selected = false;
+
     if (modelNum == 7) {
       this.modelNum = 7;
       this.modelResultsSection = !this.modelResultsSection;
@@ -450,20 +479,49 @@ export class SearchComp implements OnInit, OnDestroy {
       this.modelResultsAllReviewSection = !this.modelResultsAllReviewSection;
       this.modelResultsSection = false;
       this.ModelSelected = false;
+
     }
 
   }
   SetModelSelection(num: number) {
-
-    //alert('SelectedNode is: ' + this._reviewSetsService.selectedNode);
     this.modelNum = num;
     this.NewSearchSection = false;
     this.modelResultsSection = false;
     this.CheckScreeningSection = false;
-    //this.PriorityScreeningSection = false;
-    //alert('Model Number is: ' + this.modelNum);
+    this.prebuiltClassifier1Selected = false;
+    this.prebuiltClassifier2Selected = false;
+    this.prebuiltClassifier3Selected = false;
+    this.prebuiltClassifier4Selected = false;
+    this.prebuiltClassifier5Selected = false;
+    this.prebuiltClassifier6Selected = false;
+    this.prebuiltClassifier9Selected = false;
 
+    if (num == 1) {
+      this.prebuiltClassifier1Selected = true;
+    }
+    else if (num == 2) {
+      this.prebuiltClassifier2Selected = true;
+    }
+    else if (num == 3) {
+      this.prebuiltClassifier3Selected = true;
+    }
+    else if (num == 4) {
+      this.prebuiltClassifier4Selected = true;
+    }
+    else if (num == 5) {
+      this.prebuiltClassifier5Selected = true;
+    }
+    else if (num == 6) {
+      this.prebuiltClassifier6Selected = true;
+    }
+    else if (num == 9) {
+      this.prebuiltClassifier9Selected = true;
+    }
   }
+  public get WhatDescriptionToDisplay(): string {
+    return "highlighted text";
+  }
+
   //subscribe below
 
   public ApplyCode: boolean = false;
@@ -672,7 +730,7 @@ export class SearchComp implements OnInit, OnDestroy {
       }
       if (this.modelNum == 1) {
         this.modelTitle = 'RCT';
-        this.ModelId = -1;
+        this.ModelId = -1;        
       } else if (this.modelNum == 2) {
         this.modelTitle = 'Systematic review';
         this.ModelId = -2;
@@ -1460,3 +1518,4 @@ export interface ReadOnlySource {
   duplicates: number;
   isDeleted: boolean;
 }
+

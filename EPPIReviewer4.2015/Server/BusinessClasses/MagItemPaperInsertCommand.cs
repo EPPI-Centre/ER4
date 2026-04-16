@@ -144,7 +144,7 @@ namespace BusinessLibrary.BusinessClasses
             incomingList.HasMAGScores = true;
             incomingList.IsFirst = true; incomingList.IsLast = true;
             incomingList.IncomingItems = new MobileList<ItemIncomingData>();
-
+            incomingList.Notes = SetNotesField();
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
@@ -170,7 +170,22 @@ namespace BusinessLibrary.BusinessClasses
                 // 1. Related papers search - here we have a list of IDs in the database - need to retrieve and then ensure we aren't already using any in this review
                 if (_SourceOfIds == "RelatedPapersSearch")
                 {
-                    incomingList.SourceName = "Automated search: " + DateTime.Now.ToShortDateString() + " at " + DateTime.Now.ToLongTimeString();
+                    DataPortal<MagRelatedPapersRun> dp = new DataPortal<MagRelatedPapersRun>();
+                    MagRelatedPapersRun relatedSearch = dp.Fetch(new SingleCriteria<MagRelatedPapersRun, Int64>(_MagRelatedRunId));
+                    //incomingList.SourceName = "Automated search: " + DateTime.Now.ToShortDateString() + " at " + DateTime.Now.ToLongTimeString();
+                    incomingList.SourceName = "Related search: \"" + TruncateSearchName(relatedSearch.UserDescription) + "\"";
+                    incomingList.SearchStr = "Related search properties" + Environment.NewLine
+                        + "Mode: " + relatedSearch.Mode + Environment.NewLine
+                        + "Date Created: " + relatedSearch.DateRun.ToString("dd MMM yyyy") + Environment.NewLine
+                        + "Hits Number: " + relatedSearch.NPapers + Environment.NewLine
+                        + "Date from: " + relatedSearch.DateFrom.ToString("dd MMM yyyy") + Environment.NewLine
+                        + "Seed from all includes: " + (relatedSearch.AllIncluded ? "Yes" : "No");
+                    incomingList.DateOfSearch = relatedSearch.DateRun;
+                    if (relatedSearch.AllIncluded == false && relatedSearch.AttributeName != "")
+                    {
+                        incomingList.SearchStr += Environment.NewLine + "With this code: " + relatedSearch.AttributeName
+                            + " (Id: " + relatedSearch.AttributeId.ToString() + ")";
+                    }
                     using (SqlCommand command = new SqlCommand("st_MagItemMagRelatedPaperInsert", connection))
                     {
                         command.CommandTimeout = 2000; // 2000 secs = about 2 hours? (JT - not sure why we have the long timeout?)
@@ -193,8 +208,8 @@ namespace BusinessLibrary.BusinessClasses
                 // 2. AutoUpdateRun - here we also have a list of IDs in the database - need to retrieve and then ensure we aren't already using any in this review
                 if (_SourceOfIds == "AutoUpdateRun")
                 {
-                    incomingList.SourceName = "Auto-update imported on: " + DateTime.Now.ToShortDateString() +
-                        ". Top: " + this._TopN.ToString() + " ordered by " + _OrderBy + " with thresholds: AutoUpdate: " +
+                    incomingList.SourceName = "Auto-update imported on: " + DateTime.Now.ToShortDateString();
+                    incomingList.SearchStr = "Import parameters:" + Environment.NewLine + "Top: " + this._TopN.ToString() + " ordered by " + _OrderBy + " with thresholds: AutoUpdate: " +
                         _AutoUpdateScore.ToString() + ", Study type classifier: " + _StudyTypeClassifierScore.ToString() +
                         ", user built classifier: " + _UserClassifierScore.ToString();
                     using (SqlCommand command = new SqlCommand("st_MagAutoUpdateRunResults", connection))
@@ -267,10 +282,15 @@ namespace BusinessLibrary.BusinessClasses
                 List<string> IDsFilteredList = new List<string>();
                 if (_SourceOfIds == "MagSearchResults" || _SourceOfIds == "MagSearchResultsLatestMAG")
                 {
-                    incomingList.SourceName = _MagSearchDescription;
                     MagSearch ms = MagSearch.GetMagSearchById(_MagSearchId, ri.ReviewId);
+                    List<string> AllResultsIds = new List<string>();
+                    incomingList.SourceName = "OpenAlex search: #" + ms.SearchNo.ToString()
+                        + " (from: " + ms.SearchDate.ToString("dd MMM yyyy") + ")"
+                        + " \"" + TruncateSearchName(ms.SearchText) + "\"" ;
                     if (ms.SearchIdsStored == false) // i.e. we need to run the search on OpenAlex and download the papers
                     {
+                        
+                        string currentPaperIdSt = "";
                         incomingList.SearchStr = ms.MagSearchText;
                         bool doSearch = ms.DoSearchInAPICalls;
                         //if (!ms.SearchText.StartsWith("Custom filter:"))
@@ -291,7 +311,8 @@ namespace BusinessLibrary.BusinessClasses
                                 foreach (MagMakesHelpers.OaPaper p in r.results)
                                 {
                                     // Only import those that aren't already in the review
-                                    if (!AlreadyUsedPaperIds.Exists(element => element == p.id.Replace("https://openalex.org/W", "").ToString()))
+                                    currentPaperIdSt = p.id.Replace("https://openalex.org/W", "");
+                                    if (!AlreadyUsedPaperIds.Exists(element => element == currentPaperIdSt))
                                     {
                                         MagPaper mp = MagPaper.GetMagPaperFromPaperMakes(p, null);
 
@@ -300,39 +321,57 @@ namespace BusinessLibrary.BusinessClasses
                                             incomingList.AddUnique(GetIncomingItemFromMagPaper(mp));
                                         }
                                     }
+                                    //keep the list of all results, as we'll save it into the search
+
+                                    if (!AllResultsIds.Contains(currentPaperIdSt)) AllResultsIds.Add(currentPaperIdSt);
+                                    
                                 }
                             }
                         }
                     }
-                    else // i.e. this is a combined search, so we already have the IDs; we don't run the search, we just run through them 50 at a time
+                    else // we already have the IDs; we don't run the search, we just run through them [MaxPageSize] at a time
                     {
+                        if (ms.CanReRun)
+                        {//it's a search that runs against OA directly, so we want the search string recorded
+                            incomingList.SearchStr = ms.MagSearchText;
+                        }
+                        else
+                        {//it's a combined search, we'll store the search IDs as they appear in the search record
+                            incomingList.SearchStr = ms.SearchIds;
+                        }
                         count = 0;
+                        int MaxPageSize = 100;
                         string[] AllIDs = ms.SearchIds.Split(',');
                         while (count < AllIDs.Length)
                         {
                             string query = "";
-                            for (int i = count; i < AllIDs.Length && i < count + 50; i++)
+                            for (int i = count; i < AllIDs.Length && i < count + MaxPageSize; i++)
                             {
-                                if (query == "")
+                                string thisId = AllIDs[i].ToString();
+                                if (!AlreadyUsedPaperIds.Exists(element => element == thisId))
                                 {
-                                    query = "W" + AllIDs[i].ToString();
-                                }
-                                else
-                                {
-                                    query += "|W" + AllIDs[i].ToString();
+                                    if (query == "")
+                                    {
+                                        query = "W" + thisId;
+                                    }
+                                    else
+                                    {
+                                        query += "|W" + thisId;
+                                    }
                                 }
                             }
-                            //MagMakesHelpers.PaperMakesResponse resp = MagMakesHelpers.EvaluateExpressionNoPagingWithCount("OR(" + query + ")", "100");
-                            MagMakesHelpers.OaPaperFilterResult resp = MagMakesHelpers.EvaluateOaPaperFilter("openalex_id:https://openalex.org/" + query, "50", "1", false);
-                            foreach (MagMakesHelpers.OaPaper pm in resp.results)
-                            {
-                                MagPaper mp = MagPaper.GetMagPaperFromPaperMakes(pm, null);
-                                if (mp.PaperId > 0 && PaperPassesFilters(mp))
+                            if (query != "") {
+                                MagMakesHelpers.OaPaperFilterResult resp = MagMakesHelpers.EvaluateOaPaperFilter("openalex_id:https://openalex.org/" + query, MaxPageSize.ToString(), "1", false);
+                                foreach (MagMakesHelpers.OaPaper pm in resp.results)
                                 {
-                                    incomingList.AddUnique(GetIncomingItemFromMagPaper(mp));
+                                    MagPaper mp = MagPaper.GetMagPaperFromPaperMakes(pm, null);
+                                    if (mp.PaperId > 0 && PaperPassesFilters(mp))
+                                    {
+                                        incomingList.AddUnique(GetIncomingItemFromMagPaper(mp));
+                                    }
                                 }
                             }
-                            count += 50;
+                            count += MaxPageSize;
                         }
                     }
 
@@ -341,98 +380,13 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         return;
                     }
-
-
-                    // we don't need any of the other filters we needed for MAG, as you can filter OpenAlex by creation and last updated date
-                    /*
-                    MagCurrentInfo currentMAGInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
                     
-                    int totalHits = 0;
-                    int numPages = 1;
-                    // Get the total from current MAKES - don't rely on the number in the search, as it may change between MAKES versions
-                    MagMakesHelpers.MakesCalcHistogramResponse resp = MagMakesHelpers.CalcHistoramCount(_MagSearchText);
-                    foreach (MagMakesHelpers.histograms hs in resp.histograms)
-                    {
-                        if (hs.attribute == "Id")
-                        {
-                            totalHits = hs.total_count;
-                            break;
-                        }
+                    if (_SourceOfIds == "MagSearchResults" && ms.SearchIdsStored == false && AllResultsIds.Count > 0)
+                    {//we'll actually create a new source/import, so at this point, we save into TB_MAG_SEARCH the OA IDs list
+                        string OAidsListToSave = string.Join(",", AllResultsIds);
+                        ms.SearchIds = OAidsListToSave;
+                        ms = ms.Save();
                     }
-                    if (totalHits > 100)
-                    {
-                        numPages = (totalHits / 100) + 1;
-                    }
-                    
-
-                    // We already have a query for MAKES, so just need to run through each page
-                    for (int c = 0; c < numPages; c++)
-                    {
-                        MagMakesHelpers.PaperMakesResponse res = MagMakesHelpers.EvaluateExpressionWithPaging(_MagSearchText, "100", (c * 100).ToString());
-                        if (_SourceOfIds == "MagSearchResults") // all items not in the review just go into the incomingList
-                        {
-                            foreach (MagMakesHelpers.PaperMakes pm in res.entities)
-                            {
-                                // Only import those that aren't already in the review
-                                if (!AlreadyUsedPaperIds.Exists(element => element == pm.Id.ToString()))
-                                {
-                                    MagPaper mp = MagPaper.GetMagPaperFromPaperMakes(pm, null);
-
-                                    if (mp.PaperId > 0 && PaperPassesFilters(mp))
-                                    {
-                                        incomingList.IncomingItems.Add(GetIncomingItemFromMagPaper(mp));
-                                    }
-                                }
-                            }
-                        }
-                        else // need to filter to only those PaperIds in the last version of MAG
-                        {
-                            string IDs = "";
-                            string IDsFiltered = "";
-                            IDsFilteredList.Clear();
-                            foreach (MagMakesHelpers.PaperMakes pm in res.entities)
-                            {
-                                IDs += pm.Id.ToString() + ",";
-                            }
-                            IDs.TrimEnd(',');
-                            using (SqlCommand command = new SqlCommand("st_MagSearchFilterToLatest", connection))
-                            {
-                                command.CommandTimeout = 500; // should make this a nice long time
-                                command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.Parameters.Add(new SqlParameter("@MagVersion", currentMAGInfo.MagFolder));
-                                command.Parameters.Add(new SqlParameter("@IDs", IDs));
-                                using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                                {
-                                    while (reader.Read())
-                                    {
-                                        IDsFilteredList.Add(reader["PaperId"].ToString());
-                                    }
-                                }
-                            }
-                            if (IDsFilteredList.Count > 0)
-                            {
-                                foreach (MagMakesHelpers.PaperMakes pm in res.entities)
-                                {
-                                    // Only import those that are in latest MAG and not in review
-                                    if (IDsFilteredList.Exists(element => element == pm.Id.ToString()) &&
-                                        !AlreadyUsedPaperIds.Exists(element => element == pm.Id.ToString()))
-                                    {
-                                        MagPaper mp = MagPaper.GetMagPaperFromPaperMakes(pm, null);
-                                        if (mp.PaperId > 0 && PaperPassesFilters(mp))
-                                        {
-                                            incomingList.IncomingItems.Add(GetIncomingItemFromMagPaper(mp));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        // this is a practical limit for what the importing routine can cope with
-                        if (incomingList.IncomingItems.Count > 20000)
-                        {
-                            break;
-                        }
-                    }
-                    */
                 }
 
                 incomingList.buildShortTitles();
@@ -455,7 +409,15 @@ namespace BusinessLibrary.BusinessClasses
             }
 
         }
-
+         private string TruncateSearchName(string val)
+        {
+            int limit = 40;
+            if (val.Length <= limit) return val;
+            string UpTo = val.Substring(0, limit);
+            int suitableSpaceIndex = UpTo.LastIndexOf(' ');
+            if (suitableSpaceIndex > limit / 2) return UpTo.Substring(0, suitableSpaceIndex) + "...";
+            return UpTo.Substring(0, UpTo.Length - 3) + "...";
+        }
         private ItemIncomingData GetIncomingItemFromMagPaper(MagPaper mp)
         {
             TextInfo myTI = new CultureInfo("en-GB", false).TextInfo;
@@ -547,6 +509,28 @@ namespace BusinessLibrary.BusinessClasses
                 return false;
             }
             return true;
+        }
+        private string SetNotesField()
+        {
+            string res = "";
+            //_FilterJournal _FilterDOI _FilterURL _FilterTitle
+            if (_FilterJournal != "" && _FilterJournal.Length > 3)
+            {
+                res += "Journal Field Filter: " + _FilterJournal;
+            }
+            if (_FilterDOI != "" && _FilterDOI.Length > 3)
+            {
+                res += (res == "" ? "" : Environment.NewLine) + "DOI Field Filter: " + _FilterDOI;
+            }
+            if (_FilterURL != "" && _FilterURL.Length > 3)
+            {
+                res += (res == "" ? "" : Environment.NewLine) + "URL Field Filter: " + _FilterURL;
+            }
+            if (_FilterTitle != "" && _FilterTitle.Length > 3)
+            {
+                res += (res == "" ? "" : Environment.NewLine) + "Title Field Filter: " + _FilterTitle;
+            }
+            return res;
         }
 
         private string transformPubTypeStringListToIndex(string s)

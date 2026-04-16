@@ -58,7 +58,9 @@ namespace BusinessLibrary.BusinessClasses
             IsReadOnly = false;
             int rid = ri.ReviewId;
             int cid = ri.UserId;
+            bool AllPastJobs = false;
             bool IsSiteAdmin = ri.IsSiteAdmin;
+            if (IsSiteAdmin && crit.AllPastJobs) AllPastJobs = true;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
@@ -67,13 +69,13 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", rid));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", cid));
-                    if (ri.IsSiteAdmin)
+                    if (AllPastJobs)
                     {
-                        command.Parameters.Add(new SqlParameter("@isSiteAdmin", true));
+                        command.Parameters.Add(new SqlParameter("@AllPastJobs", true));
                     }
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
-                        Child_Fetch(reader, rid, cid, IsSiteAdmin);
+                        Child_Fetch(reader, rid, cid, AllPastJobs);
                         reader.NextResult();
                         while (reader.Read())
                         {
@@ -94,9 +96,10 @@ namespace BusinessLibrary.BusinessClasses
         {
             RaiseListChangedEvents = false;
             IsReadOnly = false;
+            List<RobotCoderReadOnly> RobotsList = new List<RobotCoderReadOnly>();
             while (reader.Read())
             {
-                Add(DataPortal.FetchChild<RobotOpenAiTaskReadOnly>(reader, !IsSiteAdmin, rid, cid));
+                Add(DataPortal.FetchChild<RobotOpenAiTaskReadOnly>(reader, !IsSiteAdmin, RobotsList, rid, cid));
             }
             IsReadOnly = true;
             RaiseListChangedEvents = true;

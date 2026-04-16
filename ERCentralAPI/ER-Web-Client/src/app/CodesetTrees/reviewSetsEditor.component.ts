@@ -161,6 +161,15 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
   public get AllocationsAffected(): number {
     return this._AllocationsAffected;
   }
+  private _VisMapsAffected: number = -1;
+  public get VisMapsAffected(): number {
+    return this._VisMapsAffected;
+  }
+  private _OutcomesAffected: number = -1;
+  public get OutcomesAffected(): number {
+    return this._OutcomesAffected;
+  }
+
   ShowDeleteCodeset: boolean = false;
   ShowDeleteCodesetClicked() {
     //console.log('0');
@@ -172,12 +181,15 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
           //console.log('2');
           this._appliedCodes = -1;
           this._AllocationsAffected = -1;
+          this._VisMapsAffected = -1;
+          this._OutcomesAffected = -1;
           this.ReviewSetsEditingService.AttributeOrSetDeleteCheck(Set.set_id, 0).then(
             success => {
               //alert("did it");
               this.ShowDeleteCodeset = true;
               this._appliedCodes = success.numItems;
               this._AllocationsAffected = success.numAllocations;
+              this._VisMapsAffected = success.numVisMaps;
               //return result;
             },
             error => {

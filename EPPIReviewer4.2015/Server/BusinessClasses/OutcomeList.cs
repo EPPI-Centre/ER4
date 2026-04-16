@@ -27,7 +27,7 @@ namespace BusinessLibrary.BusinessClasses
             DataPortal<OutcomeList> dp = new DataPortal<OutcomeList>();
             dp.FetchCompleted += handler;
             dp.BeginFetch(new OutcomeListSelectionCriteria(typeof(OutcomeList), setId, attributeIdIntervention, attributeIdControl,
-                attributeIdOutcome, attributeId, metaAnalysisId, questions, answers));
+                attributeIdOutcome, attributeId, metaAnalysisId, questions, answers, "", ""));
         }
 
         public bool HasSavedHandler = false;
@@ -137,10 +137,10 @@ namespace BusinessLibrary.BusinessClasses
     
 #else
         public static OutcomeList GetOutcomeList(int setId, Int64 attributeIdIntervention, Int64 attributeIdControl,
-                Int64 attributeIdOutcome, Int64 attributeId, int metaAnalysisId, string questions, string answers)
+                Int64 attributeIdOutcome, Int64 attributeId, int metaAnalysisId, string questions, string answers, string questionsOutcome, string answersOutcome)
         {
             OutcomeListSelectionCriteria criteria = new OutcomeListSelectionCriteria(typeof(OutcomeList), setId, attributeIdIntervention, attributeIdControl,
-                attributeIdOutcome, attributeId, metaAnalysisId, questions, answers);
+                attributeIdOutcome, attributeId, metaAnalysisId, questions, answers, questionsOutcome, answersOutcome);
             OutcomeList returnValue = new OutcomeList();
             returnValue.DataPortal_Fetch(criteria);
             return returnValue;
@@ -251,6 +251,8 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@META_ANALYSIS_ID", criteria.MetaAnalysisId));
                     command.Parameters.Add(new SqlParameter("@ANSWERS", criteria.Answers));
                     command.Parameters.Add(new SqlParameter("@QUESTIONS", criteria.Questions));
+                    command.Parameters.Add(new SqlParameter("@ANSWERS_O", criteria.AnswersOutcome));
+                    command.Parameters.Add(new SqlParameter("@QUESTIONS_O", criteria.QuestionsOutcome));
 
 
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
@@ -259,7 +261,7 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             Add(Outcome.GetOutcome(reader));
                         }
-                        reader.NextResult();//fill in the questions data
+                        reader.NextResult();//2nd reader, fill in the questions data (applied to items, not outcomes)
                         //match (static!) fields with list of questions
                         
                         char[] separator = new char[] { ',' };
@@ -374,6 +376,7 @@ namespace BusinessLibrary.BusinessClasses
                             }
                             i++;
                         }
+                        //3rd reader, answers applied to items
                         reader.NextResult();
                         fieldMapper.Clear();
                         string[] AnswersArr = criteria.Answers.Split(separator, StringSplitOptions.RemoveEmptyEntries);
@@ -460,6 +463,212 @@ namespace BusinessLibrary.BusinessClasses
                                     break;
                                 case "aa20":
                                     currO.aa20 = 1;
+                                    break;
+                                default:
+                                    break;
+                            }
+                            i++;
+                        }
+                        //4th reader questions applied to outcomes, not items
+                        reader.NextResult(); 
+                        QuestionsArr = criteria.QuestionsOutcome.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                        fieldMapper.Clear();
+                        i = 1;
+                        foreach (string q in QuestionsArr)
+                        {
+                            fieldMapper.Add(long.Parse(q), "aqo" + i.ToString());
+                            i++;
+                            if (i > 20) break;
+                        }
+                        i = 0;
+                        
+                        while (reader.Read())//fill in the questions data
+                        {
+                            if (i == 0)//first iteration!
+                            {
+                                currO = this.GetOutcomebyID(reader.GetInt32("OUTCOME_ID"));
+                            }
+                            else if (currO.OutcomeId != reader.GetInt32("OUTCOME_ID"))
+                            {
+                                //currO.markOld();
+                                currO = this.GetOutcomebyID(reader.GetInt32("OUTCOME_ID"));
+                            }
+                            string fieldName;
+                            fieldMapper.TryGetValue(reader.GetInt64("PARENT_ATTRIBUTE_ID"), out fieldName);
+                            switch (fieldName)
+                            {
+                                case "aqo1":
+                                    if (currO.aqo1 != null && currO.aqo1.Length > 0) continue;
+                                    currO.aqo1 = reader.GetString("Codename");
+                                    break;
+                                case "aqo2":
+                                    if (currO.aqo2 != null && currO.aqo2.Length > 0) continue;
+                                    currO.aqo2 = reader.GetString("Codename");
+                                    break;
+                                case "aqo3":
+                                    if (currO.aqo3 != null && currO.aqo3.Length > 0) continue;
+                                    currO.aqo3 = reader.GetString("Codename");
+                                    break;
+                                case "aqo4":
+                                    if (currO.aqo4 != null && currO.aqo4.Length > 0) continue;
+                                    currO.aqo4 = reader.GetString("Codename");
+                                    break;
+                                case "aqo5":
+                                    if (currO.aqo5 != null && currO.aqo5.Length > 0) continue;
+                                    currO.aqo5 = reader.GetString("Codename");
+                                    break;
+                                case "aqo6":
+                                    if (currO.aqo6 != null && currO.aqo6.Length > 0) continue;
+                                    currO.aqo6 = reader.GetString("Codename");
+                                    break;
+                                case "aqo7":
+                                    if (currO.aqo7 != null && currO.aqo7.Length > 0) continue;
+                                    currO.aqo7 = reader.GetString("Codename");
+                                    break;
+                                case "aqo8":
+                                    if (currO.aqo8 != null && currO.aqo8.Length > 0) continue;
+                                    currO.aqo8 = reader.GetString("Codename");
+                                    break;
+                                case "aqo9":
+                                    if (currO.aqo9 != null && currO.aqo9.Length > 0) continue;
+                                    currO.aqo9 = reader.GetString("Codename");
+                                    break;
+                                case "aqo10":
+                                    if (currO.aqo10 != null && currO.aqo10.Length > 0) continue;
+                                    currO.aqo10 = reader.GetString("Codename");
+                                    break;
+                                case "aqo11":
+                                    if (currO.aqo11 != null && currO.aqo11.Length > 0) continue;
+                                    currO.aqo11 = reader.GetString("Codename");
+                                    break;
+                                case "aqo12":
+                                    if (currO.aqo12 != null && currO.aqo12.Length > 0) continue;
+                                    currO.aqo12 = reader.GetString("Codename");
+                                    break;
+                                case "aqo13":
+                                    if (currO.aqo13 != null && currO.aqo13.Length > 0) continue;
+                                    currO.aqo13 = reader.GetString("Codename");
+                                    break;
+                                case "aqo14":
+                                    if (currO.aqo14 != null && currO.aqo14.Length > 0) continue;
+                                    currO.aqo14 = reader.GetString("Codename");
+                                    break;
+                                case "aqo15":
+                                    if (currO.aqo15 != null && currO.aqo15.Length > 0) continue;
+                                    currO.aqo15 = reader.GetString("Codename");
+                                    break;
+                                case "aqo16":
+                                    if (currO.aqo16 != null && currO.aqo16.Length > 0) continue;
+                                    currO.aqo16 = reader.GetString("Codename");
+                                    break;
+                                case "aqo17":
+                                    if (currO.aqo17 != null && currO.aqo17.Length > 0) continue;
+                                    currO.aqo17 = reader.GetString("Codename");
+                                    break;
+                                case "aqo18":
+                                    if (currO.aqo18 != null && currO.aqo18.Length > 0) continue;
+                                    currO.aqo18 = reader.GetString("Codename");
+                                    break;
+                                case "aqo19":
+                                    if (currO.aqo19 != null && currO.aqo19.Length > 0) continue;
+                                    currO.aqo19 = reader.GetString("Codename");
+                                    break;
+                                case "aqo20":
+                                    if (currO.aqo20 != null && currO.aqo20.Length > 0) continue;
+                                    currO.aqo20 = reader.GetString("Codename");
+                                    break;
+                                default:
+                                    break;
+                            }
+                            i++;
+                        }
+                        //5th reader answers as applied to outcomes, not items
+                        reader.NextResult(); 
+                        fieldMapper.Clear();
+                        AnswersArr = criteria.AnswersOutcome.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                        i = 1;
+                        foreach (string q in AnswersArr)
+                        {
+                            fieldMapper.Add(long.Parse(q), "ao" + i.ToString());
+                            i++;
+                            if (i > 20) break;
+                        }
+                        i = 0;
+                        currO = new Outcome();
+                        while (reader.Read())//fill in the answers data
+                        {
+                            if (i == 0)//first iteration!
+                            {
+                                currO = this.GetOutcomebyID(reader.GetInt32("OUTCOME_ID"));
+                            }
+                            else if (currO.OutcomeId != reader.GetInt32("OUTCOME_ID"))
+                            {
+                                currO = this.GetOutcomebyID(reader.GetInt32("OUTCOME_ID"));
+                            }
+                            string fieldName;
+                            long currAttID = reader.GetInt64("ATTRIBUTE_ID");
+                            fieldMapper.TryGetValue(currAttID, out fieldName);
+                            switch (fieldName)
+                            {
+                                case "ao1":
+                                    currO.ao1 = 1;
+                                    break;
+                                case "ao2":
+                                    currO.ao2 = 1;
+                                    break;
+                                case "ao3":
+                                    currO.ao3 = 1;
+                                    break;
+                                case "ao4":
+                                    currO.ao4 = 1;
+                                    break;
+                                case "ao5":
+                                    currO.ao5 = 1;
+                                    break;
+                                case "ao6":
+                                    currO.ao6 = 1;
+                                    break;
+                                case "ao7":
+                                    currO.ao7 = 1;
+                                    break;
+                                case "ao8":
+                                    currO.ao8 = 1;
+                                    break;
+                                case "ao9":
+                                    currO.ao9 = 1;
+                                    break;
+                                case "ao10":
+                                    currO.ao10 = 1;
+                                    break;
+                                case "ao11":
+                                    currO.ao11 = 1;
+                                    break;
+                                case "ao12":
+                                    currO.ao12 = 1;
+                                    break;
+                                case "ao13":
+                                    currO.ao13 = 1;
+                                    break;
+                                case "ao14":
+                                    currO.ao14 = 1;
+                                    break;
+                                case "ao15":
+                                    currO.ao15 = 1;
+                                    break;
+                                case "ao16":
+                                    currO.ao16 = 1;
+                                    break;
+                                case "ao17":
+                                    currO.ao17 = 1;
+                                    break;
+                                case "ao18":
+                                    currO.ao18 = 1;
+                                    break;
+                                case "ao19":
+                                    currO.ao19 = 1;
+                                    break;
+                                case "ao20":
+                                    currO.ao20 = 1;
                                     break;
                                 default:
                                     break;
@@ -659,9 +868,19 @@ namespace BusinessLibrary.BusinessClasses
             {
                 get { return ReadProperty(AnswersProperty); }
             }
+            private static PropertyInfo<string> QuestionsOutcomeProperty = RegisterProperty<string>(typeof(OutcomeListSelectionCriteria), new PropertyInfo<string>("QuestionsOutcome", "QuestionsOutcome"));
+            public string QuestionsOutcome
+            {
+                get { return ReadProperty(QuestionsOutcomeProperty); }
+            }
 
+            private static PropertyInfo<string> AnswersOutcomeProperty = RegisterProperty<string>(typeof(OutcomeListSelectionCriteria), new PropertyInfo<string>("AnswersOutcome", "AnswersOutcome"));
+            public string AnswersOutcome
+            {
+                get { return ReadProperty(AnswersOutcomeProperty); }
+            }
             public OutcomeListSelectionCriteria(Type type, int setId, Int64 attributeIdIntervention, Int64 attributeIdControl,
-                Int64 attributeIdOutcome, Int64 attributeId, int metaAnalysisId, string questions, string answers)//: base(type)
+                Int64 attributeIdOutcome, Int64 attributeId, int metaAnalysisId, string questions, string answers, string questionsOutcome, string answersOutcome)//: base(type)
             {
                 LoadProperty(SetIdProperty, setId);
                 LoadProperty(AttributeIdInterventionProperty, attributeIdIntervention);
@@ -671,6 +890,8 @@ namespace BusinessLibrary.BusinessClasses
                 LoadProperty(MetaAnalysisIdProperty, metaAnalysisId);
                 LoadProperty(QuestionsProperty, questions);
                 LoadProperty(AnswersProperty, answers);
+                LoadProperty(QuestionsOutcomeProperty, questionsOutcome);
+                LoadProperty(AnswersOutcomeProperty, answersOutcome);
             }
 
             public OutcomeListSelectionCriteria() { }

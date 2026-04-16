@@ -63,6 +63,7 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
   @Input() Context: string = "CodingFull";
   @Input() HotKeysOn: boolean = false;
   subRedrawTree: Subscription | null = null;
+  subCancelCompleteUncomplete: Subscription | null = null;
   @Output() RemoveCodeModalOpened = new EventEmitter<void>();
   @Output() RemoveCodeModalClosed = new EventEmitter<void>();
   @Output() PleaseOpenOutcomesPanel = new EventEmitter<ItemSet>();//emits the ItemSetId where outcomesList is
@@ -100,7 +101,7 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
     }
     else {
       //if (this.ReviewInfoService.Contacts.length == 0) this.ReviewInfoService.FetchReviewMembers();
-      this.ItemCodingService.DataChanged.subscribe(() => { this.CancelCompleteUncomplete(); });
+      this.subCancelCompleteUncomplete = this.ItemCodingService.DataChanged.subscribe(() => { this.CancelCompleteUncomplete(); });
       this.subRedrawTree = this.ReviewSetsEditingService.PleaseRedrawTheTree.subscribe(
         () => { this.UpdateTree(); }
       );
@@ -298,6 +299,7 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
     evdata.armId = this.armsService.SelectedArm == null ? 0 : this.armsService.SelectedArm.itemArmId;
     evdata.AttId = +data.id.replace('A', '');
     evdata.additionalText = data.additionalText;
+    evdata.isExclusive = data.isExclusive;
     this.ReviewSetsService.PassItemCodingCeckboxChangedEvent(evdata);
   }
 
@@ -342,53 +344,17 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
     this.ItemSetReference = new MinimalItemSet();
     this.ShowCompleteUncompletePanelForSetId = 0;
   }
-  ApplyCompleteUncomplete(data: singleNode) {
+  public ApplyCompleteUncomplete(data: singleNode) {
     //do something and then:
     let cmd: ItemSetCompleteCommand = new ItemSetCompleteCommand();
     cmd.itemSetId = this.ItemSetProxy.ItemSetId;
     cmd.isLocked = this.ItemSetProxy.IsLocked;
     cmd.complete = this.ItemSetProxy.IsCompleted;
-    this.ReviewSetsService.ExecuteItemSetCompleteCommand(cmd).then(
-      result => {
-        if (result) {
-          //we still need to update data in ItemCodingService
-          let iSet = this.ItemCodingService.FindItemSetByItemSetId(this.ItemSetProxy.ItemSetId);
-          if (iSet) {
-            iSet.isLocked = this.ItemSetProxy.IsLocked;
-            iSet.isCompleted = this.ItemSetProxy.IsCompleted;
-            if (!iSet.isCompleted && iSet.contactId != this.ReviewerIdentityServ.reviewerIdentity.userId) {
-              //user un-completed somebody else's version, so we might need to show a coding (the one that belongs to the user!)...
-              this.ReviewSetsService.clearItemData();
-              if (this.armsService.SelectedArm) this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, this.armsService.SelectedArm.itemArmId);
-              else this.ReviewSetsService.AddItemData(this.ItemCodingService.ItemCodingList, 0);
-              this.FetchPDFHighlights();//after setting the coding data, we might need to re-fetch the PDF highlights, checks on whether that's likely to be need happen in there.
-
-            }
-            this.NotificationService.show(
-              {
-                content: "Changes saved for coding on \"" + this.ItemSetProxy.set_name + "\".",
-                position: { horizontal: 'left', vertical: 'bottom' },
-                animation: { type: 'fade', duration: 500 },
-                type: { style: 'none', icon: false },
-                hideAfter: 3000
-              }
-            );
-          }
-          else {
-            //something is amiss, but data was saved...
-            this.NotificationService.show({
-              content: "Changes saved, but couldn't apply them here. Please reload this item to avoid the risk of corrupting data.",
-              animation: { type: 'slide', duration: 400 },
-              position: { horizontal: 'center', vertical: 'top' },
-              type: { style: "error", icon: true },
-              closable: true
-            });
-          }
-        }
-      }
-    );
+    this.ItemCodingService.ExecuteItemSetCompleteCommand(cmd);
     this.ShowCompleteUncompletePanelForSetId = 0;
   }
+
+
   openInfoBox(data: singleNode) {
     //makes the "current/acitve code" change to the code for which the user has clicked on the "info" button.
     this.NodeSelectedInternal(data);
@@ -446,6 +412,7 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     //this.ReviewerIdentityServ.reviewerIdentity = new ReviewerIdentity();
     if (this.subRedrawTree) this.subRedrawTree.unsubscribe();
+    if (this.subCancelCompleteUncomplete) this.subCancelCompleteUncomplete.unsubscribe();
     //console.log('killing reviewSets comp');
   }
 
@@ -505,6 +472,7 @@ export class CheckBoxClickedEventData {
   AttId: number = 0;
   additionalText: string = "";
   armId: number = 0;
+  isExclusive: boolean = false;
 }
 
 

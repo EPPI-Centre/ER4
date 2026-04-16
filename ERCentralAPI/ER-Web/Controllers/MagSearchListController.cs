@@ -190,26 +190,27 @@ namespace ERxWebClient2.Controllers
             }
         }
 
-
+        
         [HttpPost("[action]")]
-        public IActionResult CombineMagSearches([FromBody] MVCMagCombinedSearch mVCMagCombinedSearch)
+        public IActionResult EnumerateSearchItems([FromBody] SingleIntCriteria crit)
         {
 
             try
             {
                 if (SetCSLAUser4Writing())
                 {
+                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                    MagSearch ToEdit = MagSearch.GetMagSearchById(crit.Value.ToString(), ri.ReviewId);
+                    List<string> AllIds = MagSearch.GetIdsFromOpenAlex(ToEdit);
+                    ToEdit.SearchIds = string.Join(',', AllIds);
+                    ToEdit = ToEdit.Save();
+                    //we return the whole updated list, as I believe it's cheap
+                    DataPortal<MagSearchList> dp2 = new DataPortal<MagSearchList>();
+                    MagSearchList result = dp2.Fetch();
 
-                        MagSearch newSearch = new MagSearch();
-                    //following James' rewriting 27/06/2022, temporary(?) NON-fix
-                    //newSearch.SetCombinedSearches(mVCMagCombinedSearch.magSearchListCombine.ToList(), mVCMagCombinedSearch.logicalOperator);
-                        
-                    //    DataPortal<MagSearch> dp = new DataPortal<MagSearch>();
-                    //    newSearch = dp.Execute(newSearch);
+                    return Ok(result);
 
-                    return Ok(newSearch);
-               
-                } 
+                }
                 else
                 {
                     return Forbid();
@@ -223,7 +224,6 @@ namespace ERxWebClient2.Controllers
 
 
         }
-
 
     }
 

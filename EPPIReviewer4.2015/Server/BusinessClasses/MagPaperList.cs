@@ -633,7 +633,7 @@ namespace BusinessLibrary.BusinessClasses
                                             }
                                             else
                                             {
-                                                searchString += "|https://openalex.org/W" + allIds[i];
+                                                searchString += "|W" + allIds[i];
                                             }
                                         }
                                     }

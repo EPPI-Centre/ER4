@@ -96,28 +96,33 @@ export class ArmTimepointLinkListService extends BusyAwareService implements OnI
 		if (Oldid !== armID) this.armChangedEE.emit();
 	}
 
-	public FetchAll(currentItem: Item) {
+	public FetchAll(currentItem: Item, cacheData:boolean = true): Promise<boolean> {
 
 		this._BusyMethods.push("FetchAll");
-		this._currentItem = currentItem;
+		if (cacheData) this._currentItem = currentItem;
 		let body = JSON.stringify({ Value: currentItem.itemId });
 
-		this._http.post<iItemArmTimepointLinkLists>(this._baseUrl + 'api/ArmTimepointLinkList/GetArmTimepointLinkLists',
+		return lastValueFrom(this._http.post<iItemArmTimepointLinkLists>(this._baseUrl + 'api/ArmTimepointLinkList/GetArmTimepointLinkLists',
 
-			body).subscribe(result => {
-				this.arms = result.arms;
-				currentItem.arms = this.arms;
-				this._selectedArm = null;
-				this.timepoints = result.timePoints;
-				currentItem.timepoints = this.timepoints;
-				this._selectedtimepoint = null;
-				this._links = result.links;
-				this._selectedLink = null;
+			body)).then(result => {
+        if (cacheData) {
+          this.arms = result.arms;
+          this._selectedArm = null;
+          this.timepoints = result.timePoints;
+          this._selectedtimepoint = null;
+          this._links = result.links;
+          this._selectedLink = null;
+        }
+        currentItem.arms = result.arms;
+        currentItem.timepoints = result.timePoints;
+
 				//this.gotArms.emit(this.arms);
-				this.RemoveBusy("FetchAll");
+        this.RemoveBusy("FetchAll");
+        return true;
 			}, error => {
 				this.modalService.SendBackHomeWithError(error);
-					this.RemoveBusy("FetchAll");
+        this.RemoveBusy("FetchAll");
+        return false;
 			}
 			);
 	}

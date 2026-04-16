@@ -197,7 +197,7 @@
                     </button>
                     <button (click)="CompleteAndLock(recon, CurrentComparison.contactId2)" [disabled]="!HasWriteRights"
                             class="btn btn-sm btn-info  pull-right">
-                      Complete And Lock
+                      Complete & Lock
                     </button>
                   </div>
                   <div *ngIf="recon.IsCompleted && recon.CompletedByID == CurrentComparison.contactId2">
@@ -269,7 +269,7 @@
                     </button>
                     <button (click)="CompleteAndLock(recon, CurrentComparison.contactId3)" [disabled]="!HasWriteRights"
                             class="btn btn-sm btn-info pull-right">
-                      Complete And Lock
+                      Complete & Lock
                     </button>
                   </div>
                   <div *ngIf="recon.IsCompleted && recon.CompletedByID == CurrentComparison.contactId3">

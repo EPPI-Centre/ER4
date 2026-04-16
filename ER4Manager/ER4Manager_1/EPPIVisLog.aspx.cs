@@ -43,7 +43,7 @@ public partial class EPPIVisLog : System.Web.UI.Page
                         radTs.Tabs[5].Tabs[5].Width = 550;
 
                         radTs.Tabs[5].Tabs[0].Visible = true;
-                        radTs.Tabs[5].Tabs[1].Visible = true;
+                        radTs.Tabs[5].Tabs[1].Visible = false;
                         radTs.Tabs[5].Tabs[5].Visible = true;
 
                         if (Utils.GetSessionString("IsAdm") == "True")
@@ -51,7 +51,7 @@ public partial class EPPIVisLog : System.Web.UI.Page
                             radTs.Tabs[5].Tabs[2].Visible = true;
                             radTs.Tabs[5].Tabs[3].Visible = true;
                             radTs.Tabs[5].Tabs[4].Visible = true;
-                            radTs.Tabs[5].Tabs[5].Width = 250;
+                            radTs.Tabs[5].Tabs[5].Width = 450;
                         }
 
                     }

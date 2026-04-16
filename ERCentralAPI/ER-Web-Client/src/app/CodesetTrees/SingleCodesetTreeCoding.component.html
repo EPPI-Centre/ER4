@@ -28,7 +28,10 @@
                   (selectionChange)="NodeSelected($event)"
                   kendoTreeViewExpandable
                   kendoTreeViewHierarchyBinding
-                  childrenField="attributes">
+                  childrenField="attributes"
+                  [isExpanded]="isExpanded"
+                  (collapse)="handleCollapse($event)"
+                  (expand)="handleExpand($event)">
     <ng-template kendoTreeViewNodeTemplate let-data>
       <span *ngIf="data.nodeType == 'ReviewSet'" class="mx-0">
         <img *ngIf="data.codingIsFinal" title="Normal Mode: single data entry for all users" src="assets/person.png" class="mr-1" />

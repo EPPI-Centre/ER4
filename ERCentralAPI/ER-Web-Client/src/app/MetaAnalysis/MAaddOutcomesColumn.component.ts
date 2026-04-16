@@ -57,6 +57,18 @@ export class MAaddOutcomesColumnComp implements OnInit, OnDestroy {
     else if (this.MetaAnalysisService.ColumnVisibility.AnswerHeaders.length >= this.MaxOptionalColumns) return true;
     else return false;
   }
+
+  public get HasMaxQuestionOutcomeCols(): boolean {
+    if (!this.MetaAnalysisService) return true;
+    else if (this.MetaAnalysisService.ColumnVisibility.QuestionHeaders.length >= this.MaxOptionalColumns) return true;
+    else return false;
+  }
+  public get HasMaxAnswerOutcomeCols(): boolean {
+    if (!this.MetaAnalysisService) return true;
+    else if (this.MetaAnalysisService.ColumnVisibility.AnswerHeaders.length >= this.MaxOptionalColumns) return true;
+    else return false;
+  }
+
   public CloseCodeDropDown() {
     if (this.ColCodeSelector !== null) {
       this.ColumnCode = this.ColCodeSelector.SelectedNodeData as SetAttribute;
@@ -81,7 +93,8 @@ export class MAaddOutcomesColumnComp implements OnInit, OnDestroy {
   }
 
   public CheckSelectionState() {
-    console.log("CheckSelectionState");
+    //console.log("CheckSelectionState");
+    //0 = No msg, 1 = valid, 2 = in use; 3 no children
     if (this.CurrentMA == null) {
       this.ColumnCode = null;
       this.SelectionState = 0;
@@ -95,12 +108,23 @@ export class MAaddOutcomesColumnComp implements OnInit, OnDestroy {
     let currentIds: string[] = [];
     if (this.ColumnMode == "Answer") {
       currentIds = this.CurrentMA.attributeIdAnswer.split(',');
-    } else {// has to be "Question"
+    }
+    else if (this.ColumnMode == "Question") {
       if (this.ColumnCode.attributes.length == 0) {
         this.SelectionState = 3;
         return;
       }
       currentIds = this.CurrentMA.attributeIdQuestion.split(',');
+    }
+    else if (this.ColumnMode == "AnswerOutcome") {
+      currentIds = this.CurrentMA.attributeIdAnswerOutcome.split(',');
+    }
+    else if (this.ColumnMode == "QuestionOutcome") {
+      if (this.ColumnCode.attributes.length == 0) {
+        this.SelectionState = 3;
+        return;
+      }
+      currentIds = this.CurrentMA.attributeIdQuestionOutcome.split(',');
     }
     if (currentIds.findIndex(f => f == idSt) == -1) {
       this.SelectionState = 1;
@@ -108,15 +132,21 @@ export class MAaddOutcomesColumnComp implements OnInit, OnDestroy {
     else this.SelectionState = 2;
   }
   public Add() {
-    this.CheckSelectionState();
     if (this.CurrentMA == null || this.ColumnCode == null) return;
+    this.CheckSelectionState();
     if (this.SelectionState == 1) {
       if (this.ColumnMode == "Answer") {
         if (this.CurrentMA.attributeIdAnswer == '') this.CurrentMA.attributeIdAnswer += this.ColumnCode.attribute_id.toString();
         else this.CurrentMA.attributeIdAnswer += ',' + this.ColumnCode.attribute_id.toString();
-      } else {
+      } else if (this.ColumnMode == "Question") {
         if (this.CurrentMA.attributeIdQuestion == '') this.CurrentMA.attributeIdQuestion += this.ColumnCode.attribute_id.toString();
         else this.CurrentMA.attributeIdQuestion += ',' + this.ColumnCode.attribute_id.toString();
+      } else if (this.ColumnMode == "AnswerOutcome") {
+        if (this.CurrentMA.attributeIdAnswerOutcome == '') this.CurrentMA.attributeIdAnswerOutcome += this.ColumnCode.attribute_id.toString();
+        else this.CurrentMA.attributeIdAnswerOutcome += ',' + this.ColumnCode.attribute_id.toString();
+      } else if (this.ColumnMode == "QuestionOutcome") {
+        if (this.CurrentMA.attributeIdQuestionOutcome == '') this.CurrentMA.attributeIdQuestionOutcome += this.ColumnCode.attribute_id.toString();
+        else this.CurrentMA.attributeIdQuestionOutcome += ',' + this.ColumnCode.attribute_id.toString();
       }
       setTimeout(() => { if (this.CanSave) this.PleaseSaveTheMA.emit(); this.CloseMe(); }, 10);
     }

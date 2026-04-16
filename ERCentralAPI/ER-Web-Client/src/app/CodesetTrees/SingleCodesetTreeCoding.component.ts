@@ -36,6 +36,43 @@ export class SingleCodesetTreeCodingComponent implements OnInit, OnDestroy {
   public CanWriteCoding(data: singleNode): boolean {
     return this.ReviewSetsService.CanWriteCoding(data);
   }
+
+  /*REGION: retain isExpanded data across all trees...*/
+  public get ExpandedNodeKeys(): string[] {
+    return this.ReviewSetsService.ExpandedNodeKeys;
+  }
+  public isExpanded = (dataItem: any, index: string) => {
+    //console.log("IsExpanded", dataItem, index);
+    const sn = dataItem as singleNode;
+    return this.ReviewSetsService.isExpanded(dataItem as singleNode, sn.id);
+  };
+  public handleCollapse(node: any) {
+    //console.log("hCollapse", node);
+    const sn = node.dataItem as singleNode;
+    this.ReviewSetsService.handleCollapse(sn);
+  }
+  public handleExpand(node: any) {
+    //console.log("hExpand", node);
+    const sn = node.dataItem as singleNode;
+    //console.log("hExpand2", sn);
+    this.ReviewSetsService.handleExpand(sn);
+  }
+  public IsCollapsed(data: singleNode): boolean {
+    return this.ReviewSetsService.ExpandedNodeKeys.findIndex(f => f == data.id) == -1;
+  }
+  public ExpandAllFromHere(data: singleNode) {
+    //console.log("EAFH", data);
+    this.ReviewSetsService.ExpandAllFromHere(data);
+  }
+  public CollapseAllFromHere(data: singleNode) {
+    //console.log("EAFH", data);
+    this.ReviewSetsService.CollapseAllFromHere(data);
+  }
+  /*END REGION: retain isExpanded data across all trees...*/
+
+
+
+
   CheckBoxClicked(event: Event, data: singleNode,) {
     let checked = (event.target as HTMLInputElement).checked;
     if (data.nodeType != "SetAttribute") return;

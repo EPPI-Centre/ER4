@@ -643,6 +643,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     cmd.additionalText = data.additionalText;
     cmd.itemArmId = data.armId;
     cmd.setId = attribute.set_id;
+    cmd.isExclusive = attribute.isExclusive;
     //console.log(attribute.set_id);
     cmd.attributeId = data.AttId;
     cmd.revInfo = this.reviewInfoService.ReviewInfo;
@@ -692,6 +693,8 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
       this.ReviewSetsService.ItemCodingItemAttributeSaveCommandHandled();
       //do something if command ended with an error
       //console.log('Error handling');
+      SubSuccess.unsubscribe();
+      SubError.unsubscribe();
       alert("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
       //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.unsubscribe();
       //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.unsubscribe();
@@ -756,6 +759,41 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
       //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.unsubscribe();
     });
     //console.log("canwrite:" + this.ReviewSetsService.CanWrite);
+
+
+    // if this is an isExclusive code we want to clear all of the sibling attributes
+    if (cmd.isExclusive == true) {
+      
+      // collect a list of the sibling attributes to uncheck
+      let siblingIsExclusiveAttributes: Number[] = [];     
+      for (var a = 0; a < this.ReviewSetsService.ReviewSets.length; a++) {
+        // find the correct set
+        if (this.ReviewSetsService.ReviewSets[a].set_id === cmd.setId) {
+          // collect the siblings
+          for (var b = 0; b < this.ReviewSetsService.ReviewSets[a].attributes.length; b++) {
+            if ((this.ReviewSetsService.ReviewSets[a].attributes[b].isExclusive === true) &&
+              (this.ReviewSetsService.ReviewSets[a].attributes[b].attribute_id != cmd.attributeId)) {
+                  siblingIsExclusiveAttributes.push(this.ReviewSetsService.ReviewSets[a].attributes[b].attribute_id);
+              }
+          }     
+        }
+      }
+        
+      // go through the coding and uncheck anything in siblingIsExclusiveAttributes      
+      for (var c = 0; c < this.ItemCodingService.ItemCodingList.length; c++) {
+        if ((this.ItemCodingService.ItemCodingList[c].setId === cmd.setId) &&
+          (this.ItemCodingService.ItemCodingList[c].contactId === this.ReviewerIdentityServ.reviewerIdentity.userId)) {
+          // we have found the correct set for this user so 
+          for (var d = this.ItemCodingService.ItemCodingList[c].itemAttributesList.length; d > 0; d--) {
+            // go through the list backwards so the index of what you are removing doesn't keep changng
+            if (siblingIsExclusiveAttributes.includes(this.ItemCodingService.ItemCodingList[c].itemAttributesList[d-1].attributeId)) {
+              this.ItemCodingService.ItemCodingList[c].itemAttributesList.splice(d-1, 1);
+            }
+          }
+        }
+      }
+    }
+
     this.ReviewSetsService.ExecuteItemAttributeSaveCommand(cmd, this.ItemCodingService.ItemCodingList);
   }
   ItemChanged() {
@@ -842,7 +880,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
       onlyCodeInTheRobotName: this.robotsService.RobotSetting.onlyCodeInTheRobotName,
       lockTheCoding: this.robotsService.RobotSetting.lockTheCoding,
       useFullTextDocument: false,
-      returnMessage: ""
+      returnMessage: "",
     };
     let res = await this.robotsService.RunRobotOpenAICommand(cmd);
     if (res.returnMessage.indexOf("Completed with errors") > -1) {

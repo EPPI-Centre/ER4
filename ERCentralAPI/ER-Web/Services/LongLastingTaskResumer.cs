@@ -1,0 +1,247 @@
+﻿using BusinessLibrary.BusinessClasses;
+using Csla;
+using Csla.Data;
+using Humanizer;
+using Newtonsoft.Json.Linq;
+using NuGet.Protocol.Plugins;
+using Serilog;
+using System.Data.SqlClient;
+using System.Diagnostics;
+using System.Diagnostics.Metrics;
+using System.Reflection;
+
+namespace ER_Web.Services
+{
+    /// <summary>
+    /// Responsibilities of this object:
+    /// 1. Work in a separate thread: it's triggered by the startup routine, which needs to continue unhindered
+    /// 2. After a delay, to make sure the app-pool recycle is complete (old instance of ER6 is now dead):
+    ///     Find list of jobs that got cancelled by an app-pool recycle, represent it as a "RawTaskToResume" class
+    /// 3. For each RawTaskToResume, use reflection to instantiate an instance of the object responsible for running the long-lasting task that got cancelled
+    ///     This should happen ONLY IF the class in question implements iResumableLongLastingTask, otherwise the task is skipped as it can't be resumed.
+    /// 4. Call the (iResumableLongLastingTask.)ResumeJob(rawTaskToResume) method.
+    ///     That's it, all the "resume" logic NEEDS TO BE in the actual long-lasting task class. The "Resumer" class needs to know nothing about it.
+    /// Thus, iResumableLongLastingTask need to:
+    ///     - Have logic to "shut down gracefully" which must save all the data needed to resume to tb_REVIEW_JOB
+    ///     - Include the logic needed to resume in the appropriate way inside its ResumeJob(ER_Web.Services.RawTaskToResume rtrs) method
+    /// </summary>
+    public class LongLastingTaskResumer
+    {
+        private readonly Serilog.ILogger Logger;
+
+        internal LongLastingTaskResumer(Serilog.ILogger logger)
+        {
+            Logger = logger;
+        }
+
+        internal void ResumePausedJobs()
+        {
+            LogInfoMessage("LongLastingTaskResumer is starting the resume task");
+            Task.Run(()=>ActuallyResumeWithDelay());
+            LogInfoMessage("LongLastingTaskResumer is returning");
+        }
+
+        private async void ActuallyResumeWithDelay()
+        { //use  Log.Error(...) to log exceptions to file
+            try
+            {
+                int delay = 1000 * AzureSettings.ResumeTasksStartupDelayInSeconds;//will wait this delay in ms
+
+                LogInfoMessage("LongLastingTaskResumer fired and forgotten task is about to sleep for " + delay.ToString() + "ms.");
+                try
+                {//need to make sure we stop this task promptly if we're shutting down, i.e. when an admin triggers 2 recycles in short succession
+                    //Taks.Delay allows to respect cancel-token requests to shutdown, albeit at the cost of triggering a "cancelled" exception...
+                    await Task.Delay(delay, Program.TokenSource.Token);
+                }
+                catch (Exception e)
+                {
+                    LogErrorMessage("");
+                    LogErrorMessage("LongLastingTaskResumer startup wait halted in Task.Delay");
+                    LogException(e);
+                    LogErrorMessage("--------------------------------------------------------");
+                    return;
+                }
+                
+                List<RawTaskToResume> pausedTasks = GetTasksToResume();
+                foreach (RawTaskToResume taskToResume in pausedTasks)
+                {
+                    try
+                    {
+                        var type = Type.GetType("BusinessLibrary.BusinessClasses." + taskToResume.ClassName);
+                        if (type != null && type.GetInterface("iResumableLongLastingTask") != null)
+                        {
+                            var instance = Activator.CreateInstance(type) as iResumableLongLastingTask;
+                            if (instance != null)
+                            {
+                                LogInfoMessage("LongLastingTaskResumer instantiated an object of type: " + taskToResume.ClassName);
+
+                                //we do Task.Run(() => instance.ResumeJob(taskToResume));
+                                //because the task resumer should know NOTHING about logging errors about what happens inside "instance"
+                                //so we call ResumeJob deliberately as "fire and forget" and force ERROR Handling to be done therein
+                                Task.Run(() => instance.ResumeJob(taskToResume));
+                            }
+                            else
+                            {
+                                LogErrorMessage("LongLastingTaskResumer failed to instantiate an object of type: " + taskToResume.ClassName);
+                            }
+                        }
+                        else
+                        {
+                            LogErrorMessage("LongLastingTaskResumer failed to GetType for: " + taskToResume.ClassName);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogException(ex);
+                    }
+                    if (pausedTasks.Count > 1)
+                    {// we wait 100ms between starting tasks, just to make sure we don't overwhelm ER while it's starting
+                        try
+                        {//need to make sure we stop this task promptly if we're shutting down, i.e. when an admin triggers 2 recycles in short succession
+                            await Task.Delay(100, Program.TokenSource.Token);
+                        }
+                        catch(Exception e)
+                        {
+                            LogErrorMessage("");
+                            LogErrorMessage("LongLastingTaskResumer halted while resuming tasks");
+                            LogException(e);
+                            LogErrorMessage("--------------------------------------------------------");
+                            break;
+                        }
+                    }
+                    if (Program.AppIsShuttingDown || Program.TokenSource.Token.IsCancellationRequested)
+                    {
+                        LogErrorMessage("");
+                        LogErrorMessage("LongLastingTaskResumer halted while resuming tasks (2)");
+                        LogErrorMessage("--------------------------------------------------------");
+                        break;
+                    }
+                }
+                LogInfoMessage("LongLastingTaskResumer has finished resuming tasks.");
+            } 
+            catch(Exception ex)
+            {
+                LogException(ex);
+            }
+        }
+
+        private List<RawTaskToResume> GetTasksToResume()
+        {
+            List<RawTaskToResume> res = new List<RawTaskToResume>();
+
+            using (SqlConnection connection = new SqlConnection(BusinessLibrary.Data.DataConnection.ConnectionString))
+            {
+                connection.Open();
+                string SQLcmd = "SELECT * from TB_REVIEW_JOB where (SUCCESS = 0 OR SUCCESS is null) AND END_TIME > DATEADD(hour, -5,  GETDATE()) and CURRENT_STATE like 'Cancelled%'";
+                using (SqlCommand command = new SqlCommand(SQLcmd, connection))
+                {
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        while (reader.Read()) 
+                        {
+                            RawTaskToResume tsk = new RawTaskToResume(reader);
+                            if (tsk.ClassName != "unknown") res.Add(tsk);
+                        }
+                    }
+                }
+            }
+            return res;
+        }
+
+
+        private void LogInfoMessage(string message)
+        {
+            Log.Information("");
+            Log.Information(message);
+            Debug.WriteLine("");
+            Debug.WriteLine(message);
+            Debug.WriteLine("");
+        }
+        private void LogException(Exception ex)
+        {
+            try
+            {
+                Exception? t = ex;
+                int counter = 0;
+                while (t != null)
+                {
+                    if (counter == 0)
+                    {
+                        LogErrorMessage("Exception in LongLastingTaskResumer:");
+                    }
+                    else LogErrorMessage("Inner Exception (" + counter.ToString() + "):");
+                    LogErrorMessage(t.Message);
+                    if (t.StackTrace != null) LogErrorMessage(t.StackTrace);
+                    t = t.InnerException;
+                    counter++;
+                }
+                LogErrorMessage("");
+            }
+            catch { }
+        }
+        private void LogErrorMessage(string message)
+        {
+            Log.Error(message);
+            Debug.WriteLine(message);
+        }
+    }
+    public class RawTaskToResume
+    {
+        public string ClassName { get; private set; }
+        public string ParamsInJson { get; private set; }
+        public string CancelState { get; private set; }
+        public string JobType { get; private set; }
+        public string? DataFactoryRunId { get; private set; }
+        public int ReviewId { get; private set; }
+        public int JobId { get; private set; }
+        public int ContactId { get; private set; }
+        public RawTaskToResume(int reviewId, int contactId, int jobId, string classname, string jobType, string cancelState, string? dataFactoryRunId, string paramsInJson)
+        {
+            JobId = jobId;
+            ReviewId = reviewId;
+            ContactId = contactId;
+            ClassName = classname;
+            JobType = jobType;
+            ParamsInJson = paramsInJson;
+            CancelState = cancelState;
+            DataFactoryRunId = dataFactoryRunId;
+        }
+        public RawTaskToResume(SafeDataReader reader)
+        {
+            JobId = reader.GetInt32("REVIEW_JOB_ID");
+            ReviewId = reader.GetInt32("REVIEW_ID");
+            ContactId = reader.GetInt32("CONTACT_ID");
+            JobType = reader.GetString("JOB_TYPE");
+            if (JobType == "Apply Classifier" || JobType == "Apply Classifier to OA run" || JobType == "Build Classifier"
+                || JobType == "Check Screening" || JobType == "Priority screening simulation") ClassName = "ClassifierCommandV2";
+            else ClassName = "unknown";
+            ParamsInJson = reader.GetString("RESUME_PARAMETERS");
+            CancelState = reader.GetString("CURRENT_STATE");
+            string lookingForDfId = reader.GetString("JOB_MESSAGE");
+            string[] splitted = lookingForDfId.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (string s in splitted) 
+            {
+                if (s.StartsWith("DF RunId: "))
+                {
+                    DataFactoryRunId = s.Substring(10);
+                    break;
+                }
+            }
+        }
+        public List<KeyValuePair<string, object>> GetParamsList()
+        {
+            List<KeyValuePair<string, object>> res = new List<KeyValuePair<string, object>>();
+            if (DataFactoryRunId != null)
+            {
+                res.Add(new KeyValuePair<string, object>("DfRunId", DataFactoryRunId));
+            }
+            var paramss = Newtonsoft.Json.JsonConvert.DeserializeObject(ParamsInJson);
+            foreach(var p in (paramss as JArray))
+            {
+                res.Add(new KeyValuePair<string, object>(p["Key"].ToString(), ((string?)p["Value"])));
+            }
+            return res;
+        }
+    }
+}
+

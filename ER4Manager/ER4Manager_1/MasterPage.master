@@ -150,13 +150,13 @@
                                                 </Telerik:RadTab>
                                             </Tabs>
                                         </Telerik:RadTab>
-                                        <Telerik:RadTab runat="server" NavigateUrl="~/ExampleReviews.aspx" Text="Utilities" SelectedIndex="0" Selected="True">
+                                        <Telerik:RadTab runat="server" NavigateUrl="~/ExampleReviews.aspx" Text="Utilities" SelectedIndex="5" Selected="True">
                                             <Tabs>
                                                 <Telerik:RadTab runat="server" NavigateUrl="~/ExampleReviews.aspx" Owner="" 
-                                                    Text="Example review" Selected="True">
+                                                    Text="Example review">
                                                 </Telerik:RadTab>
                                                 <Telerik:RadTab runat="server" NavigateUrl="~/Codesets.aspx" Owner="" 
-                                                    Text="Codesets">
+                                                    Text="Codesets" Visible="False">
                                                 </Telerik:RadTab>
                                                 <telerik:RadTab runat="server" NavigateUrl="~/EPPIVIS.aspx" Text="EPPI-Vis" Visible="False">
                                                 </telerik:RadTab>

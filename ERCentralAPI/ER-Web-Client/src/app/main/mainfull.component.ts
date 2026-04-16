@@ -154,7 +154,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
       (item: any) => {
         this.router.navigate(['Main']);
         this.GoToItemList();
-        this.LoadMAGAllocList(item);
+        if (item != "") this.LoadMAGAllocList(item);
       }
 
     )
@@ -835,6 +835,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
       this.configurablereportServ.FetchReports();
   }
 
+  private CheckForLLMEvaluations() {
+    if (this.reviewInfoService.ReviewInfo.canUseRobots == false) {//no need to check if there is credit to use!
+      if (this.robotsService.RobotOpenAiPromptEvaluationList.length == 0) this.robotsService.FetchRobotOpenAiPromptEvaluationList();
+    }
+  }
+
   public RunConfigurableReports2() {
     this.RunReportsShow2 = !this.RunReportsShow2;
   }
@@ -1012,18 +1018,26 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         let encoded = Helpers.htmlEncode(this.reviewSetsService.selectedNode.name);
         //return doc.documentElement.textContent;
         if (IsBulkAssign) {
-          this.ConfirmationDialogService.confirm("Assign selected ("
-            + this.ItemListService.SelectedItems.length + ") items ? "
-            , "Are you sure you want to assign all selected items (<strong>"
-            + this.ItemListService.SelectedItems.length + "</strong>) to this code?<br>"
-            + "<div class='w-100 p-0 mx-0 my-2 text-center'><strong class='border mx-auto px-1 rounded border-success d-inline-block'>"
-            + encoded + "</strong></div>"
-            , false, '')
-            .then((confirm: any) => {
-              if (confirm) {
-                this.BulkAssingCodes(SetA.attribute_id, SetA.set_id);
-              }
-            });
+          if (this.reviewSetsService.selectedNode.isExclusive == true) {
+            this.ConfirmationDialogService.ShowInformationalModal(
+              "Bulk assigning of radio-button codes is <strong>not permitted</strong> as it would result in "
+              + "the unseen removal of any other radio-button codes assigned to the selected items."
+              , "The selected code is of type radio-button.")
+          }          
+          else {
+            this.ConfirmationDialogService.confirm("Assign selected ("
+              + this.ItemListService.SelectedItems.length + ") items ? "
+              , "Are you sure you want to assign all selected items (<strong>"
+              + this.ItemListService.SelectedItems.length + "</strong>) to this code?<br>"
+              + "<div class='w-100 p-0 mx-0 my-2 text-center'><strong class='border mx-auto px-1 rounded border-success d-inline-block'>"
+              + encoded + "</strong></div>"
+              , false, '')
+              .then((confirm: any) => {
+                if (confirm) {
+                  this.BulkAssingCodes(SetA.attribute_id, SetA.set_id);
+                }
+              });
+          }
         }
         else if (!IsBulkAssign) {
           this.ConfirmationDialogService.confirm("Remove selected ("
@@ -1072,59 +1086,19 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
   public RefreshCodingTools() {
     this.reviewSetsService.GetReviewSets(false);
   }
-  public PrintCodingTool() {
-    if (this.selectedNode == null || this.selectedNode.nodeType != 'ReviewSet') return;
-    let report: string = "";
-    let reviewSet = this.selectedNode as ReviewSet;
-    report += "<h2>" + reviewSet.set_name;
-    if (this.printCsetShowIds) report += " (ID: " + reviewSet.set_id + ")";
-    if (this.printCsetShowTypes) report += " [" + reviewSet.setType.setTypeName + "]";
-    report += "</h2>";
 
-    if (this.printCsetShowDescriptions && reviewSet.description.trim().length > 0) {
-      let desc: string = reviewSet.description;
-      desc = desc.replace("\r\n", "<br>");
-      desc = desc.replace("\n", "<br>");
-      desc = desc.replace("\r", "<br>");
-      report += "<i>" + desc + " </i>";
-    }
-    report += "<p><ul>";
-    for (let attributeSet of reviewSet.attributes) {
-      report = this.PrintSelectedReviewSetAddAttributes(report, attributeSet, this.printCsetShowIds, this.printCsetShowDescriptions, this.printCsetShowTypes);
-    }
-    report += "</ul></p>";
+  public PrintSelectedCodingTool() {
+    if (this.selectedNode == null || this.selectedNode.nodeType != 'ReviewSet') return;
+    let report: string = (this.selectedNode as ReviewSet).printHtml(this.printCsetShowIds, this.printCsetShowTypes, this.printCsetShowDescriptions);
     const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(report, this._baseUrl, "Coding Tool Printout"));
     //console.log("Savign report:", dataURI)
     saveAs(dataURI, "Coding Tool printout.html");
   }
-  PrintSelectedReviewSetAddAttributes(report: string, attributeSet: SetAttribute, showIDs: boolean, showDescriptions: boolean, ShowTypes: boolean): string {
-    let desc: string = attributeSet.description;
-    desc = desc.replace("\r\n", "<br>");
-    desc = desc.replace("\n", "<br>");
-    desc = desc.replace("\r", "<br>");
-    report += "<li>" + attributeSet.attribute_name;
-    if (showIDs) report += " (ID = " + attributeSet.attribute_id + ")";
-    if (ShowTypes) report += " [" + attributeSet.attribute_type + "]";
-    if (showDescriptions && desc.trim().length > 0) report += "<br><i>" + desc + " </i>";
-
-    if (attributeSet.attributes != null && attributeSet.attributes.length > 0) {
-      report += "<ul>";
-      for (let child of attributeSet.attributes) {
-        report = this.PrintSelectedReviewSetAddAttributes(report, child, showIDs, showDescriptions, ShowTypes);
-      }
-      report += "</ul>";
-    }
-    report += "</li>";
-    return report;
-  }
-
+  
   public get ReviewPanelTogglingSymbol(): string {
     if (this.isReviewPanelCollapsed) return '&uarr;';
     else return '&darr;';
   }
-
-
-
 
   public get WorkAllocationsPanelTogglingSymbol(): string {
     if (this.isWorkAllocationsPanelCollapsed) return '&uarr;';
@@ -1134,7 +1108,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     if (this.isSourcesPanelVisible) return '&uarr;';
     else return '&darr;';
   }
-
 
   IncludedItemsList() {
     this.IncludedItemsListNoTabChange();
@@ -1272,7 +1245,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     //else console.log("work allocs comp is undef :-(");
     if (this.ItemListService.ListCriteria && this.ItemListService.ListCriteria.listType == "")
       this.IncludedItemsListNoTabChange();
-    setTimeout(() => { this.GetReports(true); }, 1000);//always get reports list, but we can wait 1s before doing so...
+    setTimeout(() => {
+      this.GetReports(true);
+      this.CheckForLLMEvaluations();
+    }, 1000);//always get reports list, but we can wait 1s before doing so...
 
   }
   //GetStatsFromSubscription() {

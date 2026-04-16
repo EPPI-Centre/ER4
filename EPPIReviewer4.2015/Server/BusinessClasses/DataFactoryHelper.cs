@@ -42,6 +42,7 @@ namespace BusinessLibrary.BusinessClasses
 #endif
             }
         }
+        public List<KeyValuePair<string, object>> resumeInfo = new List<KeyValuePair<string, object>>();
 
         public static bool RunDataFactoryProcess(string pipelineName, Dictionary<string, object> parameters, bool doLogging, int ContactId,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -186,7 +187,8 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             if (AppIsShuttingDown || CT.IsCancellationRequested)//if CT requests a cancellation during the Delay, we get a 
                             {
-                                UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "No DF RunId yet", Origin, true, false);
+                                string resumeInfoString = Newtonsoft.Json.JsonConvert.SerializeObject(resumeInfo, Newtonsoft.Json.Formatting.None);
+                                UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled before DF", "No DF RunId yet", Origin, true, false, resumeInfoString);
                                 return false;
                             }
                         }
@@ -226,7 +228,7 @@ namespace BusinessLibrary.BusinessClasses
             string resourceGroup = AzureSettings.resourceGroup;
             string dataFactoryName = AzureSettings.dataFactoryName;
 
-            UpdateReviewJobLog(ReviewJobId, ReviewId, "Starting DF", "", Origin);
+            UpdateReviewJobLog(ReviewJobId, ReviewId, "Resuming DF", "", Origin);
 
             var context = new AuthenticationContext("https://login.windows.net/" + tenantID);
             ClientCredential cc = new ClientCredential(appClientId, appClientSecret);
@@ -263,13 +265,15 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         try
                         {
+                            
                             await Task.Delay(15000, CT);//15 seconds: we don't know why this happens!!
                         }
                         catch
                         {
                             if (AppIsShuttingDown || CT.IsCancellationRequested)//if CT requests a cancellation during the Delay, we get a 
                             {
-                                UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "", Origin, true, false);
+                                string resumeInfoString = Newtonsoft.Json.JsonConvert.SerializeObject(resumeInfo, Newtonsoft.Json.Formatting.None);
+                                UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "DF RunId: " + DFrunId, Origin, true, false, resumeInfoString);
                                 return false;
                             }
                         }
@@ -294,7 +298,8 @@ namespace BusinessLibrary.BusinessClasses
             {
                 if (AppIsShuttingDown || CT.IsCancellationRequested)
                 {
-                    UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "DF RunId: " + DFrunId, Origin, true, false);
+                    string resumeInfoString = Newtonsoft.Json.JsonConvert.SerializeObject(resumeInfo, Newtonsoft.Json.Formatting.None);
+                    UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "DF RunId: " + DFrunId, Origin, true, false, resumeInfoString);
                     return false;
                 }
                 //Mini block to cause exceptions on purpose, so to check error handling works, should be commented out!
@@ -319,7 +324,8 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     if (AppIsShuttingDown || CT.IsCancellationRequested)//checking again, because we just paused 500ms or more!
                     {
-                        UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "DF RunId: " + DFrunId, Origin, true, false);
+                        string resumeInfoString = Newtonsoft.Json.JsonConvert.SerializeObject(resumeInfo, Newtonsoft.Json.Formatting.None);
+                        UpdateReviewJobLog(ReviewJobId, ReviewId, "Cancelled during DF", "DF RunId: " + DFrunId, Origin, true, false, resumeInfoString);
                         return false;
                     }
                 }
@@ -391,7 +397,7 @@ namespace BusinessLibrary.BusinessClasses
         /// </param>
         /// <param name="SuccessValue">In the table, this value should be NULL if we're not finished. TRUE if we finished and it worked, FALSE if it failed/got interrupted</param>
         public static void UpdateReviewJobLog(int LogId, int ReviewID, string Status, string Message,
-            string Origin, bool SetSuccess = false, bool SuccessValue = true)
+            string Origin, bool SetSuccess = false, bool SuccessValue = true, string ResumeInfoInJSON = "")
         {
             if (LogId > 0)
             {
@@ -409,6 +415,7 @@ namespace BusinessLibrary.BusinessClasses
                             command.Parameters.Add(new SqlParameter("@JobMessage", Message));
                             if (SetSuccess) command.Parameters.Add(new SqlParameter("@Success", SuccessValue));
                             else command.Parameters.Add(new SqlParameter("@Success", System.DBNull.Value));
+                            if(ResumeInfoInJSON != "") command.Parameters.Add(new SqlParameter("@ResumeParams", ResumeInfoInJSON));
                             command.ExecuteNonQuery();
                         }
                     }

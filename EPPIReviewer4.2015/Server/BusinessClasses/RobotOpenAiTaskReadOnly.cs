@@ -236,6 +236,22 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(JobOwnerProperty);
             }
         }
+        public static readonly PropertyInfo<int> NIterationsProperty = RegisterProperty<int>(new PropertyInfo<int>("NIterations", "NIterations"));
+        public int NIterations
+        {
+            get
+            {
+                return GetProperty(NIterationsProperty);
+            }
+        }
+        public static readonly PropertyInfo<int> OpenAiPromptEvaluationIdProperty = RegisterProperty<int>(new PropertyInfo<int>("OpenAiPromptEvaluationId", "OpenAiPromptEvaluationId"));
+        public int OpenAiPromptEvaluationId
+        {
+            get
+            {
+                return GetProperty(OpenAiPromptEvaluationIdProperty);
+            }
+        }
 
 
         //protected override void AddAuthorizationRules()
@@ -253,9 +269,10 @@ namespace BusinessLibrary.BusinessClasses
         {
             LoadProperty(ErrorsProperty, new MobileList<RobotOpenAiTaskError>());
             //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            List<RobotCoderReadOnly> RobotsList = new List<RobotCoderReadOnly>();
             if (criteria.NextCreditTask)
             {
-                List<RobotOpenAiTaskReadOnly> JobsToConsider = new List<RobotOpenAiTaskReadOnly>();
+                List<RobotOpenAiTaskReadOnly> JobsToConsider = new List<RobotOpenAiTaskReadOnly>();            
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
                     connection.Open();
@@ -267,7 +284,7 @@ namespace BusinessLibrary.BusinessClasses
                             while (reader.Read())
                             {
                                 RobotOpenAiTaskReadOnly job = new RobotOpenAiTaskReadOnly();
-                                job.Child_Fetch(reader, false);
+                                job.Child_Fetch(reader, false, RobotsList);
                                 JobsToConsider.Add(job);
                             }
                         }
@@ -308,7 +325,7 @@ namespace BusinessLibrary.BusinessClasses
                                     LineJobId = reader.GetInt32("ROBOT_API_CALL_ID");
                                     if (ChosenJobId == LineJobId)
                                     {
-                                        Child_Fetch(reader, false);
+                                        Child_Fetch(reader, false, RobotsList);
                                     }
                                     
                                 }
@@ -322,8 +339,9 @@ namespace BusinessLibrary.BusinessClasses
             
         }
 
-        private void Child_Fetch(SafeDataReader reader, bool isPrivate, int ReviewId = 0, int ContactId = 0 )
+        private void Child_Fetch(SafeDataReader reader, bool isPrivate, List<RobotCoderReadOnly> robotsList, int ReviewId = 0, int ContactId = 0 )
         {
+            string tName = reader.GetString("ROBOT_NAME");
             LoadProperty(ErrorsProperty, new MobileList<RobotOpenAiTaskError>());
             if (isPrivate)
             {
@@ -331,7 +349,17 @@ namespace BusinessLibrary.BusinessClasses
                 else Child_FetchFilteredDetails(reader);
             }
             else Child_FetchAllDetails(reader);
-            LoadProperty<RobotCoderReadOnly>(RobotProperty, DataPortal.Fetch<RobotCoderReadOnly>(new SingleCriteria<RobotCoderReadOnly, string>(reader.GetString("ROBOT_NAME"))));
+            RobotCoderReadOnly gotTheRobot = robotsList.FirstOrDefault(f => f.RobotName == tName);
+            if (gotTheRobot == null)
+            {
+                RobotCoderReadOnly tRobot = DataPortal.Fetch<RobotCoderReadOnly>(new SingleCriteria<RobotCoderReadOnly, string>(tName));
+                robotsList.Add(tRobot);
+                LoadProperty<RobotCoderReadOnly>(RobotProperty, tRobot);
+            }
+            else
+            {
+                LoadProperty<RobotCoderReadOnly>(RobotProperty, gotTheRobot);
+            }
         }
         private void Child_FetchAllDetails(SafeDataReader reader)
         { 
@@ -355,6 +383,8 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty<int>(JobOwnerIdProperty, reader.GetInt32("CONTACT_ID"));
             LoadProperty<bool>(UseFullTextDocumentProperty, reader.GetBoolean("USE_PDFS"));
             LoadProperty<string>(JobOwnerProperty, reader.GetString("CONTACT_NAME"));
+            LoadProperty<int>(NIterationsProperty, reader.GetInt32("N_ITERATIONS"));
+            LoadProperty<int>(OpenAiPromptEvaluationIdProperty, reader.GetInt32("OPENAI_PROMPT_EVALUATION_ID"));
             //LoadProperty<string>(RobotNameProperty, reader.GetString("ROBOT_NAME"));
 
             LoadProperty<MobileList<long>>(ItemIDsListProperty, new MobileList<long>());
@@ -460,7 +490,7 @@ namespace BusinessLibrary.BusinessClasses
     public class RobotOpenAiTaskCriteria : CriteriaBase<RobotOpenAiTaskCriteria>
     {
         public bool NextCreditTask { get; private set; } = true;
-        public bool PastJobs { get; private set; } = false;
+        public bool AllPastJobs { get; private set; } = false;
         public int JobId { get; private set; } = 0;
         public RobotOpenAiTaskCriteria() { }
         public static RobotOpenAiTaskCriteria NewNextCreditTaskCriteria()
@@ -481,7 +511,14 @@ namespace BusinessLibrary.BusinessClasses
         {
             RobotOpenAiTaskCriteria res = new RobotOpenAiTaskCriteria();
             res.NextCreditTask = false;
-            res.PastJobs = true;
+            res.AllPastJobs = false;
+            return res;
+        }
+        public static RobotOpenAiTaskCriteria NewAllPastJobsCriteria()
+        {
+            RobotOpenAiTaskCriteria res = new RobotOpenAiTaskCriteria();
+            res.NextCreditTask = false;
+            res.AllPastJobs = true;
             return res;
         }
     }

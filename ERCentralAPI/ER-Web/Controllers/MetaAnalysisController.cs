@@ -95,7 +95,8 @@ namespace ERxWebClient2.Controllers
                         crit.MetaAnalysisId = MAjson.metaAnalysisId;
                         toSave = DataPortal.Fetch<MetaAnalysis>(crit);
                         toSave.Outcomes = OutcomeList.GetOutcomeList(toSave.SetId, toSave.AttributeIdIntervention, toSave.AttributeIdControl,
-                            toSave.AttributeIdOutcome, toSave.AttributeId, toSave.MetaAnalysisId, toSave.AttributeIdQuestion, toSave.AttributeIdAnswer);
+                            toSave.AttributeIdOutcome, toSave.AttributeId, toSave.MetaAnalysisId, toSave.AttributeIdQuestion, toSave.AttributeIdAnswer
+                            , toSave.AttributeIdQuestionOutcome, toSave.AttributeIdAnswerOutcome);
                     }
                     else
                     {//new MA, will do it with an empty MA
@@ -157,6 +158,8 @@ namespace ERxWebClient2.Controllers
                     toSave.SortedBy = MAjson.sortedBy;
                     toSave.AttributeIdAnswer = MAjson.attributeIdAnswer;
                     toSave.AttributeIdQuestion = MAjson.attributeIdQuestion;
+                    toSave.AttributeIdAnswerOutcome = MAjson.attributeIdAnswerOutcome;
+                    toSave.AttributeIdQuestionOutcome = MAjson.attributeIdQuestionOutcome;
                     toSave = toSave.Save();
                     crit.GetAllDetails = true;
                     if (crit.MetaAnalysisId < 1) crit.MetaAnalysisId = toSave.MetaAnalysisId;
@@ -387,10 +390,18 @@ namespace ERxWebClient2.Controllers
         public string interventionText { get; set; }
         public string controlText { get; set; }
         public string outcomeText { get; set; }
+
         public string attributeIdQuestion { get; set; }
         public string attributeQuestionText { get; set; }
         public string attributeIdAnswer { get; set; }
         public string attributeAnswerText { get; set; }
+
+
+        public string attributeIdQuestionOutcome { get; set; }
+        public string attributeQuestionOutcomeText { get; set; }
+        public string attributeIdAnswerOutcome { get; set; }
+        public string attributeAnswerTextOutcome { get; set; }
+
         public string gridSettings { get; set; }
         public object feForestPlot { get; set; }
         public object reForestPlot { get; set; }
@@ -457,168 +468,7 @@ namespace ERxWebClient2.Controllers
     public class MiniOutcomeForMAsJSON
     {
         public int outcomeId { get; set; } = -1;
-        //public int itemSetId { get; set; } = -1;
-        //public int outcomeTypeId { get; set; } = -1;
-        //public string outcomeTypeName { get; set; } = "";
-        //public int itemAttributeIdIntervention { get; set; } = -1;
-        //public int itemAttributeIdControl { get; set; } = -1;
-        //public int itemAttributeIdOutcome { get; set; } = -1;
-        //public string title { get; set; } = "";
-        //public string shortTitle { get; set; } = "";
-        //public string outcomeDescription { get; set; } = "";
-        //public double data1 { get; set; } = 0;
-        //public double data2 { get; set; } = 0;
-        //public double data3 { get; set; } = 0;
-        //public double data4 { get; set; } = 0;
-        //public double data5 { get; set; } = 0;
-        //public double data6 { get; set; } = 0;
-        //public double data7 { get; set; } = 0;
-        //public double data8 { get; set; } = 0;
-        //public double data9 { get; set; } = 0;
-        //public double data10 { get; set; } = 0;
-        //public double data11 { get; set; } = 0;
-        //public double data12 { get; set; } = 0;
-        //public double data13 { get; set; } = 0;
-        //public double data14 { get; set; } = 0;
-        //public string interventionText { get; set; } = "";
-        //public string controlText { get; set; } = "";
-        //public string outcomeText { get; set; } = "";
-        //public int itemTimepointId { get; set; } = 0;
-        //public string itemTimepointMetric { get; set; } = "";
-        //public string itemTimepointValue { get; set; } = "";
-        //public int itemArmIdGrp1 { get; set; } = -1;
-        //public int itemArmIdGrp2 { get; set; } = -1;
-        //public string timepointDisplayValue { get; set; } = "";
-        //public string grp1ArmName { get; set; } = "";
-        //public string grp2ArmName { get; set; } = "";
         public bool isSelected { get; set; }
-        //public bool canSelect { get; set; }
-        //public OutcomeCodesJSON? outcomeCodes { get; set; }
-        //public int occ1 { get; set; } = -1;
-        //public int occ2 { get; set; } = -1;
-        //public int occ3 { get; set; } = -1;
-        //public int occ4 { get; set; } = -1;
-        //public int occ5 { get; set; } = -1;
-        //public int occ6 { get; set; } = -1;
-        //public int occ7 { get; set; } = -1;
-        //public int occ8 { get; set; } = -1;
-        //public int occ9 { get; set; } = -1;
-        //public int occ10 { get; set; } = -1;
-        //public int occ11 { get; set; } = -1;
-        //public int occ12 { get; set; } = -1;
-        //public int occ13 { get; set; } = -1;
-        //public int occ14 { get; set; } = -1;
-        //public int occ15 { get; set; } = -1;
-        //public int occ16 { get; set; } = -1;
-        //public int occ17 { get; set; } = -1;
-        //public int occ18 { get; set; } = -1;
-        //public int occ19 { get; set; } = -1;
-        //public int occ20 { get; set; } = -1;
-        //public int occ21 { get; set; } = -1;
-        //public int occ22 { get; set; } = -1;
-        //public int occ23 { get; set; } = -1;
-        //public int occ24 { get; set; } = -1;
-        //public int occ25 { get; set; } = -1;
-        //public int occ26 { get; set; } = -1;
-        //public int occ27 { get; set; } = -1;
-        //public int occ28 { get; set; } = -1;
-        //public int occ29 { get; set; } = -1;
-        //public int occ30 { get; set; } = -1;
-        //public int aa1 { get; set; } = -1;
-        //public int aa2 { get; set; } = -1;
-        //public int aa3 { get; set; } = -1;
-        //public int aa4 { get; set; } = -1;
-        //public int aa5 { get; set; } = -1;
-        //public int aa6 { get; set; } = -1;
-        //public int aa7 { get; set; } = -1;
-        //public int aa8 { get; set; } = -1;
-        //public int aa9 { get; set; } = -1;
-        //public int aa10 { get; set; } = -1;
-        //public int aa11 { get; set; } = -1;
-        //public int aa12 { get; set; } = -1;
-        //public int aa13 { get; set; } = -1;
-        //public int aa14 { get; set; } = -1;
-        //public int aa15 { get; set; } = -1;
-        //public int aa16 { get; set; } = -1;
-        //public int aa17 { get; set; } = -1;
-        //public int aa18 { get; set; } = -1;
-        //public int aa19 { get; set; } = -1;
-        //public int aa20 { get; set; } = -1;
-        //public string aq1 { get; set; } = "";
-        //public string aq2 { get; set; } = "";
-        //public string aq3 { get; set; } = "";
-        //public string aq4 { get; set; } = "";
-        //public string aq5 { get; set; } = "";
-        //public string aq6 { get; set; } = "";
-        //public string aq7 { get; set; } = "";
-        //public string aq8 { get; set; } = "";
-        //public string aq9 { get; set; } = "";
-        //public string aq10 { get; set; } = "";
-        //public string aq11 { get; set; } = "";
-        //public string aq12 { get; set; } = "";
-        //public string aq13 { get; set; } = "";
-        //public string aq14 { get; set; } = "";
-        //public string aq15 { get; set; } = "";
-        //public string aq16 { get; set; } = "";
-        //public string aq17 { get; set; } = "";
-        //public string aq18 { get; set; } = "";
-        //public string aq19 { get; set; } = "";
-        //public string aq20 { get; set; } = "";
-
-        //public double feWeight { get; set; } = 0;
-        //public double reWeight { get; set; } = 0;
-        //public double smd { get; set; } = 0;
-        //public double sesmd { get; set; } = 0;
-
-        //public double r { get; set; } = 0;
-        //public double ser { get; set; } = 0;
-        //public double oddsRatio { get; set; } = 0;
-        //public double seOddsRatio { get; set; } = 0;
-        //public double riskRatio { get; set; } = 0;
-        //public double seRiskRatio { get; set; } = 0;
-        //public double ciUpperSMD { get; set; } = 0;
-        //public double ciLowerSMD { get; set; } = 0;
-        //public double ciUpperR { get; set; } = 0;
-        //public double ciLowerR { get; set; } = 0;
-
-
-        //public double ciUpperOddsRatio { get; set; } = 0;
-        //public double ciLowerOddsRatio { get; set; } = 0;
-        //public double ciUpperRiskRatio { get; set; } = 0;
-        //public double ciLowerRiskRatio { get; set; } = 0;
-        //public double ciUpperRiskDifference { get; set; } = 0;
-        //public double ciLowerRiskDifference { get; set; } = 0;
-        //public double ciUpperPetoOddsRatio { get; set; } = 0;
-        //public double ciLowerPetoOddsRatio { get; set; } = 0;
-        //public double ciUpperMeanDifference { get; set; } = 0;
-        //public double ciLowerMeanDifference { get; set; } = 0;
-        //public double riskDifference { get; set; } = 0;
-        //public double seRiskDifference { get; set; } = 0;
-        //public double meanDifference { get; set; } = 0;
-        //public double seMeanDifference { get; set; } = 0;
-        //public double petoOR { get; set; } = 0;
-        //public double sePetoOR { get; set; } = 0;
-        //public double es { get; set; } = 0;
-        //public double sees { get; set; } = 0;
-        //public int nRows { get; set; } = 0;
-        //public double ciLower { get; set; } = 0;
-        //public double ciUpper { get; set; } = 0;
-        //public string esDesc { get; set; } = "";
-        //public string seDesc { get; set; } = "";
-        //public string data1Desc { get; set; } = "";
-        //public string data2Desc { get; set; } = "";
-        //public string data3Desc { get; set; } = "";
-        //public string data4Desc { get; set; } = "";
-        //public string data5Desc { get; set; } = "";
-        //public string data6Desc { get; set; } = "";
-        //public string data7Desc { get; set; } = "";
-        //public string data8Desc { get; set; } = "";
-        //public string data9Desc { get; set; } = "";
-        //public string data10Desc { get; set; } = "";
-        //public string data11Desc { get; set; } = "";
-        //public string data12Desc { get; set; } = "";
-        //public string data13Desc { get; set; } = "";
-        //public string data14Desc { get; set; } = "";
     }
 
     public class ReferenceJSON

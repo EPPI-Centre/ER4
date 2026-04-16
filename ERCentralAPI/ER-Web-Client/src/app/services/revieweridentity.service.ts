@@ -200,8 +200,8 @@ export class ReviewerIdentityService implements OnDestroy {
     //(this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
     this.userOptions = new UserOptions();
     let reqpar = new LoginCreds(u, p);
-    return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/Login',
-      reqpar).subscribe(ri => {
+    return lastValueFrom( this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/Login',
+      reqpar)).then(ri => {
 
         this.reviewerIdentity = ri;
 
@@ -400,8 +400,8 @@ export class ReviewerIdentityService implements OnDestroy {
   public LoginToReview(RevId: number) {
     this.CommonPreLoginToReview();
     let body = JSON.stringify({ Value: RevId });
-    return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/LoginToReview',
-      body).subscribe(ri => {
+    return lastValueFrom(this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/LoginToReview',
+      body)).then(ri => {
 
         this.reviewerIdentity = ri;
 
@@ -423,8 +423,8 @@ export class ReviewerIdentityService implements OnDestroy {
   public LoginToFullReview(RevId: number) {
     this.CommonPreLoginToReview();
     let body = JSON.stringify({ Value: RevId });
-    return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/LoginToReview',
-      body).subscribe(ri => {
+    return lastValueFrom( this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/LoginToReview',
+      body)).then(ri => {
 
         this.reviewerIdentity = ri;
 
@@ -446,8 +446,8 @@ export class ReviewerIdentityService implements OnDestroy {
   public LoginReqSA(u: string, p: string, rid: number) {
     this.CommonPreLoginToReview();
     let cred = new LoginCredsSA(u, p, rid);//
-    return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/LoginToReviewSA',
-      cred).subscribe(ri => {
+    return lastValueFrom(this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/LoginToReviewSA',
+      cred)).then(ri => {
 
         this.reviewerIdentity = ri;
         if (this.reviewerIdentity.userId > 0 && this.reviewerIdentity.reviewId === rid) {

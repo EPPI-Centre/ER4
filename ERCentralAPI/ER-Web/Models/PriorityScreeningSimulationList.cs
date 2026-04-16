@@ -59,7 +59,7 @@ namespace BusinessLibrary.BusinessClasses
             List<BlobInHierarchy> myblobs = BlobOperations.Blobfilenames(blobConnection, "eppi-reviewer-data", RemoteFolder);
             foreach (BlobInHierarchy b in myblobs)
             {
-                if (!b.BlobName.Contains("PriorityScreeningSimulationData_")) // i.e. we only want results files, not the data
+                if (!b.BlobName.Contains("PriorityScreeningSimulationData_") && !b.BlobName.Contains("_buscar.tsv")) // i.e. we only want results files, not the data and not the buscar
                 {
                     Add(PriorityScreeningSimulation.GetPriorityScreeningSimulation(b.BlobName.Replace(RemoteFolder, "")));
                 }

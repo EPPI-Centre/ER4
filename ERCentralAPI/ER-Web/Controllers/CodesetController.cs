@@ -197,6 +197,8 @@ namespace ERxWebClient2.Controllers
                     AttributeSetDeleteWarningCommandResult result = new AttributeSetDeleteWarningCommandResult();
                     result.NumAllocations = cmd.NumAllocations;
                     result.NumItems = cmd.NumItems;
+                    result.NumVisMaps = cmd.NumVisMaps;
+                    result.NumOutcomes = cmd.NumOutcomes;
                     return Ok(result);
                 }
                 else return Forbid();
@@ -248,6 +250,7 @@ namespace ERxWebClient2.Controllers
                     newCode.OriginalAttributeID = data.originalAttributeID;
                     newCode.ParentAttributeId = data.parentAttributeId;
                     newCode.SetId = data.setId;
+                    newCode.IsExclusive = data.isExclusive;
                     newCode = newCode.Save();
                     return Ok(newCode);//will be used on client side!
                 }
@@ -274,7 +277,8 @@ namespace ERxWebClient2.Controllers
                         data.attributeSetDescription, 
                         data.attributeOrder,
                         data.extURL,
-                        data.extType);
+                        data.extType,
+                        data.isExclusive);
                     DataPortal<AttributeUpdateCommand> dp = new DataPortal<AttributeUpdateCommand>();
                     cmd = dp.Execute(cmd);
                     return Ok(true);//no point sending back anything, it worked...
@@ -427,8 +431,32 @@ namespace ERxWebClient2.Controllers
 				return StatusCode(500, e.Message);
 			}
 		}
+        [HttpPost("[action]")]
+        public IActionResult PerformRandomAllocateTrainTest([FromBody] PerformRandomAllocateTrainTestCommandJSON data)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    PerformRandomAllocateTrainTestCommand cmd = new PerformRandomAllocateTrainTestCommand(
+                        data.attributeIdGoldStandard,
+                        data.attributeIdPlaceBelow,
+                        data.setIdPlaceBelow,
+                        data.howManyToTrain);
+                    DataPortal<PerformRandomAllocateTrainTestCommand> dp = new DataPortal<PerformRandomAllocateTrainTestCommand>();
+                    cmd = dp.Execute(cmd);
+                    return Ok(cmd);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "PerformRandomAllocateTrainTest error");
+                return StatusCode(500, e.Message);
+            }
+        }
 
-	}
+    }
 
     public class ReviewSetUpdateCommandJSON
     {
@@ -476,8 +504,10 @@ namespace ERxWebClient2.Controllers
     }
     public class AttributeSetDeleteWarningCommandResult
     {
-        public Int64 NumItems;
+        public int NumItems;
         public int NumAllocations;
+        public int NumVisMaps;
+        public int NumOutcomes;
     }
     public class AttributeSetCreateOrUpdateJSON
     {
@@ -495,6 +525,7 @@ namespace ERxWebClient2.Controllers
         public Int64 attributeId;
         public string extURL;
         public string extType;
+        public Boolean isExclusive;
     }
     public class ReviewSetCopyCommandJSON
     {
@@ -531,4 +562,11 @@ namespace ERxWebClient2.Controllers
 		public int numericRandomSample { get; set; }
 		public bool randomSampleIncluded { get; set; }
 	}
+    public class PerformRandomAllocateTrainTestCommandJSON
+    {
+        public long attributeIdGoldStandard { get; set; }
+        public long attributeIdPlaceBelow { get; set; }
+        public int setIdPlaceBelow { get; set; }
+        public int howManyToTrain { get; set; }
+    }
 }

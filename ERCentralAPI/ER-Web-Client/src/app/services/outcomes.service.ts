@@ -119,9 +119,8 @@ export class OutcomesService extends BusyAwareService {
     this._BusyMethods.push("FetchReviewSetOutcomeList");
     let body = JSON.stringify({ itemSetId: itemSetId, setId: setId });
 
-    this._http.post<ReviewSetDropDownResult[]>(this._baseUrl + 'api/OutcomeList/FetchReviewSetOutcomeList',
-      body)
-      .subscribe(result => {
+    lastValueFrom(this._http.post<ReviewSetDropDownResult[]>(this._baseUrl + 'api/OutcomeList/FetchReviewSetOutcomeList',
+      body)).then(result => {
 
         this.ReviewSetOutcomeList = result;
 
@@ -130,11 +129,10 @@ export class OutcomesService extends BusyAwareService {
       }, error => {
         this.modalService.SendBackHomeWithError(error);
         this.RemoveBusy("FetchReviewSetOutcomeList");
-      },
-        () => {
-          this.RemoveBusy("FetchReviewSetOutcomeList");
-        }
-      );
+      }
+    ).catch(() => {
+      this.RemoveBusy("FetchReviewSetOutcomeList");
+    });
 
   }
 
@@ -143,9 +141,8 @@ export class OutcomesService extends BusyAwareService {
     this._BusyMethods.push("FetchReviewSetInterventionList");
     let body = JSON.stringify({ itemSetId: itemSetId, setId: setId });
 
-    this._http.post<ReviewSetDropDownResult[]>(this._baseUrl + 'api/OutcomeList/FetchReviewSetInterventionList',
-      body)
-      .subscribe(result => {
+    lastValueFrom(this._http.post<ReviewSetDropDownResult[]>(this._baseUrl + 'api/OutcomeList/FetchReviewSetInterventionList',
+      body)).then((result) => {
 
         this.ReviewSetInterventionList = result;
 
@@ -153,11 +150,10 @@ export class OutcomesService extends BusyAwareService {
       }, error => {
         this.modalService.SendBackHomeWithError(error);
         this.RemoveBusy("FetchReviewSetInterventionList");
-      },
-        () => {
-          this.RemoveBusy("FetchReviewSetInterventionList");
-        }
-      );
+      }
+    ).catch(() => {
+      this.RemoveBusy("FetchReviewSetInterventionList");
+    });
 
   }
 
@@ -166,9 +162,8 @@ export class OutcomesService extends BusyAwareService {
     this._BusyMethods.push("FetchReviewSetControlList");
     let body = JSON.stringify({ itemSetId: itemSetId, setId: setId });
 
-    this._http.post<ReviewSetDropDownResult[]>(this._baseUrl + 'api/OutcomeList/FetchReviewSetControlList',
-      body)
-      .subscribe(result => {
+    lastValueFrom(this._http.post<ReviewSetDropDownResult[]>(this._baseUrl + 'api/OutcomeList/FetchReviewSetControlList',
+      body)).then(result => {
 
         this.ReviewSetControlList = result;
 
@@ -176,11 +171,9 @@ export class OutcomesService extends BusyAwareService {
       }, error => {
         this.modalService.SendBackHomeWithError(error);
         this.RemoveBusy("FetchReviewSetControlList");
-      },
-        () => {
-          this.RemoveBusy("FetchReviewSetControlList");
-        }
-      );
+      }).catch(() => {
+        this.RemoveBusy("FetchReviewSetControlList");
+      });
   }
 
   
@@ -404,6 +397,7 @@ export class Outcome implements iOutcome {
     if (iO) {
 
       this.itemSetId = iO.itemSetId;
+      this.itemId = iO.itemId;
       this.outcomeTypeId = iO.outcomeTypeId;
       this.manuallyEnteredOutcomeTypeId = iO.manuallyEnteredOutcomeTypeId;
       this.unifiedOutcomeTypeId = iO.unifiedOutcomeTypeId;
@@ -1568,6 +1562,48 @@ export interface iExtendedOutcome extends iOutcome {
   aa19: number;
   aa20: number;
 
+  aqo1: string;
+  aqo2: string;
+  aqo3: string;
+  aqo4: string;
+  aqo5: string;
+  aqo6: string;
+  aqo7: string;
+  aqo8: string;
+  aqo9: string;
+  aqo10: string;
+  aqo11: string;
+  aqo12: string;
+  aqo13: string;
+  aqo14: string;
+  aqo15: string;
+  aqo16: string;
+  aqo17: string;
+  aqo18: string;
+  aqo19: string;
+  aqo20: string;
+
+  ao1: number;
+  ao2: number;
+  ao3: number;
+  ao4: number;
+  ao5: number;
+  ao6: number;
+  ao7: number;
+  ao8: number;
+  ao9: number;
+  ao10: number;
+  ao11: number;
+  ao12: number;
+  ao13: number;
+  ao14: number;
+  ao15: number;
+  ao16: number;
+  ao17: number;
+  ao18: number;
+  ao19: number;
+  ao20: number;
+
   occ1: number;
   occ2: number;
   occ3: number;
@@ -1644,6 +1680,48 @@ export class ExtendedOutcome extends Outcome implements iExtendedOutcome {
     this.aa18 = iO.aa18;
     this.aa19 = iO.aa19;
     this.aa20 = iO.aa20;
+
+    this.aqo1 = iO.aqo1;
+    this.aqo2 = iO.aqo2;
+    this.aqo3 = iO.aqo3;
+    this.aqo4 = iO.aqo4;
+    this.aqo5 = iO.aqo5;
+    this.aqo6 = iO.aqo6;
+    this.aqo7 = iO.aqo7;
+    this.aqo8 = iO.aqo8;
+    this.aqo9 = iO.aqo9;
+    this.aqo10 = iO.aqo10;
+    this.aqo11 = iO.aqo11;
+    this.aqo12 = iO.aqo12;
+    this.aqo13 = iO.aqo13;
+    this.aqo14 = iO.aqo14;
+    this.aqo15 = iO.aqo15;
+    this.aqo16 = iO.aqo16;
+    this.aqo17 = iO.aqo17;
+    this.aqo18 = iO.aqo18;
+    this.aqo19 = iO.aqo19;
+    this.aqo20 = iO.aqo20;
+
+    this.ao1 = iO.ao1;
+    this.ao2 = iO.ao2;
+    this.ao3 = iO.ao3;
+    this.ao4 = iO.ao4;
+    this.ao5 = iO.ao5;
+    this.ao6 = iO.ao6;
+    this.ao7 = iO.ao7;
+    this.ao8 = iO.ao8;
+    this.ao9 = iO.ao9;
+    this.ao10 = iO.ao10;
+    this.ao11 = iO.ao11;
+    this.ao12 = iO.ao12;
+    this.ao13 = iO.ao13;
+    this.ao14 = iO.ao14;
+    this.ao15 = iO.ao15;
+    this.ao16 = iO.ao16;
+    this.ao17 = iO.ao17;
+    this.ao18 = iO.ao18;
+    this.ao19 = iO.ao19;
+    this.ao20 = iO.ao20;
 
     this.occ1 = iO.occ1;
     this.occ2 = iO.occ2;
@@ -1727,6 +1805,48 @@ export class ExtendedOutcome extends Outcome implements iExtendedOutcome {
   aa18: number;
   aa19: number;
   aa20: number;
+
+  aqo1: string;
+  aqo2: string;
+  aqo3: string;
+  aqo4: string;
+  aqo5: string;
+  aqo6: string;
+  aqo7: string;
+  aqo8: string;
+  aqo9: string;
+  aqo10: string;
+  aqo11: string;
+  aqo12: string;
+  aqo13: string;
+  aqo14: string;
+  aqo15: string;
+  aqo16: string;
+  aqo17: string;
+  aqo18: string;
+  aqo19: string;
+  aqo20: string;
+
+  ao1: number;
+  ao2: number;
+  ao3: number;
+  ao4: number;
+  ao5: number;
+  ao6: number;
+  ao7: number;
+  ao8: number;
+  ao9: number;
+  ao10: number;
+  ao11: number;
+  ao12: number;
+  ao13: number;
+  ao14: number;
+  ao15: number;
+  ao16: number;
+  ao17: number;
+  ao18: number;
+  ao19: number;
+  ao20: number;
 
   occ1: number;
   occ2: number;

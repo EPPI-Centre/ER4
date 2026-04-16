@@ -13,6 +13,7 @@ import { ChartComponent } from '@progress/kendo-angular-charts';
 import { saveAs } from '@progress/kendo-file-saver';
 import 'hammerjs';
 import { NgModel } from '@angular/forms';
+import { PriorityScreeningService } from '../services/PriorityScreening.service';
 
 function nextMultipleOfTen(num: number): number {
   return Math.ceil(num / 10) * 10;
@@ -76,8 +77,9 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
     this.refreshPriorityScreeningSimulationList();
     if (this.reviewSetsService.ReviewSets.length == 0) this.reviewSetsService.GetReviewSets();
   }
-  @ViewChild('VisualiseChart')
-  private VisualiseChart!: ChartComponent;
+  @ViewChild('VisualiseChart') private VisualiseChart!: ChartComponent;
+  @ViewChild('VisualiseChartBuscar') private VisualiseChartBuscar!: ChartComponent;
+  @ViewChild('VisualiseChartBuscar2') private VisualiseChartBuscar2!: ChartComponent;
   faArrowsRotate = faArrowsRotate;
   faSpinner = faSpinner;
 
@@ -99,7 +101,12 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
   public get PriorityScreeningSimulationName(): string {
     return this.classifierService.PriorityScreeningSimulationName;
   }
-
+  public get PriorityScreeningSimulationBuscar(): string {
+    return this.classifierService.PriorityScreeningSimulationBuscar;
+  }
+  public get GetSimulationDataItemCount(): number {
+    return this.simulationDataItemCount;
+  }
   refreshPriorityScreeningSimulationList() {
     this.classifierService.FetchPriorityScreeningSimulationList();
   }
@@ -125,6 +132,7 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
       this.processSimulation(true);
     }
   }
+  public crossingValues: number[] = [0, 100000];
 
   processSimulation(redrawGraph: boolean)
   {
@@ -185,6 +193,25 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
         }
       }
 
+      // prepare the scatter dataset for right axis and request a redraw so the axis appears on right
+      this.prepareRightAxisScatter();
+      if (redrawGraph && this.GetSimulationDataItemCount > 0) {
+        this.prepareHeatMapData();
+        this.prepareHeatMapData(5, true);
+      }
+
+      //// request redraw of the chart widget (guarded)
+      //try {
+      //  const chart = (this.VisualiseChart as any);
+      //  if (chart && chart.instance && chart.instance.redraw) {
+      //    chart.instance.redraw();
+      //  }
+      //} catch (e) {
+      //  // ignore if redraw not available
+      //}
+    
+
+
       // now calculate the statistics
       let nScreenedArray = [];
       let workloadReductionArray = [];
@@ -231,43 +258,254 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
           (ciLower / this.simulationDataItemCount * 100))) + ")";
     }
   }
+  public scatterData: Array<[number, number]> = [];
+  public heatMapData: Array<[string, string, number]> = [];
+  public heatMapSeriesData: Array<{ x: string; y: string; value: number }> = [];
+  public heatMapDataMagnified: Array<[string, string, number]> = [];
+  public heatMapSeriesDataMagnified: Array<{ x: string; y: string; value: number }> = [];
+  public rightAxisMax = 100;
 
+  public tsvToPairs(
+    tsv: string,
+    filterColumn: string,
+    filterValue: number
+  ): Array<[number, number]> {
 
-  public exportChart(): void {
-    let title = this.PriorityScreeningSimulationName;
-    title = title.replace(".tsv", "");
-    this.VisualiseChart.exportImage().then((dataURI) => {
+  const rows = tsv
+    .trim()
+    .split("\n")
+    .map(r => r.split("\t"));
+
+  // Extract header → index mapping
+  const header = rows[0];
+  const colIndex = (name: string) => header.indexOf(name);
+
+  const fValue = (filterValue as number) / 100
+  const idxFilter = colIndex(filterColumn);
+  const idxA = colIndex(header[0]);   // second column
+  const idxB = colIndex(header[1]);   // third column
+
+  return rows
+    .slice(1) // skip header
+    .filter(r => r[idxFilter] === (fValue == 1 ? "1.0" : String(fValue)))
+    .map(r => [Number(r[idxA]), Number(r[idxB])]);
+}
+  private prepareRightAxisScatter(): void {
+    if (this.PriorityScreeningSimulationBuscar == "") {
+      this.scatterData = [];
+    }
+    else {
+      this.scatterData = this.tsvToPairs(this.PriorityScreeningSimulationBuscar, 'recall_target', this.recallLevel);
+      // Compute a max for the right axis with a little padding
+      const maxValue = Math.max(...this.scatterData.map(p => p[1]), 1);
+      this.rightAxisMax = Math.ceil(maxValue * 1.1);
+    }
+  }
+  public tsvToTriples(tsv: string): Array<[number, number, number]> {
+
+    const rows = tsv
+      .trim()
+      .split("\n")
+      .map(r => r.split("\t"));
+
+    const header = rows[0];
+    const colIndex = (name: string) => header.indexOf(name);
+
+    // First three columns in the header
+    const idxA = colIndex(header[0]);
+    const idxB = colIndex(header[1]);
+    const idxC = colIndex(header[2]);
+
+    return rows
+      .slice(1)
+      .map(r => [
+        Number(r[idxA]),
+        Number(r[idxB]),
+        Number(r[idxC])
+      ]);
+  }
+
+  private prepareHeatMapData(rowsCount: number = 4, magnified: boolean = false): void {
+    // reset outputs
+    if (magnified == false) {
+      this.heatMapData = [];
+      this.heatMapSeriesData = [];
+    }
+    else {
+      this.heatMapDataMagnified = [];
+      this.heatMapSeriesDataMagnified = [];
+    }
+
+    const tsv = (this.PriorityScreeningSimulationBuscar || "").trim();
+    if (!tsv) { return; }
+
+    // parse TSV rows and header (case-insensitive)
+    const rows = tsv.split("\n").map(r => r.split("\t").map(c => c.trim()));
+    if (rows.length < 2) { return; }
+
+    const header = rows[0].map(h => h.toLowerCase());
+    const idxRecall = header.indexOf("recall_target") !== -1 ? header.indexOf("recall_target") : 2;
+    const idxP = header.indexOf("p") !== -1 ? header.indexOf("p") : 1;
+    const idxN = header.indexOf("batch_size") !== -1 ? header.indexOf("batch_size") : 0;
+
+    // Build triples and normalize numeric values
+    let triples: Array<{ n: number; p: number; recall: number }> = rows.slice(1)
+      .map(r => {
+        const n = Number(r[idxN]);
+        const p = Number(r[idxP]);
+        const recall = Number(r[idxRecall]);
+        if (isNaN(n) || isNaN(p) || isNaN(recall)) return null;
+        return { n, p, recall };
+      })
+      .filter((t): t is { n: number; p: number; recall: number } => t !== null);
+    if (magnified) {
+      triples = triples.filter(f => f.p <= 0.25)
+    }
+
+    if (triples.length === 0) { return; }
+
+    const totalItems = this.GetSimulationDataItemCount || 0;
+
+    // bincount equal bins between 0 and 1
+    const binCount = rowsCount;
+    let binSize = 1 / binCount;
+    if (magnified) binSize = 0.25 / binCount;
+    const bins = Array.from({ length: binCount }, (_, i) => Number((i * binSize).toFixed(2)));
+
+    // Unique recall targets normalized to two decimals (use as categorical X axis)
+    const recallSet = new Set<number>();
+    for (const t of triples) {
+      recallSet.add(Number(t.recall.toFixed(2)));
+    }
+    const recalls = Array.from(recallSet).sort((a, b) => a - b);
+
+    // Group using keys "recallRounded::binIndex" accumulating sumN and count
+    const group = new Map<string, { sumN: number; count: number }>();
+
+    for (const { n, p, recall } of triples) {
+      // bin index: clamp to [0, binCount-1]
+      let binIndex = Math.floor(p / binSize);
+      if (!isFinite(binIndex) || binIndex < 0) binIndex = 0;
+      if (binIndex >= binCount) binIndex = binCount - 1;
+
+      const recallRounded = Number(recall.toFixed(2));
+      const key = `${recallRounded}::${binIndex}`;
+
+      const prev = group.get(key);
+      if (prev) {
+        prev.sumN += n;
+        prev.count += 1;
+      } else {
+        group.set(key, { sumN: n, count: 1 });
+      }
+    }
+    let heatMD: Array<[string, string, number]> = [];
+    let heatMapSD: Array<{ x: string; y: string; value: number }> = [];
+    // Build full grid: for every recall × every bin produce an entry (missing combos => 0)
+    for (const recall of recalls) {
+      const recallStr = recall.toFixed(2);
+      for (let binIndex = 0; binIndex < binCount; binIndex++) {
+        const bin = bins[binIndex];
+        const binStr = bin.toFixed(2) + "-" + (bin + binSize).toFixed(2);
+
+        const key = `${recall}::${binIndex}`;
+        const entry = group.get(key);
+
+        let workloadSaved = 0;
+        if (entry && entry.count > 0 && totalItems > 0) {
+          const meanN = entry.sumN / entry.count;
+          workloadSaved = Number((((totalItems - meanN) / totalItems) * 100).toFixed(2));
+        }
+
+        // keep heatMapData shape [string, string, number]
+        heatMD.push([recallStr, binStr, workloadSaved]);
+        heatMapSD.push({ x: recallStr, y: binStr, value: workloadSaved });
+      }
+    }
+    if (magnified) {
+      this.heatMapDataMagnified = heatMD;
+      this.heatMapSeriesDataMagnified = heatMapSD;
+    } else {
+      this.heatMapData = heatMD;
+      this.heatMapSeriesData = heatMapSD;
+    }
+  }
+
+public exportChart(): void {
+  let title = this.PriorityScreeningSimulationName;
+  title = title.replace(".tsv", "");
+  this.VisualiseChart.exportImage().then((dataURI) => {
+    saveAs(dataURI, title + '.png');
+  });
+}
+public exportChart2x(): void {
+  let title = this.PriorityScreeningSimulationName;
+  title = title.replace(".tsv", "");
+  const chart = (this.VisualiseChart.instance);
+  if (chart) {
+    let width2x = chart.element.offsetWidth * 2;
+    let height2x = chart.element.offsetHeight * 2;
+    console.log(width2x, height2x);
+    this.VisualiseChart.exportImage({height: height2x, width: width2x}).then((dataURI) => {
       saveAs(dataURI, title + '.png');
     });
   }
-  public exportChart2x(): void {
-    let title = this.PriorityScreeningSimulationName;
-    title = title.replace(".tsv", "");
-    const chart = (this.VisualiseChart.instance);
-    if (chart) {
-      let width2x = chart.element.offsetWidth * 2;
-      let height2x = chart.element.offsetHeight * 2;
-      console.log(width2x, height2x);
-      this.VisualiseChart.exportImage({height: height2x, width: width2x}).then((dataURI) => {
+  }
+  public exportChartBuscar(magnified:boolean = false): void {
+    if (magnified == false) {
+      let title = this.PriorityScreeningSimulationName.replace(".tsv", "") + "_Buscar";
+      this.VisualiseChartBuscar.exportImage().then((dataURI) => {
+        saveAs(dataURI, title + '.png');
+      });
+    }
+    else {
+      let title = this.PriorityScreeningSimulationName.replace(".tsv", "") + "_Buscar_detail";
+      this.VisualiseChartBuscar2.exportImage().then((dataURI) => {
+        saveAs(dataURI, title + '.png');
+      });
+    }
+  }
+  public exportChartBuscar2x(magnified: boolean = false): void {
+    let title = this.PriorityScreeningSimulationName.replace(".tsv", "") + (magnified ? "_Buscar_detail" : "_Buscar");
+    const chart = magnified ? (this.VisualiseChartBuscar2) : (this.VisualiseChartBuscar);
+    if (chart.instance) {
+      let width2x = chart.instance.element.offsetWidth * 2;
+      let height2x = chart.instance.element.offsetHeight * 2;
+      
+      //console.log(width2x, height2x);
+      chart.exportImage({ height: height2x, width: width2x }).then((dataURI) => {
         saveAs(dataURI, title + '.png');
       });
     }
   }
   
 
-  downloadData() {
-    if (this.PriorityScreeningSimulationText != null) {
-      const blob = new Blob([this.PriorityScreeningSimulationText], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', this.PriorityScreeningSimulationName);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
+downloadData() {
+  if (this.PriorityScreeningSimulationText != null) {
+    const blob = new Blob([this.PriorityScreeningSimulationText], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', this.PriorityScreeningSimulationName);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
+}
+downloadBuscarData() {
+  if (this.PriorityScreeningSimulationBuscar != null) {
+    const blob = new Blob([this.PriorityScreeningSimulationBuscar], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', this.PriorityScreeningSimulationName + "_Buscar.tsv");
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+}
 
   public confirmDeleteSimulation(simulation: PriorityScreeningSimulation) {
     this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to delete this priority screening simulation?', false, '')

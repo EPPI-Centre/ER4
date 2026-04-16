@@ -1,7 +1,7 @@
 ﻿using ERxWebClient2.Controllers;
 using Newtonsoft.Json.Linq;
 
-namespace ERxWebClient2.Services
+namespace ER_Web.Services
 {
     public interface IZoteroService    {
         Task<JObject> POSTFormMultiPart(IEnumerable<KeyValuePair<string, string>> payload, string requestUri, IHttpClientProvider httpProvider);

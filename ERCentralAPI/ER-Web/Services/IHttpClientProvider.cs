@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ERxWebClient2.Services
+namespace ER_Web.Services
 {
     public interface IHttpClientProvider
     {

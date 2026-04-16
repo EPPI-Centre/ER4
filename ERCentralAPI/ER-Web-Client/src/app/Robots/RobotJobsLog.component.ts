@@ -29,8 +29,9 @@ export class RobotJobsLog implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (this.reviewSetsService.ReviewSets.length == 0) this.reviewSetsService.GetReviewSets(false);
-    setTimeout(() => { this.robotsService.GetPastJobs(); }, 80);
+    if (this.robotsService.PastJobs.length == 0) setTimeout(() => { this.Refresh(); }, 80);
   }
+  public GetAllJobsOption:boolean = false;
   CanWrite(): boolean {
     return this._reviewerIdentityServ.HasWriteRights;
   }
@@ -52,6 +53,10 @@ export class RobotJobsLog implements OnInit, OnDestroy {
 
   public get IsSiteAdmin(): boolean {
     return this._reviewerIdentityServ.reviewerIdentity.isSiteAdmin;
+  }
+  public ChangingGetAllJobsOption() {
+    this.GetAllJobsOption = !this.GetAllJobsOption;
+    this.Refresh();
   }
   
   public rowCallback = (context: RowClassArgs) => {
@@ -152,7 +157,7 @@ export class RobotJobsLog implements OnInit, OnDestroy {
 
 
   Refresh() {
-    this.robotsService.GetPastJobs();
+    this.robotsService.GetPastJobs(this.GetAllJobsOption);
   }
   public get PastJobs(): RobotOpenAiTaskReadOnly[] {
     return this.robotsService.PastJobs;

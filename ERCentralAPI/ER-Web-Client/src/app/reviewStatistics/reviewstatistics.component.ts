@@ -21,6 +21,7 @@ import {
 import { OutcomesService } from '../services/outcomes.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { Subscription } from 'rxjs';
+import { iItemAttributeWithThisCodeCountCommand, ItemCodingService } from '../services/ItemCoding.service';
 
 
 @Component({
@@ -42,6 +43,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     private _notificationService: NotificationService,
     private _OutcomesService: OutcomesService,
     private configurablereportServ: ConfigurableReportService,
+    private itemCodingService: ItemCodingService,
     private eventEmitterService: EventEmitterService
   ) {
 
@@ -151,12 +153,29 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     if (this.DetailsForSetId) return this._showAllCodingReportOptions;
     else return false;
   }
-  public set showAllCodingReportOptions(val: boolean) {
-    this._showAllCodingReportOptions = val;
+  public flipShowAllCodingReportOptions() {
+    this._showAllCodingReportOptions = !this._showAllCodingReportOptions;
+    if (this._showAllCodingReportOptions == false) this.AllCodingReportWithThisCode = false;
   }
   public get showAllCodingReportOptionsText(): string {
-    if (this._showAllCodingReportOptions) return "Close Excel Options";
+    if (this._showAllCodingReportOptions) return "Close Options";
     else return "More...";
+  }
+  public AllCodingReportWithThisCode: boolean = false;
+
+  public get CurrenltySelectedNode(): singleNode | null {
+    return this.reviewSetsService.selectedNode;
+  }
+  public get CurrenltySelectedNodeString(): string {
+    if (this.CurrenltySelectedNode == null) return "Please select a code from the right";
+    else if (this.CurrenltySelectedNode.nodeType == "ReviewSet") return "Invalid selection, please select a code";
+    else return this.CurrenltySelectedNode.name;
+  }
+  public get CanGetAllCodingReport(): boolean {
+    if (this.AllCodingReportWithThisCode == false) return true;
+    if (this.CurrenltySelectedNode == null) return false;
+    else if (this.CurrenltySelectedNode.nodeType == "ReviewSet") return false;
+    return true;
   }
 
   ngOnInit() {
@@ -230,7 +249,8 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
   }
   Clear() {
     this.PanelName = "";
-    this.showAllCodingReportOptions = false;
+    this._showAllCodingReportOptions = false;
+    this.AllCodingReportWithThisCode = false;
     this.ClearBulkFields();
   }
   EditCodeSets() {
@@ -681,21 +701,34 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     }
   }
   public async GetAndSaveCodingReport(setStats: ReviewStatisticsCodeSet2) {
+    if (!this.CanGetAllCodingReport) return;
     console.log("Asking for the report");
-    let stringReport = await this.configurablereportServ.FetchAllCodingReportBySet(setStats.setId);
+    let stringReport = "";
+    if (this.AllCodingReportWithThisCode) {
+      const aSet = this.CurrenltySelectedNode as SetAttribute;
+      stringReport = await this.configurablereportServ.FetchAllCodingReportBySet(setStats.setId, aSet.attributeSetId);
+    }
+    else stringReport = await this.configurablereportServ.FetchAllCodingReportBySet(setStats.setId);
     if (stringReport != 'error') {
       //console.log("Got the report");
       this.SaveAsHtml(stringReport, setStats.setName);
     }
   }
   public async GetAndSaveJsonCodingReport(setStats: ReviewStatisticsCodeSet2) {
-    console.log("Asking for the report");
-    let jsonVal = await this.configurablereportServ.FetchAllCodingReportDataBySet(setStats.setId);
+    if (!this.CanGetAllCodingReport) return;
+    console.log("Asking for the JSON report");
+    let jsonVal: boolean | iReportAllCodingCommand = false;
+    if (this.AllCodingReportWithThisCode) {
+      const aSet = this.CurrenltySelectedNode as SetAttribute;
+      jsonVal = await this.configurablereportServ.FetchAllCodingReportDataBySet(setStats.setId, aSet.attributeSetId);
+    }
+    else jsonVal = await this.configurablereportServ.FetchAllCodingReportDataBySet(setStats.setId);
     if (jsonVal != false) {
       //console.log("Got the report");
       this.SaveAsJson(JSON.stringify(jsonVal), setStats.setName);
     }
   }
+  
   private saving: boolean = false;
   public SaveAsHtml(reportHTML: string, CodesetName: string) {
     if (reportHTML.length < 1) return;
@@ -724,11 +757,29 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
   private readonly borderTop: WorkbookSheetRowCellBorderTop = { size: 1 };
   private readonly borderRight: WorkbookSheetRowCellBorderRight = { size: 1 };
 
-  public GetAndSaveXLSCodingReport(setStats: ReviewStatisticsCodeSet2) {
+  public async GetAndSaveXLSCodingReport(setStats: ReviewStatisticsCodeSet2) {
+    if (!this.CanGetAllCodingReport) return;
     //safety measures, let's check the size of the job...
     let Size: string = "small"; //medium, big, very big, massive
     let FormattedMsg: string = ""; //medium, big, very big, massive
-    const ItemsEstimatedCount = setStats.numItemsCompleted + setStats.numItemsIncomplete +
+    let ItemsEstimatedCount: number = 0;
+    if (this.AllCodingReportWithThisCode) {
+      this.saving = true;
+      const aSet = this.CurrenltySelectedNode as SetAttribute;
+      const success = await this.itemCodingService.GetWithThisCodeCounts(aSet.attributeSetId, aSet.set_id);
+      this.saving = false;
+      //alert("did it");
+      if (success == false) return;
+      const res = success as iItemAttributeWithThisCodeCountCommand;
+      if (res.numDeletedOrShadow + res.numExcluded + res.numIncluded == 0) {
+        this.confirmationDialogService.ShowInformationalModal("There are no items with this code: Aborting", "Aborting", "sm");
+        return;
+      }
+      ItemsEstimatedCount = Math.min(res.numDeletedOrShadow + res.numExcluded + res.numIncluded
+        , setStats.numItemsCompleted + setStats.numItemsIncomplete +
+        (Math.min(setStats.numItemsCompleted, setStats.numItemsIncomplete) * setStats.reviewerStatistics.length));
+    }
+    else ItemsEstimatedCount = setStats.numItemsCompleted + setStats.numItemsIncomplete +
       (Math.min(setStats.numItemsCompleted, setStats.numItemsIncomplete) * setStats.reviewerStatistics.length);
     const CS = this.reviewSetsService.FindSetById(setStats.setId);
     const CodesCount = (CS ? CS.NumberOfChildren : 0);
@@ -774,7 +825,13 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 
   public async DoGetAndSaveXLSCodingReport(setStats: ReviewStatisticsCodeSet2, size: string) {
     console.log("Asking for the report");
-    let jsonVal = await this.configurablereportServ.FetchAllCodingReportDataBySet(setStats.setId);
+    let jsonVal: boolean | iReportAllCodingCommand = false;
+    if (this.AllCodingReportWithThisCode) {
+      const aSet = this.CurrenltySelectedNode as SetAttribute;
+      jsonVal = await this.configurablereportServ.FetchAllCodingReportDataBySet(setStats.setId, aSet.attributeSetId);
+    }
+    else jsonVal = await this.configurablereportServ.FetchAllCodingReportDataBySet(setStats.setId);
+    
     if (jsonVal != false) {
       this.saving = true;
       this.ProduceXLSreport(jsonVal as iReportAllCodingCommand, setStats);

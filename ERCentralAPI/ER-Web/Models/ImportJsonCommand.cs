@@ -33,6 +33,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using AuthorsHandling;
 using BusinessLibrary.BusinessClasses.ImportItems;
+using System.Globalization;
 
 #endif
 
@@ -353,6 +354,8 @@ namespace BusinessLibrary.BusinessClasses
 
         // ***********************************************************************************************************
         // Adding items
+        private Dictionary<(long ItemId, int OldArmId), int> ArmsDictionary = new Dictionary<(long, int), int>();
+        private Dictionary<(long ItemId, int OldTimepointId), long> TimepointsDictionary = new Dictionary<(long, int), long>();
         private IncomingItemsList IncomingItems = new IncomingItemsList();
         private ItemTypeNVL ItemTypes = null;
         private void AddItems(Rootobject ro, int ReviewId, int ContactId)
@@ -403,6 +406,7 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         connection.Open();
                         SaveArms(connection, ro.References[index]);
+                        SaveTimepoints(connection, ro.References[index]);
                     }
                     index++;
                 }
@@ -607,6 +611,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
             SaveArms(connection, r);
+            SaveTimepoints(connection, r);
         }
 
         protected void SaveArms(SqlConnection connection, Reference r)
@@ -619,6 +624,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     if (c.ArmId != 0)
                     {
+                        int originalArmId = c.ArmId; // capture original incoming id
                         int ArmId = 0;
                         if (arms.TryGetValue(c.ArmId, out ArmId))
                         {
@@ -635,9 +641,74 @@ namespace BusinessLibrary.BusinessClasses
                                 command.Parameters.Add(new SqlParameter("@NEW_ITEM_ARM_ID", 0));
                                 command.Parameters["@NEW_ITEM_ARM_ID"].Direction = System.Data.ParameterDirection.Output;
                                 command.ExecuteNonQuery();
-                                arms.Add(c.ArmId, Convert.ToInt32(command.Parameters["@NEW_ITEM_ARM_ID"].Value));
-                                c.ArmId = Convert.ToInt32(command.Parameters["@NEW_ITEM_ARM_ID"].Value);
+                                int newItemArmId = Convert.ToInt32(command.Parameters["@NEW_ITEM_ARM_ID"].Value);
+                                // map original -> new for this Reference
+                                arms.Add(originalArmId, newItemArmId);
+                                // persistent mapping so SaveAttribute / SaveOutcome can find the new id later
+                                try
+                                {
+                                    ArmsDictionary[(r.ItemId, originalArmId)] = newItemArmId;
+                                }
+                                catch { /* defensive: ignore mapping errors */ }
+                                // update in-memory object so subsequent steps see the new id
+                                c.ArmId = newItemArmId;
                                 armIndex++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        protected void SaveTimepoints(SqlConnection connection, Reference r)
+        {
+            int tpIndex = 0;
+            Dictionary<int, long> tps = new Dictionary<int, long>();
+            if (r.Outcomes != null)
+            {
+                foreach (Outcome o in r.Outcomes)
+                {
+                    if (o.ItemTimepointId != 0)
+                    {
+                        int originalTpId = o.ItemTimepointId;
+                        if (tps.TryGetValue(originalTpId, out long mappedId))
+                        {
+                            // we already created a new timepoint for this original id
+                            // update in-memory outcome id to the new id (trim to int if necessary)
+                            o.ItemTimepointId = (int)mappedId;
+                        }
+                        else
+                        {
+                            double tpValue = 0d;
+                            if (!string.IsNullOrEmpty(o.ItemTimepointValue))
+                            {
+                                double.TryParse(o.ItemTimepointValue, NumberStyles.Any, CultureInfo.InvariantCulture, out tpValue);
+                            }
+
+                            using (SqlCommand command = new SqlCommand("st_ItemTimepointCreate", connection))
+                            {
+                                command.CommandType = System.Data.CommandType.StoredProcedure;
+                                command.Parameters.Add(new SqlParameter("@ITEM_ID", r.ItemId));
+                                command.Parameters.Add(new SqlParameter("@TIMEPOINT_VALUE", tpValue));
+                                command.Parameters.Add(new SqlParameter("@TIMEPOINT_METRIC", o.ItemTimepointMetric ?? ""));
+                                command.Parameters.Add(new SqlParameter("@NEW_ITEM_TIMEPOINT_ID", 0));
+                                command.Parameters["@NEW_ITEM_TIMEPOINT_ID"].Direction = System.Data.ParameterDirection.Output;
+                                command.ExecuteNonQuery();
+                                long newItemTimepointId = Convert.ToInt64(command.Parameters["@NEW_ITEM_TIMEPOINT_ID"].Value);
+
+                                tps.Add(originalTpId, newItemTimepointId);
+                                try
+                                {
+                                    TimepointsDictionary[(r.ItemId, originalTpId)] = newItemTimepointId;
+                                }
+                                catch
+                                {
+                                    // defensive: ignore mapping errors
+                                }
+
+                                // update the in-memory outcome so subsequent SaveOutcome uses the new id
+                                o.ItemTimepointId = (int)newItemTimepointId;
+                                tpIndex++;
                             }
                         }
                     }
@@ -768,6 +839,10 @@ namespace BusinessLibrary.BusinessClasses
                         AttributeSet InterventionId = rs.GetAttributeSetFromOriginalAttributeId(o.ItemAttributeIdIntervention);
                         AttributeSet ControlId = rs.GetAttributeSetFromOriginalAttributeId(o.ItemAttributeIdControl);
                         AttributeSet OutcomeId = rs.GetAttributeSetFromOriginalAttributeId(o.ItemAttributeIdOutcome);
+                        int grp1 = o.ItemArmIdGrp1;
+                        int grp2 = o.ItemArmIdGrp2;
+                        if (grp1 != 0 && this.ArmsDictionary.TryGetValue((ItemId, grp1), out int mapped1)) grp1 = mapped1;
+                        if (grp2 != 0 && this.ArmsDictionary.TryGetValue((ItemId, grp2), out int mapped2)) grp2 = mapped2;
                         using (SqlCommand command = new SqlCommand("st_OutcomeItemInsert", connection))
                         {
                             command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -793,8 +868,8 @@ namespace BusinessLibrary.BusinessClasses
                             command.Parameters.Add(new SqlParameter("@DATA13", o.Data13));
                             command.Parameters.Add(new SqlParameter("@DATA14", o.Data14));
                             command.Parameters.Add(new SqlParameter("@ITEM_TIMEPOINT_ID", o.ItemTimepointId));
-                            command.Parameters.Add(new SqlParameter("@ITEM_ARM_ID_GRP1", o.ItemArmIdGrp1));
-                            command.Parameters.Add(new SqlParameter("@ITEM_ARM_ID_GRP2", o.ItemArmIdGrp2));
+                            command.Parameters.Add(new SqlParameter("@ITEM_ARM_ID_GRP1", grp1));
+                            command.Parameters.Add(new SqlParameter("@ITEM_ARM_ID_GRP2", grp2));
                             command.Parameters.Add(new SqlParameter("@NEW_OUTCOME_ID", 0));
                             command.Parameters["@NEW_OUTCOME_ID"].Direction = System.Data.ParameterDirection.Output;
                             command.ExecuteNonQuery();

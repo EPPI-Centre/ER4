@@ -1,26 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using BusinessLibrary.Data;
 using Csla;
-using Csla.Security;
-using Csla.Core;
-using Csla.Serialization;
-using Csla.Silverlight;
-//using Csla.Validation;
-using System.ComponentModel;
-using Csla.DataPortalClient;
-using System.Threading;
-using System.Diagnostics;
-
-
-using System.Data.SqlClient;
-using BusinessLibrary.Data;
-using BusinessLibrary.Security;
-using Microsoft.Azure.Search.Models;
-using System.Reflection;
 using EPPIDataServices.Helpers;
 using System.Data;
+using System.Data.SqlClient;
+using System.Diagnostics;
 
 
 namespace BusinessLibrary.BusinessClasses
@@ -82,8 +65,15 @@ namespace BusinessLibrary.BusinessClasses
             {
                 Logger.LogException(ex, "RobotOpenAiHostedService Error, at marking failed jobs");
             }
-            await Task.Delay(1000);
             CancellationToken InternalToken = TokenSource.Token;
+            try
+            {
+                await Task.Delay(15000, InternalToken);
+            }
+            catch (Exception e)
+            {
+                Logger.LogException(e, "RobotOpenAiHostedService halting BEFORE main loop (in pre-loop Task.Delay)");
+            }
             while (!cancellationToken.IsCancellationRequested && !InternalToken.IsCancellationRequested)
             {
                 try
@@ -94,7 +84,7 @@ namespace BusinessLibrary.BusinessClasses
                         FetchAndStartNextCreditJob(InternalToken);
                     }
                 } 
-                catch (Exception e)
+                catch(Exception e)
                 {
                     Logger.LogException(e, "RobotOpenAiHostedService main loop error");
                 }
@@ -102,9 +92,9 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     await Task.Delay(30000, InternalToken);
                 }
-                catch
+                catch(Exception e)
                 {
-                    Logger.LogInformation("RobotOpenAiHostedService main loop halting in Task.Delay");
+                    Logger.LogException(e, "RobotOpenAiHostedService main loop halting in Task.Delay");
                 }
             }
             if (ApiKeyTasks.Count > 0) Task.WaitAll(ApiKeyTasks.ToArray());
@@ -342,6 +332,7 @@ namespace BusinessLibrary.BusinessClasses
         /// <returns></returns>
         private string DoGPTWork(RobotOpenAiTaskReadOnly RT, CancellationToken ct, List<MarkdownItemsPdfCommand.MiniPdfDoc> Pdfs)
         {
+            bool NeedToSaveEvalResults = RT.OpenAiPromptEvaluationId > 0;
             try
             {
                 //if (CreditWorker != null) throw new InvalidOperationException("fake for testing");
@@ -425,6 +416,10 @@ namespace BusinessLibrary.BusinessClasses
                             done = index;
                         }
                     }
+                    if (RT.OpenAiPromptEvaluationId > 0)
+                    {//need to remove records we might have saved while iterating across the item that was being processed
+                        PromptEvaluationDataDeleteItemRecords(RT, RT.ItemIDsList[done]);
+                    }
                 }
                 int ApiLatency = 0; DateTime start;
                 int ApiUnresponsiveRetries = 0;
@@ -489,14 +484,15 @@ namespace BusinessLibrary.BusinessClasses
                     { //first time we're executing this while loop
                         cmd = LLM_Factory.GetRobot(RT.Robot, RT.ReviewSetId, RT.ItemIDsList[done], isLastinBatch,
                                 RT.RobotApiCallId, RT.RobotContactId, RT.ReviewId, RT.JobOwnerId, RT.OnlyCodeInTheRobotName,
-                                 RT.LockTheCoding, RT.UseFullTextDocument, doclist);
+                                 RT.LockTheCoding, RT.UseFullTextDocument, doclist, nIterations: RT.NIterations, openAiPromptEvaluationId: RT.OpenAiPromptEvaluationId);
                         cmd.CreditId = RT.CreditPurchaseId;
                     } 
                     else
                     {
                         cmd = LLM_Factory.GetRobot(RT.Robot, RT.ReviewSetId, RT.ItemIDsList[done], isLastinBatch,
                                 RT.RobotApiCallId, RT.RobotContactId, RT.ReviewId, RT.JobOwnerId,
-                                RT.OnlyCodeInTheRobotName, RT.LockTheCoding, RT.UseFullTextDocument, doclist, cmd.ReviewSetForPrompts, cmd.CachedPrompt, RT.CreditPurchaseId);
+                                RT.OnlyCodeInTheRobotName, RT.LockTheCoding, RT.UseFullTextDocument, doclist, cmd.ReviewSetForPrompts,
+                                cmd.CachedPrompt, RT.CreditPurchaseId, nIterations: RT.NIterations, openAiPromptEvaluationId: RT.OpenAiPromptEvaluationId);
                     }
                     if (ApiUnresponsiveRetries > 0)
                     {
@@ -513,6 +509,10 @@ namespace BusinessLibrary.BusinessClasses
                         LogInfo("(+)Incrementing CurrentDelayInMs at Item = " + RT.ItemIDsList[done].ToString());
                         CurrentDelayInMs += delayIncrement;
                         DelayedCallsWithoutError = 0;
+                        if (NeedToSaveEvalResults)
+                        {//need to remove records we might have saved while iterating across the item that was being processed
+                            PromptEvaluationDataDeleteItemRecords(RT, RT.ItemIDsList[done]);
+                        }
                     }
                     else if (cmd.ReturnMessage == "Cancelled")
                     {
@@ -522,22 +522,42 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         Exception e = new Exception("Coding tool supplied contains no valid prompts");
                         LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork error - no prompts", true, e, 0);
+                        if (NeedToSaveEvalResults)
+                        {
+                            NeedToSaveEvalResults = false;
+                            MarkEvaluationAtEndOfRun(RT, "Failed");
+                        }
                         break;
                     }
                     else if (cmd.ReturnMessage.Contains("There are too many prompts, leaving no room for the data to classify!"))
                     {
                         Exception e = new Exception("There are too many prompts, leaving no room for the data to classify!");
                         LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork error - too many prompts", true, e, 0);
+                        if (NeedToSaveEvalResults)
+                        {
+                            NeedToSaveEvalResults = false;
+                            MarkEvaluationAtEndOfRun(RT, "Failed");
+                        }
                         break;
                     }
                     else if (cmd.ReturnMessage.StartsWith("Error.") && cmd.ReturnMessage.Contains("An item with the same key has already been added. Key:"))
                     {//this happens if a RAG label appears twice in the coding tool - I.e. exactly the same label, as in when "**RefToRegularPrompt**details" (the whole thing) is repeated exactly.
+                        if (NeedToSaveEvalResults)
+                        {
+                            NeedToSaveEvalResults = false;
+                            MarkEvaluationAtEndOfRun(RT, "Failed");
+                        }
                         break; //an exception is caught inside RobotOpenAICommand and logged therein, so we just stop processing this whole batch.
                     }
                     else if (cmd.ReturnMessage == "Error: There is no credit (left) to use.")
                     {//for now (June 2025) if credit has been consumed during a batch, the batch ends 
                         Exception e = new Exception("There is no credit (left) to use.");
                         LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork error - no credit", true, e, RT.ItemIDsList[done]);
+                        if (NeedToSaveEvalResults)
+                        {
+                            NeedToSaveEvalResults = false;
+                            MarkEvaluationAtEndOfRun(RT, "Failed");
+                        }
                         break;
                     }
                     else if (cmd.ReturnMessage == "Error: Cancelling RobotOpenAICommand, timeout expired.")
@@ -546,15 +566,25 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             Exception e = new Exception("Call to robot API timed out 5 consequtive times. Aborting the batch.");
                             LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork error - 5 timeouts", true, e, RT.ItemIDsList[done]);
+                            if (NeedToSaveEvalResults)
+                            {
+                                PromptEvaluationDataDeleteItemRecords(RT, RT.ItemIDsList[done]);
+                                NeedToSaveEvalResults = false;
+                                MarkEvaluationAtEndOfRun(RT, "Failed");
+                            }
                             break;
                         }
                         ApiUnresponsiveRetries++;//increase the count of failures of this type
+                        if (NeedToSaveEvalResults)
+                        {//need to remove records we might have saved while iterating across the item that was being processed
+                            PromptEvaluationDataDeleteItemRecords(RT, RT.ItemIDsList[done]);
+                        }
                         //we do not alter DelayedCallsWithoutError: don't know if we're currently counting DelayedCalls, but we sure did have an error
                         //we do not alter "done" counter, so that we will retry to call the API using the same (current) Item (for up to 5 times)
                     }
                     else
                     {
-                        //checks for non-batch-fatal failures, batch will continue execution, but we log per-item errors here
+                        //checks for non-batch-fatal failures, regular coding batch will continue execution, but we log per-item errors here
                         if (cmd.ReturnMessage == "Error: Null item")
                         {
                             Exception e = new Exception("Failed to retrieve this item");
@@ -587,7 +617,7 @@ namespace BusinessLibrary.BusinessClasses
                 //If the last item has been processed (done == todo) job has been marked as "Finished" by RobotOpenAICommand and we don't need to do anything
                 if (ct.IsCancellationRequested && done < todo)
                 {
-                    long ItemId = (done - 1 <= 0) ? 0 : RT.ItemIDsList[done - 1];//the last ID that was actually done
+                    long ItemId = RT.ItemIDsList[done];//the last ID that we sent out for processing
                     using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                     {
                         connection.Open();
@@ -603,14 +633,23 @@ namespace BusinessLibrary.BusinessClasses
                             command.ExecuteNonQuery();
                         }
                     }
+                    LogInfo("Marked job " + RT.RobotApiCallId.ToString() + " as Paused on Item " + ItemId.ToString());
+                }
+                else if (NeedToSaveEvalResults)
+                {
+                    MarkEvaluationAtEndOfRun(RT, "Finished");
                 }
                 LogInfo("Batch finished. CurrentDelayInMs = " + CurrentDelayInMs.ToString()
-                    + "; DefaultDelayInMs = " + DefaultDelayInMs.ToString()
-                    + "; DelayedCallsWithoutError = " + DelayedCallsWithoutError.ToString());
+                        + "; DefaultDelayInMs = " + DefaultDelayInMs.ToString()
+                        + "; DelayedCallsWithoutError = " + DelayedCallsWithoutError.ToString());
                 return "Done";
             }
             catch (Exception e)
             {
+                if (NeedToSaveEvalResults)
+                {
+                    MarkEvaluationAtEndOfRun(RT, "Failed");
+                }
                 LogRobotJobException(RT, "RobotOpenAiHostedService DoGPTWork error", true, e, 0);
                 return "Error";
             }
@@ -663,6 +702,48 @@ namespace BusinessLibrary.BusinessClasses
         {
             Debug.WriteLine(message);
             Logger.LogInformation(message);
+        }
+        private void MarkEvaluationAtEndOfRun(RobotOpenAiTaskReadOnly RT, string status)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                {
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand("st_UpdateOpenAiPromptEvaluation", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@OPENAI_PROMPT_EVALUATION_ID", RT.OpenAiPromptEvaluationId));
+                        command.Parameters.Add(new SqlParameter("@STATUS", status));
+                        command.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                LogRobotJobException(RT, "RobotOpenAiHostedService PromptEvaluationDataDeleteItemRecords error", false, e, 0);
+            }
+        }
+        private void PromptEvaluationDataDeleteItemRecords(RobotOpenAiTaskReadOnly RT, long ItemId)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                {
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand("st_RobotOpenAIPromptEvaluationDataDeleteItemRecords", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@OPENAI_PROMPT_EVALUATION_ID", RT.OpenAiPromptEvaluationId));
+                        command.Parameters.Add(new SqlParameter("@ITEM_ID", ItemId));
+                        command.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                LogRobotJobException(RT, "RobotOpenAiHostedService PromptEvaluationDataDeleteItemRecords error", false, e, ItemId);
+            }
         }
     }
 }

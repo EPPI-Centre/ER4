@@ -218,6 +218,7 @@ public partial class PurchaseHistory : System.Web.UI.Page
         string discount = "";
         string totalFee = "";
         string vat = "";
+        bool showVATNumber = false;
         Response.ContentType = "application/x-unknown";
         Response.AddHeader("content-disposition", "attachment; filename=ER4_Invoice_Number_" + 
             lblBillID.Text + ".txt");
@@ -372,13 +373,18 @@ public partial class PurchaseHistory : System.Web.UI.Page
         //Response.Write(Environment.NewLine);
         if (vat != "")
         {
+            showVATNumber = true;
             Response.Write("VAT: £" + vat);
             Response.Write(Environment.NewLine);
             // add totalFee and vat to get the amount paid           
-            totalFee = (float.Parse(totalFee) + float.Parse(vat)).ToString();
         }
         Response.Write("Total paid: £" + totalFee);
         Response.Write(Environment.NewLine);
+        if (showVATNumber == true)
+        {
+            Response.Write("UCL VAT Number: GB 524371168");
+            Response.Write(Environment.NewLine);
+        }
         Response.End();
 
 

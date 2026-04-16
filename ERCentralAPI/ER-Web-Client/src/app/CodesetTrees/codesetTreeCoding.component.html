@@ -55,9 +55,14 @@
           <img *ngIf="data.allowEditingCodeset" title="You can edit this Coding Tool (e.g. add new codes - NOT IMPLEMENTED!)" src="assets/CodeSetEditable.png" class="mr-1" />
           <img *ngIf="!data.allowEditingCodeset" title="You can't edit this Coding Tool" src="assets/CodeSetLocked.png" class="mr-1" />
         </span>
+
+        <input [ngClass]="data.isSelected ? 'my-1 mr-1 checkbox-round-selected' : 'my-1 mr-1 checkbox-round'" type="checkbox" id="attributeID-{{data.id}}" [(ngModel)]="data.isSelected"
+               [disabled]="!CanWriteCoding(data)"
+               *ngIf="data.showCheckBox && data.isExclusive" (change)="CheckBoxClicked($event, data)" />
+
         <input class="my-1 mr-1" type="checkbox" id="attributeID-{{data.id}}" [(ngModel)]="data.isSelected"
                [disabled]="!CanWriteCoding(data)"
-               *ngIf="data.showCheckBox" (change)="CheckBoxClicked($event, data)" />
+               *ngIf="data.showCheckBox  && !data.isExclusive" (change)="CheckBoxClicked($event, data)" />
 
 
 
@@ -90,7 +95,7 @@
           </ng-template>
         </span>
       </ng-template>
-</kendo-treeview>
+    </kendo-treeview>
   </div>
 </div>
 <div class="mt-2" *ngIf="SelectedCodeDescription != ''">

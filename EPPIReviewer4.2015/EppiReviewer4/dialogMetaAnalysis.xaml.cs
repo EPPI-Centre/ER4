@@ -88,7 +88,7 @@ namespace EppiReviewer4
                 }
             };
             dp.BeginFetch(new BusinessLibrary.BusinessClasses.OutcomeList.OutcomeListSelectionCriteria(typeof(OutcomeList), ma.SetId, ma.AttributeIdIntervention,
-                ma.AttributeIdControl, ma.AttributeIdOutcome, 0, ma.MetaAnalysisId, ma.AttributeIdQuestion, ma.AttributeIdAnswer));
+                ma.AttributeIdControl, ma.AttributeIdOutcome, 0, ma.MetaAnalysisId, ma.AttributeIdQuestion, ma.AttributeIdAnswer, ma.AttributeIdQuestionOutcome, ma.AttributeIdAnswerOutcome));
         }
 
         private void cmdReCalculate_Click(object sender, RoutedEventArgs e)

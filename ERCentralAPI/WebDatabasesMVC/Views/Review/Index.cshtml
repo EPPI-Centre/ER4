@@ -26,6 +26,13 @@
     }
 }
 
+<style>
+    #treeView .k-in {
+        white-space: normal;
+        width: 200px;
+    }
+</style>
+
 <script>
     var treeviewData = null;
     var dataItem = null;
@@ -36,7 +43,7 @@
     var freqData = null;
     let MapsData = null;
 
-    
+
 
 
     $(document).ready(function () {
@@ -1135,8 +1142,14 @@
 
                 content += "</td><td style='text-align:right;'>";
 
-                content += "<div><button class='btn btn-secondary btn-sm btn-round' onclick='GetMap(" + map.webDBMapId
-                    + ")' id='getMapButton" + map.webDBMapId + "'>View map</button></div>";                     
+                if (map.columnsAttributeID == -1 || map.rowsAttributeID == -1 || map.segmentsAttributeID == -1) {
+                    content += "<div><button  disabled class='btn btn-secondary btn-sm btn-round' onclick='GetMap(" + map.webDBMapId
+                        + ")' id='getMapButton" + map.webDBMapId + "'>View map</button></div>"; 
+                }
+                else {
+                    content += "<div><button class='btn btn-secondary btn-sm btn-round' onclick='GetMap(" + map.webDBMapId
+                        + ")' id='getMapButton" + map.webDBMapId + "'>View map</button></div>";
+                }
 
                 content += "</td></tr></table>";
                 
