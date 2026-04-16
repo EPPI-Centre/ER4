@@ -30,6 +30,7 @@
                             'ExcludeCode' : data.subTypeName == 'Exclude'
                             }" class="mx-1" id="nodeID-{{data.id}}">
       {{data.name}}
+      <fa-icon [icon]="faCircleDot" *ngIf="IsACode(data) && data.isExclusive" class="my-0 p-0 ml-1 mr-0"></fa-icon>
     </span>
     <fa-icon *ngIf="CanMoveDown(data) && CanWriteAndServicesIdle" [icon]="faAngleDoubleDown" class="fa-xs my-0 p-0 ml-1 mr-0 btn-link border-0"
              (click)="MoveDownNodeFull(data)" style="cursor: pointer" title="Move to bottom"></fa-icon>

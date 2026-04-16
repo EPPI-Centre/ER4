@@ -37,7 +37,22 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
       this.commaSeparatedEntry = true;
   }
 
+  public radioButtonEntry: boolean = false;
+
+  public radioButtonEntryClicked(event: Event) {
+    if (this.radioButtonEntry == true)
+      this.radioButtonEntry = false;
+    else
+      this.radioButtonEntry = true;
+  }
+
+  public showRadioButtonEntry: boolean = true;
+
+
+
   public get AllowedChildTypes(): kvAllowedAttributeType[] {
+
+    var test = this._reviewSetsService.AllowedChildTypesOfSelectedNode;
     return this._reviewSetsService.AllowedChildTypesOfSelectedNode;
   }
   public get LastSelectedCodeTypeId(): number {
@@ -92,13 +107,19 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
     return this._NewCode;
   }
   public get AllowedChildTypesOfSelectedNode() {
+    if (this._reviewSetsService.AllowedChildTypesOfSelectedNode[0].value === "Include") {
+      this.showRadioButtonEntry = true;
+    }
+    else {
+      this.showRadioButtonEntry = false;
+    }
     return this._reviewSetsService.AllowedChildTypesOfSelectedNode;
   }
 
 
     newCodeSetup() {
     if (this.CurrentNode) {
-
+      this._NewCode.isExclusive = this.radioButtonEntry;
       this._NewCode.order = this.CurrentNode.attributes.length;
       //////////////////////////////////////////// put in new method
       if (this.CurrentNode.nodeType == "ReviewSet") {
@@ -128,6 +149,7 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
 
   async CreateNewCodes() {
 
+    var isExclusive = this.radioButtonEntry;
     var listOfCodeNames = this._NewCode.attribute_name;
     //remove any trailing ','
     listOfCodeNames = listOfCodeNames.replace(/,\s*$/, "");

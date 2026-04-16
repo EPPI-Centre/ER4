@@ -118,7 +118,10 @@ export class itemDetailsComp implements OnInit, OnDestroy {
     if (!text) { return; }
 
     if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).catch(() => this.fallbackCopyTextToClipboard(text));
+      navigator.clipboard.writeText(text).catch((err) => {
+        //console.log("copy fallback:", err);
+        this.fallbackCopyTextToClipboard(text);
+      });
     } else {
       this.fallbackCopyTextToClipboard(text);
     }

@@ -60,7 +60,10 @@
               
             </div>
             <div *ngIf="CurrentNode.nodeType == 'SetAttribute'" class="mx-0 px-0">
-              <div class="mr-1 col-auto px-0">Code type: <strong>{{CurrentNode.subTypeName}}</strong></div>
+              <div class="mr-1 col-auto px-0">
+                Code type: <strong>{{CurrentNode.subTypeName}}</strong>
+                <label *ngIf="CurrentNode.isExclusive">&nbsp;&nbsp;(Radio button code)</label>
+              </div>
               <div class="mx-0 col-auto px-0 row">
                 <div class="my-auto">Code Id:</div>
                 <code class="alert-dark p-1">{{CurrentNodeId}}</code>

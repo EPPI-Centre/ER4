@@ -3507,7 +3507,7 @@ namespace EppiReviewer4
                 attributeSet.AttributeSetDescription,
                 attributeSet.AttributeOrder,
                 attributeSet.ExtURL,
-                attributeSet.ExtType
+                attributeSet.ExtType, false
                 );
             dp.ExecuteCompleted += (o, e2) =>
             {

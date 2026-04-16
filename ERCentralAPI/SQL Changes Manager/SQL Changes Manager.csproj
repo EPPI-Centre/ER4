@@ -422,7 +422,10 @@
     <None Update="SQLScripts\788.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="SQLScripts\JT changes.sql">
+    <None Update="SQLScripts\790.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="SQLScripts\792.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="SQL_Changes_ManagerSettings.json">

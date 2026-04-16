@@ -87,18 +87,19 @@
                            Resizable="False" AllowFiltering="False" DataType="System.DateTime" >
                            <HeaderStyle BackColor="#B6C6D6"  ForeColor="Black" Width="70px"></HeaderStyle>
                        </telerik:GridBoundColumn>
+                       <telerik:GridBoundColumn DataField="LAST_LOGIN" 
+                            FilterControlAltText="Filter column1 column" HeaderText="Last login" 
+                            UniqueName="login" DataFormatString="<nobr>{0:dd/MM/yyyy}</nobr>" 
+                            Resizable="False" AllowFiltering="False" DataType="System.DateTime" >
+                            <HeaderStyle BackColor="#B6C6D6"  ForeColor="Black" Width="70px"></HeaderStyle>
+                        </telerik:GridBoundColumn>
                        <telerik:GridBoundColumn DataField="SITE_LIC_ID" 
                            FilterControlAltText="Filter column2 column" HeaderText="Lic. ID" 
                            UniqueName="column2" DataFormatString="<nobr>{0}</nobr>" 
                            Resizable="False" AllowFiltering="False" DataType="System.Int16" >
                            <HeaderStyle BackColor="#B6C6D6" ForeColor="Black" Width="50px"/>
                        </telerik:GridBoundColumn>
-                       <telerik:GridBoundColumn DataField="MONTHS_CREDIT" 
-                           FilterControlAltText="Filter column3 column" HeaderText="Months credit" 
-                           UniqueName="column3" DataFormatString="<nobr>{0}</nobr>" 
-                           Resizable="False" AllowFiltering="False" DataType="System.Int16" >
-                           <HeaderStyle BackColor="#B6C6D6" ForeColor="Black" Width="50px"/>
-                       </telerik:GridBoundColumn>
+                       
                        
                        <telerik:GridBoundColumn AllowFiltering="False" DataField="USERNAME" 
                            DataFormatString="&lt;nobr&gt;{0}&lt;/nobr&gt;" 
@@ -111,7 +112,13 @@
                </MasterTableView>
             </telerik:RadGrid>
             <br />
-
+            <!-- this was removed from grid. Storing it here in case someone wants it back in the grid one day -->
+            <!--<telerik:GridBoundColumn DataField="MONTHS_CREDIT" 
+                FilterControlAltText="Filter column3 column" HeaderText="Months credit" 
+                UniqueName="column3" DataFormatString="<nobr>{0}</nobr>" 
+                Resizable="False" AllowFiltering="False" DataType="System.Int16" >
+                <HeaderStyle BackColor="#B6C6D6" ForeColor="Black" Width="50px"/>
+            </telerik:GridBoundColumn>-->
             <telerik:RadAjaxManager ID="RadAjaxManager1" runat="server" OnAjaxRequest="RadAjaxManager1_AjaxRequest">
                 <AjaxSettings>
                     <telerik:AjaxSetting AjaxControlID="radGVContacts">

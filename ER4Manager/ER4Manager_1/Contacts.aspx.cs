@@ -83,7 +83,8 @@ public partial class Contacts : System.Web.UI.Page
         dt.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
         dt.Columns.Add(new DataColumn("DATE_CREATED", typeof(DateTime)));
         dt.Columns.Add(new DataColumn("EXPIRY_DATE", typeof(DateTime)));
-        dt.Columns.Add(new DataColumn("MONTHS_CREDIT", typeof(string)));
+        dt.Columns.Add(new DataColumn("LAST_LOGIN", typeof(DateTime)));
+        //dt.Columns.Add(new DataColumn("MONTHS_CREDIT", typeof(string)));
         dt.Columns.Add(new DataColumn("SITE_LIC_ID", typeof(string)));
         //dt.Columns.Add(new DataColumn("CREATOR_ID", typeof(string)));
         dt.Columns.Add(new DataColumn("USERNAME", typeof(string)));
@@ -99,8 +100,9 @@ public partial class Contacts : System.Web.UI.Page
             newrow["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString();
             newrow["DATE_CREATED"] = idr["DATE_CREATED"];
             newrow["EXPIRY_DATE"] = idr["EXPIRY_DATE"];
+            newrow["LAST_LOGIN"] = idr["LAST_LOGIN"];
             newrow["SITE_LIC_ID"] = idr["SITE_LIC_ID"].ToString();
-            newrow["MONTHS_CREDIT"] = idr["MONTHS_CREDIT"].ToString();
+            //newrow["MONTHS_CREDIT"] = idr["MONTHS_CREDIT"].ToString();
             //newrow["CREATOR_ID"] = idr["CREATOR_ID"].ToString();
             newrow["USERNAME"] = idr["USERNAME"].ToString();
             dt.Rows.Add(newrow);
@@ -139,7 +141,8 @@ public partial class Contacts : System.Web.UI.Page
         dt.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
         dt.Columns.Add(new DataColumn("DATE_CREATED", typeof(DateTime)));
         dt.Columns.Add(new DataColumn("EXPIRY_DATE", typeof(DateTime)));
-        dt.Columns.Add(new DataColumn("MONTHS_CREDIT", typeof(string)));
+        dt.Columns.Add(new DataColumn("LAST_LOGIN", typeof(DateTime)));
+        //dt.Columns.Add(new DataColumn("MONTHS_CREDIT", typeof(string)));
         dt.Columns.Add(new DataColumn("SITE_LIC_ID", typeof(string)));
         //dt.Columns.Add(new DataColumn("CREATOR_ID", typeof(string)));
         dt.Columns.Add(new DataColumn("USERNAME", typeof(string)));
@@ -159,8 +162,9 @@ public partial class Contacts : System.Web.UI.Page
             //newrow["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString();
             newrow["DATE_CREATED"] = idr["DATE_CREATED"];
             newrow["EXPIRY_DATE"] = idr["EXPIRY_DATE"];
+            newrow["LAST_LOGIN"] = idr["LAST_LOGIN"];
             newrow["SITE_LIC_ID"] = idr["SITE_LIC_ID"].ToString();
-            newrow["MONTHS_CREDIT"] = idr["MONTHS_CREDIT"].ToString();
+            //newrow["MONTHS_CREDIT"] = idr["MONTHS_CREDIT"].ToString();
             //newrow["CREATOR_ID"] = idr["CREATOR_ID"].ToString();
             newrow["USERNAME"] = idr["USERNAME"].ToString();
             dt.Rows.Add(newrow);

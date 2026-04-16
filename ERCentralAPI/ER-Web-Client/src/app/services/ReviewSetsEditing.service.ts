@@ -1166,6 +1166,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
     Data.parentAttributeId = Att.parent_attribute_id;
     Data.setId = Att.set_id;
     Data.attributeOrder = Att.order;
+    Data.isExclusive = Att.isExclusive
     //console.log("saving reviewSet via command", rs, rsC);
     return lastValueFrom(this._httpC.post<iAttributeSet>(this._baseUrl + 'api/Codeset/AttributeCreate', Data))
       .then((res) => {
@@ -1209,6 +1210,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
     Data.attributeOrder = Att.order;
     Data.extType = Att.extType;
     Data.extURL = Att.extURL;
+    Data.isExclusive = Att.isExclusive;
     //console.log("saving reviewSet via command", rs, rsC);
     return lastValueFrom(this._httpC.post<boolean>(this._baseUrl + 'api/Codeset/AttributeUpdate', Data))
       .then((res) => {
@@ -1566,6 +1568,7 @@ export class Attribute4Saving {
   attributeOrder: number = 0;
   extURL: string = "";
   extType: string = "";
+  isExclusive: boolean = false;
 }
 export interface ReadOnlyTemplateReview {
   templateId: number;
