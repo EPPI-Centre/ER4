@@ -77,10 +77,9 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
     this.refreshPriorityScreeningSimulationList();
     if (this.reviewSetsService.ReviewSets.length == 0) this.reviewSetsService.GetReviewSets();
   }
-  @ViewChild('VisualiseChart')
-  private VisualiseChart!: ChartComponent;
-  @ViewChild('VisualiseChartBuscar')
-  private VisualiseChartBuscar!: ChartComponent;
+  @ViewChild('VisualiseChart') private VisualiseChart!: ChartComponent;
+  @ViewChild('VisualiseChartBuscar') private VisualiseChartBuscar!: ChartComponent;
+  @ViewChild('VisualiseChartBuscar2') private VisualiseChartBuscar2!: ChartComponent;
   faArrowsRotate = faArrowsRotate;
   faSpinner = faSpinner;
 
@@ -198,6 +197,7 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
       this.prepareRightAxisScatter();
       if (redrawGraph && this.GetSimulationDataItemCount > 0) {
         this.prepareHeatMapData();
+        this.prepareHeatMapData(5, true);
       }
 
       //// request redraw of the chart widget (guarded)
@@ -261,6 +261,8 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
   public scatterData: Array<[number, number]> = [];
   public heatMapData: Array<[string, string, number]> = [];
   public heatMapSeriesData: Array<{ x: string; y: string; value: number }> = [];
+  public heatMapDataMagnified: Array<[string, string, number]> = [];
+  public heatMapSeriesDataMagnified: Array<{ x: string; y: string; value: number }> = [];
   public rightAxisMax = 100;
 
   public tsvToPairs(
@@ -323,10 +325,16 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
       ]);
   }
 
-  private prepareHeatMapData(): void {
+  private prepareHeatMapData(rowsCount: number = 4, magnified: boolean = false): void {
     // reset outputs
-    this.heatMapData = [];
-    this.heatMapSeriesData = [];
+    if (magnified == false) {
+      this.heatMapData = [];
+      this.heatMapSeriesData = [];
+    }
+    else {
+      this.heatMapDataMagnified = [];
+      this.heatMapSeriesDataMagnified = [];
+    }
 
     const tsv = (this.PriorityScreeningSimulationBuscar || "").trim();
     if (!tsv) { return; }
@@ -341,7 +349,7 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
     const idxN = header.indexOf("batch_size") !== -1 ? header.indexOf("batch_size") : 0;
 
     // Build triples and normalize numeric values
-    const triples: Array<{ n: number; p: number; recall: number }> = rows.slice(1)
+    let triples: Array<{ n: number; p: number; recall: number }> = rows.slice(1)
       .map(r => {
         const n = Number(r[idxN]);
         const p = Number(r[idxP]);
@@ -350,14 +358,18 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
         return { n, p, recall };
       })
       .filter((t): t is { n: number; p: number; recall: number } => t !== null);
+    if (magnified) {
+      triples = triples.filter(f => f.p <= 0.25)
+    }
 
     if (triples.length === 0) { return; }
 
     const totalItems = this.GetSimulationDataItemCount || 0;
 
     // bincount equal bins between 0 and 1
-    const binCount = 4;
-    const binSize = 1 / binCount;
+    const binCount = rowsCount;
+    let binSize = 1 / binCount;
+    if (magnified) binSize = 0.25 / binCount;
     const bins = Array.from({ length: binCount }, (_, i) => Number((i * binSize).toFixed(2)));
 
     // Unique recall targets normalized to two decimals (use as categorical X axis)
@@ -387,13 +399,14 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
         group.set(key, { sumN: n, count: 1 });
       }
     }
-
+    let heatMD: Array<[string, string, number]> = [];
+    let heatMapSD: Array<{ x: string; y: string; value: number }> = [];
     // Build full grid: for every recall × every bin produce an entry (missing combos => 0)
     for (const recall of recalls) {
       const recallStr = recall.toFixed(2);
       for (let binIndex = 0; binIndex < binCount; binIndex++) {
         const bin = bins[binIndex];
-        const binStr = bin.toFixed(2) + "-" + (bin + 0.25).toFixed(2);
+        const binStr = bin.toFixed(2) + "-" + (bin + binSize).toFixed(2);
 
         const key = `${recall}::${binIndex}`;
         const entry = group.get(key);
@@ -405,9 +418,16 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
         }
 
         // keep heatMapData shape [string, string, number]
-        this.heatMapData.push([recallStr, binStr, workloadSaved]);
-        this.heatMapSeriesData.push({ x: recallStr, y: binStr, value: workloadSaved });
+        heatMD.push([recallStr, binStr, workloadSaved]);
+        heatMapSD.push({ x: recallStr, y: binStr, value: workloadSaved });
       }
+    }
+    if (magnified) {
+      this.heatMapDataMagnified = heatMD;
+      this.heatMapSeriesDataMagnified = heatMapSD;
+    } else {
+      this.heatMapData = heatMD;
+      this.heatMapSeriesData = heatMapSD;
     }
   }
 
@@ -431,20 +451,29 @@ public exportChart2x(): void {
     });
   }
   }
-  public exportChartBuscar(): void {
-    let title = this.PriorityScreeningSimulationName.replace(".tsv", "") + "_Buscar";
-    this.VisualiseChartBuscar.exportImage().then((dataURI) => {
-      saveAs(dataURI, title + '.png');
-    });
+  public exportChartBuscar(magnified:boolean = false): void {
+    if (magnified == false) {
+      let title = this.PriorityScreeningSimulationName.replace(".tsv", "") + "_Buscar";
+      this.VisualiseChartBuscar.exportImage().then((dataURI) => {
+        saveAs(dataURI, title + '.png');
+      });
+    }
+    else {
+      let title = this.PriorityScreeningSimulationName.replace(".tsv", "") + "_Buscar_detail";
+      this.VisualiseChartBuscar2.exportImage().then((dataURI) => {
+        saveAs(dataURI, title + '.png');
+      });
+    }
   }
-  public exportChartBuscar2x(): void {
-    let title = this.PriorityScreeningSimulationName.replace(".tsv", "") + "_Buscar";
-    const chart = (this.VisualiseChartBuscar.instance);
-    if (chart) {
-      let width2x = chart.element.offsetWidth * 2;
-      let height2x = chart.element.offsetHeight * 2;
-      console.log(width2x, height2x);
-      this.VisualiseChartBuscar.exportImage({ height: height2x, width: width2x }).then((dataURI) => {
+  public exportChartBuscar2x(magnified: boolean = false): void {
+    let title = this.PriorityScreeningSimulationName.replace(".tsv", "") + (magnified ? "_Buscar_detail" : "_Buscar");
+    const chart = magnified ? (this.VisualiseChartBuscar2) : (this.VisualiseChartBuscar);
+    if (chart.instance) {
+      let width2x = chart.instance.element.offsetWidth * 2;
+      let height2x = chart.instance.element.offsetHeight * 2;
+      
+      //console.log(width2x, height2x);
+      chart.exportImage({ height: height2x, width: width2x }).then((dataURI) => {
         saveAs(dataURI, title + '.png');
       });
     }

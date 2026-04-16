@@ -908,6 +908,21 @@ namespace BusinessLibrary.BusinessClasses
             {
                 responses = StripThinkTagAndJsonMarkdown(responses, _itemId);
             }
+            if (responses == "")
+            {
+                if (generatedText.stop_reason == "refusal")
+                {//Claude didn't like this paper!
+                    if (generatedText.stop_details == null || generatedText.stop_details.explanation == "")
+                    {
+                        throw new Exception("The LLM's safety filters refused to answer questions about this paper.");
+                    }
+                    else
+                    {
+                        throw new Exception("The LLM's safety filters refused to answer questions about this paper, with this explanation: " + generatedText.stop_details.explanation);
+                    }
+                }
+                resultDict = new Dictionary<string, string>();
+            }
 
             var jObject = JsonConvert.DeserializeObject<JObject>(responses);
             foreach (var property in jObject.Properties())
@@ -917,16 +932,13 @@ namespace BusinessLibrary.BusinessClasses
                     ? property.Value.ToString()
                     : property.Value.ToString(Formatting.None);
             }
-
+            
             if (isRag)
             {
                 //resultRagDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
                 resultRagDict = resultDict;
             }
-            else
-            {
-                //resultDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses); // addressed above now
-            }
+            
             // seems a bit odd setting the _message to 'completed' here when it's not finished, but there are no points between here and returning that we're not returning true
             _message = "Completed " + (errors > 0 ? "with" : "without") + " errors. (" + generatedText.usage.UsageMessage() + ")";
 
@@ -1275,6 +1287,9 @@ namespace BusinessLibrary.BusinessClasses
             public Output[] output { get; set; } = new Output[0];
             public Usage usage { get; set; }
 
+            public string stop_reason { get; set; } = "";//used by claude
+            public RefusalStopDetails stop_details { get; set; } = new RefusalStopDetails();//used by claude
+
             public string Content
             {
                 get
@@ -1395,9 +1410,18 @@ namespace BusinessLibrary.BusinessClasses
             public string text { get; set; }
         }
         //END of GPT-5.x types
+
+        //Claude types
+        public class RefusalStopDetails
+        {
+            public string category { get; set; } = "";
+            public string explanation { get; set; } = "";
+        }
+        //END of Claude types
+
 #endif
 
 
-        }
+    }
 
 }
