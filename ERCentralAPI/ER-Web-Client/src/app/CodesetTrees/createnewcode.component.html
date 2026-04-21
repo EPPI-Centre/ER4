@@ -3,9 +3,9 @@
     <form class="row" #NewCodeFromCollaborate="ngForm" (ngSubmit)="onSubmit()">
         <div class="col-12">
           <div class="form-group">
-            <label for="Codeset_TypeCollaborate">Code Type*</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <!--<input *ngIf="showRadioButtonEntry" type="checkbox" (click)="radioButtonEntryClicked($event)" [(ngModel)]="radioButtonEntry" name="radioButtonCB">&nbsp;
-            <label *ngIf="showRadioButtonEntry" for="Codeset_TypeCollaborate">Radio button code</label>-->
+              <label for="Codeset_TypeCollaborate">Code Type*</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <input *ngIf="showRadioButtonEntry" type="checkbox" (click)="radioButtonEntryClicked($event)" [(ngModel)]="radioButtonEntry" name="radioButtonCB">&nbsp;
+              <label *ngIf="showRadioButtonEntry" for="Codeset_TypeCollaborate">Radio button code</label>
             <select #CodeTypeSelectCollaborate class="form-control" name="NewCode_TypeCollaborate"
                     [disabled]="!CurrentCodeCanHaveChildren" (change)="ChangeLastSelectedCodeType($event)">
               <option *ngFor="let type of AllowedChildTypesOfSelectedNode" [value]="type.key" [selected]="type.key == LastSelectedCodeTypeId">
@@ -53,15 +53,18 @@
 
 <form  *ngIf="IsSmall" class="row small"#NewCodeFromCollaborate="ngForm" (ngSubmit)="onSubmit()">
     <div class="col-12">
-        <div class="form-group mb-1">
-            <div>Code Type*</div>
-            <select #CodeTypeSelectCollaborate class="p-1" name="NewCode_TypeCollaborate" (change)="ChangeLastSelectedCodeType($event)"
-                    [disabled]="!CurrentCodeCanHaveChildren">
-                <option *ngFor="let type of AllowedChildTypesOfSelectedNode" [value]="type.key" [selected]="type.key == LastSelectedCodeTypeId">
-                    {{type.value}}
-                </option>
-            </select>
-        </div>
+      <div class="form-group mb-1">
+        <label for="Codeset_TypeCollaborate">Code Type*</label>&nbsp;
+        <select #CodeTypeSelectCollaborate class="p-1" name="NewCode_TypeCollaborate" (change)="ChangeLastSelectedCodeType($event)"
+                [disabled]="!CurrentCodeCanHaveChildren">
+          <option *ngFor="let type of AllowedChildTypesOfSelectedNode" [value]="type.key" [selected]="type.key == LastSelectedCodeTypeId">
+            {{type.value}}
+          </option>
+        </select>
+        <label *ngIf="showRadioButtonEntry" for="Codeset_TypeCollaborate">&nbsp;&nbsp;&nbsp;</label>
+        <input *ngIf="showRadioButtonEntry" type="checkbox" (click)="radioButtonEntryClicked($event)" [(ngModel)]="radioButtonEntry" name="radioButtonCB">&nbsp;
+        <label *ngIf="showRadioButtonEntry" for="Codeset_TypeCollaborate">Radio-button</label>
+      </div>
     </div>
     <div class="form-group mb-1 col-12">
       <div>
