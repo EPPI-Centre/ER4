@@ -4,15 +4,16 @@ GO
 declare @chk int = (SELECT count(*)
 		FROM sys.indexes 
 		WHERE name='IX_LOGON_TICKET_CONTACT_ID_REVIEW_ID_CREATED' AND object_id = OBJECT_ID('[dbo].[TB_LOGON_TICKET]'))
-If @chk = 1 
+If @chk = 0 
 BEGIN
-	DROP INDEX [IX_LOGON_TICKET_CONTACT_ID_REVIEW_ID_CREATED] ON [dbo].[TB_LOGON_TICKET]
+	print 'creating index in TB_LOGON_TICKET'
+	CREATE NONCLUSTERED INDEX IX_LOGON_TICKET_CONTACT_ID_REVIEW_ID_CREATED
+	ON [dbo].[TB_LOGON_TICKET] ([CONTACT_ID],[REVIEW_ID])
+	INCLUDE ([CREATED])
 END
 
 
-CREATE NONCLUSTERED INDEX IX_LOGON_TICKET_CONTACT_ID_REVIEW_ID_CREATED
-ON [dbo].[TB_LOGON_TICKET] ([CONTACT_ID],[REVIEW_ID])
-INCLUDE ([CREATED])
+
 GO
 
 
@@ -53,19 +54,11 @@ DECLARE @IS_CODING_FINAL BIT
 DECLARE @CHECK BIGINT
 
 -- JB added check if attribute isExclusive and we are using a screening tool
-declare @isAttibuteExclusive bit
-declare @isScreeningTool bit
-declare @setTypeID int
-set @isAttibuteExclusive = 0
-set @isScreeningTool = 0
-set @setTypeID = 0
+declare @isAttibuteExclusive bit = 0
+declare @isScreeningTool bit = 0
+declare @isStandardTool bit = 0
 
-select * from TB_ATTRIBUTE where ATTRIBUTE_ID = @ATTRIBUTE_ID and IS_EXCLUSIVE = 1
-if @@rowcount > 0
-begin
-	set @isAttibuteExclusive = 1
-	set @setTypeID = (select SET_TYPE_ID from TB_SET where SET_ID = @SET_ID)
-end
+select @isAttibuteExclusive = IS_EXCLUSIVE from TB_ATTRIBUTE where ATTRIBUTE_ID = @ATTRIBUTE_ID 
 
 
 
@@ -113,29 +106,70 @@ end
 IF (@CHECK IS NULL) -- Not sure what to do if it's not null... - SHOULD REALLY THROW AN ERROR 
 BEGIN
 
-	-- JB added - for isExclusive attributes we want to uncode any coded isExclusive siblings	
-	if @isAttibuteExclusive = 1 and @setTypeID = 5 -- 5 is a screening tool
+	-- JB&SG added - for isExclusive attributes we want to uncode any coded isExclusive siblings	
+	if @isAttibuteExclusive = 1 
+	-- and @setTypeID = 5 -- 5 is a screening tool
 	-- we should only be here if applying an isExclusive code to a screenig tool
-	begin		
-		-- we need to know all of the isExlusive siblings of the selected code
-		declare @isExclusiveSiblings table (tv_attributeID bigint, tv_attribute_set_id bigint, tv_itemAttributeId bigint, tv_contact_id int)
-		-- we have only implimented this for screening tools at present time!!!
-		insert into @isExclusiveSiblings (tv_attributeID, tv_attribute_set_id, tv_itemAttributeId, tv_contact_id)
-		select a_s.ATTRIBUTE_ID, a_s.ATTRIBUTE_SET_ID, i_a.ITEM_ATTRIBUTE_ID, i_s.CONTACT_ID from TB_ATTRIBUTE_SET a_s
-		inner join TB_ATTRIBUTE a on a.ATTRIBUTE_ID = a_s.ATTRIBUTE_ID
-		inner join TB_ITEM_ATTRIBUTE i_a on i_a.ATTRIBUTE_ID = a.ATTRIBUTE_ID
-		inner join TB_ITEM_SET i_s on i_s.ITEM_SET_ID = i_a.ITEM_SET_ID
-		where a.IS_EXCLUSIVE = 1 and a_s.SET_ID = @SET_ID and i_a.ITEM_ID = @ITEM_ID
-		and i_s.CONTACT_ID = @CONTACT_ID
+	begin
+		select @isScreeningTool = 1 from TB_SET s
+		inner join TB_SET_TYPE t on s.SET_TYPE_ID = t.SET_TYPE_ID where t.SET_TYPE = 'Screening' and s.SET_ID = @SET_ID
+		if (@isScreeningTool = 0)
+		begin
+			select @isStandardTool = 1 from TB_SET s
+			inner join TB_SET_TYPE t on s.SET_TYPE_ID = t.SET_TYPE_ID where t.SET_TYPE = 'Standard' and s.SET_ID = @SET_ID
+		end
 
-		DELETE FROM TB_ITEM_ATTRIBUTE_PDF WHERE ITEM_ATTRIBUTE_ID in (select tv_itemAttributeId from @isExclusiveSiblings)
-		DELETE FROM TB_ITEM_ATTRIBUTE WHERE ITEM_ATTRIBUTE_ID in (select tv_itemAttributeId from @isExclusiveSiblings)
+		-- we need to know all of the isExlusive siblings of the selected code
+		declare @siblings table (AttId bigint primary key)
+		declare @check2 bit = 0
+		if @isScreeningTool = 1
+		BEGIN
+			insert into @siblings SELECT a.ATTRIBUTE_ID from TB_ATTRIBUTE_SET tas
+				inner join TB_ATTRIBUTE a on tas.ATTRIBUTE_ID = a.ATTRIBUTE_ID and a.ATTRIBUTE_ID != @ATTRIBUTE_ID  
+				where SET_ID = @SET_ID and a.IS_EXCLUSIVE = 1
+			if @@ROWCOUNT > 0 set @check2 = 1
+		END
+		else if @isStandardTool = 1
+		BEGIN
+			insert into @siblings SELECT tas2.ATTRIBUTE_ID from 
+				TB_ATTRIBUTE_SET tas
+				inner join TB_ATTRIBUTE_SET tas2 on  tas.PARENT_ATTRIBUTE_ID = tas2.PARENT_ATTRIBUTE_ID and tas2.SET_ID = @SET_ID and tas2.ATTRIBUTE_ID != @ATTRIBUTE_ID
+				inner join TB_ATTRIBUTE a on tas2.ATTRIBUTE_ID = a.ATTRIBUTE_ID and a.IS_EXCLUSIVE = 1
+				where tas.ATTRIBUTE_ID = @ATTRIBUTE_ID and tas.SET_ID = @SET_ID
+			if @@ROWCOUNT > 0 set @check2 = 1
+		END
+		if @check2 = 1
+		BEGIN
+			DELETE FROM TB_ITEM_ATTRIBUTE_PDF WHERE ITEM_ATTRIBUTE_ID in 
+			(
+				select tia.ITEM_ATTRIBUTE_ID from @siblings s
+				inner join TB_ITEM_ATTRIBUTE tia on s.AttId = tia.ATTRIBUTE_ID and tia.ITEM_SET_ID = @ITEM_SET_ID and tia.ITEM_ID = @ITEM_ID
+			)
+
+			DELETE FROM TB_ITEM_ATTRIBUTE WHERE ITEM_ATTRIBUTE_ID in 
+			(
+				select tia.ITEM_ATTRIBUTE_ID from @siblings s
+				inner join TB_ITEM_ATTRIBUTE tia on s.AttId = tia.ATTRIBUTE_ID and tia.ITEM_SET_ID = @ITEM_SET_ID and tia.ITEM_ID = @ITEM_ID
+			)
+		END
+		--declare @isExclusiveSiblings table (tv_attributeID bigint, tv_attribute_set_id bigint, tv_itemAttributeId bigint, tv_contact_id int)
+		---- we have only implimented this for screening tools at present time!!!
+		--insert into @isExclusiveSiblings (tv_attributeID, tv_attribute_set_id, tv_itemAttributeId, tv_contact_id)
+		--select a_s.ATTRIBUTE_ID, a_s.ATTRIBUTE_SET_ID, i_a.ITEM_ATTRIBUTE_ID, i_s.CONTACT_ID from TB_ATTRIBUTE_SET a_s
+		--inner join TB_ATTRIBUTE a on a.ATTRIBUTE_ID = a_s.ATTRIBUTE_ID
+		--inner join TB_ITEM_ATTRIBUTE i_a on i_a.ATTRIBUTE_ID = a.ATTRIBUTE_ID
+		--inner join TB_ITEM_SET i_s on i_s.ITEM_SET_ID = i_a.ITEM_SET_ID
+		--where a.IS_EXCLUSIVE = 1 and a_s.SET_ID = @SET_ID and i_a.ITEM_ID = @ITEM_ID
+		--and i_s.CONTACT_ID = @CONTACT_ID
+
+		--DELETE FROM TB_ITEM_ATTRIBUTE_PDF WHERE ITEM_ATTRIBUTE_ID in (select tv_itemAttributeId from @isExclusiveSiblings)
+		--DELETE FROM TB_ITEM_ATTRIBUTE WHERE ITEM_ATTRIBUTE_ID in (select tv_itemAttributeId from @isExclusiveSiblings)
 	end
 
 
 	INSERT INTO TB_ITEM_ATTRIBUTE(ITEM_ID, ITEM_SET_ID, ATTRIBUTE_ID, ADDITIONAL_TEXT, ITEM_ARM_ID)
 	VALUES (@ITEM_ID, @ITEM_SET_ID, @ATTRIBUTE_ID, @ADDITIONAL_TEXT, @ITEM_ARM_ID)
-	SET @NEW_ITEM_ATTRIBUTE_ID = @@IDENTITY 
+	SET @NEW_ITEM_ATTRIBUTE_ID = SCOPE_IDENTITY() 
 
 END
 
