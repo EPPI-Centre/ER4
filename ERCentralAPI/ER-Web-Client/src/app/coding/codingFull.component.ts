@@ -770,12 +770,23 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         // find the correct set
         if (this.ReviewSetsService.ReviewSets[a].set_id === cmd.setId) {
           // collect the siblings
-          for (var b = 0; b < this.ReviewSetsService.ReviewSets[a].attributes.length; b++) {
-            if ((this.ReviewSetsService.ReviewSets[a].attributes[b].isExclusive === true) &&
-              (this.ReviewSetsService.ReviewSets[a].attributes[b].attribute_id != cmd.attributeId)) {
-                  siblingIsExclusiveAttributes.push(this.ReviewSetsService.ReviewSets[a].attributes[b].attribute_id);
+          if (this.ReviewSetsService.ReviewSets[a].setType.setTypeName == "Screening") {
+            for (var b = 0; b < this.ReviewSetsService.ReviewSets[a].attributes.length; b++) {
+              if ((this.ReviewSetsService.ReviewSets[a].attributes[b].isExclusive === true) &&
+                (this.ReviewSetsService.ReviewSets[a].attributes[b].attribute_id != cmd.attributeId)) {
+                siblingIsExclusiveAttributes.push(this.ReviewSetsService.ReviewSets[a].attributes[b].attribute_id);
               }
-          }     
+            }
+          }
+          else { //it is a Standard coding tool
+            // we know cmd.attributeId so we need its siblings
+            for (var b = 0; b < this.ReviewSetsService.ReviewSets[a].attributes.length; b++) {
+              if ((this.ReviewSetsService.ReviewSets[a].attributes[b].isExclusive === true) &&
+                (this.ReviewSetsService.ReviewSets[a].attributes[b].attribute_id != cmd.attributeId)) {
+                siblingIsExclusiveAttributes.push(this.ReviewSetsService.ReviewSets[a].attributes[b].attribute_id);
+              }
+            }
+          }
         }
       }
         
