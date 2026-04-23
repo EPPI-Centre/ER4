@@ -107,15 +107,15 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
     return this._NewCode;
   }
   public get AllowedChildTypesOfSelectedNode() {
-    this.showRadioButtonEntry = false;
-    if ((this._reviewSetsService.AllowedChildTypesOfSelectedNode[0].value === "Include") || // screening tool
-      (this._reviewSetsService.AllowedChildTypesOfSelectedNode[5].value === "Outcome classification code")) // standard tool
-    {
-      this.showRadioButtonEntry = true;
+    if (this._reviewSetsService.selectedNode) {
+      if (this._reviewSetsService.selectedNode.subTypeName === "Administration") {
+        this.showRadioButtonEntry = false;
+      }
+      else {
+        this.showRadioButtonEntry = true;
+      }
     }
-    else {
-      this.showRadioButtonEntry = false;
-    }
+  
     return this._reviewSetsService.AllowedChildTypesOfSelectedNode;
   }
 
