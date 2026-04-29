@@ -521,6 +521,7 @@ export class ReconcilingSetAttribute extends SetAttribute implements iReconcilin
         this.nodeType = SetAtt.nodeType;
         this.allowCodingEdits = SetAtt.allowCodingEdits;
         this.isSelected = SetAtt.isSelected;
+        this.isExclusive = SetAtt.isExclusive;
         this.additionalText = SetAtt.additionalText;
         this.armId = SetAtt.armId;
         this.armTitle = SetAtt.armTitle;
