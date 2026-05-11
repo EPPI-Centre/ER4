@@ -198,6 +198,53 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
     return true;//must have admin rights...
   }
 
+  public OutcomeOptionsNone: boolean = true;
+  public OutcomeOptionsAllOutcomes: boolean = false;
+  public OutcomeOptionsMatchedOutcomes: boolean = false;
+
+  public OutcomeOptionsCBNone(event: Event) {
+    if (this.OutcomeOptionsNone == true) {
+      this.OutcomeOptionsNone = true;
+      this.ShowOutcomes = "None";
+      this.OutcomeOptionsAllOutcomes = false;
+      this.OutcomeOptionsMatchedOutcomes = false;
+    }
+    else {
+      this.OutcomeOptionsNone = true;
+      this.ShowOutcomes = "None";
+      this.OutcomeOptionsAllOutcomes = false;
+      this.OutcomeOptionsMatchedOutcomes = false;
+    }
+  }
+  public OutcomeOptionsCBAllOutcomes(event: Event) {
+    if (this.OutcomeOptionsAllOutcomes == true) {
+      this.OutcomeOptionsNone = true;
+      this.ShowOutcomes = "None";
+      this.OutcomeOptionsAllOutcomes = false;
+      this.OutcomeOptionsMatchedOutcomes = false;
+    }
+    else {
+      this.OutcomeOptionsNone = false;
+      this.OutcomeOptionsAllOutcomes = true;
+      this.ShowOutcomes = "AllOutcomes";
+      this.OutcomeOptionsMatchedOutcomes = false;
+    }
+  }
+  public OutcomeOptionsCBMatchedOutcomes(event: Event) {
+    if (this.OutcomeOptionsMatchedOutcomes == true) {
+      this.OutcomeOptionsNone = true;
+      this.ShowOutcomes = "None";
+      this.OutcomeOptionsAllOutcomes = false;
+      this.OutcomeOptionsMatchedOutcomes = false;
+    }
+    else {
+      this.OutcomeOptionsNone = false;
+      this.OutcomeOptionsAllOutcomes = false;
+      this.OutcomeOptionsMatchedOutcomes = true;
+      this.ShowOutcomes = "MatchedOutcomes";
+    }
+  }
+
   AgreementClass(node: singleNode | ReconcilingSetAttribute): string {
     switch (this.IsNodeAgreement(node)) {
       case "":
