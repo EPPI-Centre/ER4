@@ -620,6 +620,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
     this._UnmatchedOutcomesHTML = "";
     this.showReconcileReportHTML = true;
     this.ShowSaveReportOptions = false;
+    this.SetMatchedOutcomesHTML(this.selectedRow);
   }
   private SetComparisonDescription() {
     this.localList.Description = "";
