@@ -9,12 +9,13 @@
             <div *ngIf="OutcomesAffected == 1">This will affect <strong>one outcome</strong> that has been assigned to this code (this coding will be deleted)!</div>
             <div *ngIf="OutcomesAffected > 1">This will affect codes assigned to <strong>{{OutcomesAffected}} outcomes</strong>. All this coding will be deleted!</div>
             <div>Also all codes assigned to '<strong>{{UpdatingCode?.attribute_name}}</strong>' children (if any) <strong>will be lost</strong>.</div>
+            <div *ngIf="NumVisMapsAffected == 3"><strong>This code has a descendant that is part of a pre-configured map in a visualisation. You will need to edit this map before the code can be deleted.</strong></div>
             <div *ngIf="NumVisMapsAffected == 2"><strong>This code is part of a pre-configured map in a visualisation. You will need to edit this map before the code can be deleted.</strong></div>
             <div *ngIf="NumVisMapsAffected == 1"><strong>Please be aware </strong> this code is part of a coding tool that is used in a visualisation. Its deletion could break the visualisation depending on if, and how, the code is being used.</div>
             <div>
               <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">No</button>
               <button class="btn btn-danger ml-1" (click)="DoDeleteCode()"
-                      [disabled]="!CanWrite() || NumVisMapsAffected == 2"
+                      [disabled]="!CanWrite() || NumVisMapsAffected >= 2"
                       style="width:80px;">
                 Yes
               </button>
@@ -136,12 +137,13 @@
         <div *ngIf="OutcomesAffected == 1">This will affect <strong>one outcome</strong> that has been assigned to this code (this coding will be deleted)!</div>
         <div *ngIf="OutcomesAffected > 1">This will affect codes assigned to <strong>{{OutcomesAffected}} outcomes</strong>. All this coding will be deleted!</div>
         <div>Also all codes assigned to '<strong>{{UpdatingCode.attribute_name}}</strong>' children (if any) <strong>will be lost</strong>.</div>
+        <div *ngIf="NumVisMapsAffected == 3"><strong>This code has a descendant that is part of a pre-configured map in a visualisation. You will need to edit this map before the code can be deleted.</strong></div>
         <div *ngIf="NumVisMapsAffected == 2"><strong>This code is part of a pre-configured map in a visualisation. You will need to edit this map before the code can be deleted.</strong></div>
         <div *ngIf="NumVisMapsAffected == 1"><strong>Please be aware </strong> this code is part of a coding tool that is used in a visualisation. Its deletion could break the visualisation depending on if, and how, the code is being used.</div>
         <div>
           <button class="btn btn-sm btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:80px;">No</button>
           <button class="btn btn-sm btn-danger ml-1" (click)="DoDeleteCode()"
-                  [disabled]="!CanWrite() "
+                  [disabled]="!CanWrite() || NumVisMapsAffected >= 2"
                   style="width:40px;">
             Yes
           </button>
