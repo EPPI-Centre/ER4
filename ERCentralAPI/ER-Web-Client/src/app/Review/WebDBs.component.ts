@@ -4,6 +4,7 @@ import { WebDBService, iWebDB, iWebDbReviewSet, WebDbReviewSet, MissingAttribute
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ModalService } from '../services/modal.service';
 import { ReviewSetsService, SetAttribute, ReviewSet } from '../services/ReviewSets.service';
+import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { FileRestrictions, UploadEvent, SelectEvent } from '@progress/kendo-angular-upload';
@@ -20,7 +21,8 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 		private ReviewerIdentityService: ReviewerIdentityService,
 		private ReviewSetsService: ReviewSetsService,
 		private ModalService: ModalService,
-		private ConfirmationDialogService: ConfirmationDialogService
+    private ConfirmationDialogService: ConfirmationDialogService,
+    private ReviewSetsEditingService: ReviewSetsEditingService,
 	)
 	{ }
 
@@ -524,9 +526,33 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 	}
   RemoveTool(rs: WebDbReviewSet | null) {
     if (!rs) return;
-		if (this.WebDBService.CurrentDB != null)
-			this.WebDBService.RemoveWebDbReviewSet(this.WebDBService.CurrentDB.webDBId, rs.webDBSetId);
-    }
+    if (this.WebDBService.CurrentDB != null) {
+      this._VisMapsAffected = -1;
+      this.ReviewSetsEditingService.AttributeOrSetDeleteCheck(rs.set_id, 0).then(
+        success => {
+          if (success.numVisMaps > 1) {
+            this.ConfirmationDialogService.ShowInformationalModal(
+              "A code in this coding tool is being used in a pre-configured map. <br>You must remove the code from the map before you can delete this coding tool."
+              , "Coding tool deletion not allowed.")
+          }
+          else {
+            this.ConfirmationDialogService.confirm("Delete coding tool?"
+            , "Are you sure you want to delete this coding tool?"
+            , false, "", "Yes Delete", "Cancel").then((confirm: any) => {
+              if (confirm) {
+                if (this.WebDBService.CurrentDB != null) {
+                  this.WebDBService.RemoveWebDbReviewSet(this.WebDBService.CurrentDB.webDBId, rs.webDBSetId);
+                }
+              }
+            });
+          }
+        },
+        error => {
+          //alert("Sorry, creating the new codeset failed.");
+          //this.modalService.GenericErrorMessage(ErrMsg);
+      });     
+    }			
+  }
   EditTool(rs: WebDbReviewSet | null) {
     if (!rs) return;
 		let iToE: iWebDbReviewSet = {
@@ -564,11 +590,54 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 			this.WebDBService.UpdateWebDbReviewSet(this.EditingWebDbReviewSet);
 			this.EditingWebDbReviewSet = null;
 		}
-	}
+  }
+
+  private _VisMapsAffected: number = -1;
   RemoveAttribute(att: SetAttribute | null) {
     if (!att) return;
-		if (this.WebDBService.CurrentDB != null)
-			this.WebDBService.RemoveWebDbAttribute(att, this.WebDBService.CurrentDB.webDBId);
+    if (this.WebDBService.CurrentDB != null) {
+      // if we are deleting a coding tool and one of its codes are used in a map, then deletion is forbidden
+      // User is told they must first remove the code from the map
+      this._VisMapsAffected = -1;
+      this.ReviewSetsEditingService.AttributeOrSetDeleteCheck(0, att.attributeSetId).then(
+        success => {
+          this._VisMapsAffected = success.numVisMaps;
+          // based on the value of numVisMaps returned from st_AttributeSetDeleteWarning
+          // if the code is part of a coding tool that is in a visualisation but is not explicitly listed in a map then @NUM_VIS_MAPS = 1
+          // if the code is part of a coding tool that is in a visualisation and is explicitly listed in a map then @NUM_VIS_MAPS = 2
+          // if the code is part of a coding tool that is in a visualisation and is an ancestor of a code explicitly listed in a map then @NUM_VIS_MAPS = 3
+          if (success.numVisMaps == 2) {
+            // we are deleting a code that is used in a map. Deletion is forbidden.
+            // User is told they must first remove the code from the map
+            this.ConfirmationDialogService.ShowInformationalModal(
+              "This code is being used in a pre-configured map. <br>You must remove the code from the map before you can delete this coding tool."
+              , "Code deletion not allowed.")
+          }
+          else if (success.numVisMaps == 3) {
+            // we are deleting a code and the code (or one of its children) is used in a map. Deletion is forbidden.
+            // User is told they must first remove the code from the map
+            this.ConfirmationDialogService.ShowInformationalModal(
+              "A descendant of this code is being used in a pre-configured map. <br>You must remove the code from the map before you can delete this coding tool."
+              , "Code deletion not allowed.")
+          }
+          else
+          {
+            this.ConfirmationDialogService.confirm("Delete code?"
+              , "Are you sure you want to delete the selected code and all of its children? <br><b>Note: </b> It is possible to restore a deleted code by selecting the coding tool and clicking <b>Edit</b >.?"
+              , false, "", "Yes Delete", "Cancel").then((confirm: any) => {
+                if (confirm) {
+                  if (this.WebDBService.CurrentDB != null) {
+                    this.WebDBService.RemoveWebDbAttribute(att, this.WebDBService.CurrentDB.webDBId);
+                  }
+                }
+              });
+          }
+        },
+        error => {
+          //alert("Sorry, creating the new codeset failed.");
+          //this.modalService.GenericErrorMessage(ErrMsg);
+        });     
+    }			
 	}
   EditAttribute(att: SetAttribute | null) {
     if (!att) return;
