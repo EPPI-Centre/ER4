@@ -1,0 +1,13 @@
+USE [Reviewer]
+GO
+
+declare @chk int = (SELECT count(*)
+		FROM sys.indexes 
+		WHERE name='IX_TB_MAG_AUTO_UPDATE_RUN_PAPER_PaperId_RUN_ID' AND object_id = OBJECT_ID('[dbo].[TB_MAG_AUTO_UPDATE_RUN_PAPER]'))
+If @chk = 0 
+BEGIN
+	print 'creating index in TB_MAG_AUTO_UPDATE_RUN_PAPER'
+	CREATE NONCLUSTERED INDEX [IX_TB_MAG_AUTO_UPDATE_RUN_PAPER_PaperId_RUN_ID]
+	ON [dbo].[TB_MAG_AUTO_UPDATE_RUN_PAPER] ([PaperId])
+	INCLUDE ([MAG_AUTO_UPDATE_RUN_ID])
+END
