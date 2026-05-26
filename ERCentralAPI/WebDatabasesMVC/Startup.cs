@@ -1,15 +1,20 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using EPPIDataServices.Helpers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Serilog.Core;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.RateLimiting;
+using System.Threading.Tasks;
 
 namespace WebDatabasesMVC
 {
@@ -41,6 +46,41 @@ namespace WebDatabasesMVC
                     config.Cookie.Name = "WebDbErLoginCookieVawg";
                     config.LoginPath = "/Vawg/Login";
                 });
+            services.AddRateLimiter(options =>
+            {
+                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+                    RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: httpContext.User.Identity?.Name ?? httpContext.Request.Headers.Host.ToString(),
+                        factory: partition => new FixedWindowRateLimiterOptions
+                        {
+                            AutoReplenishment = true,
+                            PermitLimit = 20,
+                            QueueLimit = 0,
+                            Window = TimeSpan.FromMinutes(1)
+                        }));
+                options.AddPolicy("costly", httpContext =>
+                RateLimitPartition.GetFixedWindowLimiter(httpContext.User.Identity?.Name ?? httpContext.Request.Headers.Host.ToString(),
+                        factory: partition => new FixedWindowRateLimiterOptions
+                        {
+                            AutoReplenishment = true,
+                            PermitLimit = 1,
+                            QueueLimit = 0,
+                            Window = TimeSpan.FromSeconds(10)
+                        }));
+                options.OnRejected = async (context, cancellationToken) =>
+                {
+                    // Custom rejection handling logic
+                    context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                    context.HttpContext.Response.Headers["Retry-After"] = "60";
+
+                    await context.HttpContext.Response.WriteAsync("Rate limit exceeded. Please try again later.", cancellationToken);
+
+                    // Optional logging
+                    Logger.LogError("Rate limit exceeded for IP: {IpAddress}",
+                        context.HttpContext.Connection.RemoteIpAddress);
+                };
+            });
+
             services.AddControllersWithViews().AddNewtonsoftJson(options =>
             {//this is needed to allow serialising CSLA child objects:
                 //they all have a "Parent" field which creates a reference loop.
@@ -72,7 +112,7 @@ namespace WebDatabasesMVC
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-
+            app.UseRateLimiter();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

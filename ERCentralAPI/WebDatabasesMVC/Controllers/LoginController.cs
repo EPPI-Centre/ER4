@@ -223,7 +223,7 @@ namespace WebDatabasesMVC.Controllers
             var userClaims = new List<Claim>()
             {
                 new Claim(ClaimTypes.Role, "WebDbReader"),
-                new Claim(ClaimTypes.Name, Name),
+                new Claim(ClaimTypes.Name, Name + Guid.NewGuid().ToString()),
                 new Claim("reviewId", revId.ToString()),
                 new Claim("WebDbID", WebDbID.ToString()),
                 new Claim("HiddenFields", HiddenFields),
