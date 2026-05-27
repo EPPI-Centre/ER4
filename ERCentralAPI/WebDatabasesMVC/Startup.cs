@@ -47,8 +47,7 @@ namespace WebDatabasesMVC
                     config.LoginPath = "/Vawg/Login";
                 });
             //Rate Limiting: first, get the values we want from Configuration
-            var section = Configuration.GetSection("RateLimiting");
-            var RateLimitingSettings = section.GetChildren();
+            var RateLimitingSettings = Configuration.GetSection("RateLimiting")?.GetChildren();
             List<RateLimiterFixedWindowPolicySetting> allSettings = new List<RateLimiterFixedWindowPolicySetting>();
             foreach (var setting in RateLimitingSettings)
             {
