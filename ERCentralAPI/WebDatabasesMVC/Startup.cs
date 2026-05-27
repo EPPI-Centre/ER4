@@ -46,40 +46,16 @@ namespace WebDatabasesMVC
                     config.Cookie.Name = "WebDbErLoginCookieVawg";
                     config.LoginPath = "/Vawg/Login";
                 });
-            services.AddRateLimiter(options =>
+            //Rate Limiting: first, get the values we want from Configuration
+            var RateLimitingSettings = Configuration.GetSection("RateLimiting")?.GetChildren();
+            List<RateLimiterFixedWindowPolicySetting> allSettings = new List<RateLimiterFixedWindowPolicySetting>();
+            foreach (var setting in RateLimitingSettings)
             {
-                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
-                    RateLimitPartition.GetFixedWindowLimiter(
-                        partitionKey: httpContext.User.Identity?.Name ?? httpContext.Request.Headers.Host.ToString(),
-                        factory: partition => new FixedWindowRateLimiterOptions
-                        {
-                            AutoReplenishment = true,
-                            PermitLimit = 20,
-                            QueueLimit = 0,
-                            Window = TimeSpan.FromMinutes(1)
-                        }));
-                options.AddPolicy("costly", httpContext =>
-                RateLimitPartition.GetFixedWindowLimiter(httpContext.User.Identity?.Name ?? httpContext.Request.Headers.Host.ToString(),
-                        factory: partition => new FixedWindowRateLimiterOptions
-                        {
-                            AutoReplenishment = true,
-                            PermitLimit = 1,
-                            QueueLimit = 0,
-                            Window = TimeSpan.FromSeconds(10)
-                        }));
-                options.OnRejected = async (context, cancellationToken) =>
-                {
-                    // Custom rejection handling logic
-                    context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
-                    context.HttpContext.Response.Headers["Retry-After"] = "60";
-
-                    await context.HttpContext.Response.WriteAsync("Rate limit exceeded. Please try again later.", cancellationToken);
-
-                    // Optional logging
-                    Logger.LogError("Rate limit exceeded for IP: {IpAddress}",
-                        context.HttpContext.Connection.RemoteIpAddress);
-                };
-            });
+                RateLimiterFixedWindowPolicySetting tempOptions = new RateLimiterFixedWindowPolicySetting();
+                setting.Bind(tempOptions);
+                allSettings.Add(tempOptions);
+            }
+            services.AddRateLimiter(options => configureRateLimits(options, allSettings));
 
             services.AddControllersWithViews().AddNewtonsoftJson(options =>
             {//this is needed to allow serialising CSLA child objects:
@@ -119,6 +95,82 @@ namespace WebDatabasesMVC
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+        private void configureRateLimits(RateLimiterOptions options, List<RateLimiterFixedWindowPolicySetting> allSettings)
+        {
+            foreach (RateLimiterFixedWindowPolicySetting rlf in allSettings)
+            {
+                if (rlf.PolicyName == "Global")
+                {
+                    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+                    RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: httpContext.User.Identity?.Name ?? httpContext.Request.Headers.Host.ToString(),
+                    factory: partition => new FixedWindowRateLimiterOptions
+                    {
+                        AutoReplenishment = true,
+                        PermitLimit = rlf.PermitLimit,
+                        QueueLimit = 0,
+                        Window = TimeSpan.FromSeconds(rlf.WindowInSeconds)
+                    }));
+                }
+                else
+                {
+                    options.AddPolicy(rlf.PolicyName, httpContext =>
+                    RateLimitPartition.GetFixedWindowLimiter(httpContext.User.Identity?.Name ?? httpContext.Request.Headers.Host.ToString(),
+                    factory: partition => new FixedWindowRateLimiterOptions
+                    {
+                        AutoReplenishment = true,
+                        PermitLimit = rlf.PermitLimit,
+                        QueueLimit = 0,
+                        Window = TimeSpan.FromSeconds(rlf.WindowInSeconds)
+                    }));
+                }
+            }
+            if (allSettings.Count > 0)
+            {
+                options.OnRejected = async (context, cancellationToken) =>
+                {
+                    string policyName = "Default policy";
+                    EnableRateLimitingAttribute? pol = context.HttpContext.GetEndpoint()?.Metadata.GetMetadata<EnableRateLimitingAttribute>();
+                    if (pol != null) {
+                        policyName = pol.PolicyName;
+                    }
+                    
+                    TimeSpan retryAfter = TimeSpan.FromSeconds(-1);
+                    object whatshere;
+                    bool gotit = context.Lease.TryGetMetadata("RETRY_AFTER", out whatshere);
+                    if (gotit)
+                    {
+                        retryAfter = (TimeSpan)whatshere;
+                    }
+                    if (retryAfter == TimeSpan.FromSeconds(-1))
+                    {//got to give a generic response
+                        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                        await context.HttpContext.Response.WriteAsync("Rate limit exceeded. Please try again later.", cancellationToken);
+                        Logger.LogError("Rate limit exceeded for IP: {IpAddress}",
+                            context.HttpContext.Connection.RemoteIpAddress);
+                    }
+                    else
+                    {//we know all we'd like to know!
+                        string secondsStr = retryAfter.TotalSeconds.ToString();
+                        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                        context.HttpContext.Response.Headers.RetryAfter = secondsStr;
+
+                        await context.HttpContext.Response.WriteAsync($"Rate limit exceeded. Please try again after {secondsStr} seconds.", cancellationToken);
+
+                        string IpAddress = context.HttpContext.Connection.RemoteIpAddress.ToString();
+                        Logger.LogError($"Rate limit exceeded for IP: {IpAddress}"
+                            + Environment.NewLine + $"On Policy: {policyName}"
+                            + Environment.NewLine + $"Retry after: {secondsStr} seconds." + Environment.NewLine);
+                    }
+                };
+            }
+        }
+        private class RateLimiterFixedWindowPolicySetting
+        {
+            public string PolicyName { get; set; }
+            public int WindowInSeconds { get; set; }
+            public int PermitLimit { get; set; }
         }
     }
 }

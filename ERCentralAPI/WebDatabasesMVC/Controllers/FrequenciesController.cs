@@ -28,7 +28,8 @@ namespace WebDatabasesMVC.Controllers
         public FrequenciesController(ILogger<FrequenciesController> logger) : base(logger)
         {}
 
-        
+
+        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult GetFrequencies([FromForm] long attId, int setId, string parentName, string included, long onlyThisAttribute = 0)
         {
             try
@@ -52,13 +53,15 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        [EnableRateLimiting("costly")]
+        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult GetFrequenciesJSON([FromForm] long attId, int setId, string parentName, string included, long onlyThisAttribute = 0)
         {
             var id = this.HttpContext.User.Identity;
             return internalGetFrequenciesJSON(attId, setId, parentName, included, onlyThisAttribute);
         }
+
         [Authorize(AuthenticationSchemes = "FairAuthentication")]
+        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult FairGetFrequenciesJSON([FromForm] long attId, int setId, string parentName, string included, long onlyThisAttribute = 0)
         {
             return internalGetFrequenciesJSON(attId, setId, parentName, included, onlyThisAttribute);
@@ -94,6 +97,7 @@ namespace WebDatabasesMVC.Controllers
 
 
         [HttpPost]
+        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult GetFrequenciesResultsJSON(WebDbFrequencyCrosstabAndMapSelectionCriteriaMVC crit)
         {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
             try
@@ -164,6 +168,7 @@ namespace WebDatabasesMVC.Controllers
             }
         }
         [HttpPost]
+        [EnableRateLimiting("MaxCostEndpoints")]
         public IActionResult GetCrosstabJSON(long attIdx, int setIdx, string nameXaxis, long attIdy, int setIdy, string nameYaxis, string included, string graphic)
         {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
             try
@@ -219,7 +224,7 @@ namespace WebDatabasesMVC.Controllers
             return res;
         }
 
-        //[HttpPost("[action]")]
+        [EnableRateLimiting("MaxCostEndpoints")]
         public IActionResult GetMap([FromForm] long attIdx, int setIdx, string nameXaxis, long attIdy, int setIdy, string nameYaxis,
                                     string included, string graphic, long segmentsParent, int setIdSegments)
         {
@@ -246,6 +251,7 @@ namespace WebDatabasesMVC.Controllers
         }
        
         [HttpPost]
+        [EnableRateLimiting("MaxCostEndpoints")]
         public IActionResult GetMapJSON(WebDbFrequencyCrosstabAndMapSelectionCriteriaMVC crit)
         {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
             try
