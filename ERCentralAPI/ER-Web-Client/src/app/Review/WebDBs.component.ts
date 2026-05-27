@@ -231,7 +231,14 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 		if (this.CurrentDB) return this.WebDBService.URLfromWebDB(this.CurrentDB);
 		else return "";
     }
-
+  public VisitMapURL(mapId: number): string {
+    if (this.CurrentDB) {
+      let mapUrl = this.WebDBService.URLfromWebDB(this.CurrentDB);
+      mapUrl = mapUrl + "&MapiD=" + mapId.toString();
+      return mapUrl;
+    }
+    else return "";
+  }
 
   public get HasSelections(): number {
     const OptionalFields = this.FieldList.filter(f => f.enabled == true);
