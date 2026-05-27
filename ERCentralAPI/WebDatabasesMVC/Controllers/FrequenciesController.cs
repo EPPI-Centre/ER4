@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using BusinessLibrary.BusinessClasses;
+﻿using BusinessLibrary.BusinessClasses;
 using Csla;
 using EPPIDataServices.Helpers;
 using ERxWebClient2.Controllers;
@@ -14,7 +7,15 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using WebDatabasesMVC;
 using WebDatabasesMVC.ViewModels;
 
@@ -51,9 +52,10 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-
+        [EnableRateLimiting("costly")]
         public IActionResult GetFrequenciesJSON([FromForm] long attId, int setId, string parentName, string included, long onlyThisAttribute = 0)
         {
+            var id = this.HttpContext.User.Identity;
             return internalGetFrequenciesJSON(attId, setId, parentName, included, onlyThisAttribute);
         }
         [Authorize(AuthenticationSchemes = "FairAuthentication")]
