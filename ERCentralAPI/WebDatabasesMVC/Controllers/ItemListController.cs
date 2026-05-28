@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Security.Claims;
-using System.Text.Json;
-using System.Threading.Tasks;
-using BusinessLibrary.BusinessClasses;
+﻿using BusinessLibrary.BusinessClasses;
 using Csla;
 using EPPIDataServices.Helpers;
 using ERxWebClient2.Controllers;
@@ -15,10 +7,12 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using WebDatabasesMVC;
+using System;
+using System.Linq;
 using WebDatabasesMVC.ViewModels;
 /// <summary>
 /// This is the first controller to use the agreed approach, see the Index() method.
@@ -39,6 +33,7 @@ namespace WebDatabasesMVC.Controllers
         {}
 
 
+        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult Index()
         {
             try
@@ -58,6 +53,8 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult IndexJSON()
         {
             try
@@ -77,6 +74,8 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult Page([FromForm] int PageN)
         {
             try
@@ -97,6 +96,8 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult PageJSON([FromForm] int PageN)
         {
             try
@@ -118,6 +119,7 @@ namespace WebDatabasesMVC.Controllers
             }
         }
         [HttpPost]
+        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult ListFromCrit(SelCritMVC critMVC)
         {
             try
@@ -137,12 +139,14 @@ namespace WebDatabasesMVC.Controllers
             }
         }
         [HttpPost]
+        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult ListFromCritJson(SelCritMVC critMVC)
         {
             return internalListFromCritJson(critMVC);
         }
         [Authorize(AuthenticationSchemes = "FairAuthentication")]
         [HttpPost]
+        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult FairListFromCritJson(SelCritMVC critMVC)
         {
             return internalListFromCritJson(critMVC);
@@ -166,6 +170,8 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult GetFreqList([FromForm] long attId, string attName)
         {
             try
@@ -194,11 +200,14 @@ namespace WebDatabasesMVC.Controllers
         }
         [Authorize(AuthenticationSchemes = "VawgAuthentication")]
         [Authorize(AuthenticationSchemes = "CookieAuthentication")]
+
+        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult GetFreqListJSon([FromForm] long attId, string attName)
         {
             return InternalGetFreqListJSon(attId, attName);
         }
         [Authorize(AuthenticationSchemes = "FairAuthentication")]
+        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult FairGetFreqListJSon([FromForm] long attId, string attName)
         {
             return InternalGetFreqListJSon(attId, attName);
@@ -231,6 +240,7 @@ namespace WebDatabasesMVC.Controllers
         }
 
         [HttpPost]
+        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult GetFreqListNoneOfTheAbove([FromForm] long attributeIdXAxis, int setId,
                                                          string included, long onlyThisAttribute, int webDbId, string attName)
         {
@@ -266,6 +276,7 @@ namespace WebDatabasesMVC.Controllers
             }
         }
         [HttpPost]
+        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult GetFreqListNoneOfTheAboveJSon([FromForm] long attributeIdXAxis, int setId,
                                                          string included, long onlyThisAttribute, int webDbId, string attName)
         {
@@ -300,6 +311,7 @@ namespace WebDatabasesMVC.Controllers
         }
         
         [HttpPost]
+        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult GetListWithWithoutAtts([FromForm] string WithAttIds, string WithSetId, string WithoutAttIds, string WithoutSetId, string included, string Description = "")
         {
             try
@@ -340,6 +352,7 @@ namespace WebDatabasesMVC.Controllers
             }
         }
         [HttpPost]
+        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult GetListWithWithoutAttsJSON([FromForm] string WithAttIds, string WithSetId, string WithoutAttIds, string WithoutSetId, string included, string Description = "")
         {
             return internalGetListWithWithoutAttsJSON(WithAttIds, WithSetId, WithoutAttIds, WithoutSetId, included, Description);
@@ -347,6 +360,7 @@ namespace WebDatabasesMVC.Controllers
 
         [Authorize(AuthenticationSchemes = "FairAuthentication")]
         [HttpPost]
+        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult FairGetListWithWithoutAttsJSON([FromForm] string WithAttIds, string WithSetId, string WithoutAttIds, string WithoutSetId, string included, string Description = "")
         {
             return internalGetListWithWithoutAttsJSON(WithAttIds, WithSetId, WithoutAttIds, WithoutSetId, included, Description);
@@ -397,6 +411,7 @@ namespace WebDatabasesMVC.Controllers
 
 
 
+        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult GetListSearchResults([FromForm] string SearchString, string SearchWhat, string included)
         {
             try
@@ -424,7 +439,9 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+        
         [HttpPost]
+        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult GetListSearchResultsJSON([FromForm] string SearchString, string SearchWhat, string included)
         {
             try

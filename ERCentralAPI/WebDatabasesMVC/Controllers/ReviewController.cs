@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.IO;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using BusinessLibrary.BusinessClasses;
+﻿using BusinessLibrary.BusinessClasses;
 using Csla;
 using EPPIDataServices.Helpers;
 using ERxWebClient2.Controllers;
@@ -16,8 +8,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
-using WebDatabasesMVC;
+using System;
+using System.IO;
 using WebDatabasesMVC.ViewModels;
 
 namespace WebDatabasesMVC.Controllers
@@ -116,6 +110,7 @@ namespace WebDatabasesMVC.Controllers
             return res;
         }
         [Authorize]
+        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult YearHistogramJSON()
         {
             try

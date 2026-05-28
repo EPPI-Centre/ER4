@@ -88,7 +88,7 @@
                 } else {
                     $("#FrequenciesGrid").html("");
                 }
-            });
+            }).fail((response) => handleFreqsError(response));
     }
 
     function GetFreqsPie() {
@@ -350,7 +350,7 @@
                 if (spinnerItems) spinnerItems.hide();
                 BuildItems(data, result);
             }
-        );
+        ).fail((response) => handleFreqsError(response));
     }
 
     function GoToItemsJson(AttributeSet, useFilter = true) {
@@ -388,7 +388,7 @@
                 if (spinnerItems) spinnerItems.hide();
                 BuildItems(data, result);
             }
-        );
+        ).fail((response) => handleFreqsError(response));
 
         //}
     }

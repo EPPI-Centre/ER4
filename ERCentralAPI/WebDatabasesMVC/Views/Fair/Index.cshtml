@@ -84,7 +84,7 @@
                 } else {
                     $("#FrequenciesGrid").html("");
                 }
-            });
+            }).fail((response) => handleFreqsError(response));
     }
 
 

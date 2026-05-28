@@ -53,6 +53,7 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+        
         [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult GetFrequenciesJSON([FromForm] long attId, int setId, string parentName, string included, long onlyThisAttribute = 0)
         {
@@ -141,6 +142,7 @@ namespace WebDatabasesMVC.Controllers
             return res;
         }
 
+       
         public IActionResult GetCrosstab([FromForm] long attIdx, int setIdx, string nameXaxis, long attIdy, int setIdy, string nameYaxis, string included, string graphic)
         {
 
@@ -224,7 +226,7 @@ namespace WebDatabasesMVC.Controllers
             return res;
         }
 
-        [EnableRateLimiting("MaxCostEndpoints")]
+        
         public IActionResult GetMap([FromForm] long attIdx, int setIdx, string nameXaxis, long attIdy, int setIdy, string nameYaxis,
                                     string included, string graphic, long segmentsParent, int setIdSegments)
         {
