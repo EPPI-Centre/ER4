@@ -1,24 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.IO;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using BusinessLibrary.BusinessClasses;
+﻿using BusinessLibrary.BusinessClasses;
 using Csla;
-using EPPIDataServices.Helpers;
 using ERxWebClient2.Controllers;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using WebDatabasesMVC;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.IO;
+using System.Security.Claims;
 using WebDatabasesMVC.ViewModels;
 
 namespace WebDatabasesMVC.Controllers
@@ -155,7 +151,7 @@ namespace WebDatabasesMVC.Controllers
             }
         }
 
-        
+
         public IActionResult Topic([FromQuery] long? TopicId)
         {
             try
@@ -200,6 +196,7 @@ namespace WebDatabasesMVC.Controllers
         }
 
         [HttpPost]
+        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult ListFromCrit(SelCritMVC critMVC)
         {
             try
@@ -242,6 +239,8 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult GetListSearchResults([FromForm] string SearchString, string SearchWhat, string included)
         {
             try
