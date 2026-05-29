@@ -83,12 +83,12 @@ namespace WebDatabasesMVC
             Program.SqlHelper = new SQLHelper((IConfigurationRoot)Startup.Configuration, logger);
             BusinessLibrary.Data.DataConnection.DataConnectionConfigure(Program.SqlHelper);
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
 
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseRateLimiter();
+            app.UseStaticFiles();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
@@ -104,7 +104,7 @@ namespace WebDatabasesMVC
                 {
                     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
                     RateLimitPartition.GetFixedWindowLimiter(
-                    partitionKey: httpContext.User.Identity?.Name ?? httpContext.Request.Headers.Host.ToString(),
+                    partitionKey: httpContext.User.Identity?.Name ?? httpContext.Connection.RemoteIpAddress.ToString(),
                     factory: partition => new FixedWindowRateLimiterOptions
                     {
                         AutoReplenishment = true,
@@ -116,7 +116,7 @@ namespace WebDatabasesMVC
                 else
                 {
                     options.AddPolicy(rlf.PolicyName, httpContext =>
-                    RateLimitPartition.GetFixedWindowLimiter(httpContext.User.Identity?.Name ?? httpContext.Request.Headers.Host.ToString(),
+                    RateLimitPartition.GetFixedWindowLimiter(httpContext.User.Identity?.Name ?? httpContext.Connection.RemoteIpAddress.ToString(),
                     factory: partition => new FixedWindowRateLimiterOptions
                     {
                         AutoReplenishment = true,
@@ -131,11 +131,12 @@ namespace WebDatabasesMVC
                 options.OnRejected = async (context, cancellationToken) =>
                 {
                     string policyName = "Default policy";
+                    string path = context.HttpContext.Request.Path;
                     EnableRateLimitingAttribute? pol = context.HttpContext.GetEndpoint()?.Metadata.GetMetadata<EnableRateLimitingAttribute>();
                     if (pol != null) {
                         policyName = pol.PolicyName;
                     }
-                    
+                    string IpAddress = context.HttpContext.Connection.RemoteIpAddress.ToString();
                     TimeSpan retryAfter = TimeSpan.FromSeconds(-1);
                     object whatshere;
                     bool gotit = context.Lease.TryGetMetadata("RETRY_AFTER", out whatshere);
@@ -147,8 +148,8 @@ namespace WebDatabasesMVC
                     {//got to give a generic response
                         context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
                         await context.HttpContext.Response.WriteAsync("Rate limit exceeded. Please try again later.", cancellationToken);
-                        Logger.LogError("Rate limit exceeded for IP: {IpAddress}",
-                            context.HttpContext.Connection.RemoteIpAddress);
+                        Logger.LogError($"Rate limit exceeded for IP: {IpAddress}"
+                            + Environment.NewLine + $"On path: {path}");
                     }
                     else
                     {//we know all we'd like to know!
@@ -158,9 +159,8 @@ namespace WebDatabasesMVC
 
                         await context.HttpContext.Response.WriteAsync($"Rate limit exceeded. Please try again after {secondsStr} seconds.", cancellationToken);
 
-                        string IpAddress = context.HttpContext.Connection.RemoteIpAddress.ToString();
                         Logger.LogError($"Rate limit exceeded for IP: {IpAddress}"
-                            + Environment.NewLine + $"On Policy: {policyName}"
+                            + Environment.NewLine + $"On Policy: {policyName} and path: {path}"
                             + Environment.NewLine + $"Retry after: {secondsStr} seconds." + Environment.NewLine);
                     }
                 };
