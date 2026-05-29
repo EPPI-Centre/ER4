@@ -295,7 +295,7 @@ public partial class PurchaseHistory : System.Web.UI.Page
                 }
                 else
                 {
-                    Response.Write(" - Acccount extension for: " + idr["NAME"].ToString());
+                    Response.Write(" - Account extension for: " + idr["NAME"].ToString());
                     Response.Write(Environment.NewLine);
                 }
             }
@@ -371,13 +371,30 @@ public partial class PurchaseHistory : System.Web.UI.Page
         Response.Write(Environment.NewLine);
         //Response.Write("Discount: £" + discount);
         //Response.Write(Environment.NewLine);
-        if (vat != "")
+        if (vat == "") vat = "0";
+        if (vat != "0")
         {
             showVATNumber = true;
             Response.Write("VAT: £" + vat);
             Response.Write(Environment.NewLine);
-            // add totalFee and vat to get the amount paid           
+            // add totalFee and vat to get the amount paid
+            int total;
+            // vat could be a non-int so we need to deal with that scenario
+            if (vat.Contains("."))
+            {
+                string vatInt = vat.Remove(vat.IndexOf('.'));
+                total = int.Parse(totalFee) + int.Parse(vatInt);
+                totalFee = total.ToString() + vat.Substring(vat.IndexOf('.'));
+            }
+            else
+            {
+                total = int.Parse(totalFee) + int.Parse(vat);
+                totalFee = total.ToString();
+            }
+            
         }
+       
+
         Response.Write("Total paid: £" + totalFee);
         Response.Write(Environment.NewLine);
         if (showVATNumber == true)
