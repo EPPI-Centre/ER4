@@ -106,7 +106,7 @@
             .fail(function (response) {
                 alert(showAjaxError(response));
                 $("#spinner").hide();
-            });
+            }).fail((response) => handleFreqsError(response));
 
         $("#MapTitle").html(WebDBMapNameCrit.defaultValue);
         $("#customMapDiv").show();
@@ -226,7 +226,7 @@
                 BuildItems(data, result);
                 document.getElementById('listDiv').scrollIntoView({behavior: 'smooth'});
             }
-        );
+        ).fail((response) => handleFreqsError(response));
 
     }
 

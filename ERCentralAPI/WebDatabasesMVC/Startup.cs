@@ -1,4 +1,5 @@
 using EPPIDataServices.Helpers;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -130,6 +131,12 @@ namespace WebDatabasesMVC
             {
                 options.OnRejected = async (context, cancellationToken) =>
                 {
+                    //var pp = context.HttpContext.Features.Get<Microsoft.AspNetCore.Authentication.IAuthenticateResultFeature>()?
+                    //          .AuthenticateResult?.Properties?.GetTokenValue("access_token")?.ToString();
+                    //var p1 = context.HttpContext.Features.Get<Microsoft.AspNetCore.Authentication.IAuthenticateResultFeature>();
+                    //var p2 = p1?.AuthenticateResult;
+                    //var p3 = p2?.Properties;
+                    //var p4 = p3?.GetTokenValue("access_token");
                     string policyName = "Default policy";
                     string path = context.HttpContext.Request.Path;
                     EnableRateLimitingAttribute? pol = context.HttpContext.GetEndpoint()?.Metadata.GetMetadata<EnableRateLimitingAttribute>();
@@ -147,7 +154,7 @@ namespace WebDatabasesMVC
                     if (retryAfter == TimeSpan.FromSeconds(-1))
                     {//got to give a generic response
                         context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
-                        await context.HttpContext.Response.WriteAsync("Rate limit exceeded. Please try again later.", cancellationToken);
+                        await context.HttpContext.Response.WriteAsync("Rate limit exceeded. Please wait a few seconds and try again.", cancellationToken);
                         Logger.LogError($"Rate limit exceeded for IP: {IpAddress}"
                             + Environment.NewLine + $"On path: {path}");
                     }
