@@ -105,7 +105,7 @@ namespace WebDatabasesMVC
                 {
                     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
                     RateLimitPartition.GetFixedWindowLimiter(
-                    partitionKey: httpContext.User.Identity?.Name ?? httpContext.Connection.RemoteIpAddress.ToString(),
+                    partitionKey: GetLoginId(httpContext) ?? httpContext.Connection.RemoteIpAddress.ToString(),
                     factory: partition => new FixedWindowRateLimiterOptions
                     {
                         AutoReplenishment = true,
@@ -117,7 +117,7 @@ namespace WebDatabasesMVC
                 else
                 {
                     options.AddPolicy(rlf.PolicyName, httpContext =>
-                    RateLimitPartition.GetFixedWindowLimiter(httpContext.User.Identity?.Name ?? httpContext.Connection.RemoteIpAddress.ToString(),
+                    RateLimitPartition.GetFixedWindowLimiter(GetLoginId(httpContext) ?? httpContext.Connection.RemoteIpAddress.ToString(),
                     factory: partition => new FixedWindowRateLimiterOptions
                     {
                         AutoReplenishment = true,
@@ -172,6 +172,18 @@ namespace WebDatabasesMVC
                     }
                 };
             }
+            
+        }
+        private string? GetLoginId(HttpContext context)
+        {
+            string? res = null;
+            var user = context.User;
+            if (user != null && user.HasClaim(f => f.Type == "PartitioningGUID"))
+            {
+                System.Security.Claims.Claim? Cl = user.Claims.FirstOrDefault(f => f.Type == "PartitioningGUID");
+                if (Cl != null) res = Cl.Value;
+            }
+            return res;
         }
         private class RateLimiterFixedWindowPolicySetting
         {

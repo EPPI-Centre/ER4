@@ -225,11 +225,12 @@ namespace WebDatabasesMVC.Controllers
             var userClaims = new List<Claim>()
             {
                 new Claim(ClaimTypes.Role, "WebDbReader"),
-                new Claim(ClaimTypes.Name, Name + Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.Name, Name),
                 new Claim("reviewId", revId.ToString()),
                 new Claim("WebDbID", WebDbID.ToString()),
                 new Claim("HiddenFields", HiddenFields),
                 new Claim("IsPasswordProtected", isPasswordProtected.ToString()),
+                new Claim("PartitioningGUID", Guid.NewGuid().ToString()),
                 //new Claim("ItemsCode", itemsCode.ToString()) //we don't need to store this in the Cookie: the SPs for WebDBs should retrieve it from the DB
             };
             var innerIdentity = new ClaimsIdentity(userClaims, "User Identity");
