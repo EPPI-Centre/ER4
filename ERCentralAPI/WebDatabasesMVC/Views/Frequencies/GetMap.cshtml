@@ -106,7 +106,7 @@
             .fail(function (response) {
                 alert(showAjaxError(response));
                 $("#spinner").hide();
-            }).fail((response) => handleFreqsError(response));
+            });
 
         $("#MapTitle").html(WebDBMapNameCrit.defaultValue);
         $("#customMapDiv").show();
