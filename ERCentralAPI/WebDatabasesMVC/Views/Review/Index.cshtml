@@ -277,10 +277,6 @@
 
 
 
-
-    function tree_dataBound(e) {
-        //console.log("DataBound", e.node);
-    }
     function GoToFreq() {
         //console.log("CurrentNodeGoToFreq");
         if (!dataItem) {
@@ -887,11 +883,16 @@
                         dataType: "json"
                     }
                 }
+                , error : function(e) {
+                    if (e && e.xhr && e.xhr.responseText)
+                     {alert("Error - could not get data for the years distribution, error message is:\r\n" + e.xhr.responseText);}
+                     else {alert("Error - could not get data for the years distribution, please wait a few seconds and try reloading this page.");}
+                  }
             }
             , tooltip: {
                 visible: true,
                 template: "#= category #: #= value # records"
-            }
+             }
         });
     }
 

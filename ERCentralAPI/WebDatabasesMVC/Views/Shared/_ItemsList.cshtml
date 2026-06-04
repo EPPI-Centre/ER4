@@ -313,7 +313,7 @@
         $.post(ListFromCritJson
             , CurrentItemsCriteria
             , function (data, result) { BuildItems(data, result); }
-        );
+        ).fail((response) => handleFreqsError(response));
     }
     function NextPage() {
         CurrentItemsCriteria.pageNumber = ItemsListData.pageindex + 1;
@@ -329,7 +329,7 @@
         $.post(ListFromCritJson
             , CurrentItemsCriteria
             , function (data, result) { BuildItems(data, result); }
-        );
+        ).fail((response) => handleFreqsError(response));
     }
 
     function PageToRisClick() {

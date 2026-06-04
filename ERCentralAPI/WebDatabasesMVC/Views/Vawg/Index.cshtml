@@ -665,7 +665,7 @@
         $.post(pathRoot + "ItemList/GetFreqListJSon"
             , { attId: attributeIdFilter, attName: 'test' }
             , function (data, result) { itemData(data, result); }
-        );      
+        ).fail((response) => handleFreqsError(response));
     }
 
 
@@ -681,7 +681,7 @@
                     , function (data, result) {                      
                         buildArrayOfCodingData(data, result, i);
                     }
-                );
+                ).fail((response) => handleFreqsError(response));
             }
         }
         else {

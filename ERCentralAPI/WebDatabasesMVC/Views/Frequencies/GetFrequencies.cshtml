@@ -62,7 +62,7 @@
         .fail(function (response) {
             alert(showAjaxError(response));
             $("#spinner").hide();
-        });
+        }).fail((response) => handleFreqsError(response));;
     });
 
     function buildResults(data, status) {
@@ -679,7 +679,7 @@
                     BuildItems(data, result);
                     document.getElementById('listDiv').scrollIntoView({ behavior: 'smooth' });
                 }
-            );
+            ).fail((response) => handleFreqsError(response));;
         } else {
             //AttName = AttName.replace(rgx2, "'");
             $.post("../ItemList/GetFreqListJSon"
@@ -689,7 +689,7 @@
                     BuildItems(data, result);
                     document.getElementById('listDiv').scrollIntoView({ behavior: 'smooth' });
                 }
-            );
+            ).fail((response) => handleFreqsError(response));;
         }
     };
 

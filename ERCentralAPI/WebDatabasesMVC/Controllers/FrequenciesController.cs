@@ -29,7 +29,6 @@ namespace WebDatabasesMVC.Controllers
         {}
 
 
-        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult GetFrequencies([FromForm] long attId, int setId, string parentName, string included, long onlyThisAttribute = 0)
         {
             try
@@ -68,7 +67,7 @@ namespace WebDatabasesMVC.Controllers
             return internalGetFrequenciesJSON(attId, setId, parentName, included, onlyThisAttribute);
         }
         private IActionResult internalGetFrequenciesJSON([FromForm] long attId, int setId, string parentName, string included, long onlyThisAttribute)
-        {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
+        {
             try
             {
                 if (SetCSLAUser())
@@ -100,7 +99,7 @@ namespace WebDatabasesMVC.Controllers
         [HttpPost]
         [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult GetFrequenciesResultsJSON(WebDbFrequencyCrosstabAndMapSelectionCriteriaMVC crit)
-        {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
+        {
             try
             {
                 if (SetCSLAUser())
@@ -172,7 +171,7 @@ namespace WebDatabasesMVC.Controllers
         [HttpPost]
         [EnableRateLimiting("MaxCostEndpoints")]
         public IActionResult GetCrosstabJSON(long attIdx, int setIdx, string nameXaxis, long attIdy, int setIdy, string nameYaxis, string included, string graphic)
-        {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
+        {
             try
             {
                 if (SetCSLAUser())
@@ -255,7 +254,7 @@ namespace WebDatabasesMVC.Controllers
         [HttpPost]
         [EnableRateLimiting("MaxCostEndpoints")]
         public IActionResult GetMapJSON(WebDbFrequencyCrosstabAndMapSelectionCriteriaMVC crit)
-        {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
+        {
             try
             {
                 if (SetCSLAUser())
