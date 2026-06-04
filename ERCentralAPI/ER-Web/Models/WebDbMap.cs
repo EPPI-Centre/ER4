@@ -287,7 +287,18 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(WebDBMapDescriptionProperty, value);
             }
         }
-
+        public static readonly PropertyInfo<Int64> MapOrderProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("MapOrder", "MapOrder"));
+        public Int64 MapOrder
+        {
+            get
+            {
+                return GetProperty(MapOrderProperty);
+            }
+            set
+            {
+                SetProperty(MapOrderProperty, value);
+            }
+        }
 
         protected override void AddBusinessRules()
         {
@@ -349,6 +360,8 @@ namespace BusinessLibrary.BusinessClasses
 
                             LoadProperty(WebDBMapNameProperty, reader.GetString("MAP_NAME"));
                             LoadProperty(WebDBMapDescriptionProperty, reader.GetString("MAP_DESCRIPTION"));
+
+                            LoadProperty(MapOrderProperty, reader.GetInt32("MAP_ORDER"));
                         }
                     }
                 }
@@ -426,6 +439,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@MapName", WebDBMapName));
                     command.Parameters.Add(new SqlParameter("@MapDescription", WebDBMapDescription));
                     command.Parameters.Add(new SqlParameter("@WEBDB_MAP_ID", WebDBMapId));
+                    command.Parameters.Add(new SqlParameter("@MapOrder", MapOrder));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();
@@ -488,6 +502,8 @@ namespace BusinessLibrary.BusinessClasses
 
             returnValue.LoadProperty(WebDBMapNameProperty, reader.GetString("MAP_NAME"));
             returnValue.LoadProperty(WebDBMapDescriptionProperty, reader.GetString("MAP_DESCRIPTION"));
+
+            returnValue.LoadProperty(MapOrderProperty, reader.GetInt32("MAP_ORDER"));
 
             return returnValue;
         }

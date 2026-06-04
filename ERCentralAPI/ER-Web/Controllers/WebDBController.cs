@@ -491,6 +491,7 @@ namespace ERxWebClient2.Controllers
             res.WebDBMapDescription = webDBMapDescription;
             res.WebDBMapId = webDBMapId;
             res.WebDBMapName = webDBMapName;
+            res.MapOrder = mapOrder;
             if (webDBId > 0 && webDBMapId > 0) res.MarkAsOldAndDirty();
             return res;
         }
@@ -516,6 +517,7 @@ namespace ERxWebClient2.Controllers
         public string webDBMapDescription { get; set; }
         public int webDBMapId { get; set; }
         public string webDBMapName { get; set; }
+        public int mapOrder { get; set; }
     }
 
     public class ReadOnlyWebDbActivityListSelectionCritJson

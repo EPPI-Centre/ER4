@@ -668,6 +668,29 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 		}
     }
 
+
+  MoveUp(map: iWebDBMap) {
+    if ((this.WebDBService.CurrentMaps.length > 1) && (map.mapOrder > 1)) {
+      map.mapOrder = map.mapOrder - 1;
+      // save the map and the reordering is dealt with in sql
+      // a save authomatically reloads the maps
+      // so we should see the new order on screen
+      this.SaveMap(map);
+    }
+
+    
+
+  }
+  MoveDown(map: iWebDBMap) {
+    if ((this.WebDBService.CurrentMaps.length > 1) && (map.mapOrder != this.WebDBService.CurrentMaps.length)) {
+      map.mapOrder = map.mapOrder + 1;
+      // save the map and the reordering is dealt with in sql
+      // a save authomatically reloads the maps
+      // so we should see the new order on screen
+      this.SaveMap(map);
+    }
+  }
+
 	EditMap(map: iWebDBMap) {
 		this.EditingMap = {
 			columnsAttributeID: map.columnsAttributeID,
@@ -691,7 +714,8 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 			webDBId: map.webDBId,
 			webDBMapDescription: map.webDBMapDescription,
 			webDBMapId: map.webDBMapId,
-			webDBMapName: map.webDBMapName
+      webDBMapName: map.webDBMapName,
+      mapOrder: map.mapOrder
 		}
 	}
 	CreateMap() {
@@ -718,7 +742,8 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 				webDBId: this.CurrentDB.webDBId,
 				webDBMapDescription: '',
 				webDBMapId: 0,
-				webDBMapName: 'New Map (please edit!)'
+        webDBMapName: 'New Map (please edit!)',
+        mapOrder: 0
 			}
 		}
 	}

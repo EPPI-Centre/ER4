@@ -755,9 +755,21 @@
             <div *ngIf="EditingMap == null else EditingMapTmpl">
               <div *ngFor="let map of CurrentMaps" class="col-12 px-0 mx-0 row border-dark border rounded small">
                 <div class="col-12 mx-0 p-1 row">
-                  <div class="col-auto mx-0 p-1 border border-primary alert-primary rounded">Name: <strong>{{map.webDBMapName}}</strong></div>
-                  <button class="btn btn-sm btn-outline-danger px-1 pt-0 my-auto ml-auto mr-1" [disabled]="EditingSomething" (click)="DeleteMap(map)"><span class="k-icon k-i-delete "></span></button>
-                  <button class="btn mr-1 my-auto py-1 px-3 btn-sm btn-outline-success" [disabled]="EditingSomething" (click)="EditMap(map)">Edit</button>
+                  <table width="100%">
+                    <tr>
+                      <td style="text-align:left">
+                        <div class="mx-0 p-1 border border-primary alert-primary rounded">Name: <strong>{{map.webDBMapName}}</strong></div>
+                      </td>
+                      <td style="text-align:right">
+                        <span>
+                          <button class="btn btn-sm btn-outline-danger px-1 pt-0 my-auto ml-auto mr-1" [disabled]="EditingSomething" (click)="DeleteMap(map)"><span class="k-icon k-i-delete "></span></button>
+                          <button class="btn mr-1 my-auto py-1 px-3 btn-sm btn-outline-success" [disabled]="EditingSomething" (click)="EditMap(map)">Edit</button>
+                          <button title="Move map up" class="btn btn-sm btn-outline-primary px-1 pt-0 my-auto ml-auto mr-1" [disabled]="EditingSomething" (click)="MoveUp(map)"><span class="k-icon k-i-arrow-up "></span></button>
+                          <button title="Move map down" class="btn btn-sm btn-outline-primary px-1 pt-0 my-auto ml-auto mr-1" [disabled]="EditingSomething" (click)="MoveDown(map)"><span class="k-icon k-i-arrow-down "></span></button>
+                        </span>
+                      </td>
+                    </tr>
+                  </table>
                 </div>
                 <div *ngIf="CurrentDB.isOpen" class="col-12 mx-0 p-1 row" style="text-align:left">
                   Public Map URL: 
