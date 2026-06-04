@@ -669,6 +669,7 @@ export interface iWebDBMap {
   webDBMapDescription: string;
   webDBMapId: number;
   webDBMapName: string;
+  mapOrder: number;
 }
 export class ReadOnlyWebDbActivityListSelectionCrit {
   public wedDBId: number = 0;
