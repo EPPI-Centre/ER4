@@ -82,9 +82,11 @@
     var headerSectionColour = "background: linear-gradient(to right, #0099ff 0%, #3366cc 100%);";
 
     var costslider;
-
+    var loadingDiv;
 
     $(document).ready(function () {
+
+     loadingDiv = $("#loadingDiv");
         const descrPanel = $("#WebDBDescription");
         if (sessionStorage.getItem("HideShowDescription") == "Yes") {
             $("#ExpandDescription").hide();
@@ -660,50 +662,61 @@
         };
         var ListData = @jdata;
         console.log("webDbData", ListData);
+        loadingDiv.show();
         attributeIdFilter = ListData.webDb.attributeIdFilter;
-
         $.post(pathRoot + "ItemList/GetFreqListJSon"
             , { attId: attributeIdFilter, attName: 'test' }
             , function (data, result) { itemData(data, result); }
-        ).fail((response) => handleFreqsError(response));
+        ).fail((response) => {handleFreqsError(response); loadingDiv.hide(); });
     }
 
 
     async function itemData(data, result) {
         if (result == "success") {
-            var CurrentDelay = 1;//1ms!
-            const DelayIncrement = 100; //100 milliseconds;
+            var CurrentDelay = 80;//milliseconds!
+            var DelayIncrement = 100; //100 milliseconds;
             const delayCommand = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
             documentData = data;
             console.log("documentData", documentData, result);
-
-
+            
+            var IterationsWithoutError = 1;
             for (var i = 0; i < documentData.items.totalItemCount; i++) {
-                try {
-                await $.post(pathRoot + "Coding/FetchItemCodingJSON"
-                    , { ItemId: documentData.items.items[i].itemId }
-                    , function (data, result) { 
-                        console.log("Is this success?", result);
+                loadingDiv.html("Loading: " + (i+1).toString() + " of " + documentData.items.totalItemCount.toString());
+                    await $.ajax({
+                        url: pathRoot + "Coding/FetchItemCodingJSON",
+                        type: 'POST',
+                        data: { ItemId: documentData.items.items[i].itemId },
+                        datatype: 'json'
+                    })
+                    .done(function (data, result) {
+                        //console.log("Is this success?", result);
                         if (result === "success") buildArrayOfCodingData(data, result, i);
-                    }
-                )
-                .fail(async (jqXHR, textStatus, errorThrown) => {
-                    await delay(1000);
-                    //var waitHere = await setTimeout(()=> {console.log('waiting before retrying');}, 1000 );
-                    console.log("fail block, error on:", jqXHR, textStatus, errorThrown, i);
-                    //handleFreqsError(response);
-                    //i = i - 1;
-                });
-                }
-                catch(ex) {
-                    await delayCommand(1000);
-                    i = i - 1;
-                    CurrentDelay = CurrentDelay + DelayIncrement;
-                    //await setTimeout(()=> {console.log('waiting before retrying in catch');}, 1000 );
-                    console.log("caught error on", ex);
-                }
+                    })
+                    .catch(async function (jqErr, textStatus, errorThrown) { 
+                        console.log("catch block, error on:", jqErr, textStatus, errorThrown, i);
+                        if (jqErr.status == 429){
+                            const waitfor = jqErr.getResponseHeader("retry-after");
+                            if (!waitfor) waitfor = 1;
+                            var possibleNewDelay = (1000 * waitfor)/(IterationsWithoutError);
+                            if (possibleNewDelay > DelayIncrement) DelayIncrement = possibleNewDelay;
+                            CurrentDelay = CurrentDelay + DelayIncrement;
+                            console.log("New per call delay:", CurrentDelay);
+                            IterationsWithoutError = 1;
+                            i = i - 1;
+                            await delayCommand((1000 * waitfor) - CurrentDelay);//wait for the amount of time we're told to, minus the amount we'll wait anyway before looping
+                        }
+                        else {
+                            loadingDiv.hide();
+                            alert("Unexpected error - data failed to load, please try again. \r\nError status code is: "  + jqErr.status.toString()
+                                + ". \r\nError message is: " + jqErr.statusText);
+                            throw(jqErr);
+                        }
+                        
+                    });
                 await delayCommand(CurrentDelay);
+                IterationsWithoutError++;
             }
+            loadingDiv.hide();
         }
         else {
             console.log("error", "unable to get data");
@@ -729,7 +742,7 @@
     function buildCard(codingData, result, i) {
         if (result == "success") 
         {
-            console.log("codingData", codingData, result);         
+            //console.log("codingData", codingData, result);         
 
             var studyTitle = documentData.items.items[i].title;
             var studyAbstract = documentData.items.items[i].abstract;
@@ -1647,7 +1660,7 @@
                 <div class="col-12">
 
                     <!-- Description card -->
-                    <div class="card ">
+                    <div class="card mb-2">
                         <div class="card-header">
                             <table width="100%">
                                 <tr>
@@ -1685,7 +1698,7 @@
                         </div>
                     </div>
 
-                    <!--<div id="justATest"></div>-->
+                    <div id="loadingDiv" class="text-center font-weight-bold ">Loading...</div>
                     <div id="visualsDHSCDiv"></div>
 
 
