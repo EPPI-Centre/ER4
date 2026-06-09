@@ -686,14 +686,14 @@
                         console.log("Is this success?", result);
                         if (result === "success") buildArrayOfCodingData(data, result, i);
                     }
-                );
-                // .fail(async (response) => {
-                //     await delay(1000);
-                //     //var waitHere = await setTimeout(()=> {console.log('waiting before retrying');}, 1000 );
-                //     console.log("error on", response, i);
-                //     //handleFreqsError(response);
-                //     i = i - 1;
-                // })
+                )
+                .fail(async (jqXHR, textStatus, errorThrown) => {
+                    await delay(1000);
+                    //var waitHere = await setTimeout(()=> {console.log('waiting before retrying');}, 1000 );
+                    console.log("fail block, error on:", jqXHR, textStatus, errorThrown, i);
+                    //handleFreqsError(response);
+                    //i = i - 1;
+                });
                 }
                 catch(ex) {
                     await delayCommand(1000);
