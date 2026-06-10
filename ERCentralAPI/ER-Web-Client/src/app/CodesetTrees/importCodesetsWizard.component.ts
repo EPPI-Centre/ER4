@@ -64,8 +64,16 @@ export class ImportCodesetsWizardComponent implements OnInit, OnDestroy {
     public get SelectedSet4Copy(): ReviewSet | null {
         if (this._SelectedSet4Copy == null &&
             this.ReviewSetsEditingService.ReviewSets4Copy && this.ReviewSetsEditingService.ReviewSets4Copy.length > 0) {
-            this._SelectedSet4Copy = this.ReviewSetsEditingService.ReviewSets4Copy[0];
+            //this._SelectedSet4Copy = this.ReviewSetsEditingService.ReviewSets4Copy[0];
+            this._SelectedSet4Copy = this._RelevantSets4Copy[0];
         }
+
+        // if we are filtering the top listed tool will change 
+        if (this.FilterByName != "") {
+          this._RelevantSets4Copy = this._RelevantSets4Copy.filter(f => (f.set_name.toLowerCase().indexOf(this.FilterByName) != -1));
+          this._SelectedSet4Copy = this._RelevantSets4Copy[0];
+        }
+
         return this._SelectedSet4Copy;
     }
     public get ReviewSets4Copy(): ReviewSet[] {
@@ -119,26 +127,35 @@ export class ImportCodesetsWizardComponent implements OnInit, OnDestroy {
         }
     }
 
+    private _codingTools: string = 'All';
+
+    public get codingTools(): string {
+      return this._codingTools;
+    }
+    public set codingTools(val: string) {
+      this._codingTools = val;
+      // clear the Coding View preview
+      this._SelectedSet4Copy = null;
+      // clear the filter box
+      this.FilterByName = "";
+    }
+
     public FilterByName: string = "";
-    public codingToolType: string = "All";
-    public AllTools: boolean = true;
-    public ScreeningTools: boolean = false;
-    public StandardTools: boolean = false;
-    public AdministrationTools: boolean = false;
 
     private _ReviewSets4Copy: ReviewSet[] = [];
     private _RelevantSets4Copy: ReviewSet[] = [];
+
 
     public getRelevantTools() {
       this._ReviewSets4Copy = this.ReviewSetsEditingService.ReviewSets4Copy;
       this._RelevantSets4Copy = [];
       let j = 0;
-      if (this.codingToolType == "All") {
+      if (this._codingTools == "All") {
         this._RelevantSets4Copy = this._ReviewSets4Copy;
       }
       else {
         for (var i = 0; i < this._ReviewSets4Copy.length; i++) {
-          if (this._ReviewSets4Copy[i].subTypeName == this.codingToolType) {
+          if (this._ReviewSets4Copy[i].subTypeName == this._codingTools) {
             this._RelevantSets4Copy[j] = this._ReviewSets4Copy[i];
             j += 1;
           }
@@ -150,78 +167,6 @@ export class ImportCodesetsWizardComponent implements OnInit, OnDestroy {
       }
       return res;
     }
-
-
-
-    public showAllTools(event: Event) {
-      if (this.AllTools == true) {
-        this.AllTools = true;
-        this.ScreeningTools = false;
-        this.StandardTools = false;
-        this.AdministrationTools = false;
-        this.codingToolType = "All";
-      }
-      else {
-        this.AllTools = true;
-        this.ScreeningTools = false;
-        //this._reconciliationService.OutcomeOptionsSet("None");
-        this.StandardTools = false;
-        this.AdministrationTools = false;
-        this.codingToolType = "All";
-      }
-    }
-    public showScreeningTools(event: Event) {
-    if (this.ScreeningTools == true) {
-      this.AllTools = false;
-          this.ScreeningTools = true;
-          this.StandardTools = false;
-          this.AdministrationTools = false;
-        this.codingToolType = "Screening";
-        }
-    else {
-      this.AllTools = false;
-          this.ScreeningTools = true;
-          //this._reconciliationService.OutcomeOptionsSet("None");
-          this.StandardTools = false;
-          this.AdministrationTools = false;
-        this.codingToolType = "Screening";
-        }
-    }
-    public showStandardTools(event: Event) {
-      if (this.StandardTools == true) {
-        this.AllTools = false;
-          this.ScreeningTools = false;
-          this.StandardTools = true;
-          this.AdministrationTools = false;
-        this.codingToolType = "Standard";
-        }
-      else {
-        this.AllTools = false;
-          this.ScreeningTools = false;
-          this.StandardTools = true;
-          //this._reconciliationService.OutcomeOptionsSet("AllOutcomes");
-          this.AdministrationTools = false;
-        this.codingToolType = "Standard";
-        }
-      }
-    public showAdministrationTools(event: Event) {
-      if (this.AdministrationTools == true) {
-        this.AllTools = false;
-          this.ScreeningTools = false;
-          this.StandardTools = false;
-          this.AdministrationTools = true;
-        this.codingToolType = "Administration";
-        }
-      else {
-        this.AllTools = false;
-          this.ScreeningTools = false;
-          this.StandardTools = false;
-          this.AdministrationTools = true;
-          //this._reconciliationService.OutcomeOptionsSet("MatchedOutcomes");
-        this.codingToolType = "Administration";
-        }
-      }
-
 
 
     OpenListOfSets(roTr: ReadOnlyTemplateReview) {
