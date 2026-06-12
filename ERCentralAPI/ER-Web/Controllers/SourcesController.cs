@@ -1,15 +1,16 @@
+using BusinessLibrary.BusinessClasses;
+using BusinessLibrary.BusinessClasses.ImportItems;
+using BusinessLibrary.Security;
+using Csla;
+using Csla.Core;
+using EPPIDataServices.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BusinessLibrary.BusinessClasses;
-using BusinessLibrary.Security;
-using Csla;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using EPPIDataServices.Helpers;
-using BusinessLibrary.BusinessClasses.ImportItems;
-using Csla.Core;
 
 namespace ERxWebClient2.Controllers
 {
@@ -71,6 +72,8 @@ namespace ERxWebClient2.Controllers
             }
 
         }
+
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]"), RequestSizeLimit(52_428_800)]        
         public IActionResult VerifyFile([FromBody] UploadOrCheckSource incoming)
 		{
@@ -102,6 +105,8 @@ namespace ERxWebClient2.Controllers
             }
 
         }
+
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]"), RequestSizeLimit(52_428_800)]
         public IActionResult UploadSource([FromBody] UploadOrCheckSource incoming)
 		{
@@ -194,6 +199,8 @@ namespace ERxWebClient2.Controllers
             }
 
         }
+
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult DeleteSourceForever([FromBody] SingleIntCriteria sourceId)
         {
@@ -233,6 +240,7 @@ namespace ERxWebClient2.Controllers
 
         }
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult NewPubMedSearchPreview([FromBody] SingleStringCriteria SearchSt)
         {
@@ -262,6 +270,8 @@ namespace ERxWebClient2.Controllers
             }
 
         }
+
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult ActOnPubMedSearchPreview([FromBody] PubMedSearchJSON PmSearchJSON)
         {
@@ -360,6 +370,7 @@ namespace ERxWebClient2.Controllers
             return rules;
         }
 
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult ImportJsonReport([FromBody] JSONreport4upolad data)
         {

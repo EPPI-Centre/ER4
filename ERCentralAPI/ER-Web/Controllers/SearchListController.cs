@@ -1,11 +1,12 @@
-using System;
 using BusinessLibrary.BusinessClasses;
 using BusinessLibrary.Security;
 using Csla;
+using EPPIDataServices.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
-using EPPIDataServices.Helpers;
+using System;
 
 namespace ERxWebClient2.Controllers
 {
@@ -17,7 +18,8 @@ namespace ERxWebClient2.Controllers
 		public SearchListController(ILogger<SearchListController> logger) : base(logger)
 		{ }
 
-		[HttpGet("[action]")]
+        [EnableRateLimiting("HighCostEndpoints")]
+        [HttpGet("[action]")]
 		public IActionResult GetSearches()
 		{
 			try
@@ -36,7 +38,8 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
-		[HttpPost("[action]")]
+        [EnableRateLimiting("HighCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult SearchIDs([FromBody] CodeCommand cmdIn)
 		{
 
@@ -66,7 +69,8 @@ namespace ERxWebClient2.Controllers
 		}
 
 
-		[HttpPost("[action]")]
+        [EnableRateLimiting("HighCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult SearchImportedIDs([FromBody] CodeCommand cmdIn)
 		{
 
@@ -96,7 +100,8 @@ namespace ERxWebClient2.Controllers
 
 		}
 
-		[HttpPost("[action]")]
+        [EnableRateLimiting("HighCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult SearchNoAbstract([FromBody] CodeCommand cmdIn)
 		{
 			try
@@ -126,7 +131,8 @@ namespace ERxWebClient2.Controllers
 		}
 
 
-		[HttpPost("[action]")]
+        [EnableRateLimiting("HighCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult SearchCodes([FromBody] CodeCommand cmdIn)
 		{
 
@@ -157,7 +163,8 @@ namespace ERxWebClient2.Controllers
 
 		}
 
-		[HttpPost("[action]")]
+        [EnableRateLimiting("HighCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult SearchNoFiles([FromBody] CodeCommand cmdIn)
 		{
 
@@ -190,7 +197,8 @@ namespace ERxWebClient2.Controllers
 
 		}
 
-		[HttpPost("[action]")]
+        [EnableRateLimiting("HighCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult SearchOneFile([FromBody] CodeCommand cmdIn)
 		{
 			try
@@ -222,7 +230,8 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
-		[HttpPost("[action]")]
+        [EnableRateLimiting("HighCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult SearchWithLinkedReferences([FromBody] CodeCommand cmdIn)
 		{
 			try
@@ -252,8 +261,9 @@ namespace ERxWebClient2.Controllers
 				return StatusCode(500, e.Message);
 			}
 		}
-		
-		[HttpPost("[action]")]
+
+        [EnableRateLimiting("HighCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult SearchWithDuplicateReferences([FromBody] CodeCommand cmdIn)
 		{
 			try
@@ -283,9 +293,10 @@ namespace ERxWebClient2.Controllers
 				return StatusCode(500, e.Message);
 			}
 		}
-		
 
-		[HttpPost("[action]")]
+
+        [EnableRateLimiting("MaxCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult SearchText([FromBody] CodeCommand cmdIn)
 		{
 
@@ -318,7 +329,8 @@ namespace ERxWebClient2.Controllers
 		}
 
 
-		[HttpPost("[action]")]
+        [EnableRateLimiting("HighCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult SearchCodeSetCheck([FromBody] CodeCommand cmdIn)
 		{
 
@@ -354,7 +366,8 @@ namespace ERxWebClient2.Controllers
 		}
 
 
-		[HttpPost("[action]")]
+        [EnableRateLimiting("HighCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult SearchCodeLogic([FromBody] CodeCommand cmdIn)
 		{
 			try
@@ -383,7 +396,8 @@ namespace ERxWebClient2.Controllers
 		}
 
 
-		[HttpPost("[action]")]
+        [EnableRateLimiting("HighCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult SearchClassifierScores([FromBody] CodeCommand cmdIn)
 		{
 			try
@@ -412,7 +426,8 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
-		[HttpPost("[action]")]
+        [EnableRateLimiting("HighCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult SearchSources([FromBody] CodeCommand cmdIn)
 		{
 			try
@@ -439,6 +454,8 @@ namespace ERxWebClient2.Controllers
 				return StatusCode(400, e.Message);
 			}
 		}
+
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult SearchFromCurrentPriorityScreeningList([FromBody] CodeCommand cmdIn)
         {
@@ -467,6 +484,8 @@ namespace ERxWebClient2.Controllers
 
         }
         //SearchFromOpenAlexImport
+
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult SearchFromOpenAlexImport([FromBody] CodeCommand cmdIn)
         {
@@ -518,7 +537,8 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
-		[HttpPost("[action]")]
+        [EnableRateLimiting("HighCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult CreateVisualiseData([FromBody] SearchID ID)
 		{
 

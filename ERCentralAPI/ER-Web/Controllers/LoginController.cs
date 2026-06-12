@@ -1,22 +1,24 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using BusinessLibrary.BusinessClasses;
 using BusinessLibrary.Security;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.Extensions.Configuration;
-using System.Text;
-using System.Security.Principal;
-using Microsoft.AspNetCore.Authorization;
 using Csla;
-using Microsoft.Extensions.Logging;
 using EPPIDataServices.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using System.Security.Principal;
+using System.Text;
 
 namespace ERxWebClient2.Controllers
 {
+    [EnableRateLimiting("RegularApiEndPoints")]
     [Route("api/[controller]")]
     public class LoginController : Microsoft.AspNetCore.Mvc.Controller
     {

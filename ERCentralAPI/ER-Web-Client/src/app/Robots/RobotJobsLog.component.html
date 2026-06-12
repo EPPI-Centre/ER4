@@ -63,7 +63,7 @@
           </kendo-grid-numeric-filter-menu>
         </ng-template>
       </kendo-grid-column>
-      <kendo-grid-column field="created" title="Date" format="dd/MMM/yyyy hh:mm" filter="date" [width]="140" class="px-1 py-0 m-1"></kendo-grid-column>
+      <kendo-grid-column field="created" title="Date" format="dd/MMM/yyyy HH:mm" filter="date" [width]="140" class="px-1 py-0 m-1"></kendo-grid-column>
       <kendo-grid-column field="JobDurationMs" title="Duration" [width]="90" class="px-1 py-0 m-1" [filterable]="false">
         <ng-template kendoGridCellTemplate let-dataItem>
           {{JobDuration(dataItem)}}

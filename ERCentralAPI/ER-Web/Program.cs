@@ -4,11 +4,14 @@ using EPPIDataServices.Helpers;
 using ER_Web.Services;
 using ERxWebClient2.Zotero;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.IdentityModel.Tokens;
+using NuGet.Configuration;
 using Serilog;
 using System.Data.SqlClient;
 using System.Text;
+using System.Threading.RateLimiting;
 
 try
 {
@@ -30,7 +33,7 @@ try
                 policy =>
                 {
                     policy.WithOrigins(clientURL)
-                    .AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+                    .AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithExposedHeaders("Retry-After");
                 });
         });
     }
@@ -105,6 +108,9 @@ try
     //so, in this way any RobotOpenAICommand will be cancelled as soon as possible, allowing RobotOpenAiHostedService to stop gracefully, and also giving any other long lasting task
     //their best chance to stop concurrently. GracefulShutdownGuardianService will stop last, fulfilling it's general role, which is .
 
+    builder.Services.AddRateLimiter(options => configureRateLimits(options, builder.Configuration));
+
+
     var app = builder.Build();
     var SqlHelper = new SQLHelper(builder.Configuration, MSlogger);
     DataConnection.DataConnectionConfigure(SqlHelper);
@@ -143,6 +149,7 @@ try
 
     app.UseAuthentication();
     app.UseAuthorization();
+    app.UseRateLimiter();
 
     Csla.SmartDate.SetDefaultFormatString("dd/MM/yyyy");
 
@@ -198,6 +205,103 @@ public partial class Program
         private set; 
     } = new CancellationTokenSource();
 
+    private static void configureRateLimits(RateLimiterOptions options, ConfigurationManager config)
+    {
+        var RateLimitingSettings = config.GetSection("RateLimiting")?.GetChildren();
+        List<RateLimiterFixedWindowPolicySetting> allSettings = new List<RateLimiterFixedWindowPolicySetting>();
+        foreach (var setting in RateLimitingSettings)
+        {
+            RateLimiterFixedWindowPolicySetting tempOptions = new RateLimiterFixedWindowPolicySetting();
+            setting.Bind(tempOptions);
+            allSettings.Add(tempOptions);
+        }
 
+        foreach (RateLimiterFixedWindowPolicySetting rlf in allSettings)
+        {
+            if (rlf.PolicyName == "Global")
+            {
+                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: GetLoginId(httpContext) ?? httpContext.Connection.RemoteIpAddress.ToString(),
+                factory: partition => new FixedWindowRateLimiterOptions
+                {
+                    AutoReplenishment = true,
+                    PermitLimit = rlf.PermitLimit,
+                    QueueLimit = 0,
+                    Window = TimeSpan.FromSeconds(rlf.WindowInSeconds)
+                }));
+            }
+            else
+            {
+                options.AddPolicy(rlf.PolicyName, httpContext =>
+                RateLimitPartition.GetFixedWindowLimiter(GetLoginId(httpContext) ?? httpContext.Connection.RemoteIpAddress.ToString(),
+                factory: partition => new FixedWindowRateLimiterOptions
+                {
+                    AutoReplenishment = true,
+                    PermitLimit = rlf.PermitLimit,
+                    QueueLimit = 0,
+                    Window = TimeSpan.FromSeconds(rlf.WindowInSeconds)
+                }));
+            }
+        }
+        if (allSettings.Count > 0)
+        {
+            options.OnRejected = async (context, cancellationToken) =>
+            {
+                string policyName = "Default policy";
+                string path = context.HttpContext.Request.Path;
+                EnableRateLimitingAttribute? pol = context.HttpContext.GetEndpoint()?.Metadata.GetMetadata<EnableRateLimitingAttribute>();
+                if (pol != null)
+                {
+                    policyName = pol.PolicyName;
+                }
+                string IpAddress = context.HttpContext.Connection.RemoteIpAddress.ToString();
+                TimeSpan retryAfter = TimeSpan.FromSeconds(-1);
+                object whatshere;
+                bool gotit = context.Lease.TryGetMetadata("RETRY_AFTER", out whatshere);
+                if (gotit)
+                {
+                    retryAfter = (TimeSpan)whatshere;
+                }
+                if (retryAfter == TimeSpan.FromSeconds(-1))
+                {//got to give a generic response
+                    context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                    await context.HttpContext.Response.WriteAsync("Rate limit exceeded. Please wait a few seconds and try again.", cancellationToken);
+                    Logger.Error($"Rate limit exceeded for IP: {IpAddress}"
+                        + Environment.NewLine + $"On path: {path}");
+                }
+                else
+                {//we know all we'd like to know!
+                    string secondsStr = retryAfter.TotalSeconds.ToString();
+                    context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                    context.HttpContext.Response.Headers.RetryAfter = secondsStr;
+
+                    await context.HttpContext.Response.WriteAsync($"Rate limit exceeded. Please try again after {secondsStr} seconds.", cancellationToken);
+
+                    Logger.Error($"Rate limit exceeded for IP: {IpAddress}"
+                        + Environment.NewLine + $"On Policy: {policyName} and path: {path}"
+                        + Environment.NewLine + $"Retry after: {secondsStr} seconds." + Environment.NewLine);
+                }
+            };
+        }
+
+    }
+    private static string? GetLoginId(HttpContext context)
+    {
+        string? res = null;
+        var user = context.User;
+        if (user != null && user.HasClaim(f => f.Type == "userId"))
+        {
+            System.Security.Claims.Claim? Cl = user.Claims.FirstOrDefault(f => f.Type == "userId");
+            if (Cl != null) res = Cl.Value;
+        }
+        return res;
+    }
+    private class RateLimiterFixedWindowPolicySetting
+    {
+        public string PolicyName { get; set; } = "";
+        public int WindowInSeconds { get; set; }
+        public int PermitLimit { get; set; }
+    }
 }
 

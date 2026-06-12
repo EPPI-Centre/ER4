@@ -1,15 +1,16 @@
+using BusinessLibrary.BusinessClasses;
+using BusinessLibrary.Security;
+using Csla;
+using EPPIDataServices.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using BusinessLibrary.BusinessClasses;
-using BusinessLibrary.Security;
-using Csla;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using EPPIDataServices.Helpers;
 
 namespace ERxWebClient2.Controllers
 {
@@ -21,6 +22,7 @@ namespace ERxWebClient2.Controllers
         public CodesetController(ILogger<CodesetController> logger) : base(logger)
         {}
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpGet("[action]")]
         public IActionResult CodesetsByReview()
         {
@@ -184,6 +186,8 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult AttributeOrSetDeleteCheck([FromBody] AttributeOrSetDeleteCheckCommandJSON data)
         {//used before deleting a code/attribute or a set
@@ -209,6 +213,7 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
         [HttpPost("[action]")]
         public IActionResult ReviewSetDelete([FromBody] ReviewSetDeleteCommandJSON jsonCMD)
         {
@@ -291,6 +296,8 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult AttributeDelete([FromBody] AttributeDeleteCommandJSON jsonCMD)
         {
@@ -311,6 +318,8 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult ReviewSetCopy([FromBody] ReviewSetCopyCommandJSON data)
         {//we use the ReviewSetUpdateCommandJSON object because it contains all the data we need.
@@ -331,7 +340,9 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-		[HttpPost("[action]")]
+
+        [EnableRateLimiting("HighCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult CreateVisualiseCodeSet([FromBody] ClassifierCreateCodes data)
 		{
 			try
@@ -356,7 +367,9 @@ namespace ERxWebClient2.Controllers
 				return StatusCode(500, e.Message);
 			}
 		}
-		[HttpPost("[action]")]
+
+        [EnableRateLimiting("HighCostEndpoints")]
+        [HttpPost("[action]")]
         public IActionResult GetReviewSetsForCopying([FromBody] SingleBoolCriteria GetPrivateSets)
         {//we use the ReviewSetUpdateCommandJSON object because it contains all the data we need.
             try
@@ -375,6 +388,8 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult PerformClusterCommand([FromBody] PerformClusterCommandJSON JsonCmd)
         {
@@ -403,7 +418,9 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-		[HttpPost("[action]")]
+
+        [EnableRateLimiting("MaxCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult PerformRandomAllocate([FromBody] PerformRandomAllocateCommandJSON data)
 		{
 			try
@@ -431,6 +448,8 @@ namespace ERxWebClient2.Controllers
 				return StatusCode(500, e.Message);
 			}
 		}
+
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult PerformRandomAllocateTrainTest([FromBody] PerformRandomAllocateTrainTestCommandJSON data)
         {

@@ -1,13 +1,14 @@
+using BusinessLibrary.BusinessClasses;
+using BusinessLibrary.Security;
+using Csla;
+using EPPIDataServices.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BusinessLibrary.BusinessClasses;
-using BusinessLibrary.Security;
-using Csla;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using EPPIDataServices.Helpers;
 
 namespace ERxWebClient2.Controllers
 {
@@ -19,6 +20,7 @@ namespace ERxWebClient2.Controllers
         public WorkAllocationContactListController(ILogger<WorkAllocationContactListController> logger) : base(logger)
         { }
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpGet("[action]")]
         public IActionResult WorkAllocationContactList()//should receive a reviewID!
         {
@@ -45,7 +47,8 @@ namespace ERxWebClient2.Controllers
 
         }
 
-		[HttpGet("[action]")]
+        [EnableRateLimiting("HighCostEndpoints")]
+        [HttpGet("[action]")]
 		public IActionResult WorkAllocations()
 		{
 			try
@@ -98,8 +101,9 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
-		//AssignWorkAllocation
-		[HttpPost("[action]")]
+        //AssignWorkAllocation
+        [EnableRateLimiting("HighCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult AssignWorkAllocation([FromBody] WorkAllocationJSON workAllocation)
 		{
 			try
@@ -133,6 +137,8 @@ namespace ERxWebClient2.Controllers
 				return StatusCode(500, e.Message);
 			}
 		}
+
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult ExecuteWorkAllocationFromWizardCommand([FromBody] WorkAllocationFromWizardCommandJSON cmdJSON)
         {

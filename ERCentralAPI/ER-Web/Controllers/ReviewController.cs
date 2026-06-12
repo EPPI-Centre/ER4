@@ -68,6 +68,7 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
         [HttpGet("[action]")]
         public IActionResult GetReadOnlyTemplateReviews()
         {
@@ -119,6 +120,7 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
         [Authorize(Roles = "CochraneUser")]
         [HttpPost("[action]")]
         public IActionResult ArchieReviewPrepare([FromBody] SingleStringCriteria ArchieRevIDCrit)
@@ -139,6 +141,7 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
         [Authorize(Roles = "CochraneUser")]
         [HttpPost("[action]")]
         public IActionResult ArchieReviewUndoCheckout([FromBody] SingleStringCriteria ArchieRevIDCrit)

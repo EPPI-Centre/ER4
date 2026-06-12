@@ -1,13 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using BusinessLibrary.BusinessClasses;
 using BusinessLibrary.Security;
 using Csla;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ERxWebClient2.Controllers
 {
@@ -20,6 +21,7 @@ namespace ERxWebClient2.Controllers
         { }
 
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpGet("[action]")]
 		public IActionResult ExcecuteReviewStatisticsCountCommand()
 		{
@@ -42,7 +44,8 @@ namespace ERxWebClient2.Controllers
 		}
 
 
-		[HttpPost("[action]")]
+        [EnableRateLimiting("MaxCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult FetchCounts([FromBody]  SingleCriteria<bool> crit)
 		{
 			try
@@ -65,6 +68,7 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpGet("[action]")]
         public IActionResult FetchAllCounts()
         {
@@ -86,6 +90,7 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
 		public IActionResult ExcecuteItemSetBulkCompleteCommand([FromBody]  MVCItemSetBulkCompleteCommand MVCcmd)
 		{
@@ -110,7 +115,8 @@ namespace ERxWebClient2.Controllers
 		}
 
 
-		[HttpPost("[action]")]
+        [EnableRateLimiting("MaxCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult PreviewCompleteUncompleteCommand([FromBody]  MVCBulkCompleteUncompleteCommand MVCcmd)
 		{
 			try
@@ -135,7 +141,8 @@ namespace ERxWebClient2.Controllers
 				_logger.LogError(e, "Dataportal Error for PreviewCompleteUncompleteCommand.");
 				return StatusCode(500, e.Message);
 			}
-		}
+        }
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult BulkDeleteCodingCommand([FromBody] MVCBulkDeleteCodingCommand MVCcmd)
         {

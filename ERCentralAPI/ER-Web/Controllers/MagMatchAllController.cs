@@ -1,10 +1,11 @@
-using System;
 using BusinessLibrary.BusinessClasses;
 using Csla;
+using EPPIDataServices.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
-using EPPIDataServices.Helpers;
+using System;
 using System.Linq;
 
 namespace ERxWebClient2.Controllers
@@ -16,6 +17,7 @@ namespace ERxWebClient2.Controllers
 		public MagMatchAllController(ILogger<MagMatchAllController> logger) : base(logger)
         { }
 
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult RunMatchingAlgorithm([FromBody] SingleInt64Criteria attributeId)
         {
@@ -42,7 +44,8 @@ namespace ERxWebClient2.Controllers
             }
 		}
 
-       
+
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult MagMatchItemsToPapers([FromBody] SingleInt64Criteria itemId)
         {
@@ -165,6 +168,9 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult OpenAlexOriginReportCommand([FromBody] SingleInt64Criteria attributeId)
         {

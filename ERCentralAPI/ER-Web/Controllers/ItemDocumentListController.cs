@@ -5,6 +5,7 @@ using EPPIDataServices.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -226,10 +227,10 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult Upload([FromForm] UploadDoc incoming)
         {
-
             try
             {
                 if (SetCSLAUser4Writing())
@@ -297,6 +298,7 @@ namespace ERxWebClient2.Controllers
 
         }
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult DeleteDoc([FromBody] SingleInt64Criteria id)
         {

@@ -1,11 +1,12 @@
-using System;
 using BusinessLibrary.BusinessClasses;
 using BusinessLibrary.Security;
 using Csla;
+using EPPIDataServices.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
-using EPPIDataServices.Helpers;
+using System;
 using System.Linq;
 
 namespace ERxWebClient2.Controllers
@@ -37,6 +38,7 @@ namespace ERxWebClient2.Controllers
             }
 		}
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult ReRunMagSearch([FromBody] MVCMagReRun  magReRun)
         {
@@ -105,6 +107,7 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult CreateMagSearch([FromBody] MVCMagSearchBuilder mVCMagSearch)
         {
@@ -131,6 +134,7 @@ namespace ERxWebClient2.Controllers
 
         }
 
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult RunMagSearch([FromBody] MVCMagSearch mVCMagSearch)
         {
@@ -163,6 +167,7 @@ namespace ERxWebClient2.Controllers
         }
 
 
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult ImportMagSearchPapers([FromBody] MVCMagSearchImport magSearch)
         {
@@ -190,7 +195,8 @@ namespace ERxWebClient2.Controllers
             }
         }
 
-        
+
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult EnumerateSearchItems([FromBody] SingleIntCriteria crit)
         {

@@ -1,13 +1,14 @@
+using BusinessLibrary.BusinessClasses;
+using BusinessLibrary.Security;
+using Csla;
+using EPPIDataServices.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BusinessLibrary.BusinessClasses;
-using BusinessLibrary.Security;
-using Csla;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using EPPIDataServices.Helpers;
 
 namespace ERxWebClient2.Controllers
 {
@@ -19,28 +20,9 @@ namespace ERxWebClient2.Controllers
         public WebDbController(ILogger<WebDbController> logger, IConfiguration configuration) : base(logger)
         { _Configuration = configuration; }
 
-        //[HttpGet("[action]")]
-        /*public IActionResult GetWebDBLogs()
-        {
-            try
-            {
-                if (!SetCSLAUser()) return Unauthorized();
-                int WebDBID = 1002;
-                DateTime From = new DateTime(2021, 01, 01, 12, 12, 12);
-                DateTime Until = new DateTime(1980, 01, 01, 00, 00, 00);
-                string Type = "all";
 
-                ReadOnlyWebDbActivityListSelectionCrit crit = new ReadOnlyWebDbActivityListSelectionCrit(WebDBID, From, Until, Type);
-                ReadOnlyWebDbActivityList res = DataPortal.Fetch<ReadOnlyWebDbActivityList>(crit);
-                return Ok(res);
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "GetWebDBLogs data portal error");
-                return StatusCode(500, e.Message);
-            }
-        }*/
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult GetWebDBLogs([FromBody] ReadOnlyWebDbActivityListSelectionCritJson critJson)
         {
@@ -233,6 +215,8 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult UploadImage([FromForm] UploadImage incoming)
         {

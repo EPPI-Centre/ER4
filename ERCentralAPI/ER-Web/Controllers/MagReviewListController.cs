@@ -1,10 +1,11 @@
-using System;
 using BusinessLibrary.BusinessClasses;
 using Csla;
+using EPPIDataServices.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
-using EPPIDataServices.Helpers;
+using System;
 using System.Linq;
 
 namespace ERxWebClient2.Controllers
@@ -18,6 +19,7 @@ namespace ERxWebClient2.Controllers
         { }
 
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpGet("[action]")]
         public IActionResult GetMagReviewList()
         {

@@ -1,14 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Threading.Tasks;
 using BusinessLibrary.BusinessClasses;
 using BusinessLibrary.Security;
 using Csla;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ERxWebClient2.Controllers
 {
@@ -51,6 +52,8 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult ExcecuteItemAttributeSaveCommand([FromBody] MVCItemAttributeSaveCommand MVCcmd)
         {
@@ -97,6 +100,7 @@ namespace ERxWebClient2.Controllers
             return MVCcmd;
         }
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult ExecuteItemAttributeExclusiveSaveCommand([FromBody] MVCItemAttributeSaveCommand MVCcmd)
         {
@@ -145,6 +149,7 @@ namespace ERxWebClient2.Controllers
 
 
 
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult ExecuteItemAttributeBulkInsertCommand([FromBody] MVCItemAttributeBulkSaveCommand MVCcmd)
         {//method is "..BulkInsert.." rather than "BulkSave" 'cause we NEVER use the CSLA object (ItemAttributeBulkSaveCommand) to delete (code in there wouldn't work!).
@@ -173,6 +178,8 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult ExecuteItemAttributeBulkDeleteCommand([FromBody] MVCItemAttributeBulkSaveCommand MVCcmd)
         {
@@ -219,6 +226,7 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult CreatePDFCodingPage([FromBody] MVCiaPDFCodingPage MVCcodingInPage)
         {
@@ -265,6 +273,7 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult UpdatePDFCodingPage([FromBody] MVCiaPDFCodingPage MVCcodingInPage)
         {
@@ -344,6 +353,7 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult DeletePDFCodingPage([FromBody] SingleInt64Criteria ItemAttributePDFId)
         {
@@ -402,6 +412,7 @@ namespace ERxWebClient2.Controllers
         }
 
 
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult FetchQuickCodingReportPage([FromBody] MVCQuickCodingReportDataSelectionCriteria crit)
         {
@@ -449,6 +460,7 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult ItemAttributeWithThisCodeCountCommand([FromBody] AttributeOrSetDeleteCheckCommandJSON MVCcmd)
         {
