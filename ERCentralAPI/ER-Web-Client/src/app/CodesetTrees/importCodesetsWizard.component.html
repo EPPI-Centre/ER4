@@ -73,33 +73,20 @@
                   <div *ngIf="WizStep == 2.2" class="col-12">
                     Available Coding Tools (personal)
                   </div>
-
                   <div class="col-auto mr-auto my-auto">
                     <div class="rounded row ml-0 p-1 border border-info">
                       <div class="d-block mx-1 px-1 border border-dark rounded">
-                        <input type="checkbox" [ngClass]="AllTools ? 'my-1 mr-1 checkbox-round-selected' : 'my-1 mr-1 checkbox-round'"
-                               (click)="showAllTools($event)" name="showToolsRB" class="m-1" [(ngModel)]="AllTools" />
-                        All
+                        <input type="radio" value="All" name="codingToolType" [(ngModel)]="codingTools">&nbsp;All
                       </div>
-
                       <div class="d-block mx-1 px-1 border border-success text-success rounded">
-                        <input type="checkbox" [ngClass]="ScreeningTools ? 'my-1 mr-1 checkbox-round-selected' : 'my-1 mr-1 checkbox-round'"
-                               (click)="showScreeningTools($event)" name="showToolsRB" class="m-1" [(ngModel)]="ScreeningTools" />
-                        Screening
+                        <input type="radio" value="Screening" name="codingToolType" [(ngModel)]="codingTools">&nbsp;Screening
                       </div>
-
-                      <div class="d-block mx-2 px-1 border border-dark rounded">
-                        <input type="checkbox" [ngClass]="StandardTools ? 'my-1 mr-1 checkbox-round-selected' : 'my-1 mr-1 checkbox-round'"
-                               (click)="showStandardTools($event)" name="showToolsRB" class="m-1" [(ngModel)]="StandardTools" />
-                        Standard
+                      <div class="d-block mx-1 px-1 border border-dark rounded">
+                        <input type="radio" value="Standard" name="codingToolType" [(ngModel)]="codingTools">&nbsp;Standard
                       </div>
-
                       <div class="d-block mx-1 px-1 border border-primary text-primary rounded">
-                        <input type="checkbox" [ngClass]="AdministrationTools ? 'my-1 mr-1 checkbox-round-selected' : 'my-1 mr-1 checkbox-round'"
-                               (click)="showAdministrationTools($event)" name="showToolsRB" class="m-1" [(ngModel)]="AdministrationTools" />
-                        Administration
-                      </div>
-
+                        <input type="radio" value="Administration" name="codingToolType" [(ngModel)]="codingTools">&nbsp;Administration
+                      </div>                     
                     </div>
                   </div>
                   <div class="col-auto mr-auto my-auto">
@@ -116,15 +103,15 @@
                     </table>
                   </div>
 
-                    <div class="col-12" [ngStyle]="{'max-height.px': codingtoolsMaxHeight}" style="overflow-y:auto;">
-                      <button *ngFor="let set of getRelevantTools()" role="group" type="button" class="btn col-12" style="text-align:left"
-                              [ngClass]="{'font-weight-bold btn-info' : (SelectedSet4Copy && SelectedSet4Copy.set_id && SelectedSet4Copy.set_id == set.set_id)
+                  <div class="col-12" [ngStyle]="{'max-height.px': codingtoolsMaxHeight}" style="overflow-y:auto;">
+                    <button *ngFor="let set of getRelevantTools()" role="group" type="button" class="btn col-12" style="text-align:left"
+                            [ngClass]="{'font-weight-bold btn-info' : (SelectedSet4Copy && SelectedSet4Copy.set_id && SelectedSet4Copy.set_id == set.set_id)
                                   ,'btn-outline-info' :(!SelectedSet4Copy || !SelectedSet4Copy.set_id || SelectedSet4Copy.set_id != set.set_id)}"
-                              (click)="SelectSet4Copy(set)">
-                            {{set.set_name}}
-                      </button>
-                    </div>
+                            (click)="SelectSet4Copy(set)">
+                      {{set.set_name}}
+                    </button>
                   </div>
+                </div>
                     <div class="col-12 col-sm-6 col-md-4 mt-0 mb-0 d-flex flex-column align-self-stretch">
                       <div class="align-self-start w-100">Coding Tool Preview:</div>
                       <div class="align-self-stretch h-100">
