@@ -89,7 +89,7 @@ namespace ERxWebClient2.Controllers
         }
 
 
-        [EnableRateLimiting("HighCostEndpoints")]
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult GetMagPaperList([FromBody] MVCMagPaperListSelectionCriteria crit)
         {

@@ -76,7 +76,7 @@ export class JwtInterceptor implements HttpInterceptor {
             let delay = this.DEFAULT_RETRY_DELAY;
             if (error.headers.has('Retry-After')) {
               let tmpSt = error.headers.get('Retry-After'); //gives a value in seconds
-              console.log("Got RETRY-AFTER:" +tmpSt + ". URL:" + error.url?.toString());
+              console.log("Got RETRY-AFTER: " +tmpSt + ". URL:" + error.url?.toString());
               var tmp: number | null = null;
               if (tmpSt) tmp = Helpers.SafeParseInt(tmpSt);
               if (tmp) delay = tmp * 1000;
@@ -88,6 +88,7 @@ export class JwtInterceptor implements HttpInterceptor {
             return timer(delay);
           }
           // or response is a status code we don't wish to retry, throw error
+          //console.log("Error but wouldn't retry... Count is:", retryAttempt);
           return throwError(() => error);
         },
       })     
