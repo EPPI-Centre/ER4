@@ -80,7 +80,8 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
   @HostListener('window:keydown.Alt.9', ['$event'])
   @HostListener('window:keydown.Alt.0', ['$event'])
   handleKeyDown(event: KeyboardEvent) {
-    if (this.HotKeysOn === false || this.SelectedNodeData == null ) return;
+    if (this.HotKeysOn === false || this.SelectedNodeData == null
+    || this.IsServiceBusy) return;
     else {
       let index = parseInt(event.key);
       if (index == NaN || index > this.SelectedNodeData.attributes.length) return;

@@ -8,16 +8,16 @@
 		<div>
 			<!--[ngClass]="{disabled:ItemListService.ItemList.pageindex + 1 === 1}"
 			[disabled]="ItemListService.ItemList.pageindex + 1 === 1"-->
-			<button [ngClass]="{disabled: !hasPrevious()}"
-					[disabled]="!hasPrevious()"
+			<button [ngClass]="{disabled: !hasPrevious() || !CanChangeItem}"
+					[disabled]="!hasPrevious() || !CanChangeItem"
 					class="page-link" 
 					(click)="firstItem()">
 				First
 			</button>
 		</div>
 		<div>
-			<button [ngClass]="{disabled: !hasPrevious()}"
-					[disabled]="!hasPrevious()"
+			<button [ngClass]="{disabled: !hasPrevious() || !CanChangeItem}"
+					[disabled]="!hasPrevious() || !CanChangeItem"
 					class="page-link" 
 					(click)="prevItem()">
 				Previous
@@ -25,15 +25,15 @@
 
 		</div>
 		<div>
-			<button [ngClass]="{disabled: !hasNext()}"
-					[disabled]="!hasNext()" 
+			<button [ngClass]="{disabled: !hasNext() || !CanChangeItem}"
+					[disabled]="!hasNext() || !CanChangeItem" 
 					class="page-link" 
 					(click)="nextItem()">
 				Next
 			</button>
 		</div>
 		<div>
-			<button [ngClass]="{disabled: !hasNext()}"
+			<button [ngClass]="{disabled: !hasNext() || !CanChangeItem}"
 					[disabled]="!hasNext()" 
 					class="page-link" 
 					(click)="lastItem()">
@@ -45,16 +45,16 @@
 
 	<ul *ngIf="IsScreening" class="pagination justify-content-start">
 		<li>
-			<button [ngClass]="{disabled:!CanGoToPreviousScreening()}"
-							[disabled]="!CanGoToPreviousScreening()"
+			<button [ngClass]="{disabled:!CanGoToPreviousScreening() || !CanChangeItem}"
+							[disabled]="!CanGoToPreviousScreening() || !CanChangeItem"
 							class="page-link" (click)="prevScreeningItem()">
 				Previously Screened
 			</button>
 
 		</li>
 		<li>
-			<button [ngClass]="{disabled:!CanMoveToNextInScreening()}"
-							[disabled]="!CanMoveToNextInScreening()"
+			<button [ngClass]="{disabled:!CanMoveToNextInScreening() || !CanChangeItem}"
+							[disabled]="!CanMoveToNextInScreening() || !CanChangeItem"
 							class="page-link" (click)="GetScreeningItem()">
 				Next In screening
 			</button>
