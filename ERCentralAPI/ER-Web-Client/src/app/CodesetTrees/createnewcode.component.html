@@ -4,7 +4,7 @@
         <div class="col-12">
           <div class="form-group">
               <label for="Codeset_TypeCollaborate">Code Type*</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <input *ngIf="showRadioButtonEntry" type="checkbox" (click)="radioButtonEntryClicked($event)" [(ngModel)]="radioButtonEntry" name="radioButtonCB">&nbsp;
+              <input *ngIf="showRadioButtonEntry" type="checkbox" [(ngModel)]="radioButtonEntry" name="radioButtonCB">&nbsp;
               <label *ngIf="showRadioButtonEntry" for="Codeset_TypeCollaborate">Radio-button code</label>
             <select #CodeTypeSelectCollaborate class="form-control" name="NewCode_TypeCollaborate"
                     [disabled]="!CurrentCodeCanHaveChildren" (change)="ChangeLastSelectedCodeType($event)">
@@ -51,22 +51,25 @@
 </div>
 
 
-<form  *ngIf="IsSmall" class="row small"#NewCodeFromCollaborate="ngForm" (ngSubmit)="onSubmit()">
-    <div class="col-12">
-      <div class="form-group mb-1">
+<form  *ngIf="IsSmall" class="row small" #NewCodeFromCollaborate="ngForm" (ngSubmit)="onSubmit()">
+    <div class="col-12 border-top">
+      <div class="form-group mb-0">
         <label for="Codeset_TypeCollaborate">Code Type*</label>&nbsp;
         <select #CodeTypeSelectCollaborate class="p-1" name="NewCode_TypeCollaborate" (change)="ChangeLastSelectedCodeType($event)"
                 [disabled]="!CurrentCodeCanHaveChildren">
           <option *ngFor="let type of AllowedChildTypesOfSelectedNode" [value]="type.key" [selected]="type.key == LastSelectedCodeTypeId">
             {{type.value}}
           </option>
-        </select>
-        <label *ngIf="showRadioButtonEntry" for="Codeset_TypeCollaborate">&nbsp;&nbsp;&nbsp;</label>
-        <input *ngIf="showRadioButtonEntry" type="checkbox" (click)="radioButtonEntryClicked($event)" [(ngModel)]="radioButtonEntry" name="radioButtonCB">&nbsp;
-        <label *ngIf="showRadioButtonEntry" for="Codeset_TypeCollaborate">Radio-button</label>
+        </select>        
       </div>
     </div>
-    <div class="form-group mb-1 col-12">
+    <div *ngIf="showRadioButtonEntry" class="col-12 mb-1 border-bottom">
+      <div class="row mx-0 justify-content-center">
+        <label class="my-auto" for="Codeset_TypeCollaborate">Radio-button</label>
+        <input class="my-auto mx-1" type="checkbox" [(ngModel)]="radioButtonEntry" name="radioButtonCB">
+      </div>
+    </div>
+    <div class="form-group my-1 col-12">
       <div>
         Code Name*&nbsp;&nbsp;&nbsp;
         <input type="checkbox" (click)="commaSeparatedEntryClicked($event)" [(ngModel)]="commaSeparatedEntry" name="multipleCodesCB">&nbsp;Enter multiple codes

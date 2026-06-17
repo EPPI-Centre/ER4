@@ -605,7 +605,7 @@ export interface singleNode {
   attributeSetId: number;
   parent: number;
   isExclusive: boolean;
-
+  typeCanBeExclusive: boolean;
   isSelected: boolean;
   additionalText: string;
   armId: number;
@@ -623,6 +623,7 @@ export class ReviewSet implements singleNode {
   public get name(): string { return this.set_name; }
   set_order: number = -1;
   reviewSetId: number = -1;
+  readonly typeCanBeExclusive: boolean = false;
   attributes: SetAttribute[] = [];
   showCheckBox: boolean = false;
   public get subTypeName(): string {
@@ -695,7 +696,7 @@ export class ReviewSet implements singleNode {
     allowedCodeTypes: [],
     allowedSetTypesID4Paste: []
   };
-  nodeType: string = "ReviewSet";
+  readonly nodeType: string = "ReviewSet";
   order: number = 0;
   allowEditingCodeset: boolean = false;
 
@@ -761,6 +762,12 @@ export class SetAttribute implements singleNode {
     if (this.attribute_type == 'Not selectable (no checkbox)') return false;
     else return true;
   }
+  public get typeCanBeExclusive(): boolean {
+    if (this.attribute_type == "Selectable (show checkbox)"
+      || this.attribute_type == "Include"
+      || this.attribute_type == "Exclude") return true;
+    return false;
+  }
   public get subTypeName(): string {
     return this.attribute_type;
   }
@@ -786,7 +793,7 @@ export class SetAttribute implements singleNode {
 
   allowEditingCodeset: boolean = false;//not used for attributes
   itemSetIsLocked: boolean = false;//not used for attributes
-  nodeType: string = "SetAttribute";
+  readonly nodeType: string = "SetAttribute";
 
   allowCodingEdits: boolean = false;
   isSelected: boolean = false;
@@ -805,6 +812,7 @@ export class SetAttribute implements singleNode {
     }
     return countSoFar;
   }
+  
   public get IsCodeWithLlmPrompt(): boolean {
     //(possiblePrompt.IndexOf(':') > 1 && possiblePrompt.IndexOf("//") > possiblePrompt.IndexOf(':'))
     const ColIndex = this.attribute_set_desc.indexOf(':');

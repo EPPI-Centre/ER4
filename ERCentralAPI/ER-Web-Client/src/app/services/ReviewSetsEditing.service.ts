@@ -1632,7 +1632,7 @@ export class ReviewSet4Move extends ReviewSet implements singleNode4move {
     this.codingIsFinal = reviewSet.codingIsFinal;
     this.allowEditingCodeset = reviewSet.allowEditingCodeset;
     this.description = reviewSet.description;
-    this.nodeType = reviewSet.nodeType;
+    //this.nodeType = reviewSet.nodeType;
     //console.log("type or the root (ReviewSet4Move):", this.nodeType);
     this.setType = reviewSet.setType;
     this.attributes = [];
@@ -1677,7 +1677,7 @@ export class SetAttribute4Move extends SetAttribute implements singleNode4move {
     this.order = setAttribute.order;
     this.attribute_type = setAttribute.attribute_type;
     this.attribute_type_id = setAttribute.attribute_type_id;
-    this.nodeType = setAttribute.nodeType;
+    //this.nodeType = setAttribute.nodeType;
     this.attribute_set_desc = setAttribute.attribute_set_desc;
     this.attributeSetId = setAttribute.attributeSetId;
     this.parent_attribute_id = setAttribute.parent_attribute_id;
