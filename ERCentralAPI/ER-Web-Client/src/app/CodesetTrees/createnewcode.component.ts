@@ -73,12 +73,6 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
   }
 
 
-
-  public get AllowedChildTypes(): kvAllowedAttributeType[] {
-
-    var test = this._reviewSetsService.AllowedChildTypesOfSelectedNode;
-    return this._reviewSetsService.AllowedChildTypesOfSelectedNode;
-  }
   public get LastSelectedCodeTypeId(): number {
     return this._reviewSetsService.LastSelectedCodeTypeId;
   }
