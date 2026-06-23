@@ -45,7 +45,8 @@
             Not all codes can be destination codes. This is because some moves are impossible (ex. you cannot move a code into one of its children) while others would break coding tool depth restrictions.
           </div>
           <div class="border border-primary rounded p-1 m-1">
-            <codesetTree4Move #codesetTree4Move [MaxHeight]="300" [SelectedCodeset]="ReviewSetOfUpdatingCode" [SelectedNode]="UpdatingCode"></codesetTree4Move>
+            <codesetTree4Move #codesetTree4Move [MaxHeight]="300" [SelectedCodeset]="ReviewSetOfUpdatingCode"
+                              [SelectedNode]="UpdatingCode"></codesetTree4Move>
           </div>
 
           <div class="p-1 mb-2">
@@ -74,8 +75,10 @@
             <div class="col-12">
               <div class="form-group">
                 <label for="Codeset_Type">Code Type*</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <input *ngIf="UpdatingCode.isExclusive" type="checkbox" checked="checked" (click)="radioButtonEntryClicked($event)" name="radioButtonCB">&nbsp;
-                <label *ngIf="UpdatingCode.isExclusive" for="Codeset_TypeCollaborate">Radio-button code   (untick for normal code)</label>
+                <div *ngIf="ShowIsExclusiveCheckbox">
+                  <input type="checkbox" [(ngModel)]="UpdatingCode.isExclusive" name="radioButtonCB">&nbsp;
+                  <label for="Codeset_TypeCollaborate">Radio-button code   (untick for normal code)</label>
+                </div>
                 <select #EditCodeTypeSelect class="col-md-6 form-control"
                         (change)="AttributeTypeChanged($event)" name="Code_Type"
                         [(ngModel)]="UpdatingCode.attribute_type_id">
@@ -102,7 +105,7 @@
             </div>
             <div class="col-12">
                 <button type="submit" (click)="UpdateCode()" class="btn btn-success ml-2 mr-2"
-                        [disabled]="!HasAnythingChanged(EditCodeFrom.dirty) || !IsNewCodeNameValid() || !CanWrite()">
+                        [disabled]="!HasAnythingChanged() || !IsNewCodeNameValid() || !CanWrite()">
                     Update
                 </button>
                 <button *ngIf="UpdatingCode.attribute_type != 'Exclude' && UpdatingCode.attribute_type != 'Include'" class="btn btn-outline-primary ml-1" type="button"
@@ -176,10 +179,12 @@
                     {{type.value}}
                   </option>
                 </select>
-                <label *ngIf="UpdatingCode.isExclusive" for="Codeset_TypeCollaborate">&nbsp;&nbsp;&nbsp;</label>
-                <input *ngIf="UpdatingCode.isExclusive" type="checkbox" checked="checked" (click)="radioButtonEntryClicked($event)" name="radioButtonCB">&nbsp;
-                <label *ngIf="UpdatingCode.isExclusive" for="Codeset_TypeCollaborate">Radio-button</label>
-                <label *ngIf="UpdatingCode.isExclusive" for="Codeset_TypeCollaborate">&nbsp;(untick for normal code)</label>
+                <div *ngIf="ShowIsExclusiveCheckbox">
+                  <label for="Codeset_TypeCollaborate">&nbsp;&nbsp;&nbsp;</label>
+                  <input type="checkbox" [(ngModel)]="UpdatingCode.isExclusive" name="radioButtonCB">&nbsp;
+                  <label for="Codeset_TypeCollaborate">Radio-button</label>
+                  <label for="Codeset_TypeCollaborate">&nbsp;(untick for normal code)</label>
+                </div>
               </div>
             </div>
             <div class="form-group col-12">
@@ -198,7 +203,7 @@
                           [(ngModel)]="UpdatingCode.attribute_set_desc" name="newAttDescription" rows="3"></textarea>
             </div>
             <div class="col-12 mb-1">
-                <button type="submit" (click)="UpdateCode()" class="btn btn-sm btn-success ml-2 mr-2" [disabled]="!HasAnythingChanged(EditCodeFrom.dirty) || !IsNewCodeNameValid() || !CanWrite()">
+                <button type="submit" (click)="UpdateCode()" class="btn btn-sm btn-success ml-2 mr-2" [disabled]="!HasAnythingChanged() || !IsNewCodeNameValid() || !CanWrite()">
                     Update
                 </button>
                 <button class="btn btn-sm btn-outline-secondary ml-1" type="button"

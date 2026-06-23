@@ -470,13 +470,11 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
     //this "busy" situation is handled in ItemCodingItemAttributeSaveCommandHandled as it gets completed in the "coding" components...
     //thus, we don't simply remove it when the API call ends.
     if (cmd.isExclusive == true) {
-      this._httpC.post<ItemAttributeSaveCommand>(this._baseUrl + 'api/ItemSetList/ExecuteItemAttributeExclusiveSaveCommand', cmd).subscribe(
+      lastValueFrom(this._httpC.post<ItemAttributeSaveCommand>(this._baseUrl + 'api/ItemSetList/ExecuteItemAttributeExclusiveSaveCommand', cmd)).then(
         data => {
-
           this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
           //this._IsBusy = false;
         }, error => {
-
           this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
           //this.ItemCodingItemAttributeSaveCommandError.emit(error);
           //this._IsBusy = false;
@@ -485,13 +483,11 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
       );
     }
     else {
-      this._httpC.post<ItemAttributeSaveCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemAttributeSaveCommand', cmd).subscribe(
+      lastValueFrom(this._httpC.post<ItemAttributeSaveCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemAttributeSaveCommand', cmd)).then(
         data => {
-
           this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
           //this._IsBusy = false;
         }, error => {
-
           this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
           //this.ItemCodingItemAttributeSaveCommandError.emit(error);
           //this._IsBusy = false;
@@ -835,6 +831,35 @@ export class SetAttribute implements singleNode {
       listSoFar = A.AllChildrentWithPrompts(listSoFar);
     }
     return listSoFar;
+  }
+  public VeryShallowClone(): SetAttribute {
+    let res = new SetAttribute();
+    res.attribute_id = this.attribute_id;
+    res.attribute_name = this.attribute_name;
+    res.attribute_order = this.attribute_order;
+    res.attributeSetId = this.attributeSetId;
+    res.attribute_type = this.attribute_type;
+    res.attribute_set_desc = this.attribute_set_desc;
+    res.attribute_desc = this.attribute_desc;
+    res.isExclusive = this.isExclusive;
+    res.set_id = this.set_id;
+
+    res.parent_attribute_id = this.parent_attribute_id;
+    res.attribute_type_id = this.attribute_type_id;
+    res.originalAttributeID = this.originalAttributeID;
+    res.oldestKnownId = this.oldestKnownId;
+
+    res.allowCodingEdits = this.allowCodingEdits;
+    res.isSelected = this.isSelected;
+    res.additionalText = this.additionalText;
+    res.armId = this.armId;
+    res.armTitle = this.armTitle;
+    res.order = this.order;
+    res.codingComplete = this.codingComplete;
+    res.extURL = this.extURL;
+    res.extType = this.extType;
+
+    return res;
   }
 }
 
