@@ -9,6 +9,7 @@ import { PriorityScreeningService } from '../services/PriorityScreening.service'
 import { ItemDocsService } from '../services/itemdocs.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
+import { ReviewSetsService } from '../services/ReviewSets.service';
 
 @Component({
   selector: 'itemDetailsPaginator',
@@ -24,8 +25,9 @@ import { MAGAdvancedService } from '../services/magAdvanced.service';
 export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewInit {
 
   constructor(private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
-    public ItemListService: ItemListService
-    , private ItemCodingService: ItemCodingService,
+    public ItemListService: ItemListService,
+    private ItemCodingService: ItemCodingService,
+    private reviewSetsService: ReviewSetsService,
     private reviewInfoService: ReviewInfoService,
     public PriorityScreeningService: PriorityScreeningService,
     private ConfirmationDialogService: ConfirmationDialogService,
@@ -62,7 +64,9 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
     // child is set
   }
   public get CanChangeItem(): boolean {
+    //console.log("CanChange item, itemcodingservice is busy:", this.ItemCodingService.IsBusy);
     if (this.ItemListService.IsBusy
+      || this.reviewSetsService.IsBusy
       || this.ItemCodingService.IsBusy
       || this.PriorityScreeningService.IsBusy
       || this.ItemDocsService.IsBusy

@@ -469,32 +469,18 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
     this._BusyMethods.push("ExecuteItemAttributeSaveCommand");
     //this "busy" situation is handled in ItemCodingItemAttributeSaveCommandHandled as it gets completed in the "coding" components...
     //thus, we don't simply remove it when the API call ends.
-    if (cmd.isExclusive == true) {
-      lastValueFrom(this._httpC.post<ItemAttributeSaveCommand>(this._baseUrl + 'api/ItemSetList/ExecuteItemAttributeExclusiveSaveCommand', cmd)).then(
-        data => {
-          this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
-          //this._IsBusy = false;
-        }, error => {
-          this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
-          //this.ItemCodingItemAttributeSaveCommandError.emit(error);
-          //this._IsBusy = false;
-          this.RemoveBusy("ExecuteItemAttributeSaveCommand");
-        }
-      );
-    }
-    else {
-      lastValueFrom(this._httpC.post<ItemAttributeSaveCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemAttributeSaveCommand', cmd)).then(
-        data => {
-          this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
-          //this._IsBusy = false;
-        }, error => {
-          this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
-          //this.ItemCodingItemAttributeSaveCommandError.emit(error);
-          //this._IsBusy = false;
-          this.RemoveBusy("ExecuteItemAttributeSaveCommand");
-        }
-      );
-    }
+    
+    lastValueFrom(this._httpC.post<ItemAttributeSaveCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemAttributeSaveCommand', cmd)).then(
+      data => {
+        this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
+        //this._IsBusy = false;
+      }, error => {
+        this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
+        //this.ItemCodingItemAttributeSaveCommandError.emit(error);
+        //this._IsBusy = false;
+        this.RemoveBusy("ExecuteItemAttributeSaveCommand");
+      }
+    );
   }
   public ExecuteItemAttributeBulkInsertCommand(cmd: ItemAttributeBulkSaveCommand) {
     this._BusyMethods.push("ExecuteItemAttributeBulkInsertCommand");
