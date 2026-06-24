@@ -29,6 +29,7 @@ export class EditCodeComp implements OnInit, OnDestroy {
 
   private _UpdatingCode: SetAttribute | null = null;
   private _UnchangedUpdatingCode: SetAttribute | null = null;
+  private _CancelHandledCorrectly = false;
   @Input() set UpdatingCode(value: SetAttribute | null) {
     this._UpdatingCode = value;
     if (value) this._UnchangedUpdatingCode = value.VeryShallowClone();
@@ -139,6 +140,7 @@ export class EditCodeComp implements OnInit, OnDestroy {
     this._ShowPanel = "";
     if (refreshtree && refreshtree == true) this.emitterCancel.emit(true);
     else this.emitterCancel.emit(false);
+    this._CancelHandledCorrectly = true;
   }
 
   AttributeTypeChanged(event: Event) {
@@ -162,7 +164,7 @@ export class EditCodeComp implements OnInit, OnDestroy {
 
   UpdateCode() {
     if (!this.UpdatingCode || this.UpdatingCode.nodeType != "SetAttribute" || !this._UnchangedUpdatingCode) {
-      this.CancelActivity();
+      this.CancelActivity(true);
       return;//fail silently, should be ok as it should never happen...
     }
     let Att = this.UpdatingCode;
@@ -344,7 +346,10 @@ export class EditCodeComp implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-
+    //console.log("Destroying EditCode");
+    if (this._CancelHandledCorrectly == false && this.HasAnythingChanged() == true) {
+      this.emitterCancel.emit(true);
+    }
   }
 
 

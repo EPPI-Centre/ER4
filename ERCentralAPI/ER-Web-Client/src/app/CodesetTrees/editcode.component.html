@@ -117,7 +117,7 @@
                     Delete Code...
                 </button>
                 <button class="btn btn-outline-secondary ml-2" type="button"
-                        (click)="CancelActivity(EditCodeFrom.dirty)" style="width:200px;">
+                        (click)="CancelActivity(EditCodeFrom.dirty || HasAnythingChanged())" style="width:200px;">
                     Cancel
                 </button>
             </div>
