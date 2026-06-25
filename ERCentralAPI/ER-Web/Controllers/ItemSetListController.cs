@@ -447,6 +447,7 @@ namespace ERxWebClient2.Controllers
         public int setId { get; set; }
         public Int64 itemId { get; set; }
         public Int64 itemArmId { get; set; }
+        public bool isExclusive { get; set; }
         public MVCReviewInfo revInfo { get; set; }
     }
     public class MVCReviewInfo

@@ -562,7 +562,8 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
                     cmd.itemArmId = this.armsService.SelectedArm == null ? 0 : this.armsService.SelectedArm.itemArmId;
                     cmd.itemId = this.ItemID;
                     cmd.revInfo = this.ReviewInfoService.ReviewInfo;
-                    cmd.saveType = "Insert";
+                  cmd.saveType = "Insert";
+                  cmd.isExclusive = this.ItemCodingService.SelectedSetAttribute.isExclusive;
                     cmd.setId = this.ItemCodingService.SelectedSetAttribute.set_id;
                     let itemSet: ItemSet | null = this.ItemCodingService.FindItemSetBySetId(this.ItemCodingService.SelectedSetAttribute.set_id);
                     if (itemSet) {

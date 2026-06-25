@@ -378,6 +378,14 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
     }
     return result;
   }
+  public FindAttributeByIdInThisSet(AttributeId: number, rSet: ReviewSet): SetAttribute | null {
+    let result: SetAttribute | null = null;
+      result = this.internalFindAttributeById(rSet.attributes, AttributeId);
+      if (result) {
+        return result;
+      }
+    return result;
+  }
   public FindSetById(SetId: number): ReviewSet | null {
     let result: ReviewSet | null = null;
     for (let Set of this.ReviewSets) {
