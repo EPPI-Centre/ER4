@@ -678,7 +678,7 @@
                     </div>
                     <div class="row p-0 m-0">
                       <div class="col-4">Public description for this set:</div>
-                      <textarea class="col-8" rows="3" type="text" maxlength="2000" [(ngModel)]="EditingWebDbReviewSet.description"></textarea>
+                      <textarea class="col-8" rows="3" type="text" [(ngModel)]="EditingWebDbReviewSet.description"></textarea>
                     </div>
                     <div class="row m-0">
                       <div class="mx-auto">
@@ -726,7 +726,7 @@
                     </div>
                     <div class="row p-0 m-0">
                       <div class="col-4">Public description for this Code:</div>
-                      <textarea class="col-8" rows="3" type="text" maxlength="2000" [(ngModel)]="EditingSetAttribute.attribute_set_desc"></textarea>
+                      <textarea class="col-8" rows="3" type="text" [(ngModel)]="EditingSetAttribute.attribute_set_desc"></textarea>
                     </div>
                     <button class="btn btn-sm btn-outline-secondary  px-2 m-1" (click)="CancelEditAttribute()">
                       Cancel
@@ -764,8 +764,8 @@
                         <span>
                           <button class="btn btn-sm btn-outline-danger px-1 pt-0 my-auto ml-auto mr-1" [disabled]="EditingSomething" (click)="DeleteMap(map)"><span class="k-icon k-i-delete "></span></button>
                           <button class="btn mr-1 my-auto py-1 px-3 btn-sm btn-outline-success" [disabled]="EditingSomething" (click)="EditMap(map)">Edit</button>
-                          <button title="Move map up" class="btn btn-sm btn-outline-primary px-1 pt-0 my-auto ml-auto mr-1" [disabled]="EditingSomething" (click)="MoveUp(map)"><span class="k-icon k-i-arrow-up "></span></button>
-                          <button title="Move map down" class="btn btn-sm btn-outline-primary px-1 pt-0 my-auto ml-auto mr-1" [disabled]="EditingSomething" (click)="MoveDown(map)"><span class="k-icon k-i-arrow-down "></span></button>
+                          <button title="Move map up" class="btn btn-sm btn-outline-primary px-1 pt-0 my-auto ml-auto mr-1" [disabled]="EditingSomething || MapCanMoveUp(map) == false" (click)="MoveUp(map)"><span class="k-icon k-i-arrow-up "></span></button>
+                          <button title="Move map down" class="btn btn-sm btn-outline-primary px-1 pt-0 my-auto ml-auto mr-1" [disabled]="EditingSomething || MapCanMoveDown(map) == false" (click)="MoveDown(map)"><span class="k-icon k-i-arrow-down "></span></button>
                         </span>
                       </td>
                     </tr>

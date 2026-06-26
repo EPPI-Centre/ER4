@@ -458,9 +458,9 @@
         </div>
         <div *ngIf="CurrentComparison.contactName3 == '' || EditAcess == 1" class="border-bottom w-100 px-1">
           <span class="my-auto">Transferring to: {{TransferringToReviewerName}}</span>
-          <span *ngIf="SelectedNode && SelectedNode.isExclusive == true"  class="my-auto"><br />
-          <b>This is a radio-button code so any sibling destination radio-button codes will be deleted when the code is copied.</b>
-          </span>
+        </div>
+        <div *ngIf="SelectedNode && SelectedNode.isExclusive == true && EditAcess > 0" class="my-auto alert-warning px-1">
+          <strong>This is a radio-button code so any sibling destination radio-button coding will be deleted when the code is copied.</strong>
         </div>
         <div class="row mx-0 px-0 col-12 small">
           <button (click)="ShowingTransferPanelForCoding = null"
