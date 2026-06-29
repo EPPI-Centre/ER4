@@ -669,13 +669,13 @@ export class WebDBsComponent implements OnInit, OnDestroy {
     }
 
   public MapCanMoveDown(map: iWebDBMap): boolean {
-    //if (!this.CanWrite || this.CurrentMaps.length == 0) return false;
-    //if (map.webDBMapId == this.CurrentMaps[this.CurrentMaps.length - 1].webDBMapId) return false;
+    if (!this.CanWrite || this.CurrentMaps.length == 0) return false;
+    if (map.webDBMapId == this.CurrentMaps[this.CurrentMaps.length - 1].webDBMapId) return false;
     return true;
   }
   public MapCanMoveUp(map: iWebDBMap): boolean {
-    //if (!this.CanWrite || this.CurrentMaps.length == 0) return false;
-    //if (map.webDBMapId == this.CurrentMaps[0].webDBMapId) return false;
+    if (!this.CanWrite || this.CurrentMaps.length == 0) return false;
+    if (map.webDBMapId == this.CurrentMaps[0].webDBMapId) return false;
     return true;
   }
   MoveUp(map: iWebDBMap) {

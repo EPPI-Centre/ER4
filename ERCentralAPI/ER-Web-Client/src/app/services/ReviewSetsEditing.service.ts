@@ -35,7 +35,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
   public get ReviewSets4Copy(): ReviewSet[] {
     return this._ReviewSets4Copy;
   }
-  public clearReReviewSets4Copy() {
+  public clearReviewSets4Copy() {
     this._ReviewSets4Copy = [];
   }
   public FetchSetTypes() {
@@ -1390,17 +1390,19 @@ export class ReviewSetsEditingService extends BusyAwareService {
     }
   }
 
-  public FetchReviewSets4Copy(fetchPrivateSets: boolean) {
+  public FetchReviewSets4Copy(fetchPrivateSets: boolean): Promise<boolean> {
     this._BusyMethods.push("FetchReviewSets4Copy");
     let body = JSON.stringify({ Value: fetchPrivateSets });
-    lastValueFrom(this._httpC.post<iReviewSet[]>(this._baseUrl + 'api/Codeset/GetReviewSetsForCopying', body)).then(
+    return lastValueFrom(this._httpC.post<iReviewSet[]>(this._baseUrl + 'api/Codeset/GetReviewSetsForCopying', body)).then(
       (res) => {
         this._ReviewSets4Copy = ReviewSetsService.digestJSONarray(res);
         this.RemoveBusy("FetchReviewSets4Copy");
+        return true;
       }
       , error => {
         this.modalService.GenericError(error);
         this.RemoveBusy("FetchReviewSets4Copy");
+        return false;
       }
     );
   }
