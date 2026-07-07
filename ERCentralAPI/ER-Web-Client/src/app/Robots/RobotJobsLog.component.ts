@@ -3,12 +3,13 @@ import { Router } from '@angular/router';
 import { ReviewService } from '../services/review.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ModalService } from '../services/modal.service';
-import { iRobotOpenAiTaskReadOnly, iRobotSettings, RobotOpenAiTaskReadOnly, RobotsService } from '../services/Robots.service';
+import { iRobotCoderReadOnly, iRobotOpenAiTaskReadOnly, iRobotSettings, RobotOpenAiTaskReadOnly, RobotsService } from '../services/Robots.service';
 import { process, State } from '@progress/kendo-data-query';
 import { GridDataResult, PageChangeEvent, RowClassArgs, DataStateChangeEvent } from '@progress/kendo-angular-grid';
 import { DataForMultiSheetExcel, ExcelService } from '../services/excel.service';
 import { Helpers } from '../helpers/HelperMethods';
 import { ReviewSetsService } from '../services/ReviewSets.service';
+import { indexOf } from 'lodash';
 
 @Component({
   selector: 'RobotJobsLog',
@@ -51,6 +52,40 @@ export class RobotJobsLog implements OnInit, OnDestroy {
     this.DataSourceJobs; //makes sure it's "processed"
   }
 
+  public get RobotsList() {
+    // we want to only display the robots that aren't expired
+    let robotsListTmp: iRobotCoderReadOnly[] = [];
+    let robotsListFinal: iRobotCoderReadOnly[] = [];
+    if (this.robotsService.RobotsList) {
+      robotsListTmp = this.robotsService.RobotsList;
+      let counter = 0;
+      for (let i = 0; i < robotsListTmp.length; i++) {
+        if (!robotsListTmp[i].isRetired) {
+          robotsListFinal[counter] = robotsListTmp[i];
+          counter += 1;
+        }
+      }
+    }
+    return robotsListFinal;
+  }
+  
+  public get RobotsExpiredList() {
+    // we want to only display the robots that aren't expired
+    let robotsListTmp: iRobotCoderReadOnly[] = [];
+    let robotsListExpiredFinal: iRobotCoderReadOnly[] = [];
+    if (this.robotsService.RobotsExpiredList) {
+      robotsListTmp = this.robotsService.RobotsExpiredList;
+      let counter = 0;
+      for (let i = 0; i < robotsListTmp.length; i++) {
+        if (robotsListTmp[i].isRetired) {
+          robotsListExpiredFinal[counter] = robotsListTmp[i];
+          counter += 1;
+        }
+      }
+    }
+    return robotsListExpiredFinal;
+  }
+  
   public get IsSiteAdmin(): boolean {
     return this._reviewerIdentityServ.reviewerIdentity.isSiteAdmin;
   }
@@ -58,7 +93,81 @@ export class RobotJobsLog implements OnInit, OnDestroy {
     this.GetAllJobsOption = !this.GetAllJobsOption;
     this.Refresh();
   }
-  
+
+  public get RobotSettings(): iRobotSettings {
+    return this.robotsService.RobotSetting;
+  }
+
+  private _robotDescription: string = "";
+  private _robotExpiredDescription: string = "";
+  private _expiredRobotExpiryDate: string = "";
+  private _robotExpiryDate: string = "";
+  private _robotSelected: boolean = false;
+  private _expiredRobotSelected: boolean = false;
+
+  RobotChanged(event: Event) {
+    let name = (event.target as HTMLOptionElement).value;
+    if (name == "") {
+      this._robotDescription = "";
+      this._robotSelected = false;
+    }
+    else {
+      for (var i = 0; i < this.RobotsList.length; i++) {
+        if (this.RobotsList[i].robotName == name) {
+          this._robotDescription = this.RobotsList[i].description;
+          this._robotExpiryDate = this.RobotsList[i].retirementDate;
+          this._robotSelected = true;
+          i = this.RobotsList.length;
+          //const description = this.RobotsList.find(f => f.robotName == name);
+        }
+      }
+    }
+  }
+  RobotExpiredChanged(event: Event) {
+    let name = (event.target as HTMLOptionElement).value;
+    if (name == "") {
+      this._robotExpiredDescription = "";
+      this._expiredRobotSelected = false;
+    }
+    else {
+      for (var i = 0; i < this.RobotsExpiredList.length; i++) {
+        if (this.RobotsExpiredList[i].robotName == name) {
+          this._robotExpiredDescription = this.RobotsExpiredList[i].description;
+          this._expiredRobotExpiryDate = this.RobotsExpiredList[i].retirementDate;
+          this._expiredRobotSelected = true;
+          i = this.RobotsExpiredList.length;
+          //const description = this.RobotsList.find(f => f.robotName == name);
+        }
+      }
+    }
+  }
+
+  ExpiredRobotDescription() {
+    return this._robotExpiredDescription;
+  }
+  RobotDescription() {
+    return this._robotDescription;
+  }
+  ExpiredRobotExpiryDate() {
+    return this._expiredRobotExpiryDate.substring(0, this._expiredRobotExpiryDate.indexOf("T"));
+  }
+  RobotExpiryDate() {
+    return this._robotExpiryDate.substring(0, this._robotExpiryDate.indexOf("T"));;
+  }
+  RobotSelected() {
+    return this._robotSelected;
+  }
+  ExpiredRobotSelected() {
+    return this._expiredRobotSelected;
+  }
+
+  public basicMAGPanel: boolean = false;
+  public ShowMAGPanel() {
+
+    this.basicMAGPanel = !this.basicMAGPanel;
+  }
+
+
   public rowCallback = (context: RowClassArgs) => {
     const row: RobotOpenAiTaskReadOnly = context.dataItem;
     if (row.success == false

@@ -39,6 +39,7 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
   public ShowSettingsInBatchPanel: boolean = true;
   public RobotInvestigateResults: iRobotInvestigate[] = [];
   public RobotsList: iRobotCoderReadOnly[] = [];
+  public RobotsExpiredList: iRobotCoderReadOnly[] = [];
 
   public CurrentQueue: iRobotOpenAiTaskReadOnly[] = [];
   public PastJobs: RobotOpenAiTaskReadOnly[] = [];
@@ -49,6 +50,7 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
     return lastValueFrom(this._httpC.get<iRobotCoderReadOnly[]>(this._baseUrl + 'api/Robots/GetRobotsList'))
       .then((res) => {
         this.RobotsList = res;
+        this.RobotsExpiredList = res;
         this.RemoveBusy("GetRobotsList");
       },
         (err) => {
@@ -379,6 +381,7 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
   public Clear() {
     this.CurrentQueue = [];
     this.RobotsList = [];
+    this.RobotsExpiredList = [];
     this.PastJobs = [];
     this.RobotInvestigateResults = [];
     this.RobotSetting = this.DefaultRobotSetting;

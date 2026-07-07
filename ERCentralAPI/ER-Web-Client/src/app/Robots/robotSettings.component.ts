@@ -36,7 +36,21 @@ export class RobotSettings implements OnInit, OnDestroy {
     return this.robotsService.RobotSetting;
   }
   public get RobotsList() {
-    return this.robotsService.RobotsList;
+    //return this.robotsService.RobotsList;
+    // we want to only display the robots that aren't expired
+    let robotsListTmp: iRobotCoderReadOnly[] = [];
+    let robotsListFinal: iRobotCoderReadOnly[] = [];
+    if (this.robotsService.RobotsList) {
+      robotsListTmp = this.robotsService.RobotsList;
+      let counter = 0;
+      for (let i = 0; i < robotsListTmp.length; i++) {
+        if (!robotsListTmp[i].isRetired) {
+          robotsListFinal[counter] = robotsListTmp[i];
+          counter += 1;
+        }
+      }
+    }
+    return robotsListFinal;
   }
   FormatDate(DateSt: string): string {
     if (DateSt == "0001-01-01T00:00:00") return "None";
