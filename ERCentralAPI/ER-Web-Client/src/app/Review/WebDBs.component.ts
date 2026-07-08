@@ -377,14 +377,27 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 	}
 	DeleteDB(db: iWebDB) {
 		//console.log("Changing DB: ", db);
-		if (!this.CanWrite) return;
-		this.ConfirmationDialogService.confirm("Delete Web Database?"
-			, "Are you sure you want to delete this Web Database (Id: " + db.webDBId.toString() + ")? <BR /> This action is <strong>irreversible</strong> and the URL for this Web Database will stop working."
-			, false, "", "Yes Delete", "Cancel").then((confirm: any) => {
-				if (confirm) {
-					this.WebDBService.Delete(db);
-				}
-			});
+    if (!this.CanWrite) return;
+    if (this.WebDBService.CurrentMaps.length > 0) {
+      this.ConfirmationDialogService.confirm("Delete Web Database?"
+        , "Are you sure you want to delete this Web Database (Id: " + db.webDBId.toString() + ") and the "
+        + this.WebDBService.CurrentMaps.length + " preconfigured map(s) in the visualisation?"
+        + "<BR /> This action is <strong>irreversible</strong> and the URL for this Web Database will stop working."
+        , false, "", "Yes Delete", "Cancel").then((confirm: any) => {
+          if (confirm) {
+            this.WebDBService.Delete(db);
+          }
+        });
+    }
+    else {
+      this.ConfirmationDialogService.confirm("Delete Web Database?"
+        , "Are you sure you want to delete this Web Database (Id: " + db.webDBId.toString() + ")? <BR /> This action is <strong>irreversible</strong> and the URL for this Web Database will stop working."
+        , false, "", "Yes Delete", "Cancel").then((confirm: any) => {
+          if (confirm) {
+            this.WebDBService.Delete(db);
+          }
+        });
+    }
 	}
 	//GetLogs(CurrentDB: iWebDB) {
 	//	this.WebDBService.GetWebDBLogs(CurrentDB.webDBId, "1980/01/01 00:00:00", "1980/01/01 00:00:00", "All");
