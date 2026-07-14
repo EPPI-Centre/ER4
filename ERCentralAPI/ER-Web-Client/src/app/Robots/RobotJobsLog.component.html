@@ -4,70 +4,61 @@
     <div class="col px-1 m-1 rounded alert-info px-1">
 
 
-      <div *ngIf="IsSiteAdmin" class="row" style="vertical-align:top">
-        <div class="col-12">
-          <h2 class="card-title"></h2>
-          <table>
-            <tr>
-              <td>
-                <strong>Robot details</strong>
-              </td>
-              <td style="padding-left:10px">
-                <div *ngIf="!basicMAGPanel">
-                  <a (click)="ShowMAGPanel()" class="btn btn-dark btn-sm text-white" data-toggle="collapse"
-                     href="#collapseExample3" role="button" aria-expanded="false" aria-controls="collapseExample3">
-                    Show <i class="fa fa fa-arrow-circle-down"></i>
-                  </a>
-                </div>
-                <div *ngIf="basicMAGPanel">
-                  <a (click)="ShowMAGPanel()" class="btn btn-dark btn-sm text-white" data-toggle="collapse"
-                     href="#collapseExample3" role="button" aria-expanded="false" aria-controls="collapseExample3">
-                    Hide <i class="fa fa fa-arrow-circle-up"></i>
-                  </a>
-                </div>
-              </td>
-            </tr>
-          </table>
+      <div  class="row" style="vertical-align:top">
+        <div class="col-12 row mx-0 px-0">
+          <div class="col-auto ml-auto">
+            <div class="my-auto  d-flex">
+              <a (click)="showingRobotsListPanel = !showingRobotsListPanel" class="btn btn-outline-primary btn-sm  py-0 mr-1" data-toggle="collapse"
+                 href="#collapseExample3" role="button" aria-expanded="false" aria-controls="collapseExample3">
+                {{ShowHideRobotsListText}}
+              </a>
+              <div class="my-auto">Active and Retired Robot Lists</div>              
+            </div>
+          </div>
         </div>
       </div>
-      <div class="row" style="vertical-align:top">
+      <div class="row mb-2" style="vertical-align:top">
         <div class="col-12">
           <div class="collapse multi-collapse" id="collapseExample3">
             <div class="card card-footer">
               <p>
-                From here you can find details on the various LLM robots that are, and have been, accessible to EPPI Reviewer users. The active robots are in the left-hand side dropdown while the retired robots are in the right-hand side dropdown.
+                From here you can find details on the various LLM robots that are, and have been, accessible to EPPI Reviewer users. Most/many Large Language Models have relatively short lifespans, hence the need to show and keep a record about retired robots.
               </p>
               <div class="row" style="vertical-align:top">
                 <div class="col-6">
                   Active robots
-                  <select class="col px-0" (change)="RobotChanged($event)" id="batchRobotList">
-                    <option value="">Please select</option>
-                    <option [ngValue]="r.robotName" *ngFor="let r of RobotsList" [selected]="r.robotName == RobotSettings.robotName">
-                      {{r.robotName}}
+                    <select class="col px-0" [(ngModel)]="SelectedActiveRobot" id="batchRobotList">
+                      <option value="false">Please select</option>
+                      <option [ngValue]="r" *ngFor="let r of RobotsList">
+                        {{r.robotName}}
                     </option>
-                  </select>
-                  <div *ngIf="RobotSelected()" class="col mx-0 rounded bg-light px-1">
-                    <span class="font-weight-bold">Description:<br /></span>{{RobotDescription()}}<br />
-                    <span class="font-weight-bold">Retired date:</span> (yyyy-mm-dd)<br />{{RobotExpiryDate()}}
-                  </div>
+                    </select>
+                    <div *ngIf="SelectedActiveRobot" class="col mx-0 rounded bg-light px-1">
+                      <div><span class="font-weight-bold">Description:<br /></span>{{SelectedActiveRobot.description}}</div>
+                      <div><span class="font-weight-bold">Current Retirement date </span>(this can change): {{FormatDate(SelectedActiveRobot.retirementDate)}}</div>
+                      <div class="mx-0">Cost per million input tokens: £{{SelectedActiveRobot.inputTokenCostPerMillion}}</div>
+                      <div class="mx-0">Cost per million output tokens: £{{SelectedActiveRobot.outputTokenCostPerMillion}}</div>
+                    </div>
                 </div>
                 <div class="col-6">
                   Retired robots
-                  <select class="col px-0" (change)="RobotExpiredChanged($event)" id="batchExpiredRobotList">
-                    <option value="">Please select</option>
-                    <option [ngValue]="r.robotName" *ngFor="let r of RobotsExpiredList" [selected]="r.robotName == RobotSettings.robotName">
+                  <select class="col px-0" [(ngModel)]="SelectedRetiredRobot" id="batchExpiredRobotList">
+                    <option value="false">Please select</option>
+                    <option [ngValue]="r" *ngFor="let r of RobotsExpiredList">
                       {{r.robotName}}
                     </option>
                   </select>
-                  <div *ngIf="ExpiredRobotSelected()" class="col mx-0 rounded bg-light px-1">
-                    <span class="font-weight-bold">Description:<br /></span>{{ExpiredRobotDescription()}}<br />
-                    <span class="font-weight-bold">Retired date:</span> (yyyy-mm-dd)<br />{{ExpiredRobotExpiryDate()}}
+                  <div *ngIf="SelectedRetiredRobot" class="col mx-0 rounded bg-light px-1">
+                    <div><span class="font-weight-bold">Description:<br /></span>{{SelectedRetiredRobot.description}}</div>
+                    <div><span class="font-weight-bold">Retired date:</span> {{FormatDate(SelectedRetiredRobot.retirementDate)}}</div>
+                    <div class="mx-0">Cost per million input tokens: £{{SelectedRetiredRobot.inputTokenCostPerMillion}}</div>
+                    <div class="mx-0">Cost per million output tokens: £{{SelectedRetiredRobot.outputTokenCostPerMillion}}</div>
                   </div>
                 </div>
                 </div>
 
               </div>
-            </div><br />
+            </div>
         </div>
       </div>
 
