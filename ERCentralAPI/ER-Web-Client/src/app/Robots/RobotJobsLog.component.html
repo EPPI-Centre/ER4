@@ -28,10 +28,10 @@
                 <div class="col-6">
                   Active robots
                     <select class="col px-0" [(ngModel)]="SelectedActiveRobot" id="batchRobotList">
-                      <option value="false">Please select</option>
+                      <option [ngValue]="false">Please select</option>
                       <option [ngValue]="r" *ngFor="let r of RobotsList">
                         {{r.robotName}}
-                    </option>
+                      </option>
                     </select>
                     <div *ngIf="SelectedActiveRobot" class="col mx-0 rounded bg-light px-1">
                       <div><span class="font-weight-bold">Description:<br /></span>{{SelectedActiveRobot.description}}</div>
@@ -43,7 +43,7 @@
                 <div class="col-6">
                   Retired robots
                   <select class="col px-0" [(ngModel)]="SelectedRetiredRobot" id="batchExpiredRobotList">
-                    <option value="false">Please select</option>
+                    <option [ngValue]="false">Please select</option>
                     <option [ngValue]="r" *ngFor="let r of RobotsExpiredList">
                       {{r.robotName}}
                     </option>
