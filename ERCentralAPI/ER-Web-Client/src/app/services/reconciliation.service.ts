@@ -716,6 +716,7 @@ export interface iComparisonItemAttributeSaveCommand {
     setId: number;
     itemId: number;
     itemArmId: number;
+    mergeInfoText: boolean;
 
     result: string;
     itemAttributeId: number;

@@ -271,7 +271,7 @@
                 <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer1'}"></ng-container>
               </div>
             </div>
-            <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark">
+            <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark" style="white-space: pre-line;">
               <b>[Info Box]</b> {{coding.InfoBox}}
             </div>
             <ng-container *ngTemplateOutlet="PdfCodingTemplate; context:{coding : coding}"></ng-container>
@@ -285,7 +285,7 @@
                 <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer1'}"></ng-container>
               </div>
             </div>
-            <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark">
+            <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark" style="white-space: pre-line;">
               <b>[Info Box]</b> {{coding.InfoBox}}
             </div>
             <ng-container *ngTemplateOutlet="PdfCodingTemplate; context:{coding : coding}"></ng-container>
@@ -314,7 +314,7 @@
                 <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer2'}"></ng-container>
               </div>
             </div>
-            <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark">
+            <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark" style="white-space: pre-line;">
               <b>[Info Box]</b> {{coding.InfoBox}}
             </div>
             <ng-container *ngTemplateOutlet="PdfCodingTemplate; context:{coding : coding}"></ng-container>
@@ -328,7 +328,7 @@
                 <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer2'}"></ng-container>
               </div>
             </div>
-            <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark">
+            <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark" style="white-space: pre-line;">
               <b>[Info Box]</b> {{coding.InfoBox}}
             </div>
             <ng-container *ngTemplateOutlet="PdfCodingTemplate; context:{coding : coding}"></ng-container>
@@ -357,7 +357,7 @@
                 <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer3'}"></ng-container>
               </div>
             </div>
-            <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark">
+            <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark" style="white-space: pre-line;">
               <b>[Info Box]</b> {{coding.InfoBox}}
             </div>
             <ng-container *ngTemplateOutlet="PdfCodingTemplate; context:{coding : coding}"></ng-container>
@@ -371,7 +371,7 @@
                 <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer3'}"></ng-container>
               </div>
             </div>
-            <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark">
+            <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark" style="white-space: pre-line;">
               <b>[Info Box]</b> {{coding.InfoBox}}
             </div>
             <ng-container *ngTemplateOutlet="PdfCodingTemplate; context:{coding : coding}"></ng-container>
@@ -433,13 +433,14 @@
   </div>
   </div>
 
-  <ng-template #TransferCodeTemplate let-coding="coding" let-reviewerN="reviewerN">
-    <div class="float-right" *ngIf="!ReconcilingItem || !ReconcilingItem.IsCompleted">
-      <button (click)="OpenTransferDialog(coding, reviewerN)"
-              class="btn btn-sm btn-outline-danger my-1 py-0 mr-1">
-        Copy to...
-      </button>
-    </div>
+<ng-template #TransferCodeTemplate let-coding="coding" let-reviewerN="reviewerN">
+  <div class="float-right" *ngIf="!ReconcilingItem || !ReconcilingItem.IsCompleted">
+    <button (click)="OpenTransferDialog(coding, reviewerN)"
+            class="btn btn-sm btn-outline-danger my-1 py-0 ml-3 mr-1">
+      Copy / Merge
+    </button>
+  </div>
+
     <div class="" *ngIf="ShowingTransferPanelForCoding == coding">
       <div class="m-1 border border-danger row mx-0 px-0 col-12">
         <div *ngIf="CurrentComparison.contactName3 != '' && EditAcess == 2" class="w-100 px-1">
@@ -468,11 +469,15 @@
             Cancel
           </button>
           <button (click)="ConfirmTransferACode(SelectedNode, coding, reviewerN)"
-                  class="btn btn-sm btn-danger my-1 py-0 mr-1">
-            Copy!
+                  class="btn btn-sm btn-danger my-1 py-0 mr-1" >
+            Copy
+          </button>
+          <button *ngIf="CanMerge()" (click)="ConfirmMergeCode(SelectedNode, coding, reviewerN)"
+                  class="btn btn-sm btn-primary my-1 py-0 mr-1">
+            Merge
           </button>
         </div>
       </div>
 
     </div>
-  </ng-template>
+</ng-template>

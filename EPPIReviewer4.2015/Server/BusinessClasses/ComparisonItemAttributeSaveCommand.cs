@@ -47,6 +47,7 @@ namespace BusinessLibrary.BusinessClasses
         private int _setId;
         private Int64 _itemId;
         private Int64 _itemArmId;
+        private bool _mergeInfoText;
 
         private string _Result;
         private Int64 _ItemAttributeId;
@@ -85,6 +86,10 @@ namespace BusinessLibrary.BusinessClasses
             get { return _itemArmId; }
         }
 
+        public bool MergeInfoText
+        {
+            get { return _mergeInfoText; }
+        }
 
         //the members below are output...
         public string Result
@@ -103,7 +108,7 @@ namespace BusinessLibrary.BusinessClasses
 
 
         public ComparisonItemAttributeSaveCommand(int destContactId, int srcContactId, Int64 attrSetId, int comparisonID
-            , bool includePdfCoding, int setId, Int64 itemId, Int64 itemArmId)
+            , bool includePdfCoding, int setId, Int64 itemId, Int64 itemArmId, bool mergeInfoText)
         {
             _destinationContactId = destContactId;
             _SourceContactId = srcContactId;
@@ -113,6 +118,7 @@ namespace BusinessLibrary.BusinessClasses
             _setId = setId;
             _itemId = itemId;
             _itemArmId = itemArmId;
+            _mergeInfoText = mergeInfoText;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
@@ -126,6 +132,7 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_setId", _setId);
             info.AddValue("_itemId", _itemId);
             info.AddValue("_itemArmId", _itemArmId);
+            info.AddValue("_mergeInfoText", _mergeInfoText);
 
             info.AddValue("_Result", _Result); 
             info.AddValue("_ItemAttributeId", _ItemAttributeId);
@@ -142,6 +149,7 @@ namespace BusinessLibrary.BusinessClasses
             _setId = info.GetValue<int>("_setId");
             _itemId = info.GetValue<Int64>("_itemId");
             _itemArmId = info.GetValue<Int64>("_itemArmId");
+            _mergeInfoText = info.GetValue<bool>("_mergeInfoText");
 
             _Result = info.GetValue<string>("_Result"); 
             _ItemAttributeId = info.GetValue<Int64>("_ItemAttributeId");
@@ -176,6 +184,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@ITEM_ID", _itemId));
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@ITEM_ARM_ID", _itemArmId == 0 ? (object)DBNull.Value : _itemArmId));
+                    command.Parameters.Add(new SqlParameter("@mergeInfoText", _mergeInfoText));
 
                     command.Parameters.Add(new SqlParameter("@Result", System.Data.SqlDbType.NVarChar, 20));
                     command.Parameters["@Result"].Value = "";

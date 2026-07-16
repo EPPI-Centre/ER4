@@ -581,6 +581,7 @@ namespace ERxWebClient2.Controllers
         public int setId;
         public Int64 itemId;
         public Int64 itemArmId;
+        public bool mergeInfoText;
 
         public string result;
         public Int64 itemAttributeId;
@@ -588,7 +589,7 @@ namespace ERxWebClient2.Controllers
         public ComparisonItemAttributeSaveCommand ToComparisonItemAttributeSaveCommand()
         {
             return new ComparisonItemAttributeSaveCommand(
-                destinationContactId, sourceContactId, attributeSetId, comparisonId, includePDFcoding, setId, itemId, itemArmId);
+                destinationContactId, sourceContactId, attributeSetId, comparisonId, includePDFcoding, setId, itemId, itemArmId, mergeInfoText);
         }
 
     }
