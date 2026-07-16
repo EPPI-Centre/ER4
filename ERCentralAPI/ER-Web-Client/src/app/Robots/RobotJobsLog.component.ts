@@ -94,77 +94,18 @@ export class RobotJobsLog implements OnInit, OnDestroy {
     this.Refresh();
   }
 
-  public get RobotSettings(): iRobotSettings {
-    return this.robotsService.RobotSetting;
+  public SelectedActiveRobot: iRobotCoderReadOnly | false = false;
+  public SelectedRetiredRobot: iRobotCoderReadOnly | false = false;
+
+  FormatDate(DateSt: string): string {
+    if (DateSt == "0001-01-01T00:00:00") return "None";
+    return Helpers.FormatDate2(DateSt);
   }
 
-  private _robotDescription: string = "";
-  private _robotExpiredDescription: string = "";
-  private _expiredRobotExpiryDate: string = "";
-  private _robotExpiryDate: string = "";
-  private _robotSelected: boolean = false;
-  private _expiredRobotSelected: boolean = false;
-
-  RobotChanged(event: Event) {
-    let name = (event.target as HTMLOptionElement).value;
-    if (name == "") {
-      this._robotDescription = "";
-      this._robotSelected = false;
-    }
-    else {
-      for (var i = 0; i < this.RobotsList.length; i++) {
-        if (this.RobotsList[i].robotName == name) {
-          this._robotDescription = this.RobotsList[i].description;
-          this._robotExpiryDate = this.RobotsList[i].retirementDate;
-          this._robotSelected = true;
-          i = this.RobotsList.length;
-          //const description = this.RobotsList.find(f => f.robotName == name);
-        }
-      }
-    }
-  }
-  RobotExpiredChanged(event: Event) {
-    let name = (event.target as HTMLOptionElement).value;
-    if (name == "") {
-      this._robotExpiredDescription = "";
-      this._expiredRobotSelected = false;
-    }
-    else {
-      for (var i = 0; i < this.RobotsExpiredList.length; i++) {
-        if (this.RobotsExpiredList[i].robotName == name) {
-          this._robotExpiredDescription = this.RobotsExpiredList[i].description;
-          this._expiredRobotExpiryDate = this.RobotsExpiredList[i].retirementDate;
-          this._expiredRobotSelected = true;
-          i = this.RobotsExpiredList.length;
-          //const description = this.RobotsList.find(f => f.robotName == name);
-        }
-      }
-    }
-  }
-
-  ExpiredRobotDescription() {
-    return this._robotExpiredDescription;
-  }
-  RobotDescription() {
-    return this._robotDescription;
-  }
-  ExpiredRobotExpiryDate() {
-    return this._expiredRobotExpiryDate.substring(0, this._expiredRobotExpiryDate.indexOf("T"));
-  }
-  RobotExpiryDate() {
-    return this._robotExpiryDate.substring(0, this._robotExpiryDate.indexOf("T"));;
-  }
-  RobotSelected() {
-    return this._robotSelected;
-  }
-  ExpiredRobotSelected() {
-    return this._expiredRobotSelected;
-  }
-
-  public basicMAGPanel: boolean = false;
-  public ShowMAGPanel() {
-
-    this.basicMAGPanel = !this.basicMAGPanel;
+  public showingRobotsListPanel: boolean = false;
+  public get ShowHideRobotsListText(): string {
+    if (this.showingRobotsListPanel) return "Hide";
+    return "Show";
   }
 
 

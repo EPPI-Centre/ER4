@@ -378,20 +378,9 @@ public partial class PurchaseHistory : System.Web.UI.Page
             Response.Write("VAT: £" + vat);
             Response.Write(Environment.NewLine);
             // add totalFee and vat to get the amount paid
-            int total;
-            // vat could be a non-int so we need to deal with that scenario
-            if (vat.Contains("."))
-            {
-                string vatInt = vat.Remove(vat.IndexOf('.'));
-                total = int.Parse(totalFee) + int.Parse(vatInt);
-                totalFee = total.ToString() + vat.Substring(vat.IndexOf('.'));
-            }
-            else
-            {
-                total = int.Parse(totalFee) + int.Parse(vat);
-                totalFee = total.ToString();
-            }
-            
+            double total;            
+            total = double.Parse(totalFee) + double.Parse(vat);
+            totalFee = total.ToString();
         }
        
 

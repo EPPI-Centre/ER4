@@ -94,9 +94,7 @@ namespace ERxWebClient2.Controllers
                     WebDB toDel = res.ToList().Find(found => found.WebDBId == crit.Value);
                     if (toDel != null && toDel.WebDBId == crit.Value)
                     {
-                        toDel.BeginEdit();
                         toDel.Delete();
-                        toDel.ApplyEdit();
                         WebDB done = toDel.Save();
                     }
                     res = DataPortal.Fetch<WebDBsList>();
