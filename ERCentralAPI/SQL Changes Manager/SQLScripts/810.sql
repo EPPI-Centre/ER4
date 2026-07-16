@@ -27,7 +27,6 @@ End
 
 --------------------------------------------------------------------------------
 
-USE [Reviewer]
 GO
 
 /****** Object:  StoredProcedure [dbo].[st_ComparisonItemAttributeSaveCheckAndRun]    Script Date: 16/07/2026 13:43:24 ******/
