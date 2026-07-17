@@ -952,6 +952,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     else {
       const SetA = this.reviewSetsService.selectedNode as SetAttribute;
       if (!SetA) return;
+      else if (this.reviewSetsService.selectedNode.isExclusive == true && IsBulkAssign) {
+        this.ConfirmationDialogService.ShowInformationalModal(
+          "Bulk assigning of radio-button codes is <strong>not permitted</strong> as it would result in "
+          + "the unseen removal of any other radio-button codes assigned to the selected items."
+          , "The selected code is of type radio-button.")
+      }  
       else {
         const list = (this.searchService.DataSourceSearches.data as Search[]).filter(x => x.add == true);
         let msg = "You are about to "

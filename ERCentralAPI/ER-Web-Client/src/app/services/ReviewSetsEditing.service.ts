@@ -1642,7 +1642,8 @@ export class ReviewSet4Move extends ReviewSet implements singleNode4move {
     this._canMoveBranchInHere = (this.MovingBrachDepth <= this.setType.maxDepth);
     this._alreadyIsTheParent = movingBrach.parent == 0;
     for (let att of reviewSet.attributes) {
-      let newA = new SetAttribute4Move(att, 1, this.MovingBrachDepth, this.setType.maxDepth, false, movingBrach.id, movingBrach.parent);
+      let newA = new SetAttribute4Move(att, 1, this.MovingBrachDepth, this.setType.maxDepth
+        , false, movingBrach.id, movingBrach.parent, movingBrach.isExclusive);
       this.attributes.push(newA);
     }
 
@@ -1667,12 +1668,14 @@ export class ReviewSet4Move extends ReviewSet implements singleNode4move {
   private _canMoveBranchInHere: boolean;
   private _alreadyIsTheParent: boolean;
   get CanMoveBranchInHere(): boolean {
-    if (this._alreadyIsTheParent) return false;
+    if (this._alreadyIsTheParent || this.MovingBrach.isExclusive) return false;
     return this._canMoveBranchInHere;
   }
 }
 export class SetAttribute4Move extends SetAttribute implements singleNode4move {
-  constructor(setAttribute: SetAttribute, currentDepth: number, movingBranchDepth: number, maxDepth: number, alreadyCant: boolean, movingBranchRootId: string, movingBranchParentId: number) {
+  constructor(setAttribute: SetAttribute, currentDepth: number, movingBranchDepth: number, maxDepth: number
+    , alreadyCant: boolean, movingBranchRootId: string, movingBranchParentId: number, movingCodeIsExclusive: boolean
+  ) {
     super();
     this.attribute_id = setAttribute.attribute_id;
     this.attribute_name = setAttribute.attribute_name;
@@ -1688,13 +1691,17 @@ export class SetAttribute4Move extends SetAttribute implements singleNode4move {
     this.attribute_order = setAttribute.attribute_order;
     if (this.attribute_id == movingBranchParentId) this._alreadyIsTheParent = true;
     else this._alreadyIsTheParent = false;
-    if (alreadyCant) this._canMoveBranchInHere = false;
+    if (
+      alreadyCant
+      || (movingCodeIsExclusive && !this._alreadyIsTheParent)
+    ) this._canMoveBranchInHere = false;
     else if (currentDepth + movingBranchDepth > maxDepth) this._canMoveBranchInHere = false;
     else if ("A" + this.attribute_id == movingBranchRootId) this._canMoveBranchInHere = false;
     else this._canMoveBranchInHere = true;
 
     for (let att of setAttribute.attributes) {
-      let newA = new SetAttribute4Move(att, currentDepth + 1, movingBranchDepth, maxDepth, !this._canMoveBranchInHere, movingBranchRootId, movingBranchParentId);
+      let newA = new SetAttribute4Move(att, currentDepth + 1, movingBranchDepth, maxDepth
+        , !this._canMoveBranchInHere, movingBranchRootId, movingBranchParentId, movingCodeIsExclusive);
       this.attributes.push(newA);
     }
   }
@@ -1702,7 +1709,7 @@ export class SetAttribute4Move extends SetAttribute implements singleNode4move {
   private _alreadyIsTheParent: boolean;
   get CanMoveBranchInHere(): boolean {
     //console.log('can move in here:', this.name, this._canMoveBranchInHere, this._alreadyIsTheParent);
-    if (this._alreadyIsTheParent) return false;
+    if (this._alreadyIsTheParent ) return false;
     return this._canMoveBranchInHere;
   }
 }

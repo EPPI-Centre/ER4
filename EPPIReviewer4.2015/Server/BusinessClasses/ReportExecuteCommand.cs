@@ -482,6 +482,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 attributeCount++;
             }
+            dt.Columns.Add(new DataColumn("Outcome title", System.Type.GetType("System.String")));
             dt.Columns.Add(new DataColumn("Outcome description", System.Type.GetType("System.String")));
             dt.Columns.Add(new DataColumn("Timepoint", System.Type.GetType("System.String")));
             dt.Columns.Add(new DataColumn("Outcome type", System.Type.GetType("System.String")));
@@ -539,11 +540,12 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             dr["Imported Id"] = (reader["OLD_ITEM_ID"] == null ? "" : reader["OLD_ITEM_ID"].ToString());
                         }
-                        dr["Outcome description"] = reader["OUTCOME_TITLE"].ToString();
+                        
 
                         string OutcomeId = reader.GetValue("OUTCOME_ID").ToString();
                         Outcome o = Outcome.GetSingleOutcome(Convert.ToInt32(OutcomeId));
-                        dr["Outcome description"] = o.Title;
+                        dr["Outcome title"] = o.Title;
+                        dr["Outcome description"] = o.OutcomeDescription;
                         dr["Timepoint"] = o.TimepointDisplayValue;
                         dr["Outcome"] = o.OutcomeText;
                         dr["Intervention"] = o.InterventionText;
