@@ -380,6 +380,15 @@ public class Utils
             else return "";
         }
     }
+    public static string BlockedEmailDomains
+    {
+        get
+        {
+            string tmp = System.Configuration.ConfigurationManager.AppSettings["BlockedEmailDomains"];
+            if (tmp != null) return tmp;
+            else return "";
+        }
+    }
     private static SmtpClient smtpClient()
     {
         //from https://docs.microsoft.com/en-us/answers/questions/400152/authentication-failed-because-the-remote-party-has.html
@@ -527,12 +536,7 @@ public class Utils
         myConnection.Close();
     }
 
-    /* ***
-     * 
-     *		THIS SECTION CONTAINS GENERIC ROUTINES TO ACCESS THE DATABASE THROUGH MICROSOFT'S ENTERPRISE LIBRARY
-     *		DATA ACCESS APPLICATION BLOCK - now recoded to bypass enterprise library
-     * 
-     * */
+    
     public static void SendErrorEmail(Exception error, string spName, params object[] spParams)
     {
         if (HttpContext.Current.Request.UserHostAddress.ToString() != "127.0.0.1")
@@ -584,6 +588,27 @@ public class Utils
                 // message fails: c'est la vie
             }
         }
+    }
+
+    public static void SendInternalEmailMessage(string message, string subject)
+    {
+        try
+        {
+            MailMessage msg = new MailMessage();
+            msg.To.Add(EmailFrom);
+            msg.From = new MailAddress(EmailFrom);
+
+            msg.Subject = "ER Manager: New account blocked";
+            msg.Body = message;
+            msg.IsBodyHtml = true;
+            SmtpClient smtp = smtpClient();
+            smtp.Send(msg);
+        }
+        catch
+        {
+            // message fails: c'est la vie
+        }
+        
     }
 
     /// <summary>

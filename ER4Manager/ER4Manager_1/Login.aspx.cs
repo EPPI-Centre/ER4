@@ -1,19 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-
-using System.Data;
-using System.Configuration;
-using System.Collections;
-using System.Web.Security;
-using System.Web.UI.WebControls.WebParts;
-using System.Web.UI.HtmlControls;
-using System.IO;
-using System.Data.SqlClient;
-using System.Text.RegularExpressions;
 
 public partial class Login : System.Web.UI.Page
 {
@@ -226,10 +219,6 @@ public partial class Login : System.Web.UI.Page
         lblNewPassword.Visible = false;
         lblMissingFields.Visible = false;
         bool isAdmDB = false;
-        bool emailConditionsMet = false;
-        bool usernameConditionsMet = false;
-        bool passwordConditionsMet = false;
-        bool accountConditionsMet = false;
         //System.Threading.Thread.Sleep(5000);
 
         //// 1. create a random 8 digit number between 10000000 and 99999999
@@ -267,6 +256,16 @@ public partial class Login : System.Web.UI.Page
             lblMissingFields.Text = "The email and Re-enter email do not match";
             return;
         }
+        //new on July 2026 - attackers got to using "testing@example.com" to create accounts and then 
+        //using it to access more endpoints to probe for SQL injection,
+        //since ER contains no legitimate accounts from @example.com, we're going to block them.
+        if (EmailDomainIsBlocked(tbNewEmail.Text))
+        {
+            lblMissingFields.Visible = true;
+            lblMissingFields.Text = "Unspecified error, please try again. If the problem sussists, please contact EPPI Support.";
+            return;
+        }
+
         if (tbNewPassword.Text != tbNewPassword1.Text)
         {
             lblMissingFields.Visible = true;
@@ -283,7 +282,6 @@ public partial class Login : System.Web.UI.Page
         }
         if (tbNewUserName.Text.Trim().Length < 4)
         {
-            usernameConditionsMet = false;
             lblUsername.Visible = true;
             lblUsername.Text = "Username must be atleast 4 characters long";
             return;
@@ -293,7 +291,7 @@ public partial class Login : System.Web.UI.Page
         if ((tbNewEmail.Text.Trim().IndexOf("@") > 0) &&
             (tbNewEmail.Text.Trim().IndexOf("@") < tbNewEmail.Text.Trim().Length - 1))
         {
-            emailConditionsMet = true;
+            //emailConditionsMet = true;
         }
         else
         {
@@ -313,10 +311,6 @@ public partial class Login : System.Web.UI.Page
                 lblUsername.Text = "Username is already in use. Please select another.";
                 return;
             }
-            else
-            {
-                usernameConditionsMet = true;
-            }
             idr.Close();
 
             idr = Utils.GetReader1(isAdmDB, "st_ContactTableByEmail", myConnection, tbNewEmail.Text.Trim());
@@ -332,7 +326,6 @@ public partial class Login : System.Web.UI.Page
 
         
         DateTime registrationDate = DateTime.Now;
-        DateTime expiryDate = DateTime.Now.AddMonths(1);   
 
         string contactName = tbFirstName.Text + " " + tbLastName.Text;
         isAdmDB = true;
@@ -394,8 +387,39 @@ public partial class Login : System.Web.UI.Page
         lblCreatedFullName.Text = contactName;
         lblCreatedUsername.Text = tbNewUserName.Text.Trim();
         ShowJustThisPanel(pnlAccountCreated);
-        
     }
+
+    private bool EmailDomainIsBlocked(string emailAddress)
+    {
+        emailAddress = emailAddress.Trim().ToLower();
+        string BlockedEmailDomains = Utils.BlockedEmailDomains;
+        string[] splitted = BlockedEmailDomains.Split(new char[] {','}, StringSplitOptions.RemoveEmptyEntries);
+        foreach (string domain in splitted)
+        {
+            string domain2 = domain.Trim().ToLower();
+            if (emailAddress.EndsWith(domain2))
+            {
+                string UserIp = HttpContext.Current.Request.UserHostAddress.ToString();
+                string contactName = tbFirstName.Text + " " + tbLastName.Text;
+                string adminMsg = "<strong>Account creation has been blocked, because the email address is in the \"BlockedEmailDomains\" list.</strong> <br>"
+                                + "<BR> BLOCKED ACCOUNT DETAILS:"
+                                + "<BR> NAME = " + contactName
+                                + "<BR> USERNAME = " + tbNewUserName.Text.Trim()
+                                + "<BR> EMAIL = " + tbNewEmail.Text.Trim()
+                                + "<BR> DESCRIPTION = " + tbDescription.Text
+                                + " Area of Reasearch: " + ddlAreaOfResearch.SelectedValue
+                                + "<br>IP address that originated the request: " + UserIp + "<br><br>"
+                                + "<BR>This usually means that there is an <strong>ongoing malicious attempt</strong> to crack into our systems.<br>"
+                                + "Otherwise, it might be an unlucky user caught in the crossfire.<br>"
+                                + "Either way, please check and report/escalate as appropriate - the list of blocked domains can be changed at any time, via the 'web.config' file.";
+
+                Utils.SendInternalEmailMessage(adminMsg, "ER Manager: New account blocked");
+                return true;
+            }
+        }
+        return false;
+    }
+
     protected void cmdSendPassword_Click(object sender, EventArgs e)
     {
         //bool isAdmDB = false;
