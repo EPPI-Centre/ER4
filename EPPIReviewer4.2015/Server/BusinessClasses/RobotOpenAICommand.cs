@@ -1298,11 +1298,16 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         return choices[0].message.content;
                     }
-                    else if (output.Length > 0 && output[0].content.Length > 0)
+                    else if (output.Length == 1 && output[0].content.Length > 0 && output[0].content[0].text != "")
                     {
                         return output[0].content[0].text;
                     }
-                    else if (content.Length> 0)
+                    else
+                    {
+                        var found = output.FirstOrDefault(f => f.type == "message");
+                        if (found != null && found.content != null && found.content.Length == 1) return found.content[0].text;
+                    }                      
+                    if (content.Length> 0)
                     {
                         return content[0].text;
                     }

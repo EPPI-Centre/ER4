@@ -30,7 +30,10 @@ export class RobotJobsLog implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (this.reviewSetsService.ReviewSets.length == 0) this.reviewSetsService.GetReviewSets(false);
-    if (this.robotsService.PastJobs.length == 0) setTimeout(() => { this.Refresh(); }, 80);
+    if (this.robotsService.PastJobs.length == 0) setTimeout(() => {
+      this.Refresh();
+      if (this.robotsService.RobotsList.length == 0) this.robotsService.GetRobotsList();
+    }, 80);
   }
   public GetAllJobsOption:boolean = false;
   CanWrite(): boolean {
