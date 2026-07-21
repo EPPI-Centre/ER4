@@ -262,7 +262,7 @@ public partial class Login : System.Web.UI.Page
         if (EmailDomainIsBlocked(tbNewEmail.Text))
         {
             lblMissingFields.Visible = true;
-            lblMissingFields.Text = "Unspecified error, please try again. If the problem sussists, please contact EPPI Support.";
+            lblMissingFields.Text = "Unspecified error, please try again. If the problem persists, please contact EPPI Support.";
             return;
         }
 
