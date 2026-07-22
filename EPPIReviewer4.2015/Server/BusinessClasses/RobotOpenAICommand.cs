@@ -916,10 +916,20 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         throw new Exception("The LLM's safety filters refused to answer questions about this paper.");
                     }
-                    else
+                    else if ((generatedText.stop_details.explanation == null || generatedText.stop_details.explanation == "") && generatedText.stop_details.category != null && generatedText.stop_details.category.Length > 0)
+                    {
+                        throw new Exception("The LLM's safety filters refused to answer questions about this paper, because of the safety filter called: " + generatedText.stop_details.category);
+                    }
+                    else if (generatedText.stop_details.explanation != null && generatedText.stop_details.explanation != "" && generatedText.stop_details.category != null && generatedText.stop_details.category.Length > 0)
+                    {
+                        throw new Exception("The LLM's safety filters refused to answer questions about this paper, because of the safety filter called: " + generatedText.stop_details.category
+                            +"." + Environment.NewLine + "And the following explanation: " + generatedText.stop_details.explanation);
+                    }
+                    else if (generatedText.stop_details.explanation != null && generatedText.stop_details.explanation != "")
                     {
                         throw new Exception("The LLM's safety filters refused to answer questions about this paper, with this explanation: " + generatedText.stop_details.explanation);
                     }
+                    throw new Exception("The LLM's safety filters refused to answer questions about this paper and provided no explanation.");
                 }
                 resultDict = new Dictionary<string, string>();
             }
@@ -1294,7 +1304,7 @@ namespace BusinessLibrary.BusinessClasses
             {
                 get
                 {
-                    if (choices.Length > 0)
+                    if (choices.Length == 1)
                     {
                         return choices[0].message.content;
                     }
@@ -1302,16 +1312,21 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         return output[0].content[0].text;
                     }
-                    else
+                    else if (output.Length > 0)
                     {
                         var found = output.FirstOrDefault(f => f.type == "message");
                         if (found != null && found.content != null && found.content.Length == 1) return found.content[0].text;
                     }                      
-                    if (content.Length> 0)
+                    if (content.Length == 1)
                     {
                         return content[0].text;
                     }
-                    else return "";
+                    else if (content.Length > 1)
+                    {
+                        var found = content.FirstOrDefault(f => f.type == "text" && f.text != null);
+                        if (found != null) return found.text;
+                    }
+                    return "";
                 }
             }
         }
