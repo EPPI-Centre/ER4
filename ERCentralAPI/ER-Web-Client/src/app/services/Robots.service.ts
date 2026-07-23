@@ -38,19 +38,22 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
   }
   public ShowSettingsInBatchPanel: boolean = true;
   public RobotInvestigateResults: iRobotInvestigate[] = [];
-  public RobotsList: iRobotCoderReadOnly[] = [];
+  public RobotsList: iRobotCoderReadOnly[] = [];//only the currently active robots, since July 2026
   public RobotsExpiredList: iRobotCoderReadOnly[] = [];
 
   public CurrentQueue: iRobotOpenAiTaskReadOnly[] = [];
   public PastJobs: RobotOpenAiTaskReadOnly[] = [];
 
   public GetRobotsList(): Promise<void> {
-    this.CurrentQueue = [];
+    this.RobotsList = [];
+    this.RobotsExpiredList = [];
     this._BusyMethods.push("GetRobotsList");
     return lastValueFrom(this._httpC.get<iRobotCoderReadOnly[]>(this._baseUrl + 'api/Robots/GetRobotsList'))
       .then((res) => {
-        this.RobotsList = res;
-        this.RobotsExpiredList = res;
+        for (const rcro of res) {
+          if (rcro.isRetired) this.RobotsExpiredList.push(rcro);
+          else this.RobotsList.push(rcro);
+        }
         this.RemoveBusy("GetRobotsList");
       },
         (err) => {

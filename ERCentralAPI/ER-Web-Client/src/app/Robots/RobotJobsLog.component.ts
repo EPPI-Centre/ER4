@@ -73,20 +73,7 @@ export class RobotJobsLog implements OnInit, OnDestroy {
   }
   
   public get RobotsExpiredList() {
-    // we want to only display the robots that aren't expired
-    let robotsListTmp: iRobotCoderReadOnly[] = [];
-    let robotsListExpiredFinal: iRobotCoderReadOnly[] = [];
-    if (this.robotsService.RobotsExpiredList) {
-      robotsListTmp = this.robotsService.RobotsExpiredList;
-      let counter = 0;
-      for (let i = 0; i < robotsListTmp.length; i++) {
-        if (robotsListTmp[i].isRetired) {
-          robotsListExpiredFinal[counter] = robotsListTmp[i];
-          counter += 1;
-        }
-      }
-    }
-    return robotsListExpiredFinal;
+    return this.robotsService.RobotsExpiredList;
   }
   
   public get IsSiteAdmin(): boolean {
