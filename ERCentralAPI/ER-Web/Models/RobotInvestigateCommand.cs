@@ -217,7 +217,7 @@ namespace BusinessLibrary.BusinessClasses
                             command.Parameters.Add(new SqlParameter("@REVIEW_ID", _reviewId));
                             command.Parameters.Add(new SqlParameter("@CONTACT_ID", _jobOwnerId));
                             command.Parameters.Add(new SqlParameter("@CREDIT_PURCHASE_ID", creditPurchaseId));
-                            command.Parameters.Add(new SqlParameter("@ROBOT_NAME", "OpenAI GPT4"));
+                            command.Parameters.Add(new SqlParameter("@ROBOT_NAME", RobotName == "" ? "Unknown Robot/LLM" : RobotName));
                             command.Parameters.Add(new SqlParameter("@CRITERIA", "Robot investigate single query"));
                             command.Parameters.Add(new SqlParameter("@REVIEW_SET_ID", (object)0));  //see https://learn.microsoft.com/en-us/dotnet/api/system.data.sqlclient.sqlparameter.-ctor?view=net-9.0-pp&redirectedfrom=MSDN#system-data-sqlclient-sqlparameter-ctor(system-string-system-object)
                             command.Parameters.Add(new SqlParameter("@CURRENT_ITEM_ID", (object)0)); 
