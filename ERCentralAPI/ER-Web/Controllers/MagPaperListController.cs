@@ -1,10 +1,12 @@
-using System;
 using BusinessLibrary.BusinessClasses;
 using Csla;
+using EPPIDataServices.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
-using EPPIDataServices.Helpers;
+using System;
+using System.Runtime.Intrinsics.Arm;
 
 
 namespace ERxWebClient2.Controllers
@@ -18,6 +20,7 @@ namespace ERxWebClient2.Controllers
         { }
 
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult GetMagPaper([FromBody] SingleInt64Criteria Id)
         {
@@ -86,16 +89,43 @@ namespace ERxWebClient2.Controllers
         }
 
 
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult GetMagPaperList([FromBody] MVCMagPaperListSelectionCriteria crit)
         {
             try
             {
                 if (!SetCSLAUser()) return Unauthorized();
+                var result = InnerGetMagPaperList(crit);
+                return Ok(new MAGList4Json(result));
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Getting a MagPaperList has an error");
+                return StatusCode(500, e.Message);
+            }
+        }
 
-                DataPortal<MagPaperList> dp = new DataPortal<MagPaperList>();
+        [HttpPost("[action]")]
+        public IActionResult GetPerItemMagPaperList([FromBody] MVCMagPaperListSelectionCriteria crit)
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                var result = InnerGetMagPaperList(crit);
+                return Ok(new MAGList4Json(result));
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Getting a MagPaperList has an error");
+                return StatusCode(500, e.Message);
+            }
+        }
 
-                MagPaperListSelectionCriteria selectionCriteria =
+        private MagPaperList InnerGetMagPaperList(MVCMagPaperListSelectionCriteria crit)
+        {
+            DataPortal<MagPaperList> dp = new DataPortal<MagPaperList>();
+            MagPaperListSelectionCriteria selectionCriteria =
                     new MagPaperListSelectionCriteria
                     {
                         AttributeIds = crit.attributeIds,
@@ -121,16 +151,9 @@ namespace ERxWebClient2.Controllers
                         AutoUpdateUserTopN = crit.autoUpdateUserTopN
                     };
 
-                var result = dp.Fetch(selectionCriteria);
-                return Ok(new MAGList4Json(result));
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "Getting a MagPaperList has an error");
-                return StatusCode(500, e.Message);
-            }
+            var result = dp.Fetch(selectionCriteria);
+            return result;
         }
-
     }
     public class MVCMagPaperCorrectnessState
     {

@@ -97,7 +97,7 @@
         $.post("../ItemList/GetFreqListJSon"
             , { attId: attributeIdFilter, attName: '' }
             , function (data, result) { itemData(data, result); }
-        );
+        ).fail((response) => handleFreqsError(response));
     }
 
 
@@ -110,7 +110,7 @@
             await $.post("../Coding/FetchItemCodingJSON"
                 , { ItemId: @Model.itemID }
                 , function (data, result) { buildCard(data, result, documentData) }
-            );
+            ).fail((response) => handleFreqsError(response));
         }
         else {
             console.log("error", "unable to get data");

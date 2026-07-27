@@ -78,7 +78,11 @@ export class MAGAdvancedService extends BusyAwareService implements OnDestroy {
   }
   public FetchMagPaperMagList(crit: MVCMagPaperListSelectionCriteria): Promise<MagList> {
     this._BusyMethods.push("FetchMagPaperMagList");
-    return lastValueFrom(this._httpC.post<MagList>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
+    let endpoint = 'api/MagPaperList/GetMagPaperList';
+    if (crit.listType == 'ItemMatchedPapersList') {
+      endpoint = 'api/MagPaperList/GetPerItemMagPaperList';
+    }
+    return lastValueFrom(this._httpC.post<MagList>(this._baseUrl + endpoint, crit)
     ).then(
 
       (result: MagList) => {

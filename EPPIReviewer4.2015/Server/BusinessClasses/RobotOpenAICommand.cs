@@ -908,31 +908,47 @@ namespace BusinessLibrary.BusinessClasses
             {
                 responses = StripThinkTagAndJsonMarkdown(responses, _itemId);
             }
+            if (responses == "")
+            {
+                if (generatedText.stop_reason == "refusal")
+                {//Claude didn't like this paper!
+                    if (generatedText.stop_details == null || generatedText.stop_details.explanation == "")
+                    {
+                        throw new Exception("The LLM's safety filters refused to answer questions about this paper.");
+                    }
+                    else if ((generatedText.stop_details.explanation == null || generatedText.stop_details.explanation == "") && generatedText.stop_details.category != null && generatedText.stop_details.category.Length > 0)
+                    {
+                        throw new Exception("The LLM's safety filters refused to answer questions about this paper, because of the safety filter called: " + generatedText.stop_details.category);
+                    }
+                    else if (generatedText.stop_details.explanation != null && generatedText.stop_details.explanation != "" && generatedText.stop_details.category != null && generatedText.stop_details.category.Length > 0)
+                    {
+                        throw new Exception("The LLM's safety filters refused to answer questions about this paper, because of the safety filter called: " + generatedText.stop_details.category
+                            +"." + Environment.NewLine + "And the following explanation: " + generatedText.stop_details.explanation);
+                    }
+                    else if (generatedText.stop_details.explanation != null && generatedText.stop_details.explanation != "")
+                    {
+                        throw new Exception("The LLM's safety filters refused to answer questions about this paper, with this explanation: " + generatedText.stop_details.explanation);
+                    }
+                    throw new Exception("The LLM's safety filters refused to answer questions about this paper and provided no explanation.");
+                }
+                resultDict = new Dictionary<string, string>();
+            }
 
+            var jObject = JsonConvert.DeserializeObject<JObject>(responses);
+            foreach (var property in jObject.Properties())
+            {
+                // If the value is a primitive, use its string value; otherwise serialize it back to JSON
+                resultDict[property.Name] = property.Value.Type == JTokenType.String
+                    ? property.Value.ToString()
+                    : property.Value.ToString(Formatting.None);
+            }
+            
             if (isRag)
             {
-                resultRagDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
+                //resultRagDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
+                resultRagDict = resultDict;
             }
-            else
-            {
-                resultDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responses);
-                //claude sometimes provides no answers at all, don't know why
-                if (resultDict == null)
-                {
-                    if (generatedText.stop_reason == "refusal")
-                    {//Claude didn't like this paper!
-                        if (generatedText.stop_details == null || generatedText.stop_details.explanation == "")
-                        {
-                            throw new Exception("The LLM's safety filters refused to answer questions about this paper.");
-                        }
-                        else
-                        {
-                            throw new Exception("The LLM's safety filters refused to answer questions about this paper, with this explanation: " + generatedText.stop_details.explanation);
-                        }
-                    }
-                    resultDict = new Dictionary<string, string>();
-                }
-            }
+            
             // seems a bit odd setting the _message to 'completed' here when it's not finished, but there are no points between here and returning that we're not returning true
             _message = "Completed " + (errors > 0 ? "with" : "without") + " errors. (" + generatedText.usage.UsageMessage() + ")";
 
@@ -1288,19 +1304,29 @@ namespace BusinessLibrary.BusinessClasses
             {
                 get
                 {
-                    if (choices.Length > 0)
+                    if (choices.Length == 1)
                     {
                         return choices[0].message.content;
                     }
-                    else if (output.Length > 0 && output[0].content.Length > 0)
+                    else if (output.Length == 1 && output[0].content.Length > 0 && output[0].content[0].text != "")
                     {
                         return output[0].content[0].text;
                     }
-                    else if (content.Length> 0)
+                    else if (output.Length > 0)
+                    {
+                        var found = output.FirstOrDefault(f => f.type == "message");
+                        if (found != null && found.content != null && found.content.Length == 1) return found.content[0].text;
+                    }                      
+                    if (content.Length == 1)
                     {
                         return content[0].text;
                     }
-                    else return "";
+                    else if (content.Length > 1)
+                    {
+                        var found = content.FirstOrDefault(f => f.type == "text" && f.text != null);
+                        if (found != null) return found.text;
+                    }
+                    return "";
                 }
             }
         }

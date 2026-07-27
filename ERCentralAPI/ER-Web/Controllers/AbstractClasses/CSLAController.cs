@@ -11,10 +11,12 @@ using System.Security.Claims;
 
 using System.Data.SqlClient;
 using BusinessLibrary.BusinessClasses;
+using Microsoft.AspNetCore.RateLimiting;
 
 
 namespace ERxWebClient2.Controllers
 {
+    [EnableRateLimiting("RegularApiEndPoints")]
     public abstract class CSLAController : Microsoft.AspNetCore.Mvc.Controller
     {
         protected readonly ILogger _logger;

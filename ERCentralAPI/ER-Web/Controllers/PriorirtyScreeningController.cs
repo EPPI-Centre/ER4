@@ -1,15 +1,16 @@
+using BusinessLibrary.BusinessClasses;
+using BusinessLibrary.Security;
+using Csla;
+using EPPIDataServices.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Azure.Management.ResourceManager.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BusinessLibrary.BusinessClasses;
-using BusinessLibrary.Security;
-using Csla;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using EPPIDataServices.Helpers;
-using Newtonsoft.Json;
-using Microsoft.Azure.Management.ResourceManager.Models;
 
 namespace ERxWebClient2.Controllers
 {
@@ -55,6 +56,8 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult TrainingNextItem([FromBody] SingleIntCriteria crit)
         {
@@ -75,6 +78,8 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult TrainingPreviousItem([FromBody] SingleInt64Criteria crit)
         {
@@ -96,6 +101,8 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult TrainingNextItemFromList([FromBody] SingleIntCriteria crit)
         {
@@ -116,6 +123,8 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult TrainingPreviousItemFromList([FromBody] SingleInt64Criteria crit)
         {
@@ -136,7 +145,8 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        
+
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult RaicFindAndDoWorkFromUITrigger([FromBody] ScreeningFromSearchCommandMVC data)
         {
@@ -158,6 +168,7 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult PleaseLockThisItem([FromBody] SingleInt64Criteria crit)
         {
@@ -180,6 +191,8 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult TrainingRunCommand([FromBody] SingleInt64Criteria crit)
         {
@@ -210,6 +223,7 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult RunScreeningFromSearchCommand([FromBody] ScreeningFromSearchCommandMVC crit)
         {

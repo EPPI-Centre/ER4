@@ -1,3 +1,11 @@
+using BusinessLibrary.BusinessClasses;
+using BusinessLibrary.Security;
+using Csla;
+using EPPIDataServices.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -5,13 +13,6 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
-using BusinessLibrary.BusinessClasses;
-using BusinessLibrary.Security;
-using Csla;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using EPPIDataServices.Helpers;
-using Newtonsoft.Json;
 
 namespace ERxWebClient2.Controllers
 {
@@ -39,6 +40,8 @@ namespace ERxWebClient2.Controllers
             }
 
         }
+
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult FetchMetaAnalysis([FromBody] MetaAnalysisSelectionCritJSON crit)
         {
@@ -71,6 +74,8 @@ namespace ERxWebClient2.Controllers
             }
 
         }
+
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult SaveMetaAnalysis([FromBody] MetaAnalysisJSON MAjson)
         {
@@ -199,6 +204,8 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult RunMetaAnalysis([FromBody] MetaAnalysisJSON MAjson)
         {

@@ -1,4 +1,12 @@
-﻿using System;
+﻿using EPPIDataServices.Helpers;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -6,13 +14,6 @@ using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using EPPIDataServices.Helpers;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using WebDatabasesMVC;
 
 
@@ -21,6 +22,7 @@ namespace WebDatabasesMVC.Controllers
 {
     //[Route("Login")]
     //[Route("Login/Login")]
+    [EnableRateLimiting("RegularApiEndPoints")]
     public class LoginController : Microsoft.AspNetCore.Mvc.Controller
     {
         private static string _HeaderImagesFolder;
@@ -228,6 +230,7 @@ namespace WebDatabasesMVC.Controllers
                 new Claim("WebDbID", WebDbID.ToString()),
                 new Claim("HiddenFields", HiddenFields),
                 new Claim("IsPasswordProtected", isPasswordProtected.ToString()),
+                new Claim("PartitioningGUID", Guid.NewGuid().ToString()),
                 //new Claim("ItemsCode", itemsCode.ToString()) //we don't need to store this in the Cookie: the SPs for WebDBs should retrieve it from the DB
             };
             var innerIdentity = new ClaimsIdentity(userClaims, "User Identity");

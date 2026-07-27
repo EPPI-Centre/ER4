@@ -73,40 +73,70 @@
                   <div *ngIf="WizStep == 2.2" class="col-12">
                     Available Coding Tools (personal)
                   </div>
+                  <div class="col-auto mr-auto my-auto">
+                    <div class="rounded row ml-0 p-1 border border-info">
+                      <div class="d-block mx-1 px-1 border border-dark rounded">
+                        <input type="radio" value="All" name="codingToolType" [(ngModel)]="codingTools">&nbsp;All
+                      </div>
+                      <div class="d-block mx-1 px-1 border border-success text-success rounded">
+                        <input type="radio" value="Screening" name="codingToolType" [(ngModel)]="codingTools">&nbsp;Screening
+                      </div>
+                      <div class="d-block mx-1 px-1 border border-dark rounded">
+                        <input type="radio" value="Standard" name="codingToolType" [(ngModel)]="codingTools">&nbsp;Standard
+                      </div>
+                      <div class="d-block mx-1 px-1 border border-primary text-primary rounded">
+                        <input type="radio" value="Administration" name="codingToolType" [(ngModel)]="codingTools">&nbsp;Administration
+                      </div>                     
+                    </div>
+                  </div>
+                  <div class="col-auto mr-auto my-auto">
+                    <table width="100%">
+                      <tr>
+                        <td>
+                          Filter by:
+                        </td>
+                        <td>
+                          <input #titleModel="ngModel" name="n1" required minlength="1" pattern="^(?!\s*$).+" class="form-control"
+                                 type="text" [(ngModel)]="FilterByName" />
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+
                   <div class="col-12" [ngStyle]="{'max-height.px': codingtoolsMaxHeight}" style="overflow-y:auto;">
-                    <button *ngFor="let set of ReviewSets4Copy" role="group" type="button" class="btn col-12"
+                    <button *ngFor="let set of getRelevantTools()" role="group" type="button" class="btn col-12" style="text-align:left"
                             [ngClass]="{'font-weight-bold btn-info' : (SelectedSet4Copy && SelectedSet4Copy.set_id && SelectedSet4Copy.set_id == set.set_id)
-                                    ,'btn-outline-info' :(!SelectedSet4Copy || !SelectedSet4Copy.set_id || SelectedSet4Copy.set_id != set.set_id)}"
+                                  ,'btn-outline-info' :(!SelectedSet4Copy || !SelectedSet4Copy.set_id || SelectedSet4Copy.set_id != set.set_id)}"
                             (click)="SelectSet4Copy(set)">
                       {{set.set_name}}
                     </button>
                   </div>
                 </div>
-                <div class="col-12 col-sm-6 col-md-4 mt-0 mb-0 d-flex flex-column align-self-stretch">
-                    <div class="align-self-start w-100">Coding Tool Preview:</div>
-                    <div class="align-self-stretch h-100">
-                      <div class="p-1 bg-white border border-dark rounded h-100">
-                        <codesetTree4Copy [SelectedCodeset]="SelectedSet4Copy" [MaxHeight]="codingtoolsMaxHeight"></codesetTree4Copy>
+                    <div class="col-12 col-sm-6 col-md-4 mt-0 mb-0 d-flex flex-column align-self-stretch">
+                      <div class="align-self-start w-100">Coding Tool Preview:</div>
+                      <div class="align-self-stretch h-100">
+                        <div class="p-1 bg-white border border-dark rounded h-100">
+                          <codesetTree4Copy [SelectedCodeset]="SelectedSet4Copy" [MaxHeight]="codingtoolsMaxHeight"></codesetTree4Copy>
+                        </div>
                       </div>
                     </div>
+                    <div class="col-12 col-sm-6 col-md-4 ">
+                      <div class="border-bottom border-dark">Current tools:</div>
+                      <codesetTreeMain [MaxHeight]="codingtoolsMaxHeight"></codesetTreeMain>
+                    </div>
+                  </div>
+                  <div class="row align-bottom justify-content-center mt-2 col-12">
+                    <button class="btn btn-outline-secondary ml-1"
+                            (click)="CancelActivity()" style="width:200px;">
+                      Cancel
+                    </button>
+                    <button type="submit" (click)="ImportSelectedSet()" class="btn btn-success ml-2 mr-2"
+                            [ngClass]="{disableThisAndChildren:!CanWrite()}"
+                            [disabled]="!SelectedSet4Copy">
+                      Import Selected
+                    </button>
+                  </div>
                 </div>
-                <div class="col-12 col-sm-6 col-md-4 ">
-                  <div class="border-bottom border-dark">Current tools:</div>
-                  <codesetTreeMain [MaxHeight]="codingtoolsMaxHeight"></codesetTreeMain>
-                </div>
-              </div>
-              <div class="row align-bottom justify-content-center mt-2 col-12">
-                <button class="btn btn-outline-secondary ml-1"
-                        (click)="CancelActivity()" style="width:200px;">
-                  Cancel
-                </button>
-                <button type="submit" (click)="ImportSelectedSet()" class="btn btn-success ml-2 mr-2"
-                        [ngClass]="{disableThisAndChildren:!CanWrite()}"
-                        [disabled]="!SelectedSet4Copy">
-                  Import Selected
-                </button>
-              </div>
-            </div>
           </div>
         </div>
 <statusbar *ngIf="IsStandalone" class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>

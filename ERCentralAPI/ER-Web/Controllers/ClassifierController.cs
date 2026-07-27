@@ -1,13 +1,14 @@
-using System;
-using System.Threading.Tasks;
 using BusinessLibrary.BusinessClasses;
 using BusinessLibrary.Security;
+using Csla;
+using EPPIDataServices.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using EPPIDataServices.Helpers;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
-using Csla;
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ERxWebClient2.Controllers
 {
@@ -43,8 +44,9 @@ namespace ERxWebClient2.Controllers
 			}
 
 		}
-		
-		[HttpPost("[action]")]
+
+        [EnableRateLimiting("MaxCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult Classifier([FromBody] MVCClassifierCommand MVCcmd)
 		{
 			
@@ -82,6 +84,7 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult BuildClassifierV2([FromBody] MVCClassifierCommand MVCcmd)
         {
@@ -121,6 +124,7 @@ namespace ERxWebClient2.Controllers
 
         }
 
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
 		public IActionResult ApplyClassifier([FromBody] MVCClassifierCommand MVCcmd)
 		{
@@ -215,6 +219,7 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult CheckScreening([FromBody] MVCClassifierCommand MVCcmd)
         {
@@ -252,6 +257,7 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult RunPriorityScreeningSimulation([FromBody] MVCClassifierCommand MVCcmd)
         {

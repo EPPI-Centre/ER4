@@ -295,7 +295,7 @@ public partial class PurchaseHistory : System.Web.UI.Page
                 }
                 else
                 {
-                    Response.Write(" - Acccount extension for: " + idr["NAME"].ToString());
+                    Response.Write(" - Account extension for: " + idr["NAME"].ToString());
                     Response.Write(Environment.NewLine);
                 }
             }
@@ -371,13 +371,19 @@ public partial class PurchaseHistory : System.Web.UI.Page
         Response.Write(Environment.NewLine);
         //Response.Write("Discount: £" + discount);
         //Response.Write(Environment.NewLine);
-        if (vat != "")
+        if (vat == "") vat = "0";
+        if (vat != "0")
         {
             showVATNumber = true;
             Response.Write("VAT: £" + vat);
             Response.Write(Environment.NewLine);
-            // add totalFee and vat to get the amount paid           
+            // add totalFee and vat to get the amount paid
+            double total;            
+            total = double.Parse(totalFee) + double.Parse(vat);
+            totalFee = total.ToString();
         }
+       
+
         Response.Write("Total paid: £" + totalFee);
         Response.Write(Environment.NewLine);
         if (showVATNumber == true)

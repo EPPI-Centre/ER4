@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using BusinessLibrary.BusinessClasses;
+﻿using BusinessLibrary.BusinessClasses;
 using Csla;
 using EPPIDataServices.Helpers;
 using ERxWebClient2.Controllers;
@@ -14,7 +7,15 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using WebDatabasesMVC;
 using WebDatabasesMVC.ViewModels;
 
@@ -27,7 +28,7 @@ namespace WebDatabasesMVC.Controllers
         public FrequenciesController(ILogger<FrequenciesController> logger) : base(logger)
         {}
 
-        
+
         public IActionResult GetFrequencies([FromForm] long attId, int setId, string parentName, string included, long onlyThisAttribute = 0)
         {
             try
@@ -51,18 +52,22 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-
+        
+        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult GetFrequenciesJSON([FromForm] long attId, int setId, string parentName, string included, long onlyThisAttribute = 0)
         {
+            var id = this.HttpContext.User.Identity;
             return internalGetFrequenciesJSON(attId, setId, parentName, included, onlyThisAttribute);
         }
+
         [Authorize(AuthenticationSchemes = "FairAuthentication")]
+        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult FairGetFrequenciesJSON([FromForm] long attId, int setId, string parentName, string included, long onlyThisAttribute = 0)
         {
             return internalGetFrequenciesJSON(attId, setId, parentName, included, onlyThisAttribute);
         }
         private IActionResult internalGetFrequenciesJSON([FromForm] long attId, int setId, string parentName, string included, long onlyThisAttribute)
-        {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
+        {
             try
             {
                 if (SetCSLAUser())
@@ -92,8 +97,9 @@ namespace WebDatabasesMVC.Controllers
 
 
         [HttpPost]
+        [EnableRateLimiting("HighCostEndpoints")]
         public IActionResult GetFrequenciesResultsJSON(WebDbFrequencyCrosstabAndMapSelectionCriteriaMVC crit)
-        {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
+        {
             try
             {
                 if (SetCSLAUser())
@@ -135,6 +141,7 @@ namespace WebDatabasesMVC.Controllers
             return res;
         }
 
+       
         public IActionResult GetCrosstab([FromForm] long attIdx, int setIdx, string nameXaxis, long attIdy, int setIdy, string nameYaxis, string included, string graphic)
         {
 
@@ -162,8 +169,9 @@ namespace WebDatabasesMVC.Controllers
             }
         }
         [HttpPost]
+        [EnableRateLimiting("MaxCostEndpoints")]
         public IActionResult GetCrosstabJSON(long attIdx, int setIdx, string nameXaxis, long attIdy, int setIdy, string nameYaxis, string included, string graphic)
-        {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
+        {
             try
             {
                 if (SetCSLAUser())
@@ -217,7 +225,7 @@ namespace WebDatabasesMVC.Controllers
             return res;
         }
 
-        //[HttpPost("[action]")]
+        
         public IActionResult GetMap([FromForm] long attIdx, int setIdx, string nameXaxis, long attIdy, int setIdy, string nameYaxis,
                                     string included, string graphic, long segmentsParent, int setIdSegments)
         {
@@ -244,8 +252,9 @@ namespace WebDatabasesMVC.Controllers
         }
        
         [HttpPost]
+        [EnableRateLimiting("MaxCostEndpoints")]
         public IActionResult GetMapJSON(WebDbFrequencyCrosstabAndMapSelectionCriteriaMVC crit)
-        {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
+        {
             try
             {
                 if (SetCSLAUser())

@@ -5,6 +5,7 @@ import { ReviewSetsService, kvAllowedAttributeType, SetAttribute, ReviewSet, sin
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 
 @Component({
@@ -19,12 +20,24 @@ export class EditCodeComp implements OnInit, OnDestroy {
     private ReviewSetsService: ReviewSetsService,
     private ReviewSetsEditingService: ReviewSetsEditingService,
     private ReviewInfoService: ReviewInfoService,
-    private ReviewerIdentityServ: ReviewerIdentityService
+    private ReviewerIdentityServ: ReviewerIdentityService,
+    private confirmationDialogService: ConfirmationDialogService
   ) { }
 
 
   @Input() IsSmall: boolean = false;
-  @Input() UpdatingCode: SetAttribute | null = null;
+
+  private _UpdatingCode: SetAttribute | null = null;
+  private _UnchangedUpdatingCode: SetAttribute | null = null;
+  private _CancelHandledCorrectly = false;
+  @Input() set UpdatingCode(value: SetAttribute | null) {
+    this._UpdatingCode = value;
+    if (value) this._UnchangedUpdatingCode = value.VeryShallowClone();
+    else this._UnchangedUpdatingCode = null;
+  }
+  public get UpdatingCode(): SetAttribute | null {
+    return this._UpdatingCode;
+  }
   @Input() EditCodeActivity: string = "";
 
   @Input() Context: string | undefined;
@@ -42,19 +55,7 @@ export class EditCodeComp implements OnInit, OnDestroy {
     this._ShowPanel = "MoveCode";
   }
 
-  public radioButtonEntry: boolean = true;
-  public radioToCheckChange: boolean = false;
-
-  public radioButtonEntryClicked(event: Event) {
-    if (this.radioButtonEntry == true) {
-      this.radioButtonEntry = false;
-      this.radioToCheckChange = true;
-    }
-    else {
-      this.radioButtonEntry = true;
-      this.radioToCheckChange = false;
-    }
-  }
+  
 
 
   ErrorMessage4CodeMove: string = "";
@@ -68,7 +69,7 @@ export class EditCodeComp implements OnInit, OnDestroy {
     if (this.Context === "MoveCode") {
       this._ShowPanel = "MoveCode";
     }
-
+    //console.log("OnInit: ")
   }
 
   onSubmit(): boolean {
@@ -113,10 +114,20 @@ export class EditCodeComp implements OnInit, OnDestroy {
     if (this.UpdatingCode && this.UpdatingCode.attribute_name.trim() != "") return true;
     else return false;
   }
-  HasAnythingChanged(istheFormDirty: boolean | null): boolean {
-    if ((istheFormDirty == true) || (this.radioToCheckChange == true)) {
-      return true;
+  public get ShowIsExclusiveCheckbox(): boolean {
+    if (this._UpdatingCode == null) return false;
+    else if (this._UpdatingCode.typeCanBeExclusive) {
+      if (this._UnchangedUpdatingCode) return this._UnchangedUpdatingCode.isExclusive;
     }
+    return false;
+  }
+  HasAnythingChanged(): boolean {
+    if (this._UpdatingCode == null) return false;
+    else if (this._UnchangedUpdatingCode == null) return false;
+    else if (this._UnchangedUpdatingCode.attribute_name.trim() != this._UpdatingCode.attribute_name.trim()) return true;
+    else if (this._UnchangedUpdatingCode.isExclusive != this._UpdatingCode.isExclusive) return true;
+    else if (this._UnchangedUpdatingCode.attribute_set_desc.trim() != this._UpdatingCode.attribute_set_desc.trim()) return true;
+    else if (this._UnchangedUpdatingCode.attribute_type != this._UpdatingCode.attribute_type) return true;
     else return false;
   }
 
@@ -129,6 +140,7 @@ export class EditCodeComp implements OnInit, OnDestroy {
     this._ShowPanel = "";
     if (refreshtree && refreshtree == true) this.emitterCancel.emit(true);
     else this.emitterCancel.emit(false);
+    this._CancelHandledCorrectly = true;
   }
 
   AttributeTypeChanged(event: Event) {
@@ -139,6 +151,7 @@ export class EditCodeComp implements OnInit, OnDestroy {
       this.UpdatingCode.attribute_type_id = typeId;
       let foundT = this.AllowedChildTypes.find(found => found.key == typeId);
       if (foundT) this.UpdatingCode.attribute_type = foundT.value;
+      if (this.UpdatingCode.isExclusive == true && !this.UpdatingCode.typeCanBeExclusive) this.UpdatingCode.isExclusive = false;
     }
   }
 
@@ -150,13 +163,27 @@ export class EditCodeComp implements OnInit, OnDestroy {
   }
 
   UpdateCode() {
-    if (!this.UpdatingCode || this.UpdatingCode.nodeType != "SetAttribute") {
-      this.CancelActivity();
+    if (!this.UpdatingCode || this.UpdatingCode.nodeType != "SetAttribute" || !this._UnchangedUpdatingCode) {
+      this.CancelActivity(true);
       return;//fail silently, should be ok as it should never happen...
     }
-    
     let Att = this.UpdatingCode;
-    if (this.radioToCheckChange == true) Att.isExclusive = false;
+    if (this._UnchangedUpdatingCode.isExclusive == true && this.UpdatingCode.isExclusive == false) {
+      this.confirmationDialogService.confirm("Save all changes?"
+        , "You're about to update this code. If you proceed, the code will become \"not radio\".<br />"
+        + "<div class='d-flex'><div class='border border-warning rounded px-1 mx-auto'><strong>This change is irreversible</strong>! Proceed?</div></div>"
+        , false, "", "Save changes", "Cancel").then(
+          (ok: any) => {
+            if (ok == true) this.actualUpdateCode(Att);
+          }
+        );
+    }
+    else {
+      this.actualUpdateCode(Att);
+    }
+  }
+
+  private actualUpdateCode(Att: SetAttribute) {
     this.ReviewSetsEditingService.UpdateAttribute(Att)
       .then(
         success => {
@@ -203,6 +230,23 @@ export class EditCodeComp implements OnInit, OnDestroy {
 
   async DoMoveBranch(DestinationBranch: singleNode | null) {
     //console.log("DoMoveBranch", DestinationBranch, this.UpdateCode);
+    if (DestinationBranch == null || this.UpdatingCode == null || this._UnchangedUpdatingCode == null) return;
+    if (this._UnchangedUpdatingCode.isExclusive == true && this.UpdatingCode.isExclusive == false) {
+      this.confirmationDialogService.confirm("Save all changes?"
+        , "You're about to move this code. Because of <em>other unsaved changes</em>, if you proceed the code will become \"not radio\".<br />"
+        + "<div class='d-flex'><div class='border border-warning rounded px-1 mx-auto'><strong>This change is irreversible</strong>! Proceed?</div></div>"
+        , false, "", "Yes, save all changes", "Cancel").then(
+          (ok: any) => {
+            if (ok == true) this.actualDoMoveBranch(DestinationBranch);
+          }
+        );
+    }
+    else {
+      this.actualDoMoveBranch(DestinationBranch);
+    }
+  }
+  private async actualDoMoveBranch(DestinationBranch: singleNode | null) {
+    //console.log("DoMoveBranch", DestinationBranch, this.UpdateCode);
     if (DestinationBranch == null || this.UpdatingCode == null) return;
     else {
       let res = await this.ReviewSetsEditingService.MoveSetAttributeInto(this.UpdatingCode, DestinationBranch);
@@ -216,19 +260,33 @@ export class EditCodeComp implements OnInit, OnDestroy {
     }
   }
 
-  async DoMoveBranchBelow(DestinationBranch: singleNode | null) {
+  DoMoveBranchBelow(DestinationBranch: singleNode | null) {
     //console.log("DoMoveBranch", DestinationBranch, this.UpdateCode);
-    if (DestinationBranch == null || this.UpdatingCode == null) return;
-    else {
-      let res = await this.ReviewSetsEditingService.MoveSetAttributeBelow(this.UpdatingCode, DestinationBranch);
-      if (res == false) {
-        console.log("Moving code failed (moving code, destination):", this.UpdatingCode, DestinationBranch);
-        this.ErrorMessage4CodeMove = "Sorry, moving this code failed. If the problem persists, please contact EPPISupport."
-      }
-      else {
-        this.CancelActivity();
-      }
+    if (DestinationBranch == null || this.UpdatingCode == null || this._UnchangedUpdatingCode == null) return;
+    if (this._UnchangedUpdatingCode.isExclusive == true && this.UpdatingCode.isExclusive == false) {
+      this.confirmationDialogService.confirm("Save all changes?"
+        , "You're about to move this code. Because of <em>other unsaved changes</em>, if you proceed the code will become \"not radio\".<br />"
+        + "<div class='d-flex'><div class='border border-warning rounded px-1 mx-auto'><strong>This change is irreversible</strong>! Proceed?</div></div>"
+        , false, "", "Yes, save all changes", "Cancel").then(
+          (ok: any) => {
+            if (ok == true) this.actualDoMoveBranchBelow(DestinationBranch);
+          }
+        );
     }
+    else {
+      this.actualDoMoveBranchBelow(DestinationBranch);
+    }
+  }
+  private async actualDoMoveBranchBelow(DestinationBranch: singleNode) {
+    if (!this.UpdatingCode) return;
+    let res = await this.ReviewSetsEditingService.MoveSetAttributeBelow(this.UpdatingCode, DestinationBranch);
+    if (res == false) {
+      console.log("Moving code failed (moving code, destination):", this.UpdatingCode, DestinationBranch);
+      this.ErrorMessage4CodeMove = "Sorry, moving this code failed. If the problem persists, please contact EPPISupport."
+    }
+    else {
+      this.CancelActivity();
+    }    
   }
 
   ShowDeleteCodesetClicked() {
@@ -288,7 +346,10 @@ export class EditCodeComp implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-
+    //console.log("Destroying EditCode");
+    if (this._CancelHandledCorrectly == false && this.HasAnythingChanged() == true) {
+      this.emitterCancel.emit(true);
+    }
   }
 
 

@@ -378,6 +378,14 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
     }
     return result;
   }
+  public FindAttributeByIdInThisSet(AttributeId: number, rSet: ReviewSet): SetAttribute | null {
+    let result: SetAttribute | null = null;
+      result = this.internalFindAttributeById(rSet.attributes, AttributeId);
+      if (result) {
+        return result;
+      }
+    return result;
+  }
   public FindSetById(SetId: number): ReviewSet | null {
     let result: ReviewSet | null = null;
     for (let Set of this.ReviewSets) {
@@ -469,36 +477,18 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
     this._BusyMethods.push("ExecuteItemAttributeSaveCommand");
     //this "busy" situation is handled in ItemCodingItemAttributeSaveCommandHandled as it gets completed in the "coding" components...
     //thus, we don't simply remove it when the API call ends.
-    if (cmd.isExclusive == true) {
-      this._httpC.post<ItemAttributeSaveCommand>(this._baseUrl + 'api/ItemSetList/ExecuteItemAttributeExclusiveSaveCommand', cmd).subscribe(
-        data => {
-
-          this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
-          //this._IsBusy = false;
-        }, error => {
-
-          this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
-          //this.ItemCodingItemAttributeSaveCommandError.emit(error);
-          //this._IsBusy = false;
-          this.RemoveBusy("ExecuteItemAttributeSaveCommand");
-        }
-      );
-    }
-    else {
-      this._httpC.post<ItemAttributeSaveCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemAttributeSaveCommand', cmd).subscribe(
-        data => {
-
-          this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
-          //this._IsBusy = false;
-        }, error => {
-
-          this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
-          //this.ItemCodingItemAttributeSaveCommandError.emit(error);
-          //this._IsBusy = false;
-          this.RemoveBusy("ExecuteItemAttributeSaveCommand");
-        }
-      );
-    }
+    
+    lastValueFrom(this._httpC.post<ItemAttributeSaveCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemAttributeSaveCommand', cmd)).then(
+      data => {
+        this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
+        //this._IsBusy = false;
+      }, error => {
+        this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
+        //this.ItemCodingItemAttributeSaveCommandError.emit(error);
+        //this._IsBusy = false;
+        this.RemoveBusy("ExecuteItemAttributeSaveCommand");
+      }
+    );
   }
   public ExecuteItemAttributeBulkInsertCommand(cmd: ItemAttributeBulkSaveCommand) {
     this._BusyMethods.push("ExecuteItemAttributeBulkInsertCommand");
@@ -605,7 +595,7 @@ export interface singleNode {
   attributeSetId: number;
   parent: number;
   isExclusive: boolean;
-
+  typeCanBeExclusive: boolean;
   isSelected: boolean;
   additionalText: string;
   armId: number;
@@ -623,6 +613,7 @@ export class ReviewSet implements singleNode {
   public get name(): string { return this.set_name; }
   set_order: number = -1;
   reviewSetId: number = -1;
+  readonly typeCanBeExclusive: boolean = false;
   attributes: SetAttribute[] = [];
   showCheckBox: boolean = false;
   public get subTypeName(): string {
@@ -695,7 +686,7 @@ export class ReviewSet implements singleNode {
     allowedCodeTypes: [],
     allowedSetTypesID4Paste: []
   };
-  nodeType: string = "ReviewSet";
+  readonly nodeType: string = "ReviewSet";
   order: number = 0;
   allowEditingCodeset: boolean = false;
 
@@ -761,6 +752,12 @@ export class SetAttribute implements singleNode {
     if (this.attribute_type == 'Not selectable (no checkbox)') return false;
     else return true;
   }
+  public get typeCanBeExclusive(): boolean {
+    if (this.attribute_type == "Selectable (show checkbox)"
+      || this.attribute_type == "Include"
+      || this.attribute_type == "Exclude") return true;
+    return false;
+  }
   public get subTypeName(): string {
     return this.attribute_type;
   }
@@ -786,7 +783,7 @@ export class SetAttribute implements singleNode {
 
   allowEditingCodeset: boolean = false;//not used for attributes
   itemSetIsLocked: boolean = false;//not used for attributes
-  nodeType: string = "SetAttribute";
+  readonly nodeType: string = "SetAttribute";
 
   allowCodingEdits: boolean = false;
   isSelected: boolean = false;
@@ -805,6 +802,7 @@ export class SetAttribute implements singleNode {
     }
     return countSoFar;
   }
+  
   public get IsCodeWithLlmPrompt(): boolean {
     //(possiblePrompt.IndexOf(':') > 1 && possiblePrompt.IndexOf("//") > possiblePrompt.IndexOf(':'))
     const ColIndex = this.attribute_set_desc.indexOf(':');
@@ -827,6 +825,35 @@ export class SetAttribute implements singleNode {
       listSoFar = A.AllChildrentWithPrompts(listSoFar);
     }
     return listSoFar;
+  }
+  public VeryShallowClone(): SetAttribute {
+    let res = new SetAttribute();
+    res.attribute_id = this.attribute_id;
+    res.attribute_name = this.attribute_name;
+    res.attribute_order = this.attribute_order;
+    res.attributeSetId = this.attributeSetId;
+    res.attribute_type = this.attribute_type;
+    res.attribute_set_desc = this.attribute_set_desc;
+    res.attribute_desc = this.attribute_desc;
+    res.isExclusive = this.isExclusive;
+    res.set_id = this.set_id;
+
+    res.parent_attribute_id = this.parent_attribute_id;
+    res.attribute_type_id = this.attribute_type_id;
+    res.originalAttributeID = this.originalAttributeID;
+    res.oldestKnownId = this.oldestKnownId;
+
+    res.allowCodingEdits = this.allowCodingEdits;
+    res.isSelected = this.isSelected;
+    res.additionalText = this.additionalText;
+    res.armId = this.armId;
+    res.armTitle = this.armTitle;
+    res.order = this.order;
+    res.codingComplete = this.codingComplete;
+    res.extURL = this.extURL;
+    res.extType = this.extType;
+
+    return res;
   }
 }
 

@@ -1,13 +1,14 @@
+using BusinessLibrary.BusinessClasses;
+using BusinessLibrary.Security;
+using Csla;
+using EPPIDataServices.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BusinessLibrary.BusinessClasses;
-using BusinessLibrary.Security;
-using Csla;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using EPPIDataServices.Helpers;
 
 namespace ERxWebClient2.Controllers
 {
@@ -19,28 +20,9 @@ namespace ERxWebClient2.Controllers
         public WebDbController(ILogger<WebDbController> logger, IConfiguration configuration) : base(logger)
         { _Configuration = configuration; }
 
-        //[HttpGet("[action]")]
-        /*public IActionResult GetWebDBLogs()
-        {
-            try
-            {
-                if (!SetCSLAUser()) return Unauthorized();
-                int WebDBID = 1002;
-                DateTime From = new DateTime(2021, 01, 01, 12, 12, 12);
-                DateTime Until = new DateTime(1980, 01, 01, 00, 00, 00);
-                string Type = "all";
 
-                ReadOnlyWebDbActivityListSelectionCrit crit = new ReadOnlyWebDbActivityListSelectionCrit(WebDBID, From, Until, Type);
-                ReadOnlyWebDbActivityList res = DataPortal.Fetch<ReadOnlyWebDbActivityList>(crit);
-                return Ok(res);
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "GetWebDBLogs data portal error");
-                return StatusCode(500, e.Message);
-            }
-        }*/
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult GetWebDBLogs([FromBody] ReadOnlyWebDbActivityListSelectionCritJson critJson)
         {
@@ -112,9 +94,7 @@ namespace ERxWebClient2.Controllers
                     WebDB toDel = res.ToList().Find(found => found.WebDBId == crit.Value);
                     if (toDel != null && toDel.WebDBId == crit.Value)
                     {
-                        toDel.BeginEdit();
                         toDel.Delete();
-                        toDel.ApplyEdit();
                         WebDB done = toDel.Save();
                     }
                     res = DataPortal.Fetch<WebDBsList>();
@@ -233,6 +213,8 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult UploadImage([FromForm] UploadImage incoming)
         {
@@ -491,6 +473,7 @@ namespace ERxWebClient2.Controllers
             res.WebDBMapDescription = webDBMapDescription;
             res.WebDBMapId = webDBMapId;
             res.WebDBMapName = webDBMapName;
+            res.MapOrder = mapOrder;
             if (webDBId > 0 && webDBMapId > 0) res.MarkAsOldAndDirty();
             return res;
         }
@@ -516,6 +499,7 @@ namespace ERxWebClient2.Controllers
         public string webDBMapDescription { get; set; }
         public int webDBMapId { get; set; }
         public string webDBMapName { get; set; }
+        public int mapOrder { get; set; }
     }
 
     public class ReadOnlyWebDbActivityListSelectionCritJson

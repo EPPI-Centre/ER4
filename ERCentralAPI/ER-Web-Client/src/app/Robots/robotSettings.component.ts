@@ -37,6 +37,7 @@ export class RobotSettings implements OnInit, OnDestroy {
   }
   public get RobotsList() {
     return this.robotsService.RobotsList;
+    // we want to only display the robots that aren't expired, which is the list above
   }
   FormatDate(DateSt: string): string {
     if (DateSt == "0001-01-01T00:00:00") return "None";

@@ -1,11 +1,12 @@
-using System;
 using BusinessLibrary.BusinessClasses;
 using BusinessLibrary.Security;
 using Csla;
+using EPPIDataServices.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
-using EPPIDataServices.Helpers;
+using System;
 
 namespace ERxWebClient2.Controllers
 {
@@ -106,6 +107,7 @@ namespace ERxWebClient2.Controllers
 
         //move the following two to their own controller
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpGet("[action]")]
         public IActionResult MagCheckContReviewRunningCommand()
         {
@@ -131,6 +133,7 @@ namespace ERxWebClient2.Controllers
         }
 
 
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult DoRunContReviewPipeline([FromBody] MVCContReviewPipeLineCommand pipelineParams)
         {

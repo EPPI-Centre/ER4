@@ -7,6 +7,7 @@ using BusinessLibrary.Security;
 using Csla;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Newtonsoft.Json;
 
 namespace ERxWebClient2.Controllers
@@ -23,34 +24,7 @@ namespace ERxWebClient2.Controllers
         { }
 
 
-        //[HttpGet("[action]")]
-        //public ItemList4Json IncludedItems()//should receive a reviewID!
-        //{
-        //    try
-        //    {
-        //        if (!SetCSLAUser()) return Unauthorized();
-        //        ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-
-        //        DataPortal<ItemList> dp = new DataPortal<ItemList>();
-        //        SelectionCriteria crit = new SelectionCriteria();
-        //        //crit = new SelectionCriteria();
-        //        crit.ListType = "StandardItemList";
-        //        crit.OnlyIncluded = true;
-        //        crit.ShowDeleted = false;
-        //        crit.AttributeSetIdList = "";
-        //        crit.PageSize = 5;
-        //        crit.PageNumber = 0;
-        //        ItemList result = dp.Fetch(crit);
-        //        return new ItemList4Json(result);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        _logger.LogError(e, "Included Items dataportal error");
-        //        return StatusCode(500, e.Message);
-        //    }
-            
-        //}
-
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult Fetch([FromBody] SelCritMVC crit )
         {
@@ -93,6 +67,8 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult FetchAdditionalItemData([FromBody] SingleInt64Criteria itemID)
         {
@@ -193,7 +169,8 @@ namespace ERxWebClient2.Controllers
         }
 
 
-		[HttpPost("[action]")]
+        [EnableRateLimiting("HighCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult DeleteSelectedItems([FromBody] long[] ItemIds)
 		{
 			try
@@ -223,7 +200,8 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
-		[HttpPost("[action]")]
+        [EnableRateLimiting("HighCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult AssignDocumentsToIncOrExc([FromBody] MVCAssignItems assignMvc)
 		{
 			try

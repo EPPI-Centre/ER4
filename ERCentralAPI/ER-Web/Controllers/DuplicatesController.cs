@@ -1,12 +1,13 @@
+using BusinessLibrary.BusinessClasses;
+using BusinessLibrary.Security;
+using Csla;
+using EPPIDataServices.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using BusinessLibrary.BusinessClasses;
-using Csla;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using EPPIDataServices.Helpers;
-using BusinessLibrary.Security;
 
 namespace ERxWebClient2.Controllers
 {
@@ -18,6 +19,7 @@ namespace ERxWebClient2.Controllers
         public DuplicatesController(ILogger<ReviewerTermListController> logger) : base(logger)
         { }
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult FetchGroups([FromBody] SingleBoolCriteria crit)
         {
@@ -60,7 +62,8 @@ namespace ERxWebClient2.Controllers
         }
 
 
-		[HttpPost("[action]")]
+        [EnableRateLimiting("HighCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult FetchGroupsWithCriteria([FromBody] GroupListSelectionCriteriaMVC data)
 		{
 			try
@@ -143,6 +146,8 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult MarkMemberAsMaster([FromBody] MarkUnmarkItemAsDuplicate crit)
         {

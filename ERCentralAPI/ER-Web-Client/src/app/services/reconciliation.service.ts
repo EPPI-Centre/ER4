@@ -518,9 +518,10 @@ export class ReconcilingSetAttribute extends SetAttribute implements iReconcilin
         this.originalAttributeID = SetAtt.originalAttributeID;
         this.allowEditingCodeset = SetAtt.allowEditingCodeset;
         this.itemSetIsLocked = SetAtt.itemSetIsLocked;
-        this.nodeType = SetAtt.nodeType;
+        //this.nodeType = SetAtt.nodeType;
         this.allowCodingEdits = SetAtt.allowCodingEdits;
         this.isSelected = SetAtt.isSelected;
+        this.isExclusive = SetAtt.isExclusive;
         this.additionalText = SetAtt.additionalText;
         this.armId = SetAtt.armId;
         this.armTitle = SetAtt.armTitle;
@@ -715,6 +716,7 @@ export interface iComparisonItemAttributeSaveCommand {
     setId: number;
     itemId: number;
     itemArmId: number;
+    mergeInfoText: boolean;
 
     result: string;
     itemAttributeId: number;

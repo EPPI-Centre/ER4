@@ -18,7 +18,18 @@ function postwith(to, p) {
     myForm.submit();
     document.body.removeChild(myForm);
 };
-
+function handleFreqsError(response) {
+    $("#FreqSpinner").hide();
+    if (response.status == 401) {
+        let el = $("#FrequenciesGrid");
+        if (el) $("#FrequenciesGrid").html("Error: unauthorised. You may need to re-open, or login to, this visualisation.");
+        else alert(showAjaxError("Error: unauthorised. You may need to re-open, or login to, this visualisation."));
+    }
+    else {
+        alert(showAjaxError(response));
+        //$("#FrequenciesGrid").html("Error, status code is: " + response.status);
+    }
+}
 function HTMLEncodeText(unsafeText) {
     return $('<div>').text(unsafeText).html();
 }

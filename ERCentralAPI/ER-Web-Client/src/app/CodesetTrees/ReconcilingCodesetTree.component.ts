@@ -198,6 +198,53 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
     return true;//must have admin rights...
   }
 
+  public OutcomeOptionsNone: boolean = true;
+  public OutcomeOptionsAllOutcomes: boolean = false;
+  public OutcomeOptionsMatchedOutcomes: boolean = false;
+
+  public OutcomeOptionsCBNone(event: Event) {
+    if (this.OutcomeOptionsNone == true) {
+      this.OutcomeOptionsNone = true;
+      this.ShowOutcomes = "None";
+      this.OutcomeOptionsAllOutcomes = false;
+      this.OutcomeOptionsMatchedOutcomes = false;
+    }
+    else {
+      this.OutcomeOptionsNone = true;
+      this.ShowOutcomes = "None";
+      this.OutcomeOptionsAllOutcomes = false;
+      this.OutcomeOptionsMatchedOutcomes = false;
+    }
+  }
+  public OutcomeOptionsCBAllOutcomes(event: Event) {
+    if (this.OutcomeOptionsAllOutcomes == true) {
+      this.OutcomeOptionsNone = true;
+      this.ShowOutcomes = "None";
+      this.OutcomeOptionsAllOutcomes = false;
+      this.OutcomeOptionsMatchedOutcomes = false;
+    }
+    else {
+      this.OutcomeOptionsNone = false;
+      this.OutcomeOptionsAllOutcomes = true;
+      this.ShowOutcomes = "AllOutcomes";
+      this.OutcomeOptionsMatchedOutcomes = false;
+    }
+  }
+  public OutcomeOptionsCBMatchedOutcomes(event: Event) {
+    if (this.OutcomeOptionsMatchedOutcomes == true) {
+      this.OutcomeOptionsNone = true;
+      this.ShowOutcomes = "None";
+      this.OutcomeOptionsAllOutcomes = false;
+      this.OutcomeOptionsMatchedOutcomes = false;
+    }
+    else {
+      this.OutcomeOptionsNone = false;
+      this.OutcomeOptionsAllOutcomes = false;
+      this.OutcomeOptionsMatchedOutcomes = true;
+      this.ShowOutcomes = "MatchedOutcomes";
+    }
+  }
+
   AgreementClass(node: singleNode | ReconcilingSetAttribute): string {
     switch (this.IsNodeAgreement(node)) {
       case "":
@@ -607,11 +654,64 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
         + destName + "</strong>. <br />";
       msg += "<div class='m-1 p-1 alert-danger rounded'><span class='k-icon k-i-warning mb-1'></span> This will (irreversibly) overwrite the coding (including Info box text) on the destination version (if any).</div>"
       this.ConfirmationDialogService.confirm(title, msg, false, "", "Copy coding", "Cancel", "lg").then(
-        (res: any) => { if (res == true) this.DoTheTransfer(destId, node, rc, from); }
+        (res: any) => { if (res == true) this.DoTheTransfer(destId, node, rc, from, false); }
       );
     }
   }
-  private DoTheTransfer(destId: number, node: ReconcilingSetAttribute, rc: ReconcilingCode, from: string) {
+
+
+  public DestinationHasInfoBoxText: boolean = true;
+  public CanMerge() {
+    // I'm not sure if we want to hide the merge button even if the destination doesn't have info box text.
+    // Merge will give traceability of where the text came from.
+    // This will always return true unless we decide otherwise
+    return this.DestinationHasInfoBoxText;
+  }
+
+  ConfirmMergeCode(node: ReconcilingSetAttribute | null, rc: ReconcilingCode, from: string) {
+
+    if (!this.HasWriteRights || node == null) return;
+    else {
+      let title = "Merge coding with: ";
+      let destName = "";
+      let msg: string = "";
+      //let msg: string = "Are you sure? <br />";
+      let destId: number = 0;
+      if (this.TransferringToReviewer == "reviewer1") {
+        destName = this.CurrentComparison.contactName1;
+        title += destName;
+        destId = this.CurrentComparison.contactId1;
+      }
+      else if (this.TransferringToReviewer == "reviewer2") {
+        destName = this.CurrentComparison.contactName2;
+        title += destName;
+        destId = this.CurrentComparison.contactId2;
+      }
+      else if (this.TransferringToReviewer == "reviewer3") {
+        destName = this.CurrentComparison.contactName3;
+        title += destName;
+        destId = this.CurrentComparison.contactId3;
+      }
+      else return;
+      
+      msg += "You will merge the coding for the <strong class='border border-success text-success px-1 mb-1 rounded d-inline-block'>" + rc.Name + (rc.ArmID == 0 ? "" : " (Arm: " + rc.ArmName + ")")
+        + "</strong> code, to the coding of <strong class='border border-info text-info px-1 mb-1 rounded d-inline-block'>"
+        + destName + "</strong>. <br />";
+      if (this.LoadPDFCoding) {
+        msg += "This will merge the PDF coding (overwriting text selections only if they clash on a <strong class='font-danger'>per-page basis</strong>).<br />";
+      } else {
+        msg += "This will <strong class='font-danger'>not merge the PDF coding</strong> (please tick \"Show PDF Coding?\" first, if you want to see and transfer PDF coding).<br />";
+      }
+      msg += "<div class='m-1 p-1 alert-danger rounded'><span class='k-icon k-i-warning mb-1'></span> The info-box text will be appended to the existing info-box text in the destination coding.</div>"
+      this.ConfirmationDialogService.confirm(title, msg, false, "", "Merge coding", "Cancel", "lg").then(
+        (res: any) => { if (res == true) this.DoTheTransfer(destId, node, rc, from, true); }
+      );
+    }
+  }
+
+
+
+  private DoTheTransfer(destId: number, node: ReconcilingSetAttribute, rc: ReconcilingCode, from: string, mergeInfoText: boolean) {
     let srcContId: number = this.CurrentComparison.contactId1;
     if (from == "reviewer2") {
       srcContId = this.CurrentComparison.contactId2;
@@ -627,6 +727,7 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
       setId: node.set_id,
       itemId: this.ReconcilingItem != undefined ? this.ReconcilingItem.Item.itemId : 0,
       itemArmId: rc.ArmID,
+      mergeInfoText: mergeInfoText,
 
       result: "",
       itemAttributeId: 0,

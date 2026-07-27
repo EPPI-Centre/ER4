@@ -13,7 +13,8 @@ export class ConfirmationDialogComponent implements OnInit {
   @Input() btnOkText: string = '';
   @Input() btnCancelText: string = '';
   @Input() RequiredConfirmationTxt: string = '';
-  @Input() IsInformational: boolean = false; 
+  @Input() IsInformational: boolean = false;
+  @Input() IsLarge: boolean = false; 
 	//@Output() action = new EventEmitter<string>();
 
 	public UserInputConfirmationText: string = '';
@@ -34,7 +35,17 @@ export class ConfirmationDialogComponent implements OnInit {
     CheckInputBoxEntry(): boolean {
         //console.log("CheckInputBoxEntry", this.UserInputConfirmationText, "<->", this.RequiredConfirmationTxt);
         return this.UserInputConfirmationText.toLowerCase().trim() == this.RequiredConfirmationTxt.toLowerCase().trim();
-	}
+  }
+  public get PlaceButtonsOnTwoLines(): boolean {
+    const length = this.btnOkText.length + this.btnCancelText.length;
+    if (this.IsLarge == false && length > 21) return true;
+    return false;
+  }
+  public get ReduceCancelPadding(): boolean {
+    const length = this.btnOkText.length + this.btnCancelText.length;
+    if (this.IsLarge == false && length > 15) return true;
+    return false;
+  }
 	   
 	public accept() {
         this.eventsService.UserInput = this.UserInputConfirmationText;

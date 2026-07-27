@@ -22,6 +22,10 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
     public _reviewerIdentityServ: ReviewerIdentityService,
   ) { }
 
+  ngOnInit() {
+    //this.ReviewSetsEditingService.FetchSetTypes();
+    this.SetNewCodeTypeId();
+  }
   @ViewChild('CodeTypeSelectCollaborate') CodeTypeSelect: any;
   public PanelName: string = '';
   @Output() closeCreateNew = new EventEmitter();
@@ -36,8 +40,16 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
     else
       this.commaSeparatedEntry = true;
   }
-
-  public radioButtonEntry: boolean = false;
+  private _radioButtonEntry: boolean = false;
+  public get radioButtonEntry(): boolean {
+    if (this.showRadioButtonEntry == false) {
+      this._radioButtonEntry = false;
+    }
+    return this._radioButtonEntry;
+  }
+  public set radioButtonEntry(val: boolean) {
+    this._radioButtonEntry = val;
+  }
 
   public radioButtonEntryClicked(event: Event) {
     if (this.radioButtonEntry == true)
@@ -46,22 +58,31 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
       this.radioButtonEntry = true;
   }
 
-  public showRadioButtonEntry: boolean = true;
-
-
-
-  public get AllowedChildTypes(): kvAllowedAttributeType[] {
-
-    var test = this._reviewSetsService.AllowedChildTypesOfSelectedNode;
-    return this._reviewSetsService.AllowedChildTypesOfSelectedNode;
+  public get showRadioButtonEntry(): boolean {
+    //Rules:
+    //1. Node type needs to have typeCanBeExclusive == true
+    //2. Node needs to be inside a tool that is not of "Administration" subType
+    if (!this.CurrentNode) return false;//can't do anything if we don't where the new code will be added
+    else {
+      if (this.NewCode.typeCanBeExclusive) {
+        const ParentTool = (this.CurrentNode.nodeType == "ReviewSet") ? this.CurrentNode : this._reviewSetsService.FindSetById(this.CurrentNode.set_id);
+        if (ParentTool && ParentTool.subTypeName != "Administration") return true;
+      }
+    }
+    return false;
   }
+
+
   public get LastSelectedCodeTypeId(): number {
     return this._reviewSetsService.LastSelectedCodeTypeId;
   }
   public ChangeLastSelectedCodeType(event: Event) {
     let typeId = parseInt((event.target as HTMLOptionElement).value);
     if (isNaN(typeId)) return;
-    else this._reviewSetsService.LastSelectedCodeTypeId = typeId;
+    else {
+      this._reviewSetsService.LastSelectedCodeTypeId = typeId;
+      this.SetNewCodeTypeId();
+    }
   }
   IsNewCodeNameValid() {
     if (this._NewCode.attribute_name.trim() != "") return true;
@@ -104,24 +125,26 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
     else return this._reviewSetsService.selectedNode;
   }
   public get NewCode(): SetAttribute {
+    if (this._NewCode.attribute_type_id !== this.LastSelectedCodeTypeId) this.SetNewCodeTypeId();
     return this._NewCode;
   }
   public get AllowedChildTypesOfSelectedNode() {
-    if (this._reviewSetsService.AllowedChildTypesOfSelectedNode[0].value === "Include") {
-      this.showRadioButtonEntry = true;
-    }
-    else {
-      this.showRadioButtonEntry = false;
-    }
+    //if (this._reviewSetsService.selectedNode) {
+    //  if (this._reviewSetsService.selectedNode.subTypeName === "Administration") {
+    //    this.showRadioButtonEntry = false;
+    //  }
+    //  else {
+    //    this.showRadioButtonEntry = true;
+    //  }
+    //}
+
     return this._reviewSetsService.AllowedChildTypesOfSelectedNode;
   }
 
-
-    newCodeSetup() {
+  newCodeSetup() {
     if (this.CurrentNode) {
       this._NewCode.isExclusive = this.radioButtonEntry;
       this._NewCode.order = this.CurrentNode.attributes.length;
-      //////////////////////////////////////////// put in new method
       if (this.CurrentNode.nodeType == "ReviewSet") {
         this._NewCode.set_id = (this.CurrentNode as ReviewSet).set_id;
         this._NewCode.parent_attribute_id = 0;
@@ -134,8 +157,9 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
     else {
       this._NewReviewSet.order = 0;
     }
-    //console.log("What the hell?", this.CodeTypeSelect, this.CodeTypeSelect.nativeElement.selectedOptions, this.CodeTypeSelect.nativeElement.selectedOptions.length);
-
+    this.SetNewCodeTypeId();
+  }
+  private SetNewCodeTypeId() {
     if (this.CodeTypeSelect && this.CodeTypeSelect.nativeElement.selectedOptions && this.CodeTypeSelect.nativeElement.selectedOptions.length > 0) {
       this._NewCode.attribute_type_id = this.CodeTypeSelect.nativeElement.selectedOptions[0].value;
       this._NewCode.attribute_type = this.CodeTypeSelect.nativeElement.selectedOptions[0].text;
@@ -146,7 +170,6 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
       this._NewCode.attribute_type = "Not selectable(no checkbox)";
     }
   }
-
   async CreateNewCodes() {
 
     var isExclusive = this.radioButtonEntry;
@@ -187,13 +210,13 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
     }
 
 
-      /*////////////////////////////////
+    /*////////////////////////////////
 
-      result: SetAttribute | null = await this._reviewSetsEditingService.SaveNewAttribute(newCode[i]);
-      if (result) continue;
-      else { show some error, stop cycling }Code
+    result: SetAttribute | null = await this._reviewSetsEditingService.SaveNewAttribute(newCode[i]);
+    if (result) continue;
+    else { show some error, stop cycling }Code
 
-      ////////////////*/
+    ////////////////*/
 
   }
 
@@ -271,12 +294,6 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
     } else {
       this.PanelName = 'NewCodeSection';
     }
-  }
-  ngOnInit() {
-
-    //this.ReviewSetsEditingService.FetchSetTypes();
-
-
   }
   onSubmit(): boolean {
     console.log("create new code onSubmit");

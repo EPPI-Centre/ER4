@@ -49,7 +49,7 @@ public partial class SiteLicense : System.Web.UI.Page
                     System.Web.UI.WebControls.Label lbl1 = (Label)Master.FindControl("lblHeadingText");
                     if (lbl1 != null)
                     {
-                        lbl1.Text = "This utility will copy a codeset across and within reviews.";
+                        lbl1.Text = "From this page you can manage your site license.";
                     }
 
 

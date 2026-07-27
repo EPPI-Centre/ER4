@@ -6,7 +6,6 @@ import { EventEmitterService } from './EventEmitter.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { lastValueFrom, Subscription } from 'rxjs';
 import { ConfigService } from './config.service';
-
 @Injectable({
 
   providedIn: 'root',
@@ -108,7 +107,7 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
 
   public Fetch(): void {
     this._BusyMethods.push("Fetch");
-    this._httpC.get<iWebDbListWithUrl>(this._baseUrl + 'api/WebDB/GetWebDBs').subscribe(
+    lastValueFrom(this._httpC.get<iWebDbListWithUrl>(this._baseUrl + 'api/WebDB/GetWebDBs')).then(
       res => {
         this.EppiVisBaseUrl = res.eppiVisBaseUrl;
         this._WebDBs = res.webDbList;
@@ -138,7 +137,7 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
 
 
     this._BusyMethods.push("GetWebDBLogs");
-    this._httpC.post<iWebDBLog[]>(this._baseUrl + 'api/WebDB/GetWebDBLogs', body).subscribe(
+    lastValueFrom(this._httpC.post<iWebDBLog[]>(this._baseUrl + 'api/WebDB/GetWebDBLogs', body)).then(
       res => {
         this._CurrentLogs = res;
         //console.log(res);
@@ -156,13 +155,16 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
     }
     this._BusyMethods.push("Delete");
     let body = JSON.stringify({ Value: toDel.webDBId });
-    this._httpC.post<iWebDB[]>(this._baseUrl + 'api/WebDB/DeleteWebDB', body).subscribe(
+    lastValueFrom( this._httpC.post<iWebDB[]>(this._baseUrl + 'api/WebDB/DeleteWebDB', body)).then(
       res => {
         this._WebDBs = res;
         if (this._CurrentDB !== null) {
           let ind = this._WebDBs.findIndex(f => toDel.webDBId == f.webDBId)
           if (ind == -1) {
-            if (this._WebDBs.length > 0) this._CurrentDB = this._WebDBs[0];
+            if (this._WebDBs.length > 0) {
+              this._CurrentDB = this._WebDBs[0];
+              this.GetWebDbReviewSetsList();
+            }
             else this._CurrentDB = null;
           }
         }
@@ -183,7 +185,7 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
       return;
     }
     this._BusyMethods.push("CreateOrEdit");
-    this._httpC.post<iWebDB[]>(this._baseUrl + 'api/WebDB/CreateOrEditWebDB', updating).subscribe(
+    lastValueFrom(this._httpC.post<iWebDB[]>(this._baseUrl + 'api/WebDB/CreateOrEditWebDB', updating)).then(
       res => {
         this._WebDBs = res;
         if (this._CurrentDB == null && this._WebDBs.length > 0) this._CurrentDB = this._WebDBs[0];
@@ -229,7 +231,7 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
     else {
       this._BusyMethods.push("GetWebDbReviewSetsList");
       let body = JSON.stringify({ Value: this._CurrentDB.webDBId });
-      this._httpC.post<iWebDbReviewSet[]>(this._baseUrl + 'api/WebDB/GetWebDbReviewSetsList', body).subscribe(
+      lastValueFrom(this._httpC.post<iWebDbReviewSet[]>(this._baseUrl + 'api/WebDB/GetWebDbReviewSetsList', body)).then(
         res => {
           this._CurrentSets = [];
           for (let iwSet of res) {
@@ -252,7 +254,7 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
     body.webDBId = webDBId;
     body.setId = setId;
     this._BusyMethods.push("AddWebDbReviewSet");
-    this._httpC.post<iWebDbReviewSet>(this._baseUrl + 'api/WebDB/AddWebDbReviewSet', body).subscribe(
+    lastValueFrom(this._httpC.post<iWebDbReviewSet>(this._baseUrl + 'api/WebDB/AddWebDbReviewSet', body)).then(
       res => {
         this._CurrentSets.push(new WebDbReviewSet(res));
         this._CurrentSets.sort((a, b) => { return a.set_order - b.set_order });
@@ -270,7 +272,7 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
     body.webDBId = webDBId;
     body.webDBSetId = webDBsetId;
     this._BusyMethods.push("RemoveWebDbReviewSet");
-    this._httpC.post<iWebDbReviewSet>(this._baseUrl + 'api/WebDB/RemoveWebDbReviewSet', body).subscribe(
+    lastValueFrom(this._httpC.post<iWebDbReviewSet>(this._baseUrl + 'api/WebDB/RemoveWebDbReviewSet', body)).then(
       res => {
         let ind = this._CurrentSets.findIndex(f => f.webDBSetId == webDBsetId);
         if (ind != -1) {
@@ -296,7 +298,7 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
     body.setDescription = data.description;
     body.setName = data.set_name;
     this._BusyMethods.push("UpdateWebDbReviewSet");
-    this._httpC.post<iWebDbReviewSet>(this._baseUrl + 'api/WebDB/UpdateWebDbReviewSet', body).subscribe(
+    lastValueFrom(this._httpC.post<iWebDbReviewSet>(this._baseUrl + 'api/WebDB/UpdateWebDbReviewSet', body)).then(
       res => {
         let ind = this._CurrentSets.findIndex(f => f.webDBSetId == data.webDBSetId);
         if (ind != -1) {
@@ -374,7 +376,7 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
   }
   private EditAddRemoveWebDbAttribute(body: WebDbAttributeSetEditAddRemoveCommandJson) {
     this._BusyMethods.push("EditAddRemoveWebDbAttribute");
-    this._httpC.post<iWebDbReviewSet>(this._baseUrl + 'api/WebDB/EditAddRemoveWebDbAttribute', body).subscribe(
+    lastValueFrom(this._httpC.post<iWebDbReviewSet>(this._baseUrl + 'api/WebDB/EditAddRemoveWebDbAttribute', body)).then(
       res => {
         let ind = this._CurrentSets.findIndex(f => f.webDBSetId == body.webDBSetId);
         if (ind != -1) {
@@ -414,7 +416,7 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
       WebDbId: this._CurrentDB.webDBId
       , imageNumber: ImageNumber
     });
-    this._httpC.post<void>(this._baseUrl + 'api/WebDB/DeleteHeaderImage', body).subscribe(
+    lastValueFrom(this._httpC.post<void>(this._baseUrl + 'api/WebDB/DeleteHeaderImage', body)).then(
       res => {
         if (this._CurrentDB) {
           if (ImageNumber == 1)
@@ -493,7 +495,7 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
     let body = JSON.stringify({
       Value: this._CurrentDB.webDBId
     });
-    this._httpC.post<iWebDBMap[]>(this._baseUrl + 'api/WebDB/GetWebDBMaps', body).subscribe(
+    lastValueFrom(this._httpC.post<iWebDBMap[]>(this._baseUrl + 'api/WebDB/GetWebDBMaps', body)).then(
       res => {
         if (res) {
           //console.log("received " + res.length + " maps");
@@ -536,7 +538,7 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
 
     this._BusyMethods.push("DeleteMap");
     this._CurrentMaps = [];
-    this._httpC.post<iWebDBMap[]>(this._baseUrl + 'api/WebDB/DeleteWebDBMap', map).subscribe(
+    lastValueFrom(this._httpC.post<iWebDBMap[]>(this._baseUrl + 'api/WebDB/DeleteWebDBMap', map)).then(
       res => {
         if (res) {
           //console.log("received " + res.length + " maps");
@@ -670,6 +672,7 @@ export interface iWebDBMap {
   webDBMapDescription: string;
   webDBMapId: number;
   webDBMapName: string;
+  mapOrder: number;
 }
 export class ReadOnlyWebDbActivityListSelectionCrit {
   public wedDBId: number = 0;

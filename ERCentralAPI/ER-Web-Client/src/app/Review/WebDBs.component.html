@@ -474,23 +474,23 @@
 
             </kendo-editor>
             <!--<ckeditor [(ngModel)]="EditingDB.webDBDescription"
-    [config]="{uiColor: '#bbbbbb'
-              }"
-    [readonly]="false"
-    debounce="500">
-  </ckeditor>
+              [config]="{uiColor: '#bbbbbb'
+                        }"
+              [readonly]="false"
+              debounce="500">
+            </ckeditor>
 
-  (change)="onChange($event)"
-  (editorChange)="onEditorChange($event)"
-  (ready)="onReady($event)"
-  (focus)="onFocus($event)"
-  (blur)="onBlur($event)"
-  (contentDom)="onContentDom($event)"
-  (fileUploadRequest)="onFileUploadRequest($event)"
-  (fileUploadResponse)="onFileUploadResponse($event)"
-  (paste)="onPaste($event)"
-  (drop)="onDrop($event)"
-   -->
+            (change)="onChange($event)"
+            (editorChange)="onEditorChange($event)"
+            (ready)="onReady($event)"
+            (focus)="onFocus($event)"
+            (blur)="onBlur($event)"
+            (contentDom)="onContentDom($event)"
+            (fileUploadRequest)="onFileUploadRequest($event)"
+            (fileUploadResponse)="onFileUploadResponse($event)"
+            (paste)="onPaste($event)"
+            (drop)="onDrop($event)"
+             -->
           </div>
         </div>
         <div class="col-12 col-md-3 row m-0 p-0">
@@ -569,7 +569,7 @@
             Unselect/Select all
             <!--<input type='checkbox' checked (change)="allFieldsSelectedUnselected($event)" />
               <textarea class="p-1 w-100" type="text" [(ngModel)]="EditingDB.hiddenFields" rows="2"></textarea>-->
-            
+
             <div class="border-top" style="max-height:35vh;overflow-y:auto;">
               <table>
                 <tr *ngFor="let fields of FieldList">
@@ -678,7 +678,7 @@
                     </div>
                     <div class="row p-0 m-0">
                       <div class="col-4">Public description for this set:</div>
-                      <textarea class="col-8" rows="3" type="text" maxlength="2000" [(ngModel)]="EditingWebDbReviewSet.description"></textarea>
+                      <textarea class="col-8" rows="3" type="text" [(ngModel)]="EditingWebDbReviewSet.description"></textarea>
                     </div>
                     <div class="row m-0">
                       <div class="mx-auto">
@@ -726,7 +726,7 @@
                     </div>
                     <div class="row p-0 m-0">
                       <div class="col-4">Public description for this Code:</div>
-                      <textarea class="col-8" rows="3" type="text" maxlength="2000" [(ngModel)]="EditingSetAttribute.attribute_set_desc"></textarea>
+                      <textarea class="col-8" rows="3" type="text" [(ngModel)]="EditingSetAttribute.attribute_set_desc"></textarea>
                     </div>
                     <button class="btn btn-sm btn-outline-secondary  px-2 m-1" (click)="CancelEditAttribute()">
                       Cancel
@@ -755,11 +755,26 @@
             <div *ngIf="EditingMap == null else EditingMapTmpl">
               <div *ngFor="let map of CurrentMaps" class="col-12 px-0 mx-0 row border-dark border rounded small">
                 <div class="col-12 mx-0 p-1 row">
-                  <div class="col-auto mx-0 p-1 border border-primary alert-primary rounded">Name: <strong>{{map.webDBMapName}}</strong></div>
-                  <button class="btn btn-sm btn-outline-danger px-1 pt-0 my-auto ml-auto mr-1" [disabled]="EditingSomething" (click)="DeleteMap(map)"><span class="k-icon k-i-delete "></span></button>
-                  <button class="btn mr-1 my-auto py-1 px-3 btn-sm btn-outline-success" [disabled]="EditingSomething" (click)="EditMap(map)">Edit</button>
+                  <table width="100%">
+                    <tr>
+                      <td style="text-align:left">
+                        <div class="mx-0 p-1 border border-primary alert-primary rounded">Name: <strong>{{map.webDBMapName}}</strong></div>
+                      </td>
+                      <td style="text-align:right">
+                        <span>
+                          <button class="btn btn-sm btn-outline-danger px-1 pt-0 my-auto ml-auto mr-1" [disabled]="EditingSomething" (click)="DeleteMap(map)"><span class="k-icon k-i-delete "></span></button>
+                          <button class="btn mr-1 my-auto py-1 px-3 btn-sm btn-outline-success" [disabled]="EditingSomething" (click)="EditMap(map)">Edit</button>
+                          <button title="Move map up" class="btn btn-sm btn-outline-primary px-1 pt-0 my-auto ml-auto mr-1" [disabled]="EditingSomething || MapCanMoveUp(map) == false" (click)="MoveUp(map)"><span class="k-icon k-i-arrow-up "></span></button>
+                          <button title="Move map down" class="btn btn-sm btn-outline-primary px-1 pt-0 my-auto ml-auto mr-1" [disabled]="EditingSomething || MapCanMoveDown(map) == false" (click)="MoveDown(map)"><span class="k-icon k-i-arrow-down "></span></button>
+                        </span>
+                      </td>
+                    </tr>
+                  </table>
                 </div>
-
+                <div *ngIf="CurrentDB.isOpen" class="col-12 mx-0 p-1 row" style="text-align:left">
+                  Public Map URL: 
+                  <a href="{{VisitMapURL(map.webDBMapId)}}" target="_blank">{{VisitMapURL(map.webDBMapId)}}</a>
+                </div>
                 <div class="row col-12 p-1 mx-0 ">
                   <div class="col row m-1 p-0 border border-info rounded" style="vertical-align:top">
                     <div class="col-12 pr-0 pl-1 font-weight-bold">
@@ -781,7 +796,7 @@
                       Tool: {{map.rowsPublicSetName}}
                     </div>
                   </div>
-                  <div class="col row m-1 p-0 border border-info rounded"  style="vertical-align:top">
+                  <div class="col row m-1 p-0 border border-info rounded" style="vertical-align:top">
                     <div class="col-12 pr-0 pl-1 font-weight-bold">
                       <span class="k-icon k-i-chart-bubble k-color-success"></span>&nbsp;Segments:
                     </div>
@@ -990,10 +1005,10 @@
                     <!--<kendo-toolbar-button kendoEditorViewSourceButton></kendo-toolbar-button>-->
                   </kendo-toolbar>
 
-  </kendo-editor>
-  <!--<ckeditor *ngIf="EditingMap" [(ngModel)]="EditingMap.webDBMapDescription" editorUrl="https://cdn.ckeditor.com/4.15.1/standard/ckeditor.js">
-  </ckeditor>-->
-</div>
+                </kendo-editor>
+                <!--<ckeditor *ngIf="EditingMap" [(ngModel)]="EditingMap.webDBMapDescription" editorUrl="https://cdn.ckeditor.com/4.15.1/standard/ckeditor.js">
+                </ckeditor>-->
+              </div>
               <div class="row col-12 p-1 mx-0 align-items-center">
                 <div class="mx-auto"><ng-container *ngTemplateOutlet="SaveMapTemplate"></ng-container></div>
               </div>

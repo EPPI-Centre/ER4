@@ -353,6 +353,7 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
           this.ngZone.run(
             () => {
               const check = this.IsBusy;
+              this.ReviewSetsService.clearItemData();
               this.ReviewSetsService.AddItemData(this.ItemCodingList, this.ArmsService.SelectedArm == null ? 0 : this.ArmsService.SelectedArm.itemArmId);
             }
           );
@@ -406,6 +407,10 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
       newItemSet.setId = cmdResult.setId;
       newItemSet.itemAttributesList.push(newItemA);
       this.ItemCodingList.push(newItemSet);
+      itemSet = newItemSet;//to use it soon below!
+    }
+    if (cmdResult.isExclusive && cmdResult.saveType == "Insert") {
+      this.RemoveOutdatedTicksInExclusiveCodes(cmdResult, itemSet);
     }
     this.SetNewEmptyItemAttPDFCoding(cmdResult.itemAttributeId);
   }
@@ -505,7 +510,7 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
               this.DataChanged.emit();
             }
             else {
-              this.modalService.GenericErrorMessage("Sorry your changes have been saved, but we could not update it here. "
+              this.modalService.GenericErrorMessage("Sorry your changes have been saved, but we could not update things accordingly. "
                   + "Please navigate to the next item and then back, to check if the expected changes did happen. " +
                   "If the problem persists please contact EPPISupport.");
               return false;
@@ -599,6 +604,51 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
 
   //}
 
+  public RemoveOutdatedTicksInExclusiveCodes(cmd: ItemAttributeSaveCommand, itemSet: ItemSet) {
+    //console.log("RemoveOutdatedTicksInExclusiveCodes", cmd, itemSet);
+    if (cmd.isExclusive == false) return;//just for safety, we shouldn't be here if isExclusive == false 
+    const rSet = this.ReviewSetsService.FindSetById(cmd.setId);
+    if (rSet) {
+      const DestAtt = this.ReviewSetsService.FindAttributeByIdInThisSet(cmd.attributeId, rSet);
+      if (DestAtt) {
+        let parentOfDestination: ReviewSet | SetAttribute | null = null;
+        if (DestAtt.parent_attribute_id == 0) {
+          parentOfDestination = rSet;
+        }
+        else {
+          parentOfDestination = this.ReviewSetsService.FindAttributeByIdInThisSet(DestAtt.parent_attribute_id, rSet);
+        }
+        if (parentOfDestination) {
+          const CodesToCheck = parentOfDestination.attributes.filter(f => f.isExclusive == true && f.attribute_id != cmd.attributeId);
+          for (let codeToCheck of CodesToCheck) {
+            const index = itemSet.itemAttributesList.findIndex(f => f.attributeId == codeToCheck.attribute_id && f.armId == cmd.itemArmId);
+            if (index > -1) itemSet.itemAttributesList.splice(index, 1);
+          }
+        }
+        else {
+          //Uh? didn't find the parent for this exclusive code!
+          this.modalService.GenericErrorMessage("Sorry your changes have been saved, but we could not update things accordingly.<br> "
+            + "[Could not find the parent of the Radio Button you ticked].<br>" 
+            + "Please navigate to the next item and then back, to check if the expected changes did happen. " 
+            + "If the problem persists please contact EPPISupport.");
+        }
+      }
+      else {
+        //uh? Didn't find the attribute we're working on??
+        this.modalService.GenericErrorMessage("Sorry your changes have been saved, but we could not update things accordingly.<br> "
+          + "[Could not find the Radio Button you ticked].<br>"
+          + "Please navigate to the next item and then back, to check if the expected changes did happen. "
+          + "If the problem persists please contact EPPISupport.");
+      }
+    }
+    else {
+      //uh? Didn't find the set we're working on??
+      this.modalService.GenericErrorMessage("Sorry your changes have been saved, but we could not update things accordingly.<br> "
+        + "[Could not find the Coding tool containing the Radio Button you ticked].<br>"
+        + "Please navigate to the next item and then back, to check if the expected changes did happen. "
+        + "If the problem persists please contact EPPISupport.");
+    }
+  }
 
   private SelfSubscription4QuickCodingReport: Subscription | null = null;
 

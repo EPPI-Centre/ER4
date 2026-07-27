@@ -1,14 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Threading.Tasks;
 using BusinessLibrary.BusinessClasses;
 using BusinessLibrary.Security;
 using Csla;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ERxWebClient2.Controllers
 {
@@ -51,11 +52,14 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult ExcecuteItemAttributeSaveCommand([FromBody] MVCItemAttributeSaveCommand MVCcmd)
         {
             try
             {
+                //System.Threading.Thread.Sleep(2000);
                 if (SetCSLAUser4Writing())
                 {
                     MVCcmd = InternalExcecuteItemAttributeSaveCommand(MVCcmd);
@@ -97,54 +101,7 @@ namespace ERxWebClient2.Controllers
             return MVCcmd;
         }
 
-        [HttpPost("[action]")]
-        public IActionResult ExecuteItemAttributeExclusiveSaveCommand([FromBody] MVCItemAttributeSaveCommand MVCcmd)
-        {
-            try
-            {
-                if (SetCSLAUser4Writing())
-                {
-                    MVCcmd = InternalExecuteItemAttributeExclusiveSaveCommand(MVCcmd);
-                    return Ok(MVCcmd);
-                }
-                else return Forbid();
-
-            }
-            catch (Exception e)
-            {
-                string json = JsonConvert.SerializeObject(MVCcmd);
-                _logger.LogError(e, "Dataportal Error with Item Attributes: {0}", json);
-                return StatusCode(500, e.Message);
-            }
-        }
-        private MVCItemAttributeSaveCommand InternalExecuteItemAttributeExclusiveSaveCommand(MVCItemAttributeSaveCommand MVCcmd)
-        {
-            ItemAttributeSaveCommand cmd = new ItemAttributeSaveCommand(
-                        MVCcmd.saveType
-                        , MVCcmd.itemAttributeId
-                        , MVCcmd.itemSetId
-                        , MVCcmd.additionalText
-                        , MVCcmd.attributeId
-                        , MVCcmd.setId
-                        , MVCcmd.itemId
-                        , MVCcmd.itemArmId
-                        , MVCcmd.revInfo.ToCSLAReviewInfo()
-                        //,rinf
-                        );
-            DataPortal<ItemAttributeSaveCommand> dp = new DataPortal<ItemAttributeSaveCommand>();
-            cmd = dp.Execute(cmd);
-            MVCcmd.additionalText = cmd.AdditionalText;
-            MVCcmd.attributeId = cmd.AttributeId;
-            MVCcmd.itemArmId = cmd.ItemArmId;
-            MVCcmd.itemAttributeId = cmd.ItemAttributeId;
-            MVCcmd.itemId = cmd.ItemId;
-            MVCcmd.itemSetId = cmd.ItemSetId;
-            MVCcmd.setId = cmd.SetId;
-            return MVCcmd;
-        }
-
-
-
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult ExecuteItemAttributeBulkInsertCommand([FromBody] MVCItemAttributeBulkSaveCommand MVCcmd)
         {//method is "..BulkInsert.." rather than "BulkSave" 'cause we NEVER use the CSLA object (ItemAttributeBulkSaveCommand) to delete (code in there wouldn't work!).
@@ -173,6 +130,8 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult ExecuteItemAttributeBulkDeleteCommand([FromBody] MVCItemAttributeBulkSaveCommand MVCcmd)
         {
@@ -219,6 +178,7 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult CreatePDFCodingPage([FromBody] MVCiaPDFCodingPage MVCcodingInPage)
         {
@@ -265,6 +225,7 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult UpdatePDFCodingPage([FromBody] MVCiaPDFCodingPage MVCcodingInPage)
         {
@@ -344,6 +305,7 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult DeletePDFCodingPage([FromBody] SingleInt64Criteria ItemAttributePDFId)
         {
@@ -402,6 +364,7 @@ namespace ERxWebClient2.Controllers
         }
 
 
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult FetchQuickCodingReportPage([FromBody] MVCQuickCodingReportDataSelectionCriteria crit)
         {
@@ -449,6 +412,7 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult ItemAttributeWithThisCodeCountCommand([FromBody] AttributeOrSetDeleteCheckCommandJSON MVCcmd)
         {
@@ -483,6 +447,7 @@ namespace ERxWebClient2.Controllers
         public int setId { get; set; }
         public Int64 itemId { get; set; }
         public Int64 itemArmId { get; set; }
+        public bool isExclusive { get; set; }
         public MVCReviewInfo revInfo { get; set; }
     }
     public class MVCReviewInfo
@@ -616,6 +581,7 @@ namespace ERxWebClient2.Controllers
         public int setId;
         public Int64 itemId;
         public Int64 itemArmId;
+        public bool mergeInfoText;
 
         public string result;
         public Int64 itemAttributeId;
@@ -623,7 +589,7 @@ namespace ERxWebClient2.Controllers
         public ComparisonItemAttributeSaveCommand ToComparisonItemAttributeSaveCommand()
         {
             return new ComparisonItemAttributeSaveCommand(
-                destinationContactId, sourceContactId, attributeSetId, comparisonId, includePDFcoding, setId, itemId, itemArmId);
+                destinationContactId, sourceContactId, attributeSetId, comparisonId, includePDFcoding, setId, itemId, itemArmId, mergeInfoText);
         }
 
     }

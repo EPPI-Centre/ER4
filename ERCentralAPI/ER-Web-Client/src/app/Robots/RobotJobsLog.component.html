@@ -2,6 +2,67 @@
 <div class="px-0 mx-1 my-0 w-100 bg-light" style="min-height:30vh">
   <div class="row mx-0 px-0">
     <div class="col px-1 m-1 rounded alert-info px-1">
+
+
+      <div  class="row" style="vertical-align:top">
+        <div class="col-12 row mx-0 px-0">
+          <div class="col-auto ml-auto">
+            <div class="my-auto  d-flex">
+              <a (click)="showingRobotsListPanel = !showingRobotsListPanel" class="btn btn-outline-primary btn-sm  py-0 mr-1" data-toggle="collapse"
+                 href="#collapseExample3" role="button" aria-expanded="false" aria-controls="collapseExample3">
+                {{ShowHideRobotsListText}}
+              </a>
+              <div class="my-auto">Active and Retired Robot Lists</div>              
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row mb-2" style="vertical-align:top">
+        <div class="col-12">
+          <div class="collapse multi-collapse" id="collapseExample3">
+            <div class="card card-footer">
+              <p>
+                From here you can find details on the various LLM robots that are, and have been, accessible to EPPI Reviewer users. Most/many Large Language Models have relatively short lifespans, hence the need to show and keep a record about retired robots.
+              </p>
+              <div class="row" style="vertical-align:top">
+                <div class="col-6">
+                  Active robots
+                    <select class="col px-0" [(ngModel)]="SelectedActiveRobot" id="batchRobotList">
+                      <option [ngValue]="false">Please select</option>
+                      <option [ngValue]="r" *ngFor="let r of RobotsList">
+                        {{r.robotName}}
+                      </option>
+                    </select>
+                    <div *ngIf="SelectedActiveRobot" class="col mx-0 rounded bg-light px-1">
+                      <div><span class="font-weight-bold">Description:<br /></span>{{SelectedActiveRobot.description}}</div>
+                      <div><span class="font-weight-bold">Current Retirement date </span>(this can change): {{FormatDate(SelectedActiveRobot.retirementDate)}}</div>
+                      <div class="mx-0">Cost per million input tokens: £{{SelectedActiveRobot.inputTokenCostPerMillion}}</div>
+                      <div class="mx-0">Cost per million output tokens: £{{SelectedActiveRobot.outputTokenCostPerMillion}}</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                  Retired robots
+                  <select class="col px-0" [(ngModel)]="SelectedRetiredRobot" id="batchExpiredRobotList">
+                    <option [ngValue]="false">Please select</option>
+                    <option [ngValue]="r" *ngFor="let r of RobotsExpiredList">
+                      {{r.robotName}}
+                    </option>
+                  </select>
+                  <div *ngIf="SelectedRetiredRobot" class="col mx-0 rounded bg-light px-1">
+                    <div><span class="font-weight-bold">Description:<br /></span>{{SelectedRetiredRobot.description}}</div>
+                    <div><span class="font-weight-bold">Retired date:</span> {{FormatDate(SelectedRetiredRobot.retirementDate)}}</div>
+                    <div class="mx-0">Cost per million input tokens: £{{SelectedRetiredRobot.inputTokenCostPerMillion}}</div>
+                    <div class="mx-0">Cost per million output tokens: £{{SelectedRetiredRobot.outputTokenCostPerMillion}}</div>
+                  </div>
+                </div>
+                </div>
+
+              </div>
+            </div>
+        </div>
+      </div>
+
+
       <div *ngIf="IsSiteAdmin" class="row">
         <div *ngIf="GetAllJobsOption" class="col">This list includes all past jobs.</div>
         <div *ngIf="!GetAllJobsOption" class="col">This list includes past jobs from the current review, plus jobs triggered by you in any review.</div>
@@ -63,7 +124,7 @@
           </kendo-grid-numeric-filter-menu>
         </ng-template>
       </kendo-grid-column>
-      <kendo-grid-column field="created" title="Date" format="dd/MMM/yyyy hh:mm" filter="date" [width]="140" class="px-1 py-0 m-1"></kendo-grid-column>
+      <kendo-grid-column field="created" title="Date" format="dd/MMM/yyyy HH:mm" filter="date" [width]="140" class="px-1 py-0 m-1"></kendo-grid-column>
       <kendo-grid-column field="JobDurationMs" title="Duration" [width]="90" class="px-1 py-0 m-1" [filterable]="false">
         <ng-template kendoGridCellTemplate let-dataItem>
           {{JobDuration(dataItem)}}

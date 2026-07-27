@@ -156,6 +156,62 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
       return false;
     }
   }
+
+  public OutcomeOptionsNone: boolean = true;
+  public OutcomeOptionsAllOutcomes: boolean = false;
+  public OutcomeOptionsMatchedOutcomes: boolean = false;
+
+  public OutcomeOptionsCBNone(event: Event) {
+    if (this.OutcomeOptionsNone == true) {
+      this.OutcomeOptionsNone = true;
+      this.OutcomeOptionsAllOutcomes = false;
+      this.OutcomeOptionsMatchedOutcomes = false;
+      this.showOutcomes = "none";
+    }
+    else {
+      this.OutcomeOptionsNone = true;
+      //this._reconciliationService.OutcomeOptionsSet("None");
+      this.OutcomeOptionsAllOutcomes = false;
+      this.OutcomeOptionsMatchedOutcomes = false;
+      this.showOutcomes = "none";
+    }
+  }
+  public OutcomeOptionsCBAllOutcomes(event: Event) {
+    if (this.OutcomeOptionsAllOutcomes == true) {
+      this.OutcomeOptionsNone = true;
+      this.OutcomeOptionsAllOutcomes = false;
+      this.OutcomeOptionsMatchedOutcomes = false;
+      this.showOutcomes = "none";
+    }
+    else {
+      this.OutcomeOptionsNone = false;
+      this.OutcomeOptionsAllOutcomes = true;
+      //this._reconciliationService.OutcomeOptionsSet("AllOutcomes");
+      this.OutcomeOptionsMatchedOutcomes = false;
+      this.showOutcomes = "allOutcomes";
+    }
+  }
+  public OutcomeOptionsCBMatchedOutcomes(event: Event) {
+    if (this.OutcomeOptionsMatchedOutcomes == true) {
+      this.OutcomeOptionsNone = true;
+      this.OutcomeOptionsAllOutcomes = false;
+      this.OutcomeOptionsMatchedOutcomes = false;
+      this.showOutcomes = "none";
+    }
+    else {
+      this.OutcomeOptionsNone = false;
+      this.OutcomeOptionsAllOutcomes = false;
+      this.OutcomeOptionsMatchedOutcomes = true;
+      //this._reconciliationService.OutcomeOptionsSet("MatchedOutcomes");
+      this.showOutcomes = "matchedOutcomes";
+    }
+  }
+
+  showHideReportOptions() {
+    this.ShowSaveReportOptions = !this.ShowSaveReportOptions;
+    //return this._reconciliationService.OutcomeOptionsGet();
+  }
+
   getReconciliations() {
     this.ReconcileReportHTML = "";
     this.showReconcileReportHTML = false;
@@ -564,6 +620,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
     this._UnmatchedOutcomesHTML = "";
     this.showReconcileReportHTML = true;
     this.ShowSaveReportOptions = false;
+    this.SetMatchedOutcomesHTML(this.selectedRow);
   }
   private SetComparisonDescription() {
     this.localList.Description = "";

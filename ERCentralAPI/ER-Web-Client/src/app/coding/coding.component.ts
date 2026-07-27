@@ -523,6 +523,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     cmd.additionalText = data.additionalText;
     cmd.itemArmId = data.armId;
     cmd.setId = attribute.set_id;
+    cmd.isExclusive = attribute.isExclusive;
     //console.log(attribute.set_id);
     cmd.attributeId = data.AttId;
     cmd.revInfo = this.reviewInfoService.ReviewInfo;
@@ -641,6 +642,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
       //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.unsubscribe();
     });
     //console.log("canwrite:" + this.ReviewSetsService.CanWrite);
+
     this.ReviewSetsService.ExecuteItemAttributeSaveCommand(cmd, this.ItemCodingService.ItemCodingList);
   }
   toHTML(text: string): string {

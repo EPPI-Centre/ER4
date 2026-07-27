@@ -3,12 +3,13 @@ import { Router } from '@angular/router';
 import { ReviewService } from '../services/review.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ModalService } from '../services/modal.service';
-import { iRobotOpenAiTaskReadOnly, iRobotSettings, RobotOpenAiTaskReadOnly, RobotsService } from '../services/Robots.service';
+import { iRobotCoderReadOnly, iRobotOpenAiTaskReadOnly, iRobotSettings, RobotOpenAiTaskReadOnly, RobotsService } from '../services/Robots.service';
 import { process, State } from '@progress/kendo-data-query';
 import { GridDataResult, PageChangeEvent, RowClassArgs, DataStateChangeEvent } from '@progress/kendo-angular-grid';
 import { DataForMultiSheetExcel, ExcelService } from '../services/excel.service';
 import { Helpers } from '../helpers/HelperMethods';
 import { ReviewSetsService } from '../services/ReviewSets.service';
+import { indexOf } from 'lodash';
 
 @Component({
   selector: 'RobotJobsLog',
@@ -29,7 +30,10 @@ export class RobotJobsLog implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (this.reviewSetsService.ReviewSets.length == 0) this.reviewSetsService.GetReviewSets(false);
-    if (this.robotsService.PastJobs.length == 0) setTimeout(() => { this.Refresh(); }, 80);
+    if (this.robotsService.PastJobs.length == 0) setTimeout(() => {
+      this.Refresh();
+      if (this.robotsService.RobotsList.length == 0) this.robotsService.GetRobotsList();
+    }, 80);
   }
   public GetAllJobsOption:boolean = false;
   CanWrite(): boolean {
@@ -51,6 +55,15 @@ export class RobotJobsLog implements OnInit, OnDestroy {
     this.DataSourceJobs; //makes sure it's "processed"
   }
 
+  public get RobotsList() {
+    // we want to only display the robots that aren't expired
+    return this.robotsService.RobotsList;
+  }
+  
+  public get RobotsExpiredList() {
+    return this.robotsService.RobotsExpiredList;
+  }
+  
   public get IsSiteAdmin(): boolean {
     return this._reviewerIdentityServ.reviewerIdentity.isSiteAdmin;
   }
@@ -58,7 +71,22 @@ export class RobotJobsLog implements OnInit, OnDestroy {
     this.GetAllJobsOption = !this.GetAllJobsOption;
     this.Refresh();
   }
-  
+
+  public SelectedActiveRobot: iRobotCoderReadOnly | false = false;
+  public SelectedRetiredRobot: iRobotCoderReadOnly | false = false;
+
+  FormatDate(DateSt: string): string {
+    if (DateSt == "0001-01-01T00:00:00") return "None";
+    return Helpers.FormatDate2(DateSt);
+  }
+
+  public showingRobotsListPanel: boolean = false;
+  public get ShowHideRobotsListText(): string {
+    if (this.showingRobotsListPanel) return "Hide";
+    return "Show";
+  }
+
+
   public rowCallback = (context: RowClassArgs) => {
     const row: RobotOpenAiTaskReadOnly = context.dataItem;
     if (row.success == false

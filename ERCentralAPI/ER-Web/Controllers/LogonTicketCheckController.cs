@@ -1,20 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using BusinessLibrary.BusinessClasses;
 using BusinessLibrary.Security;
 using Csla;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Newtonsoft.Json;
 
 namespace ERxWebClient2.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
+    [EnableRateLimiting("RegularApiEndPoints")]
     public class LogonTicketCheckController : Microsoft.AspNetCore.Mvc.Controller
     {
 

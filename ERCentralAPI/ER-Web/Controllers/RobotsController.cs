@@ -4,6 +4,7 @@ using Csla;
 using EPPIDataServices.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.CodeAnalysis.Scripting.Hosting;
 using System;
 using System.Collections.Generic;
@@ -59,6 +60,8 @@ namespace ERxWebClient2.Controllers
             }
 
         }
+
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpGet("[action]")]
         public IActionResult GetPastJobs()
         {
@@ -78,6 +81,8 @@ namespace ERxWebClient2.Controllers
             }
 
         }
+
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpGet("[action]")]
         public IActionResult GetAllPastJobs()
         {
@@ -116,6 +121,7 @@ namespace ERxWebClient2.Controllers
 
         //}
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult RunRobotOpenAICommand([FromBody] RobotOpenAICommandJson data)
         {
@@ -132,7 +138,9 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
 
-		}
+        }
+
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult RunRobotInvestigateCommand([FromBody] RobotInvestigateCommandJson data)
         {
@@ -150,6 +158,8 @@ namespace ERxWebClient2.Controllers
             }
 
         }
+
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult EnqueueRobotOpenAIBatch([FromBody] RobotOpenAiQueueBatchJobCommandJson data)
         {
@@ -190,6 +200,7 @@ namespace ERxWebClient2.Controllers
             }
 
         }
+
         [HttpPost("[action]")]
         public IActionResult CancelRobotOpenAIBatch([FromBody] SingleIntCriteria crit)
         {
@@ -211,6 +222,8 @@ namespace ERxWebClient2.Controllers
 
         }
         // ************************************ Below here is OpenAi Prompt Evaluation *******************************
+
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult EnqueueRobotOpenAIBatchJobEvaluation([FromBody] RobotOpenAiQueueBatchJobEvaluationCommandJson data)
         {
@@ -251,6 +264,8 @@ namespace ERxWebClient2.Controllers
             }
 
         }
+
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpGet("[action]")]
         public IActionResult FetchRobotOpenAiPromptEvaluationList()
         {
@@ -268,6 +283,7 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult FetchRobotOpenAiPromptEvaluationDataList([FromBody] string crit)
         {

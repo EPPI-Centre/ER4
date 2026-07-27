@@ -8,11 +8,26 @@
 	<div class="modal-body bg-white p-1" [innerHTML]="message">
 	</div>
 	<div *ngIf="ShowInputTextWarning" class="modal-body bg-white p-1 mb-1">
-		<input class="form-control rounded border border-dark " type="text" name="ShowInputTextWarning"  
-		[(ngModel)] ="UserInputConfirmationText"  />
+		<input class="form-control rounded border border-dark " type="text" name="ShowInputTextWarning"
+					 [(ngModel)]="UserInputConfirmationText" />
 	</div>
-	<div class="modal-footer bg-white">
-		<button type="button" class="btn btn-outline-secondary ml-auto" (click)="decline()" style="width:100px;">{{ btnCancelText }}</button>
-		<button *ngIf="!IsInformational" type="button" class="btn btn-danger ml-3 mr-auto" (click)="accept()" [disabled]="!CheckInputBoxEntry()">{{ btnOkText }}</button>
+	<div *ngIf="PlaceButtonsOnTwoLines == false; else buttonsOnTwoLines" class="modal-footer bg-white px-1">
+		<button type="button" class="btn btn-outline-secondary ml-auto"
+						[ngClass]="ReduceCancelPadding ? 'px-2' : 'px-4'" (click)="decline()">
+		{{btnCancelText}}
+		</button>
+		<button *ngIf="!IsInformational" type="button" class="btn btn-danger ml-1 mr-auto" (click)="accept()" [disabled]="!CheckInputBoxEntry()">{{ btnOkText }}</button>
 	</div>
+	<ng-template #buttonsOnTwoLines>
+		<div class="modal-footer bg-white px-1">
+      <div class="w-100 d-flex">
+				<button type="button" class="btn btn-outline-secondary mx-auto px-3" (click)="decline()" style="min-width:120px;">{{btnCancelText}}</button>
+			</div>
+      <div class="w-100 d-flex">
+				<button *ngIf="!IsInformational" type="button" class="btn btn-danger mx-auto" (click)="accept()" [disabled]="!CheckInputBoxEntry()">
+				{{ btnOkText }}
+				</button>
+			</div>
+		</div>
+	</ng-template>
 </div>

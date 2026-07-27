@@ -1,11 +1,12 @@
-using System;
 using BusinessLibrary.BusinessClasses;
 using BusinessLibrary.Security;
 using Csla;
+using EPPIDataServices.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
-using EPPIDataServices.Helpers;
+using System;
 using System.Linq;
 
 namespace ERxWebClient2.Controllers
@@ -67,7 +68,8 @@ namespace ERxWebClient2.Controllers
             }
 		}
 
-		[HttpPost("[action]")]
+        [EnableRateLimiting("MaxCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult CreateMagRelatedPapersRun([FromBody] MVCMagRelatedPapersRun magRun)
 		{
 			try
@@ -225,6 +227,7 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult CreateAutoUpdate([FromBody] MVCMagRelatedPapersRun magRun)
         {
@@ -274,6 +277,7 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult ImportMagRelatedPapers([FromBody] MVCMagItemPaperInsertCommand cmd)
         {
@@ -303,6 +307,7 @@ namespace ERxWebClient2.Controllers
         }
 
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult ImportMagRelatedSelectedPapers([FromBody] SingleStringCriteria magSelectedPapers)
         {
@@ -352,6 +357,8 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult MagAddClassifierScoresCommand([FromBody] MVCMagAddClassifierScoresCommand cmd)
         {
@@ -374,6 +381,8 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult ImportAutoUpdateRun([FromBody] MVCMagItemPaperInsertCommand mr)
         {

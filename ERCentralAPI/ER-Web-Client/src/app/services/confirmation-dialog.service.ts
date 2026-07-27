@@ -37,7 +37,7 @@ export class ConfirmationDialogService implements OnDestroy {
     modalRef.componentInstance.btnCancelText = btnCancelText;
     modalRef.componentInstance.ShowInputTextWarning = ShowInputTextWarning;
     modalRef.componentInstance.RequiredConfirmationTxt = RequiredConfirmationTxt;
-		
+    modalRef.componentInstance.IsLarge = dialogSize == 'lg' ? true : false;
 		return modalRef.result;
   }
   public ShowInformationalModal(message: string, title: string = "Information", dialogSize: 'sm' | 'lg' = 'sm'): any {

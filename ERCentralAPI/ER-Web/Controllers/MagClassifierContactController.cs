@@ -1,11 +1,12 @@
-using System;
 using BusinessLibrary.BusinessClasses;
 using BusinessLibrary.Security;
 using Csla;
+using EPPIDataServices.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
-using EPPIDataServices.Helpers;
+using System;
 using System.Linq;
 
 namespace ERxWebClient2.Controllers
@@ -18,6 +19,7 @@ namespace ERxWebClient2.Controllers
 		public MagClassifierContactController(ILogger<MagClassifierContactController> logger) : base(logger)
         { }
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpGet("[action]")]
         public IActionResult FetchClassifierContactList()
         {

@@ -1,13 +1,14 @@
-using System;
 using BusinessLibrary.BusinessClasses;
 using BusinessLibrary.Security;
 using Csla;
-using System.Linq;
+using EPPIDataServices.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
-using EPPIDataServices.Helpers;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ERxWebClient2.Controllers
 {
@@ -19,6 +20,7 @@ namespace ERxWebClient2.Controllers
         public ReportListController(ILogger<ReportListController> logger) : base(logger)
         { }
 
+        [EnableRateLimiting("HighCostEndpoints")]
         [HttpGet("[action]")]
         public IActionResult FetchReports()
         {
@@ -135,7 +137,9 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
-		[HttpPost("[action]")]
+
+        [EnableRateLimiting("MaxCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult FetchStandardReport([FromBody] ReportStandardJSON args)
 		{
 			try
@@ -190,8 +194,9 @@ namespace ERxWebClient2.Controllers
        
 			}
 		}
-		
-		[HttpPost("[action]")]
+
+        [EnableRateLimiting("MaxCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult FetchROBReport([FromBody] ReportRiskOfBiasJSON args)
 		{
 			try
@@ -246,8 +251,9 @@ namespace ERxWebClient2.Controllers
 				return StatusCode(500, e.Message);
 			}
 		}
-		
-		[HttpPost("[action]")]
+
+        [EnableRateLimiting("MaxCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult FetchOutcomesReport([FromBody] ReportOutcomesJSON args)
 		{
 			try
@@ -279,7 +285,8 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
-		[HttpPost("[action]")]
+        [EnableRateLimiting("MaxCostEndpoints")]
+        [HttpPost("[action]")]
 		public IActionResult FetchReportAllCoding([FromBody] AttributeOrSetDeleteCheckCommandJSON crit)
 		{
 			try
@@ -295,6 +302,8 @@ namespace ERxWebClient2.Controllers
 				return StatusCode(500, e.Message);
 			}
 		}
+
+        [EnableRateLimiting("MaxCostEndpoints")]
         [HttpPost("[action]")]
         public IActionResult FetchReportAllCodingData([FromBody] AttributeOrSetDeleteCheckCommandJSON crit)
         {

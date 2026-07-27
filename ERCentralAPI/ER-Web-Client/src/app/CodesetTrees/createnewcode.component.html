@@ -4,8 +4,20 @@
         <div class="col-12">
           <div class="form-group">
             <label for="Codeset_TypeCollaborate">Code Type*</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <!--<input *ngIf="showRadioButtonEntry" type="checkbox" (click)="radioButtonEntryClicked($event)" [(ngModel)]="radioButtonEntry" name="radioButtonCB">&nbsp;
-            <label *ngIf="showRadioButtonEntry" for="Codeset_TypeCollaborate">Radio button code</label>-->
+            <div *ngIf="showRadioButtonEntry" class="d-inline">
+              <div class="d-inline-block">
+                <input type="checkbox" [(ngModel)]="radioButtonEntry" name="radioButtonCB">&nbsp;
+                <label for="Codeset_TypeCollaborate">Radio-button code</label>
+              </div>
+            </div>
+            <div *ngIf="radioButtonEntry" class="d-flex">
+              <div class="mb-1 p-1 rounded small alert-info ">
+                <strong>Radio-button codes are "mutually exclusive" codes: when they share the same parent, only one can be ticked.</strong><br />
+                Thus, ticking one radio-button code will automatically un-tick any other radio-button code located at the same level. <br />
+                Moreover, radio-button codes cannot be moved to a different parent, but can be converted to non-radio codes.<br />
+                Existing non-radio codes <strong>cannot</strong> be transformed into radio-button codes.
+              </div>
+            </div>
             <select #CodeTypeSelectCollaborate class="form-control" name="NewCode_TypeCollaborate"
                     [disabled]="!CurrentCodeCanHaveChildren" (change)="ChangeLastSelectedCodeType($event)">
               <option *ngFor="let type of AllowedChildTypesOfSelectedNode" [value]="type.key" [selected]="type.key == LastSelectedCodeTypeId">
@@ -51,19 +63,30 @@
 </div>
 
 
-<form  *ngIf="IsSmall" class="row small"#NewCodeFromCollaborate="ngForm" (ngSubmit)="onSubmit()">
-    <div class="col-12">
-        <div class="form-group mb-1">
-            <div>Code Type*</div>
-            <select #CodeTypeSelectCollaborate class="p-1" name="NewCode_TypeCollaborate" (change)="ChangeLastSelectedCodeType($event)"
-                    [disabled]="!CurrentCodeCanHaveChildren">
-                <option *ngFor="let type of AllowedChildTypesOfSelectedNode" [value]="type.key" [selected]="type.key == LastSelectedCodeTypeId">
-                    {{type.value}}
-                </option>
-            </select>
-        </div>
+<form  *ngIf="IsSmall" class="row small" #NewCodeFromCollaborate="ngForm" (ngSubmit)="onSubmit()">
+    <div class="col-12 border-top">
+      <div class="form-group mb-0">
+        <label for="Codeset_TypeCollaborate">Code Type*</label>&nbsp;
+        <select #CodeTypeSelectCollaborate class="p-1" name="NewCode_TypeCollaborate" (change)="ChangeLastSelectedCodeType($event)"
+                [disabled]="!CurrentCodeCanHaveChildren">
+          <option *ngFor="let type of AllowedChildTypesOfSelectedNode" [value]="type.key" [selected]="type.key == LastSelectedCodeTypeId">
+            {{type.value}}
+          </option>
+        </select>        
+      </div>
     </div>
-    <div class="form-group mb-1 col-12">
+    <div *ngIf="showRadioButtonEntry" class="col-12 mb-1 px-1 border-bottom">
+      <div class="row mx-0 justify-content-center">
+        <label class="my-auto" for="Codeset_TypeCollaborate">Radio-button</label>
+        <input class="my-auto mx-1" type="checkbox" [(ngModel)]="radioButtonEntry" name="radioButtonCB">
+      </div>
+      <div *ngIf="radioButtonEntry" class="row mx-0 mb-1 justify-content-center">
+        <div class="my-auto rounded small alert-info p-1" for="Codeset_TypeCollaborate">
+          <strong>Radio-button codes are "mutually exclusive" codes: when they share the same parent, only one can be ticked.</strong>
+        </div>
+      </div>
+    </div>
+    <div class="form-group my-1 col-12">
       <div>
         Code Name*&nbsp;&nbsp;&nbsp;
         <input type="checkbox" (click)="commaSeparatedEntryClicked($event)" [(ngModel)]="commaSeparatedEntry" name="multipleCodesCB">&nbsp;Enter multiple codes
