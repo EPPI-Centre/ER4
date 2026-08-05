@@ -434,7 +434,7 @@
   </div>
 
 <ng-template #TransferCodeTemplate let-coding="coding" let-reviewerN="reviewerN">
-  <div class="float-right" *ngIf="!ReconcilingItem || !ReconcilingItem.IsCompleted">
+  <div *ngIf="!ReconcilingItem || !ReconcilingItem.IsCompleted">
     <button (click)="OpenTransferDialog(coding, reviewerN)"
             class="btn btn-sm btn-outline-danger my-1 py-0 ml-3 mr-1">
       Copy / Merge
