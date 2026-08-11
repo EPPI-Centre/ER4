@@ -386,7 +386,15 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
     }
     newItemA.additionalText = cmdResult.additionalText;
     newItemA.armId = cmdResult.itemArmId;
-    newItemA.armTitle = "";
+    //newItemA.armTitle = "";
+    
+    let armName = "";
+    if (newItemA.armId > 0) {
+      const index = this.ArmsService.arms.findIndex(f => f.itemArmId == newItemA.armId);
+      if (index != -1) armName = this.ArmsService.arms[index].title;
+    }
+    newItemA.armTitle = armName;
+    
     newItemA.attributeId = cmdResult.attributeId;
     newItemA.itemAttributeId = cmdResult.itemAttributeId;
     if (itemSet) {
