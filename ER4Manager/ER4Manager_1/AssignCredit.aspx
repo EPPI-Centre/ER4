@@ -77,6 +77,7 @@
                     <asp:LinkButton ID="lbCancel" runat="server" OnClick="lbCancel_Click">(cancel)</asp:LinkButton>
                     &nbsp;&nbsp;
                     <asp:Label runat="server" ID="lblExtensionError" Visible="false" Font-Bold="True" ForeColor="Red" Text="Missing extension"></asp:Label>
+                    <asp:Label runat="server" ID="lblInsufficientCredit" Visible="false" Font-Bold="True" ForeColor="Red" Text="Insufficient credit for all extensions"></asp:Label>
                 </td>
                 <td>
                     <asp:Label ID="lblAvailable" runat="server" Text="£0" Font-Bold="True"></asp:Label>

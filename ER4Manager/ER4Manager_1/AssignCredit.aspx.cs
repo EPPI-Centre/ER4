@@ -328,8 +328,10 @@ public partial class AssignCredit : System.Web.UI.Page
 
     protected void cmdComplete_Click(object sender, EventArgs e)
     {
-        bool reviewExtended = false;
+        bool reviewExtended = true;
+        bool accountExtended = true;
         lblExtensionError.Visible = false;
+        lblInsufficientCredit.Visible = false;
         if (lblTotal.Text == "£0")
         {
             lblExtensionError.Visible = true;
@@ -341,12 +343,34 @@ public partial class AssignCredit : System.Web.UI.Page
             // extend the review (if needed)
             if (ddlExtendReview.SelectedIndex != 0)
             {
+                /*
                 Utils.ExecuteSP(isAdmDB, Server, "st_ApplyCreditToReview",
                     Utils.GetSessionString("Credit_Purchase_ID"), lblReviewID.Text,
                     ddlExtendReview.SelectedValue, Utils.GetSessionString("Contact_ID"));
-                reviewExtended = true;
-            }
+                */
 
+                SqlParameter[] paramList = new SqlParameter[5];
+                paramList[0] = new SqlParameter("@CREDIT_PURCHASE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                    true, 0, 0, null, DataRowVersion.Default, Utils.GetSessionString("Credit_Purchase_ID"));
+                paramList[1] = new SqlParameter("@REVIEW_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                    true, 0, 0, null, DataRowVersion.Default, lblReviewID.Text);
+                paramList[2] = new SqlParameter("@MONTHS_EXTENDED", SqlDbType.Int, 8, ParameterDirection.Input,
+                    true, 0, 0, null, DataRowVersion.Default, ddlExtendReview.SelectedValue);
+                paramList[3] = new SqlParameter("@PERSON_EXTENDING_CONTACT_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                    true, 0, 0, null, DataRowVersion.Default, Utils.GetSessionString("Contact_ID"));
+                paramList[4] = new SqlParameter("@res", SqlDbType.Int, 8, ParameterDirection.Output,
+                    true, 0, 0, null, DataRowVersion.Default, "");
+                Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_ApplyCreditToReview", paramList);
+
+                if (paramList[4].Value.ToString() == "0")
+                {
+                    reviewExtended = false;
+                }
+                else
+                {
+                    reviewExtended = true;
+                }
+            }
 
             // extend the accounts (if needed)
             DropDownList monthsExtended;
@@ -355,22 +379,55 @@ public partial class AssignCredit : System.Web.UI.Page
                 monthsExtended = (DropDownList)gvMembersOfReview.Rows[i].FindControl("ddlExtendAccount");
                 if (monthsExtended.SelectedIndex != 0)
                 {
+                    /*
                     Utils.ExecuteSP(isAdmDB, Server, "st_ApplyCreditToAccount",
                         Utils.GetSessionString("Credit_Purchase_ID"), gvMembersOfReview.Rows[i].Cells[0].Text,
                         monthsExtended.SelectedValue, Utils.GetSessionString("Contact_ID"));
+                    */
+
+                    SqlParameter[] paramList1 = new SqlParameter[5];
+                    paramList1[0] = new SqlParameter("@CREDIT_PURCHASE_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                        true, 0, 0, null, DataRowVersion.Default, Utils.GetSessionString("Credit_Purchase_ID"));
+                    paramList1[1] = new SqlParameter("@CONTACT_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                        true, 0, 0, null, DataRowVersion.Default, gvMembersOfReview.Rows[i].Cells[0].Text);
+                    paramList1[2] = new SqlParameter("@MONTHS_EXTENDED", SqlDbType.Int, 8, ParameterDirection.Input,
+                        true, 0, 0, null, DataRowVersion.Default, monthsExtended.SelectedValue);
+                    paramList1[3] = new SqlParameter("@PERSON_EXTENDING_CONTACT_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                        true, 0, 0, null, DataRowVersion.Default, Utils.GetSessionString("Contact_ID"));
+                    paramList1[4] = new SqlParameter("@res", SqlDbType.Int, 8, ParameterDirection.Output,
+                        true, 0, 0, null, DataRowVersion.Default, "");
+                    Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_ApplyCreditToAccount", paramList1);
+
+                    if (paramList1[4].Value.ToString() == "0")
+                    {
+                        accountExtended = false;
+                    }
+                    else
+                    {
+                        accountExtended = true;
+                    }
                 }
             }
 
-            Utils.SetSessionString("Remaining_Credit", lblRemaining.Text.Replace("£", ""));
-            lblRemainingCredit.Text = lblRemaining.Text;
-            pnlInstructions.Visible = true;
-            pnlAssign.Visible = false;
-            pnlReviewDetails.Visible = false;
-            pnlReviewMembers.Visible = false;
+            if (reviewExtended && accountExtended) 
+            { 
+                // all good
+                Utils.SetSessionString("Remaining_Credit", lblRemaining.Text.Replace("£", ""));
+                lblRemainingCredit.Text = lblRemaining.Text;
+                pnlInstructions.Visible = true;
+                pnlAssign.Visible = false;
+                pnlReviewDetails.Visible = false;
+                pnlReviewMembers.Visible = false;
 
-            // reload the review grid so the updated review expiry date is shown
-            if (reviewExtended == true)
-                buildReviewGrid();
+                // reload the review grid so the updated review expiry date is shown
+                if (reviewExtended == true)
+                    buildReviewGrid();
+            }
+            else
+            {
+                lblInsufficientCredit.Visible = true;
+            }
+
 
         }
     }
