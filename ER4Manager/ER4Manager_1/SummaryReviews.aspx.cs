@@ -686,6 +686,7 @@ public partial class SummaryReviews : System.Web.UI.Page
         else
         {
             //one last check. is this user already in the review
+            // this is a check using the UI. We have now added a server side check as well
             bool userAlreadyThere = false;
             for (int i = 0; i < gvMembersOfReview.Rows.Count; i++)
             {
@@ -702,43 +703,61 @@ public partial class SummaryReviews : System.Web.UI.Page
                 if (idr.Read())
                 {
                     // place the invitee in the review
-                    Utils.ExecuteSP(isAdmDB, Server, "st_ReviewAddMember",
-                        lblShareableReviewNumber.Text, idr["CONTACT_ID"].ToString());
+                    //Utils.ExecuteSP(isAdmDB, Server, "st_ReviewAddMember",
+                    //    lblShareableReviewNumber.Text, idr["CONTACT_ID"].ToString());
 
-                    // check that the account meets the new account requirements. 
-                    // If it doesn't include this info in the email sent to the invitee.
-                    bool accountConditionsMet = true;
-                    string emailAccountMsg = "<b>Your EPPI Reviewer account details need updating</b>.<br>Please log into the EPPI Reviewer gateway at " +
-                    //"\http://eppi.ioe.ac.uk/cms/er4 and update your username and password";
+                    SqlParameter[] paramList = new SqlParameter[3];
+                    paramList[0] = new SqlParameter("@REVIEW_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                        true, 0, 0, null, DataRowVersion.Default, lblShareableReviewNumber.Text);
+                    paramList[1] = new SqlParameter("@CONTACT_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                        true, 0, 0, null, DataRowVersion.Default, idr["CONTACT_ID"].ToString());
+                    paramList[2] = new SqlParameter("@result", SqlDbType.Int, 8, ParameterDirection.Output,
+                        true, 0, 0, null, DataRowVersion.Default, "");
+                    Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_ReviewAddMember", paramList);
 
-                    "<a href='https://eppi.ioe.ac.uk/cms/er4'>eppi.ioe.ac.uk/cms/er4</a> to update your details.";
-
-                    //Regex passwordRegex = new Regex("^.*(?=.{8,})(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).*$");
-                    //Match m = passwordRegex.Match(idr["PASSWORD"].ToString());
-                    //if (!m.Success)
-                    //{
-                    //    accountConditionsMet = false;
-                    //}
-
-                    if (idr["USERNAME"].ToString().Length < 4)
+                    if (paramList[2].Value.ToString() == "0")
                     {
-                        accountConditionsMet = false;
+                        lblInviteMsg.Text = "This account is already in the review.";
+                        lblInviteMsg.Visible = true;
                     }
+                    else
+                    { 
 
-                    if (accountConditionsMet == true)
-                    {
-                        emailAccountMsg = "";
+                        // check that the account meets the new account requirements. 
+                        // If it doesn't include this info in the email sent to the invitee.
+                        bool accountConditionsMet = true;
+                        string emailAccountMsg = "<b>Your EPPI Reviewer account details need updating</b>.<br>Please log into the EPPI Reviewer gateway at " +
+                        //"\http://eppi.ioe.ac.uk/cms/er4 and update your username and password";
+
+                        "<a href='https://eppi.ioe.ac.uk/cms/er4'>eppi.ioe.ac.uk/cms/er4</a> to update your details.";
+
+                        //Regex passwordRegex = new Regex("^.*(?=.{8,})(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).*$");
+                        //Match m = passwordRegex.Match(idr["PASSWORD"].ToString());
+                        //if (!m.Success)
+                        //{
+                        //    accountConditionsMet = false;
+                        //}
+
+                        if (idr["USERNAME"].ToString().Length < 4)
+                        {
+                            accountConditionsMet = false;
+                        }
+
+                        if (accountConditionsMet == true)
+                        {
+                            emailAccountMsg = "";
+                        }
+
+                        // send out the email
+                        string sendResult = Utils.InviteEmail(tbInvite.Text, idr["CONTACT_NAME"].ToString(), tbShareableReviewName.Text, senderName,
+                            senderEmail, emailAccountMsg);
+                        lblInviteMsg.Text = sendResult;
+                        lblInviteMsg.Visible = true;
                     }
-
-                    // send out the email
-                    string sendResult = Utils.InviteEmail(tbInvite.Text, idr["CONTACT_NAME"].ToString(), tbShareableReviewName.Text, senderName,
-                        senderEmail, emailAccountMsg);
-                    lblInviteMsg.Text = sendResult;
-                    lblInviteMsg.Visible = true;
-                }
                 idr.Close();
                 // update table
                 buildMembersOfReview(lblShareableReviewNumber.Text);
+            }
             }
             else
             {

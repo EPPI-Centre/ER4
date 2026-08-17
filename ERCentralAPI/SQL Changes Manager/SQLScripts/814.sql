@@ -226,3 +226,61 @@ SET NOCOUNT OFF
 GO
 
 -------------------------------------
+
+USE [ReviewerAdmin]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ReviewAddMember]    Script Date: 17/08/2026 13:37:09 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER   procedure [dbo].[st_ReviewAddMember]
+(
+	@REVIEW_ID int,
+	@CONTACT_ID int,
+	@result int output
+)
+
+As
+
+SET NOCOUNT ON
+
+	select * from sTB_REVIEW_CONTACT
+	where REVIEW_ID = @REVIEW_ID
+	and CONTACT_ID = @CONTACT_ID
+	if @@ROWCOUNT > 0
+	begin
+		-- this user is already in the review
+		set @result = 0
+	end
+	else
+	begin
+		-- good to proceed
+		set @result = 1
+
+		declare @NEW_CONTACT_REVIEW_ID int
+		declare @funderID int
+	
+		insert into sTB_REVIEW_CONTACT(CONTACT_ID, REVIEW_ID)
+		values (@CONTACT_ID, @REVIEW_ID)
+	
+		set @NEW_CONTACT_REVIEW_ID = @@IDENTITY
+	
+		insert into sTB_CONTACT_REVIEW_ROLE(REVIEW_CONTACT_ID, ROLE_NAME)
+		values(@NEW_CONTACT_REVIEW_ID, 'RegularUser')
+	
+		-- if the contact_id of the invitee is the funderID then give them AdminUser role
+		select @funderID = FUNDER_ID from sTB_REVIEW where REVIEW_ID = @REVIEW_ID
+		if @funderID = @CONTACT_ID
+		begin
+			update sTB_CONTACT_REVIEW_ROLE set ROLE_NAME = 'AdminUser' 
+			where REVIEW_CONTACT_ID = @NEW_CONTACT_REVIEW_ID
+		end
+	end
+
+SET NOCOUNT OFF
+GO
+
