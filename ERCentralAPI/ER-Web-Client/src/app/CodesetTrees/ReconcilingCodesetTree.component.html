@@ -264,31 +264,31 @@
 
       <ul *ngIf="SelectedNode.Reviewer1Coding.length > 0 && ReconcilingItem" class="pl-4">
         <li *ngIf="CodingWholeStudy(SelectedNode.Reviewer1Coding).length > 0">
-          <div *ngFor="let coding of CodingWholeStudy(SelectedNode.Reviewer1Coding)">
+          <div *ngFor="let coding of CodingWholeStudy(SelectedNode.Reviewer1Coding)" class="border-bottom border-secondary">
             <div>
               <b>{{SelectedNode.attribute_name}}</b>
-              <div *ngIf="CanMoveCodesFromHere(1)">
-                <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer1'}"></ng-container>
-              </div>
             </div>
             <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark" style="white-space: pre-line;">
               <b>[Info Box]</b> {{coding.InfoBox}}
             </div>
             <ng-container *ngTemplateOutlet="PdfCodingTemplate; context:{coding : coding}"></ng-container>
+            <div *ngIf="CanMoveCodesFromHere(1)">
+              <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer1'}"></ng-container>
+            </div>
           </div>
         </li>
-        <li *ngFor="let arm of ReconcilingItem.Item.arms" [hidden]="CodingByArmId(SelectedNode.Reviewer1Coding, arm.itemArmId).length == 0">
-          <div *ngFor="let coding of CodingByArmId(SelectedNode.Reviewer1Coding, arm.itemArmId)">
+        <li *ngFor="let arm of ReconcilingItem.Item.arms" [hidden]="CodingByArmId(SelectedNode.Reviewer1Coding, arm.itemArmId).length == 0" >
+          <div *ngFor="let coding of CodingByArmId(SelectedNode.Reviewer1Coding, arm.itemArmId)" class="border-bottom border-secondary">
             <div>
               <b>{{SelectedNode.attribute_name}} (Arm: {{arm.title}})</b>
-              <div *ngIf="CanMoveCodesFromHere(1)">
-                <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer1'}"></ng-container>
-              </div>
             </div>
             <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark" style="white-space: pre-line;">
               <b>[Info Box]</b> {{coding.InfoBox}}
             </div>
             <ng-container *ngTemplateOutlet="PdfCodingTemplate; context:{coding : coding}"></ng-container>
+            <div *ngIf="CanMoveCodesFromHere(1)">
+              <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer1'}"></ng-container>
+            </div>
           </div>
         </li>
       </ul>
@@ -307,31 +307,31 @@
       </ng-template>
       <ul *ngIf="SelectedNode.Reviewer2Coding.length > 0 && ReconcilingItem" class="pl-4">
         <li *ngIf="CodingWholeStudy(SelectedNode.Reviewer2Coding).length > 0">
-          <div *ngFor="let coding of CodingWholeStudy(SelectedNode.Reviewer2Coding)">
+          <div *ngFor="let coding of CodingWholeStudy(SelectedNode.Reviewer2Coding)" class="border-bottom border-secondary">
             <div>
               <b>{{SelectedNode.attribute_name}}</b>
-              <div *ngIf="CanMoveCodesFromHere(2)">
-                <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer2'}"></ng-container>
-              </div>
             </div>
             <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark" style="white-space: pre-line;">
               <b>[Info Box]</b> {{coding.InfoBox}}
             </div>
             <ng-container *ngTemplateOutlet="PdfCodingTemplate; context:{coding : coding}"></ng-container>
+            <div *ngIf="CanMoveCodesFromHere(2)">
+              <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer2'}"></ng-container>
+            </div>
           </div>
         </li>
         <li *ngFor="let arm of ReconcilingItem.Item.arms" [hidden]="CodingByArmId(SelectedNode.Reviewer2Coding, arm.itemArmId).length == 0">
-          <div *ngFor="let coding of CodingByArmId(SelectedNode.Reviewer2Coding, arm.itemArmId)">
+          <div *ngFor="let coding of CodingByArmId(SelectedNode.Reviewer2Coding, arm.itemArmId)" class="border-bottom border-secondary">
             <div>
               <b>{{SelectedNode.attribute_name}} (Arm: {{arm.title}})</b>
-              <div *ngIf="CanMoveCodesFromHere(2)">
-                <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer2'}"></ng-container>
-              </div>
             </div>
             <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark" style="white-space: pre-line;">
               <b>[Info Box]</b> {{coding.InfoBox}}
             </div>
             <ng-container *ngTemplateOutlet="PdfCodingTemplate; context:{coding : coding}"></ng-container>
+            <div *ngIf="CanMoveCodesFromHere(2)">
+              <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer2'}"></ng-container>
+            </div>
           </div>
         </li>
       </ul>
@@ -350,31 +350,31 @@
       </ng-template>
       <ul *ngIf="SelectedNode.Reviewer3Coding.length > 0 && ReconcilingItem" class="pl-4">
         <li *ngIf="CodingWholeStudy(SelectedNode.Reviewer3Coding).length > 0">
-          <div *ngFor="let coding of CodingWholeStudy(SelectedNode.Reviewer3Coding)">
+          <div *ngFor="let coding of CodingWholeStudy(SelectedNode.Reviewer3Coding)" class="border-bottom border-secondary">
             <div>
               <b>{{SelectedNode.attribute_name}}</b>
-              <div *ngIf="CanMoveCodesFromHere(3)">
-                <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer3'}"></ng-container>
-              </div>
             </div>
             <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark" style="white-space: pre-line;">
               <b>[Info Box]</b> {{coding.InfoBox}}
             </div>
             <ng-container *ngTemplateOutlet="PdfCodingTemplate; context:{coding : coding}"></ng-container>
+            <div *ngIf="CanMoveCodesFromHere(3)">
+              <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer3'}"></ng-container>
+            </div>
           </div>
         </li>
         <li *ngFor="let arm of ReconcilingItem.Item.arms" [hidden]="CodingByArmId(SelectedNode.Reviewer3Coding, arm.itemArmId).length == 0">
-          <div *ngFor="let coding of CodingByArmId(SelectedNode.Reviewer3Coding, arm.itemArmId)">
+          <div *ngFor="let coding of CodingByArmId(SelectedNode.Reviewer3Coding, arm.itemArmId)" class="border-bottom border-secondary">
             <div>
               <b>{{SelectedNode.attribute_name}} (Arm: {{arm.title}})</b>
-              <div *ngIf="CanMoveCodesFromHere(3)">
-                <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer3'}"></ng-container>
-              </div>
             </div>
             <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark" style="white-space: pre-line;">
               <b>[Info Box]</b> {{coding.InfoBox}}
             </div>
             <ng-container *ngTemplateOutlet="PdfCodingTemplate; context:{coding : coding}"></ng-container>
+            <div *ngIf="CanMoveCodesFromHere(3)">
+              <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer3'}"></ng-container>
+            </div>
           </div>
         </li>
       </ul>
