@@ -1285,7 +1285,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 return Title.Substring(0, usefulSp) + "...";
             else
             {
-                int mke = Title.Length > 49 ? 50 : Title.Length - 1;
+                int mke = Title.Length > 50 ? 50 : Title.Length - 1;
                 usefulSp = Title.LastIndexOf(' ', mke);
                 if (usefulSp != -1)
                     return Title.Substring(0, usefulSp) + "...";
