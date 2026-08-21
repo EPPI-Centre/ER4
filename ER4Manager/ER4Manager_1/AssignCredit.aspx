@@ -26,10 +26,13 @@
     <asp:Panel ID="pnlInstructions" runat="server" Visible="true">
         <table style="width: 100%;">
             <tr>
-                <td colspan="2">Select a review to allocate credit towards the review and/or selected members of the review.
+                <td colspan="3">Select a review to allocate credit towards the review and/or selected members of the review.
                 </td>
             </tr>
             <tr>
+                <td>Purchased credit ID:
+                    <asp:Label ID="lblPurchasedCreditID" runat="server" Text="£0" Font-Bold="True"></asp:Label>
+                </td>
                 <td>Purchased credit:
                     <asp:Label ID="lblPurchasedCredit" runat="server" Text="£0" Font-Bold="True"></asp:Label>
                 </td>
@@ -38,7 +41,7 @@
                 </td>
             </tr>
             <tr>
-                <td colspan="2">
+                <td colspan="3">
                     <br />
                     To extend a review not listed click
                     <asp:LinkButton ID="lbReviewManual" runat="server" OnClick="lbReviewManual_Click">here</asp:LinkButton>.
