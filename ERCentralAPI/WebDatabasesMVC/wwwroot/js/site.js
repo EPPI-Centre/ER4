@@ -38,7 +38,7 @@ function Buildnode(attr) {
     var nodes = [];
 
     var res = new kendo.data.Node({
-        text: attr.setName ? attr.setName : attr.attributeName
+        text: attr.setName ? attr.setName : attr.attributeName, description: attr.attributeSetDescription
     });
     for (var ii = 0; ii < attr.attributes.attributesList.length; ii++) {
         res.append(Buildnode(attr.attributes.attributesList[ii]));

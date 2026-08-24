@@ -61,7 +61,7 @@
                         var nodes = [];
                         for (var i = 0; i < response.length; i++) {
                             var nodes2 = [];
-                            var nd = new kendo.data.Node({ text: response[i].setName });
+                            var nd = new kendo.data.Node({ text: response[i].setName, description: response[i].setDescription });
                             nd.id = response[i].setId;
                             nd.isCodeset = true;
                             nd.setId = nd.id;
@@ -110,6 +110,8 @@
         $("#BuildBarShowNOA").hide();
         $("#BuildBarHideNOA").hide();
         $("#tableVisible").val("0");
+        $("#CodeDescriptionBody").hide();
+        $("#CodeDescriptionButton").hide();
 
         $("#smallPhoneButton").hide();
         if ($(window).outerWidth() <= 325) {
@@ -293,6 +295,13 @@
             postwith(getBasePath() + "Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, parentName: dataItem.text, included: true });
         }
     }
+
+    function ShowCodeDescription() {
+        $("#CodeDescriptionBody").show();
+        $("#CodeDescriptionButton").hide();
+    }
+
+
     function GetFreqs() {
         //console.log("CurrentNodeGoToFreq");
         if (!dataItem) {
@@ -805,6 +814,15 @@
         $("#CurrentNodeName").text(dataItem.text);
         //$("#CurrentNodeNameCT").text(dataItem.text);
         $("#CurrentNodeNameMap").text(dataItem.text);
+        $("#CurrentNodeDescription").text(dataItem.description);
+        $("#CodeDescriptionBody").hide();
+        if (dataItem.description == "") {
+            $("#CodeDescriptionButton").hide();
+        }
+        else {
+            $("#CodeDescriptionButton").show();
+        }  
+        
         //$("#CurrentNodeId").text(dataItem.id);
         //$("#CurrentNodeSetId").text(dataItem.setId);
         //$("#CurrentNodeIsCodeSet").text(dataItem.isCodeset.toString());
@@ -1219,6 +1237,13 @@
                         <!--CODING TOOLS<br /><br />-->
                         <button id="GoToItemsWithThisCodeSB" class="btn btn-secondary btn-sm btn-round" disabled>List records</button>
                         <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqs()" disabled id="CurrentNodeGoToFreqSB">Frequencies</button>
+                        <div id="CodeDescriptionButton" style="padding-top:5px">
+                            <button class="btn btn-primary btn-sm btn-round" onclick="ShowCodeDescription()">Show code description</button>
+                        </div>
+                        <div class="card-body" id="CodeDescriptionBody" style="overflow-y:auto;max-height:20vh" tooltip="">
+                            <span style="font-family:verdana;font-size:12px;color:#727275;" class="font-weight-bold my-auto" id="descriptionTitle">Description:</span><br />
+                            <span style="font-family:verdana;font-size:12px;color:#727275;" class="my-auto" id="CurrentNodeDescription"></span>
+                        </div>
                     </div>
                 </li>
                 <li class="nav-item">
