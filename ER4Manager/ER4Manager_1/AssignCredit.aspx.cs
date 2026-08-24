@@ -21,7 +21,13 @@ public partial class AssignCredit : System.Web.UI.Page
                 {
                     lbl.Text = "Assign credit purchase";
                 }
-
+                int CreditId;
+                if (!int.TryParse(Utils.GetSessionString("Credit_Purchase_ID"), out CreditId))
+                {
+                    Server.Transfer("error.aspx?error=" + "Nothing in Credit_Purchase_ID");
+                    return;
+                }
+                lblPurchasedCreditID.Text = CreditId.ToString();
                 Telerik.Web.UI.RadTabStrip radTs = (Telerik.Web.UI.RadTabStrip)Master.FindControl("rtsMenu");
                 if (radTs != null)
                 {
@@ -332,12 +338,24 @@ public partial class AssignCredit : System.Web.UI.Page
         bool accountExtended = true;
         lblExtensionError.Visible = false;
         lblInsufficientCredit.Visible = false;
+
         if (lblTotal.Text == "£0")
         {
             lblExtensionError.Visible = true;
         }
         else
         {
+            int TotToSpend;
+            if (!int.TryParse(lblTotal.Text.Substring(1), out TotToSpend))
+            {
+                Server.Transfer("error.aspx?error=" + "No total to spend");
+                return;
+            }
+            if (!rebuildCreditDetails(TotToSpend))
+            {
+                return;
+            }
+
             bool isAdmDB = true;
 
             // extend the review (if needed)
@@ -401,6 +419,7 @@ public partial class AssignCredit : System.Web.UI.Page
                     if (paramList1[4].Value.ToString() == "0")
                     {
                         accountExtended = false;
+                        break;//no point cycling further once one update failed - we're aiming for all or nothing.
                     }
                     else
                     {
@@ -420,16 +439,47 @@ public partial class AssignCredit : System.Web.UI.Page
                 pnlReviewMembers.Visible = false;
 
                 // reload the review grid so the updated review expiry date is shown
-                if (reviewExtended == true)
-                    buildReviewGrid();
+                if (reviewExtended == true) buildReviewGrid();
             }
             else
             {
                 lblInsufficientCredit.Visible = true;
             }
-
-
+            rebuildCreditDetails(0);
         }
+    }
+    private bool rebuildCreditDetails(int TotTospend)
+    {
+        int CreditId;
+        double RemainingCredit;
+        if (!int.TryParse(lblPurchasedCreditID.Text, out CreditId))
+        {
+            Server.Transfer("error.aspx?error=" + "Nothing in Credit_Purchase_ID");
+            return false;
+        }
+        IDataReader idr = Utils.GetReader(true, "st_CreditPurchaseGet",
+                            lblPurchasedCreditID.Text);
+        if (idr.Read())
+        {
+            double.TryParse(idr["tv_credit_remaining"].ToString(), out RemainingCredit);
+            lblRemainingCredit.Text = Math.Floor(RemainingCredit).ToString();
+            lblPurchasedCredit.Text = idr["tv_credit_purchased"].ToString();
+            lblAvailable.Text = lblRemainingCredit.Text;
+            Utils.SetSessionString("Remaining_Credit", lblRemainingCredit.Text);
+            idr.Close();
+        }
+        else
+        {
+            idr.Close();
+            Server.Transfer("error.aspx?error=" + "Did not find data for Credit_Purchase_ID");
+            return false;
+        }
+        if (TotTospend > RemainingCredit)
+        {
+            lblInsufficientCredit.Visible = true;
+            return false;
+        }
+        return true;
     }
 
     protected void lbCancel_Click(object sender, EventArgs e)
