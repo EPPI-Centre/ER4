@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.37614.0 d17.14
+VisualStudioVersion = 17.14.37614.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExportPDFs", "ExportPDFs\ExportPDFs.csproj", "{10D6CC11-1974-487F-AB08-B8BADA4E2CDD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PDF hashing", "PDF hashing\PDF hashing.csproj", "{1EEF9414-F3DC-493F-A849-A8FDCC3E35BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQL Changes Manager", "..\ERCentralAPI\SQL Changes Manager\SQL Changes Manager.csproj", "{21641909-4D45-1637-A8F8-878942199711}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{1EEF9414-F3DC-493F-A849-A8FDCC3E35BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1EEF9414-F3DC-493F-A849-A8FDCC3E35BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1EEF9414-F3DC-493F-A849-A8FDCC3E35BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21641909-4D45-1637-A8F8-878942199711}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21641909-4D45-1637-A8F8-878942199711}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21641909-4D45-1637-A8F8-878942199711}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21641909-4D45-1637-A8F8-878942199711}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

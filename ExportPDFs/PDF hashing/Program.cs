@@ -18,30 +18,54 @@ namespace PDF_hashing
         private static ILogger<Program>? _logger = null;
         private static SQLHelper SqlHelper = null;
         private static int MillisecondsToSleep = 1; //100ms appears to be good - means app sleeps 800ms per second in dev
-        private static int MaxDocsToProcess = 0;
+        private static int MaxDocsToProcess = 0; //set in config. If left out or set to zero, then we'll process all docs
         static void Main(string[] args)
         {
-            Log.Logger = new LoggerConfiguration()
-                .WriteTo.File(CreateLogFileName())
-                .CreateLogger();
-            ServiceCollection serviceCollection = new ServiceCollection();
-            ConfigureServices(serviceCollection);
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-            serviceProvider.GetService<ILogger<Program>>();
-            _logger = serviceProvider.GetService<ILogger<Program>>();
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
             IConfigurationRoot configuration = builder.Build();
             SetConfigurableValues(configuration);
+            ServiceCollection serviceCollection = new ServiceCollection();
+            ConfigureServices(serviceCollection);
+
+            //Silly Microsoft does not provide a log-to-file facility, so have to go for Serilog...
+            //requires Serilog.AspNetCore package.
+
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.File(CreateLogFileName()).ReadFrom.Configuration(configuration)
+                .CreateLogger();
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            serviceProvider.GetService<ILogger<Program>>();
+            _logger = serviceProvider.GetService<ILogger<Program>>();
             SqlHelper = new SQLHelper(configuration, _logger);
             int counter = 0; long currentid = 0;
+            Console.WriteLine("App starting - will look for Docs to hash, one at the time. Settings:");
+            Console.WriteLine("- Process up to " + MaxDocsToProcess.ToString() + " docs");
+            Console.WriteLine("- Pause for " + MillisecondsToSleep.ToString() + " milliseconds between docs.");
+            Console.WriteLine("");
+            Log.Warning("App starting - will look for Docs to hash, one at the time. Settings:");
+            Log.Warning("- Process up to " + MaxDocsToProcess.ToString() + " docs");
+            Log.Warning("- Pause for " + MillisecondsToSleep.ToString() + " milliseconds between docs.");
             while ((counter < MaxDocsToProcess || MaxDocsToProcess == 0)
                 && currentid != -1)
             {
                 currentid = HashNextDoc(currentid);
                 counter++;
                 Thread.Sleep(MillisecondsToSleep);
+            }
+            Console.WriteLine("");
+            Log.Warning("Processed: " + (counter - 1).ToString() + " docs.");
+            Console.WriteLine("Processed: " + (counter - 1).ToString() + " docs.");
+            if (counter >= MaxDocsToProcess && MaxDocsToProcess != 0)
+            {
+                Log.Warning("Processing ends: reached MaxDocsToProcess");
+                Console.WriteLine("Processing ends: reached MaxDocsToProcess");
+            }
+            else if (currentid == -1)
+            {
+                Log.Warning("Processing ends: no more docs");
+                Console.WriteLine("Processing ends: no more docs");
             }
         }
         private static long HashNextDoc(long lastDocid = 0)
@@ -59,7 +83,12 @@ namespace PDF_hashing
                 string hashed = "";
                 using (SqlDataReader reader = SqlHelper.ExecuteQueryNonSP(conn, que))
                 {
-                    if (reader.Read())// && ItemIDs.Count < 5000)
+                    if (reader == null)
+                    {
+                        Log.Error("FAIL: could not fetch next doc to hash. Aborting.");
+                        return -1;
+                    }
+                    else if (reader.Read())// && ItemIDs.Count < 5000)
                     {
                         id = (Int64)reader["ITEM_DOCUMENT_ID"];
                         text = (string)reader["DOCUMENT_TEXT"];
@@ -78,6 +107,11 @@ namespace PDF_hashing
                     //BEGIN
                     //    Set @toHash = @txt
                     //END
+
+                    //SQL to get the same hash from truncated txt is:
+                    //DATALENGTH(SUBSTRING(DOCUMENT_TEXT, 0, 4001)) dunno why, but that's how it looks
+
+
                     if (text.Length > 200) hashed = HashString(text);
                     else
                     {
@@ -87,8 +121,21 @@ namespace PDF_hashing
                     CMD = "UPDATE TB_ITEM_DOCUMENT set TXT_HASH = CONVERT(varbinary(20), '"
                                     + hashed
                                     + "', 1) WHERE ITEM_DOCUMENT_ID =" + id.ToString();
-                    SqlHelper.ExecuteNonQueryNonSP(conn, CMD);
-                    Log.Information("hashed " + id.ToString() + ". Hash is: " + hashed + " Text starts with: " + (text.Length > 20 ? text.Substring(0,20) : text));
+                    
+                    //debug: adding the line below makes every call fail, used to check for error handling
+                    //CMD += Environment.NewLine + "WAITFOR DELAY '00:00:31'";
+                    int res = SqlHelper.ExecuteNonQueryNonSP(conn, CMD);
+                    if (res == -2) //we didn't save this hash and error should be investigated
+                    {//we will however continue processing
+                        Log.Error("DID NOT SAVE HASH for: " + id.ToString() + ". Hash is: " + hashed + " Text starts with: " + (text.Length > 20 ? text.Substring(0, 20) : text));
+                        Log.Error("SQL Command was: " + Environment.NewLine + CMD + "");
+                        Console.WriteLine("DID NOT SAVE HASH for: " + id.ToString() + ".");
+                    }
+                    else
+                    {
+                        Log.Information("hashed " + id.ToString() + ". Hash is: " + hashed + " Text starts with: " + (text.Length > 20 ? text.Substring(0, 20) : text));
+                        Console.Write(id.ToString() + ".");
+                    }
                 }
                 
             }
@@ -133,7 +180,9 @@ namespace PDF_hashing
             //Action<ILoggingBuilder> tester2 = new Action<ILoggingBuilder>(configure => configure.AddSerilog());
 
             services.AddLogging(configure => configure.AddConsole()
-                    ).AddLogging(configure => configure.AddSerilog());
+                    ).AddLogging(configure => configure.AddSerilog(
+                        
+                        ));
 
         }
         private static void SetConfigurableValues(IConfigurationRoot configuration)
