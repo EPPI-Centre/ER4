@@ -55,8 +55,8 @@ namespace PDF_hashing
                 Thread.Sleep(MillisecondsToSleep);
             }
             Console.WriteLine("");
-            Log.Warning("Processed: " + (counter - 1).ToString() + " docs.");
-            Console.WriteLine("Processed: " + (counter - 1).ToString() + " docs.");
+            Log.Warning("Processed: " + counter.ToString() + " docs.");
+            Console.WriteLine("Processed: " + counter.ToString() + " docs.");
             if (counter >= MaxDocsToProcess && MaxDocsToProcess != 0)
             {
                 Log.Warning("Processing ends: reached MaxDocsToProcess");
@@ -66,6 +66,11 @@ namespace PDF_hashing
             {
                 Log.Warning("Processing ends: no more docs");
                 Console.WriteLine("Processing ends: no more docs");
+            }
+            else
+            {
+                Log.Warning("Processing ends: unkown reason");
+                Console.WriteLine("Processing ends: unkown reason");
             }
         }
         private static long HashNextDoc(long lastDocid = 0)
