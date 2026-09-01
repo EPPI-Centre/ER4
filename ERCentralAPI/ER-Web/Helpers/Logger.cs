@@ -5,6 +5,10 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
 
+#if MDataSQL
+using Microsoft.Data.SqlClient;
+#endif
+
 namespace EPPIDataServices.Helpers
 {
 
