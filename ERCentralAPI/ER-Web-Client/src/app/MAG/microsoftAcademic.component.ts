@@ -98,6 +98,10 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
               this.item.pages = paper.firstPage + "-" + paper.lastPage;
             }
           }
+          // url
+          if ((this.item.url == "") && (paper.pdfLinks != null)) {
+            this.item.url = paper.pdfLinks;
+          }
           // doi
           if ((this.item.doi == "") && (paper.doi != null)) {
             this.item.doi = paper.doi;

@@ -24,6 +24,7 @@ import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { forEach } from 'lodash';
 import { iRobotOpenAICommand, RobotsService } from '../services/Robots.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
+import { MAGAdvancedService } from '../services/magAdvanced.service';
 
 
 @Component({
@@ -54,7 +55,8 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     private _reviewSetsEditingService: ReviewSetsEditingService,
     private _outcomeService: OutcomesService,
     private robotsService: RobotsService,
-    private confirmationDialogService: ConfirmationDialogService
+    private confirmationDialogService: ConfirmationDialogService,
+    public _magAdvancedService: MAGAdvancedService,
   ) { }
 
   ngOnInit() {
@@ -131,7 +133,6 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
   }
   faArrowsRotate = faArrowsRotate;
   faSpinner = faSpinner;
-
 
   private itemString: string = '0';
   public item?: Item;
@@ -347,8 +348,13 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
       return false;
     }
   }
-
+  GoToOpenAlexTab() {
+    this._magAdvancedService.MagMatchItemsToPapers(this.itemID);
+    this.SelectTab(4);
+  }
   public get ShowMagTab(): boolean {
+    return true;
+    /*
     if (
       this.reviewInfoService.ReviewInfo.magEnabled
       //&& this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin //remove this 2nd condition when MAG features are ready for publish
@@ -356,6 +362,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
       return true;
     }
     else return false
+    */
   }
   public get CurrentNode(): singleNode | null {
     return this.ReviewSetsService.selectedNode;

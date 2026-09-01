@@ -66,14 +66,14 @@
 <div class="container col-12">
 
         <div *ngIf="!basicSearchPanel">
-            <a (click)="ToggleSearchPanel()" class="btn btn-info btn-sm text-white  p-2 m-2" data-toggle="collapse"
-               href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+            <a [ngStyle]="{'pointer-events': ReviewIsMagEnabled ? 'auto' : 'none'}" (click)="ToggleSearchPanel()" class="btn btn-info btn-sm text-white  p-2 m-2" data-toggle="collapse"
+               href="#collapseExample" role="button"  aria-expanded="false" aria-controls="collapseExample">
                 Create new auto-update subscription <span class="k-icon k-i-arrow-chevron-down"></span>
             </a>
         </div>
         <div *ngIf="basicSearchPanel">
             <a (click)="ToggleSearchPanel()" class="btn btn-info btn-sm text-white  p-2 m-2" data-toggle="collapse"
-               href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+               href="#collapseExample" role="button"  aria-expanded="false" aria-controls="collapseExample">
                 Adding "New auto-update subscription" (click to close) <span class="k-icon k-i-arrow-chevron-up"></span>
             </a>
         </div>

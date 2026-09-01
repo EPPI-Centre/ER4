@@ -127,10 +127,13 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     return this.codesetStatsServ.ReviewStats.itemsIncluded != -1;
   }
   public get ReviewIsMagEnabled(): boolean {
+    return true;
+    /*
     if (this._reviewInfoService.ReviewInfo.magEnabled
       //&& this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin
     ) return true;
     return false;
+    */
   }
   public get ReviewIsZoteroEnabled(): boolean {
     //if (this._reviewInfoService.ReviewInfo.magEnabled

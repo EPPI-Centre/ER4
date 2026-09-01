@@ -16,6 +16,7 @@ import { Helpers } from '../helpers/HelperMethods';
 import { NgForm } from '@angular/forms';
 import { ModalService } from '../services/modal.service';
 import { ClassifierModel, ClassifierService, MVCClassifierCommand } from '../services/classifier.service';
+import { ReviewInfoService } from '../services/ReviewInfo.service';
 import 'hammerjs';
 
 @Component({
@@ -35,7 +36,8 @@ export class MAGKeepUpToDate implements OnInit {
         private MAGRelatedRunsService: MAGRelatedRunsService,
         private NotificationService: NotificationService,
         private ModalService: ModalService,
-        private _classifierService: ClassifierService
+        private _classifierService: ClassifierService,
+        private _reviewInfoService: ReviewInfoService
     ) {
 
     }
@@ -46,6 +48,13 @@ export class MAGKeepUpToDate implements OnInit {
         //this.MAGRelatedRunsService.GetMagAutoUpdateList(true);
         console.log("MAGKeepUpToDate init");
     }
+
+    public get ReviewIsMagEnabled(): boolean {
+      if (this._reviewInfoService.ReviewInfo.magEnabled
+      ) return true;
+      return false;
+    }
+
     public get HasWriteRights(): boolean {
         return this._ReviewerIdentityServ.HasWriteRights;
     }

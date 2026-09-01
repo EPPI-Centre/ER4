@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { Item, ItemListService, iAdditionalItemDetails } from '../services/ItemList.service';
 import { ReviewerTermsService, ReviewerTerm } from '../services/ReviewerTerms.service';
@@ -41,8 +41,8 @@ export class itemDetailsComp implements OnInit, OnDestroy {
   @Input() IsScreening: boolean = false;
   @Input() ShowDocViewButton: boolean = true;
   @Input() Context: string = "CodingFull";
-  @ViewChild('ItemDocListComp')
-  private ItemDocListComp!: ItemDocListComp;
+  @Output() PleaseGoToOpenAlexTab = new EventEmitter(); 
+  @ViewChild('ItemDocListComp') private ItemDocListComp!: ItemDocListComp;
   ngOnInit() {
     this.subscr = this.ReviewerTermsService.setHighlights.subscribe(
       () => { this.SetHighlights(); }
@@ -212,9 +212,7 @@ export class itemDetailsComp implements OnInit, OnDestroy {
   }
   public FindReferenceOnMicrosoftAcademic(item: Item) {
     if (item != null) {
-      let searchString: string = "\"" + item.title + "\" " + item.authors;
-      window.open("https://academic.microsoft.com/search?q=" +
-        encodeURIComponent(searchString));
+      this.PleaseGoToOpenAlexTab.emit();
     }
   }
   public FindReferenceOnGoogle(item: Item) {

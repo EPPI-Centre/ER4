@@ -47,12 +47,23 @@
         <td style="width:16%;padding:3px" class="bg-white">{{item.pages}}</td>
       </tr>
       <tr class="alert-info ">
+        <td *ngIf="item.url == ''; else elseURLBlock" style="width:12%;padding:3px" colspan="1" class="">
+          Url:</td>
+        <ng-template #elseURLBlock>
+          <td style="width:12%;padding:3px" colspan="1" class="">
+            <strong><a href="{{item.url}}" target="_blank">Url:</a></strong>
+          </td>
+        </ng-template>    
+        <td style="width:88%;padding:3px" colspan="7" class="bg-white">{{item.url}}</td>
+      </tr>
+      <tr class="alert-info ">
         <td style="width:12%;padding:3px" colspan="1" class="">DOI: </td>
         <td style="width:72%;padding:3px" colspan="6" class="bg-white">{{item.doi}}</td>
         <td style="width:16%;" colspan="1" class="p-1 d-flex w-100 ">
           <button class="btn btn-success btn-sm py-0 px-1 mx-auto" (click)="ShowHideAbstract()" style="height:23px;">
             {{GetButtonText()}}
-          </button></td>
+          </button>
+        </td>
       </tr>
       <ng-container *ngIf="showAbstract">
         <tr>
@@ -116,7 +127,12 @@
               </td>
             </tr>
             <tr class="bg-white">
-
+              <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">PDF Url: </td>
+              <td style="width:88%;padding:3px" colspan="7">
+                <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : item && areTheTitlesDifferent(item.url, magPaper.pdfLinks)}"> {{magPaper.pdfLinks}}</span>
+              </td>
+            </tr>
+            <tr class="bg-white">
               <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">DOI: </td>
               <td style="width:60%;padding:3px" colspan="5">
                 <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : item && areDOIFieldsDifferent(item.doi, magPaper.doi)}">{{magPaper.doi}}</span>
@@ -243,6 +259,12 @@
             <span style="padding: 3px 4px;" [ngClass]="{'alert-danger font-weight-bold' : item && areThePagesDifferent(item.pages, FoundPaper.firstPage, FoundPaper.lastPage)}">
               {{GetPages(FoundPaper)}}
             </span>
+          </td>
+        </tr>
+        <tr class="bg-white">
+          <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">PDF Url: </td>
+          <td style="width:88%;padding:3px" colspan="7">
+            <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : item && areTheTitlesDifferent(item.url, FoundPaper.pdfLinks)}"> {{FoundPaper.pdfLinks}}</span>
           </td>
         </tr>
         <tr class="bg-white">
