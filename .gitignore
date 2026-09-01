@@ -230,3 +230,4 @@ FakesAssemblies/
 /ERCentralAPI/ER-Web/appsettings.Development.json
 /ER4Manager/ER4Manager_1/Web.secrets.config
 /ERCentralAPI/ER-Web-Client/telerik-license.txt
+/ExportPDFs/PDF hashing/appsettings.Development.json
