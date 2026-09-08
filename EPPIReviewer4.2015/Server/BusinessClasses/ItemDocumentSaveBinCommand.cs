@@ -11,6 +11,7 @@ using Csla.Silverlight;
 using System.ComponentModel;
 using Csla.DataPortalClient;
 using System.Threading;
+using static System.Net.Mime.MediaTypeNames;
 
 #if!SILVERLIGHT
 using System.Data.SqlClient;
@@ -105,6 +106,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             string _documentText;
             EPPIiFilter.FilterResults res = EPPIiFilter.TextFilter.TextFilter1(_docbin, _documentExtension);
+            string hashed = "";
             if (res.ReturnState != "OK")
             {
                 _documentText = res.ReturnState;
@@ -114,6 +116,13 @@ namespace BusinessLibrary.BusinessClasses
             {
                 _documentText = ImportItems.ImportRefs.StripIllegalChars(res.SimpleText);
             }
+            if (_documentText.Length > 200) hashed = HashString(_documentText);
+            else
+            {
+                //0x1C209ADD594DF6B37167F1F668D582D1F37658F7
+                hashed = "0x0000000000000000000000000000000000000000";
+            }
+
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
@@ -122,27 +131,51 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@ITEM_ID", _itemId));
                     command.Parameters.Add(new SqlParameter("@DOCUMENT_TITLE", _documentTitle));
-                    command.Parameters.Add(new SqlParameter("@BIN", _docbin));
+                    command.Parameters.Add(new SqlParameter("@BIN", System.Data.SqlDbType.Image));
+                    command.Parameters[2].Value = System.DBNull.Value;
                     command.Parameters.Add(new SqlParameter("@DOCUMENT_EXTENSION", _documentExtension));
                     command.Parameters.Add(new SqlParameter("@DOCUMENT_TEXT", _documentText));
                     command.Parameters.Add(new SqlParameter("@ZoteroKey", _ZoteroKey));
+                    command.Parameters.Add(new SqlParameter("@HashString", hashed));
                     command.Parameters.Add(new SqlParameter("@ItemDocumentId", System.Data.SqlDbType.BigInt));
                     command.Parameters["@ItemDocumentId"].Direction = System.Data.ParameterDirection.Output;
                     command.ExecuteNonQuery();
-                    if (_ZoteroKey != "")
-                    {
+                    //if (_ZoteroKey != "")
+                    //{
                         _itemDocumentId = (long)command.Parameters["@ItemDocumentId"].Value;
-                    }
+                    //}
                 }
                 connection.Close();
             }
+            string blobname = ItemDocument.DocBlobFileName(ItemDocumentId, _documentExtension);
+            MemoryStream ms = new MemoryStream(_docbin);
+            BlobOperations.UploadStream(AzureSettings.blobConnection, AzureSettings.FullTextDocsBlobContainer, blobname, ms);
         }
         public ItemDocumentSaveBinCommand doItNow()
         {
             DataPortal_Execute();
             return this;
         }
+        private static string HashString(string input)
+        {
+            string res = "";
+            //var sha1 = new System.Security.Cryptography.SHA1.;
+            byte[] plaintextBytes = Encoding.Unicode.GetBytes(input);
+            byte[]? hashBytes = System.Security.Cryptography.SHA1.HashData(plaintextBytes);
 
+            if (hashBytes != null)
+            {
+                System.Text.StringBuilder s = new System.Text.StringBuilder();
+                s.Append("0x");
+                foreach (byte b in hashBytes)
+                {
+                    s.Append(b.ToString("x2").ToUpper());
+                }
+                //res = System.Convert.ToBase64String(hashBytes);
+                res = s.ToString();
+            }
+            return res;
+        }
 #endif
     }
 

@@ -16,6 +16,8 @@ namespace PDF_hashing
         private static int MaxDocsToProcess = 0; //set in config. If left out or set to zero, then we'll process all docs
         private static string blobConnection = "";
         private static bool AddHostNameToBlobFiles = true;
+        private static string BlobContainer = "er-fulltextdocs-test";
+        private static long IgnoreDocsFromId = 0;
         static void Main(string[] args)
         {
             var builder = new ConfigurationBuilder()
@@ -98,6 +100,12 @@ namespace PDF_hashing
             Console.WriteLine("- Blob Connection string: ");
             Console.WriteLine("\t\"" + blobConnection + "\"");
             Console.WriteLine("- Add hostname to Blob files: " + AddHostNameToBlobFiles.ToString());
+            Console.WriteLine("- Blob container string: \"" + BlobContainer + "\"");
+            Console.WriteLine("- Ignore docs with Id greater or equal to: \"" + IgnoreDocsFromId + "\"");
+            if (IgnoreDocsFromId == -1) Console.WriteLine("  (Checks all docs, start to end, which will not re-upload what's uploaded already)");
+            else if (IgnoreDocsFromId == 0) Console.WriteLine("  (Does not ignore docs with a high ID)");
+            else Console.WriteLine("  (Ignores docs with an ID equal or higher than " +IgnoreDocsFromId.ToString() +")");
+
             Console.WriteLine("");
             Log.Warning("Current settings:");
             Log.Warning("- Process up to " + MaxDocsToProcess.ToString() + " docs");
@@ -105,6 +113,11 @@ namespace PDF_hashing
             Log.Warning("- Blob Connection string: ");
             Log.Warning("\t\"[redacted]\"");
             Log.Warning("- Add hostname to Blob files: " + AddHostNameToBlobFiles.ToString());
+            Log.Warning("- Blob container string: \"" + BlobContainer + "\"");
+            Log.Warning("- Ignore docs with Id greater or equal to: \"" + IgnoreDocsFromId + "\"");
+            if (IgnoreDocsFromId == -1) Log.Warning("  (Checks all docs, start to end, which will not re-upload what's uploaded already)");
+            else if (IgnoreDocsFromId == 0) Log.Warning("  (Does not ignore docs with a high ID)");
+            else Log.Warning("  (Ignores docs with an ID equal or higher than " + IgnoreDocsFromId.ToString() + ")");
         }
         private static void ShowStartupChoices()
         {
@@ -121,7 +134,6 @@ namespace PDF_hashing
             bool SomeSettingsDidChange = false;
             Log.Warning("Changing settings...");
             Console.WriteLine("");
-            Console.WriteLine("Changing settings...");
             Console.WriteLine("Setting: process up to " + MaxDocsToProcess.ToString() + " docs");
             Console.WriteLine("(Zero means process all docs) ");
             Console.WriteLine("Press \"C\" to change this, any other key to keep this value");
@@ -266,6 +278,77 @@ namespace PDF_hashing
             }
 
             Console.WriteLine("");
+            Console.WriteLine("Setting, blob container string:");
+            Console.WriteLine("\t\"" + BlobContainer + "\"");
+            Console.WriteLine("This is the \"folder\" where ER uploaded documents are stored.");
+            Console.WriteLine("(Only used for migrating docs, but must be valid if used!!!) ");
+            Console.WriteLine("Press \"C\" to change this, any other key to keep this value");
+            answer = Console.ReadKey(true);
+            if (answer.Key == ConsoleKey.C)
+            {
+                Console.WriteLine("Setting: blob container string");
+                Console.WriteLine("New value must be valid, please type the new value and press \"Enter\"");
+                string? newSettingStr = Console.ReadLine();
+                if (newSettingStr == null || newSettingStr.Length < 5)
+                {
+                    Console.WriteLine("Invalid answer, returning to main menu.");
+                    Console.WriteLine("");
+                    Console.WriteLine("");
+                    if (SomeSettingsDidChange)
+                    {
+                        Console.WriteLine("Changed settings!");
+                        Log.Warning("Changed settings!");
+                        ShowSettings();
+                        Console.WriteLine("");
+                        Console.WriteLine("");
+                    }
+                    ShowStartupChoices();
+                    return;
+                }
+                else
+                {
+                    Console.WriteLine("Valid answer, BlobContainer set to:");
+                    Console.WriteLine("\t\"" + newSettingStr + "\"");
+                    Console.WriteLine("");
+                    Console.WriteLine("");
+                    BlobContainer = newSettingStr;
+                    SomeSettingsDidChange = true;
+                }
+            }
+
+            Console.WriteLine("");
+            Console.WriteLine("Setting: process up to " + MaxDocsToProcess.ToString() + " docs");
+            Console.WriteLine("(Zero means process all docs) ");
+            Console.WriteLine("Press \"C\" to change this, any other key to keep this value");
+            answer = Console.ReadKey(true);
+            if (answer.Key == ConsoleKey.C)
+            {
+                Console.WriteLine("Setting: process up to docs, changing value");
+                Console.WriteLine("New value must be -1, zero, or a positive integer, effects:");
+                Console.WriteLine(" -1, means: evaluate all docs in the DB - this does not re-upload docs already in the blob, but checks each doc");
+                Console.WriteLine(" 0 (zero) means: don't ignore documents with an ID higher than X");
+                Console.WriteLine(" A positive integer: ignore documents with ID >= to the value. Used for mid-way situations when new docs get directly to the blob, but some docs still need migrating");
+                Console.WriteLine("Please type the new value and press \"Enter\"");
+                string? newSettingStr = Console.ReadLine();
+                long newval = -2;
+                if (!long.TryParse(newSettingStr, out newval) || newval < -1)
+                {
+                    Console.WriteLine("Invalid answer, returning to main menu.");
+                    Console.WriteLine("");
+                    Console.WriteLine("");
+                    ShowStartupChoices();
+                    return;
+                }
+                else
+                {
+                    Console.WriteLine("Valid answer, IgnoreDocsFromId set to: " + newval.ToString() + ".");
+                    Console.WriteLine("");
+                    Console.WriteLine("");
+                    IgnoreDocsFromId = newval;
+                    SomeSettingsDidChange = true;
+                }
+            }
+            Console.WriteLine("");
             Console.WriteLine("");
             Console.WriteLine("Extiting \"Change Settings\"");
             if (SomeSettingsDidChange)
@@ -320,13 +403,26 @@ namespace PDF_hashing
                     MaxDocsToProcess = Msint;
                 }
             }
-
+            var Bc = configuration["AppSettings:BlobContainer"];
+            if (Bc != null)
+            {
+                BlobContainer = Bc;
+            }
             var blobConn = configuration["AppSettings:blobConnection"];
             if (blobConn != null)
             {
                 blobConnection = blobConn;
             }
             AddHostNameToBlobFiles = configuration.GetValue<bool>("AppSettings:AddHostNameToBlobFiles", true);//defauts to true!
+            var ig = configuration["AppSettings:IgnoreDocsFromId"];
+            if (ig != null)
+            {
+                long igLong;
+                if (long.TryParse(ig, out igLong))
+                {
+                    IgnoreDocsFromId = igLong;
+                }
+            }
         }
     }
 }

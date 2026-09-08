@@ -65,8 +65,9 @@ namespace PDF_hashing
                 }
                 if (text != null && id > -1)
                 {
-                    if (text.Length > 4000) text = text.Substring(0, 4000);
-                    //has to be, because in SQL HASHBYTES('SHA1', @txt) needs @txt to be 8000 bytes max
+                    //if (text.Length > 4000) text = text.Substring(0, 4000);
+                    //might need the line above, if we'll decide to hash on SQL side,
+                    //because in SQL HASHBYTES('SHA1', @txt) needs @txt to be 8000 bytes max
                     //IN SQL this will be something like:
                     //if DATALENGTH(@txt) > 8000 -- 2 bytes per nvarchar character
                     //BEGIN
@@ -84,7 +85,6 @@ namespace PDF_hashing
                     if (text.Length > 200) hashed = HashString(text);
                     else
                     {
-                        //0x1C209ADD594DF6B37167F1F668D582D1F37658F7
                         hashed = "0x0000000000000000000000000000000000000000";
                     }
                     CMD = "UPDATE TB_ITEM_DOCUMENT set TXT_HASH = CONVERT(varbinary(20), '"

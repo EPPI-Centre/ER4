@@ -9,6 +9,7 @@ using Csla.Serialization;
 using Csla.Silverlight;
 //using Csla.Validation;
 using Csla.DataPortalClient;
+using static System.Net.Mime.MediaTypeNames;
 
 #if!SILVERLIGHT
 using System.Data.SqlClient;
@@ -331,7 +332,13 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.MarkOld();
             return returnValue;
         }
-
+        public static string DocBlobFileName(long ItemDocId, string extension)
+        {
+            string BlobFilename = (AzureSettings.AddHostNamePrefixToBlobs == "true" ? Environment.MachineName + "-" : "")
+                                            + ItemDocId.ToString()
+                                            + extension;
+            return BlobFilename;
+        }
 #endif
 
     }
