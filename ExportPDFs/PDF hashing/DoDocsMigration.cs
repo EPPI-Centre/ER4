@@ -16,7 +16,7 @@ namespace PDF_hashing
             Console.WriteLine("DoDocsMigration is starting");
             int counter = 0;
             string prefix = "";
-            if (AddHostNameToBlobFiles) prefix = Environment.MachineName + "-";
+            if (AddHostNameToBlobFiles) prefix = Environment.MachineName + "/";
             long currentid = FindStartingPoint(prefix);
 
 
@@ -29,14 +29,12 @@ namespace PDF_hashing
             }
 
 
-            bool res = BlobOperations.ThisBlobExist(blobConnection, BlobContainer, "bbb");
-
             Log.Warning("");
-            Log.Warning("Processed: "+ counter.ToString() + " docs.");
+            Log.Warning("Processed: "+ (counter -1).ToString() + " docs.");
             Log.Warning("DoDocsMigration has ended.");
             Log.Warning("");
             Console.WriteLine("");
-            Console.WriteLine("Processed: " + counter.ToString() + " docs.");
+            Console.WriteLine("Processed: " + (counter - 1).ToString() + " docs.");
             Console.WriteLine("DoDocsMigration has ended.");
             Console.WriteLine("");
         }
@@ -89,7 +87,8 @@ namespace PDF_hashing
                 {
                     if (reader == null)
                     {
-                        Log.Error("FAIL: could not fetch next doc to upload. Aborting.");
+                        Console.WriteLine("FAIL: could not fetch next doc to upload (no reader). Aborting.");
+                        Log.Error("FAIL: could not fetch next doc to upload (no reader). Aborting.");
                         return -1;
                     }
                     else if (reader.Read())// && ItemIDs.Count < 5000)
@@ -102,18 +101,20 @@ namespace PDF_hashing
                     }
                     else
                     {
-                        Log.Error("FAIL: could not fetch next doc to upload. Aborting.");
+                       Console.WriteLine("Stop: could not fetch next doc to upload (nothing to read). Ending.");
+                       Log.Warning("Stop: could not fetch next doc to upload (nothing to read). Ending.");
                         return -1;
                     }
                 }
             }
             if (id != -1)
             {
-                if (extension == ".txt" || binaryDoc.Length == 0)
+                if (extension == ".txt" || extension == "txt" || binaryDoc.Length == 0)
                 {
                     Console.Write(".");
                     return id;
                 }
+                if (!extension.StartsWith(".")) extension = "." + extension;
                 string filename = prefix + id.ToString() + extension;
                 Stream BinaryStream = new MemoryStream(binaryDoc);
                 if (!BlobOperations.ThisBlobExist(blobConnection, BlobContainer, filename))
@@ -134,8 +135,10 @@ namespace PDF_hashing
                         Console.WriteLine("");
                         return -1;
                     }
+                    Log.Information("Uploaded: " + filename);
                     Console.Write(id.ToString() + ".");
                 }
+                else Console.Write("^");
                 return id;
             }
             return -1;

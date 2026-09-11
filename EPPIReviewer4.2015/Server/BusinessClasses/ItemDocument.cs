@@ -334,7 +334,7 @@ namespace BusinessLibrary.BusinessClasses
         }
         public static string DocBlobFileName(long ItemDocId, string extension)
         {
-            string BlobFilename = (AzureSettings.AddHostNamePrefixToBlobs == "true" ? Environment.MachineName + "-" : "")
+            string BlobFilename = (AzureSettings.AddHostNamePrefixToBlobs == "true" ? Environment.MachineName + "/" : "")
                                             + ItemDocId.ToString()
                                             + extension;
             return BlobFilename;

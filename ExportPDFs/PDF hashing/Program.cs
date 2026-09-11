@@ -317,17 +317,16 @@ namespace PDF_hashing
             }
 
             Console.WriteLine("");
-            Console.WriteLine("Setting: process up to " + MaxDocsToProcess.ToString() + " docs");
-            Console.WriteLine("(Zero means process all docs) ");
+            Console.WriteLine("Setting: IgnoreDocsFromId is: " + IgnoreDocsFromId.ToString() + " docs");
+            Console.WriteLine(" -1, means: evaluate all docs in the DB - this does not re-upload docs already in the blob, but checks each doc");
+            Console.WriteLine(" 0 (zero) means: don't ignore documents with an ID higher than X");
+            Console.WriteLine(" A positive integer: ignore documents with ID >= to the value. Used for mid-way situations when new docs get directly to the blob, but some docs still need migrating");
             Console.WriteLine("Press \"C\" to change this, any other key to keep this value");
             answer = Console.ReadKey(true);
             if (answer.Key == ConsoleKey.C)
             {
-                Console.WriteLine("Setting: process up to docs, changing value");
-                Console.WriteLine("New value must be -1, zero, or a positive integer, effects:");
-                Console.WriteLine(" -1, means: evaluate all docs in the DB - this does not re-upload docs already in the blob, but checks each doc");
-                Console.WriteLine(" 0 (zero) means: don't ignore documents with an ID higher than X");
-                Console.WriteLine(" A positive integer: ignore documents with ID >= to the value. Used for mid-way situations when new docs get directly to the blob, but some docs still need migrating");
+                Console.WriteLine("Setting: IgnoreDocsFromId, changing value");
+                Console.WriteLine("New value must be -1, zero, or a positive integer (see above).");
                 Console.WriteLine("Please type the new value and press \"Enter\"");
                 string? newSettingStr = Console.ReadLine();
                 long newval = -2;
