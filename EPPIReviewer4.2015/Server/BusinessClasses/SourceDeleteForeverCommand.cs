@@ -11,8 +11,13 @@ using Csla.Silverlight;
 using System.ComponentModel;
 using Csla.DataPortalClient;
 using System.Threading;
+using System.Security.Cryptography;
+using Csla.Data;
+using static System.Net.Mime.MediaTypeNames;
 
-#if!SILVERLIGHT
+
+
+#if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using BusinessLibrary.Security;
@@ -21,7 +26,7 @@ using BusinessLibrary.Security;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
-    public class SourceDeleteForeverCommand : CommandBase<SourceDeleteForeverCommand>
+    public class SourceDeleteForeverCommand : LongLastingFireAndForgetCommand<SourceDeleteForeverCommand>, iResumableLongLastingTask
     {
     public SourceDeleteForeverCommand(){}
 
@@ -35,7 +40,7 @@ namespace BusinessLibrary.BusinessClasses
             get { return _SourceId; }
         }
 
-        private string _Result;
+        private string _Result = "";
         public string Result
         {
             get { return _Result; }
@@ -108,10 +113,35 @@ namespace BusinessLibrary.BusinessClasses
         {
             try 
             {
+                
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
                     connection.Open();
-                    using (SqlCommand command = new SqlCommand("st_SourceDeleteForever", connection))
+                    using (SqlCommand command = new SqlCommand("st_SourceGetAllDocsIDs", connection))
+                    {
+                        //need to at least try to delete docs from blobs
+                        //if docs are deduped, then we should get ONLY the docs that belong only to this source
+                        Dictionary<long, string> DocsToDelete = new Dictionary<long, string>();
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@source_ID", _SourceId));
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", revID));
+                        using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                        {
+                            while (reader.Read())
+                            {
+                                long id = reader.GetInt64("ITEM_DOCUMENT_ID");
+                                if (!DocsToDelete.ContainsKey(id))
+                                {
+                                    DocsToDelete.Add(id, reader.GetString("DOCUMENT_EXTENSION"));
+                                }
+                                
+                            }
+                        }
+                        System.Threading.Tasks.Task.Run(() => DeleteDocsFromBlob(DocsToDelete));//we'll do this in parallel
+                    }
+
+
+                        using (SqlCommand command = new SqlCommand("st_SourceDeleteForever", connection))
                     {
                         //st_SourceDeleteForever can take a long time. Does deletion in batches of 400 items, stopping 4s between batches.
                         //this is because all deletions include multiple tables and are wrapped in a transaction (no partial deletions are possible)
@@ -143,6 +173,27 @@ namespace BusinessLibrary.BusinessClasses
             }
             catch { }            
         }
+        private void DeleteDocsFromBlob(Dictionary<long, string> DocsToDelete)
+        {
+            try
+            {
+                foreach(KeyValuePair<long, string> kvp in DocsToDelete)
+                {
+                    if (kvp.Value != ".txt" && kvp.Value != "")
+                    {
+                        string BlobFilename = ItemDocument.DocBlobFileName(kvp.Key, kvp.Value);
+                        BlobOperations.DeleteIfExists(AzureSettings.blobConnection, AzureSettings.FullTextDocsBlobContainer, BlobFilename);
+                    }
+                }
+            }
+            catch
+            {
+
+            }
+        }
+#if !ER4
+        public void ResumeJob(ER_Web.Services.RawTaskToResume rttr) { }
+#endif
 #endif
     }
 }
