@@ -211,10 +211,13 @@ namespace ER_Web.Services
             JobId = reader.GetInt32("REVIEW_JOB_ID");
             ReviewId = reader.GetInt32("REVIEW_ID");
             ContactId = reader.GetInt32("CONTACT_ID");
+
             JobType = reader.GetString("JOB_TYPE");
             if (JobType == "Apply Classifier" || JobType == "Apply Classifier to OA run" || JobType == "Build Classifier"
                 || JobType == "Check Screening" || JobType == "Priority screening simulation") ClassName = "ClassifierCommandV2";
+            else if (JobType == "delete source") ClassName = "SourceDeleteForeverCommand";
             else ClassName = "unknown";
+
             ParamsInJson = reader.GetString("RESUME_PARAMETERS");
             CancelState = reader.GetString("CURRENT_STATE");
             string lookingForDfId = reader.GetString("JOB_MESSAGE");

@@ -17,11 +17,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\AzureSettingsAndBlobOperations.cs" Link="Helpers\AzureSettingsAndBlobOperations.cs" />
     <Compile Include="..\..\ERCentralAPI\ER-Web\Helpers\Logger.cs" Link="Helpers\Logger.cs" />
     <Compile Include="..\..\ERCentralAPI\ER-Web\Helpers\SQLHelper.cs" Link="Helpers\SQLHelper.cs" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.11" />
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="10.0.11" />

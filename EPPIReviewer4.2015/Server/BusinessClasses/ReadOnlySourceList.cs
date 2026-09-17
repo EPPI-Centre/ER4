@@ -89,10 +89,10 @@ namespace BusinessLibrary.BusinessClasses
                                 Sources[index].MarkAsBeingDeleted();
                                 LoadProperty(SomeSourceIsBeingDeletedProperty, true);
 
-                                //supplying 0 as the SourceId makes the command "check" is a source deletion needs to be resumed.
-                                SourceDeleteForeverCommand sdfc = new SourceDeleteForeverCommand(0);
-                                DataPortal<SourceDeleteForeverCommand> dp2 = new DataPortal<SourceDeleteForeverCommand>();
-                                sdfc = dp2.Execute(sdfc);//fire and forget, this will check and possibly resume deletion, but doesn't wait for the deletion to end.
+                                ////supplying 0 as the SourceId makes the command "check" is a source deletion needs to be resumed.
+                                //SourceDeleteForeverCommand sdfc = new SourceDeleteForeverCommand(0);
+                                //DataPortal<SourceDeleteForeverCommand> dp2 = new DataPortal<SourceDeleteForeverCommand>();
+                                //sdfc = dp2.Execute(sdfc);//fire and forget, this will check and possibly resume deletion, but doesn't wait for the deletion to end.
                             } 
                             else
                             {

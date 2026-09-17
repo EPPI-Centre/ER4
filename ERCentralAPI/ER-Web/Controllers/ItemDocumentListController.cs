@@ -186,11 +186,24 @@ namespace ERxWebClient2.Controllers
                             FileContentResult result;
                             if (type.ToLower() != ".txt")
                             {
-                                Response.Headers.Add("Content-Length", ((byte[])dr["DOCUMENT_BINARY"]).Length.ToString());
-                                result = new FileContentResult((byte[])dr["DOCUMENT_BINARY"], Response.ContentType)
+                                string BlobFilename = ItemDocument.DocBlobFileName(ItemDocumentID, type);
+                                if (BlobOperations.ThisBlobExist(AzureSettings.blobConnection, AzureSettings.FullTextDocsBlobContainer, BlobFilename))
                                 {
-                                    FileDownloadName = name
-                                };
+                                    MemoryStream MS = BlobOperations.DownloadBlobAsMemoryStream(AzureSettings.blobConnection, AzureSettings.FullTextDocsBlobContainer, BlobFilename);
+                                    Response.Headers.Add("Content-Length", MS.Length.ToString());
+                                    result = new FileContentResult((byte[])MS.ToArray(), Response.ContentType)
+                                    {
+                                        FileDownloadName = name
+                                    };
+                                }
+                                else
+                                {
+                                    Response.Headers.Add("Content-Length", ((byte[])dr["DOCUMENT_BINARY"]).Length.ToString());
+                                    result = new FileContentResult((byte[])dr["DOCUMENT_BINARY"], Response.ContentType)
+                                    {
+                                        FileDownloadName = name
+                                    };
+                                }
                             }
                             else
                             {

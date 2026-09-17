@@ -6,12 +6,10 @@ using System.Threading.Tasks;
 using System.Collections.Specialized;
 using System.IO;
 using System.Configuration;
-#if (CSLA_NETCORE)
+#if (CSLA_NETCORE || MDataSQL)
 using Microsoft.Extensions.Configuration;
-using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using Azure.Storage;
 using Azure.Core;
 #else
 using Microsoft.WindowsAzure.Storage.Blob;
@@ -22,7 +20,7 @@ namespace BusinessLibrary.BusinessClasses
 {
     public class AzureSettings
     {
-#if (CSLA_NETCORE)
+#if (CSLA_NETCORE || MDataSQL)
 
         public static void SetValues(IConfiguration config)
         {
@@ -262,11 +260,11 @@ namespace BusinessLibrary.BusinessClasses
                 }
             } 
         }
-
+        public static string FullTextDocsBlobContainer { get { return AppSettings["FullTextDocsBlobContainer"]; } }
     }
     public class BlobOperations
     {
-#if (!CSLA_NETCORE)
+#if (!CSLA_NETCORE && !MDataSQL)
         public static bool ThisBlobExist(string blobConnectionStr, string containerName, string blobName)
         {
             return GetBlockBlobReference(blobConnectionStr, containerName, blobName).Exists();
@@ -403,7 +401,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             BlobClient blob = GetBlob(blobConnectionStr, containerName, blobName);
             //task.RunSynchronously();
-            blob.DeleteIfExists();
+            blob.DeleteIfExists(DeleteSnapshotsOption.IncludeSnapshots);
         }
         
         public static bool ThisBlobHasData(string blobConnectionStr, string containerName, string blobName)
@@ -478,7 +476,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     if (blobhierarchyItem.IsPrefix)
                     {
-                        result.Add(new BlobInHierarchy(blobhierarchyItem.Blob.Name, true));
+                        result.Add(new BlobInHierarchy(blobhierarchyItem.Prefix, true));
                         await ListBlobsHierarchicalListingTask(container, blobhierarchyItem.Prefix, result);
                     }
                     else
