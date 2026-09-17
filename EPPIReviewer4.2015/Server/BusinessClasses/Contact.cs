@@ -123,6 +123,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<string> RolesProperty = RegisterProperty<string>(new PropertyInfo<string>("roles", "roles"));
+        public string Roles
+        {
+            get
+            {
+                return GetProperty(RolesProperty);
+            }
+            set
+            {
+                SetProperty(RolesProperty, value);
+            }
+        }
+
         public static readonly PropertyInfo<string> OldPasswordProperty = RegisterProperty<string>(new PropertyInfo<string>("OldPassword", "OldPassword"));
         public string OldPassword
         {
@@ -336,7 +349,8 @@ namespace BusinessLibrary.BusinessClasses
 			returnValue.LoadProperty<string>(EmailProperty, reader.GetString("EMAIL"));
 			returnValue.LoadProperty<string>(ExpiryProperty, reader.GetString("EXPIRY_DATE"));
 			returnValue.LoadProperty<string>(RoleProperty, reader.GetString("ROLE_NAME"));
-			returnValue.LoadProperty<int>(IsExpiredProperty, reader.GetInt32("IS_EXPIRED"));
+            returnValue.LoadProperty<string>(RolesProperty, reader.GetString("ROLES"));
+            returnValue.LoadProperty<int>(IsExpiredProperty, reader.GetInt32("IS_EXPIRED"));
 			returnValue.MarkOld();
             return returnValue;
         }

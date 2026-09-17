@@ -11,6 +11,7 @@ using Csla.Silverlight;
 using Csla.DataPortalClient;
 using BusinessLibrary.Security;
 using System.Collections.ObjectModel;
+using System.Net.Mail;
 
 #if!SILVERLIGHT
 using System.Data.SqlClient;
@@ -56,6 +57,19 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(ReviewIdProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> ReviewNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ReviewName", "ReviewName"));
+        public string ReviewName
+        {
+            get
+            {
+                return GetProperty(ReviewNameProperty);
+            }
+            set
+            {
+                SetProperty(ReviewNameProperty, value);
             }
         }
 
@@ -175,7 +189,8 @@ namespace BusinessLibrary.BusinessClasses
             {
                 connection.Open();
                 //using (SqlCommand command = new SqlCommand("st_ReviewUpdate", connection))
-                using (SqlCommand command = new SqlCommand("st_ReviewRoleUpdateByContactID", connection))
+                //using (SqlCommand command = new SqlCommand("st_ReviewRoleUpdateByContactID", connection))
+                using (SqlCommand command = new SqlCommand("st_ReviewRoleAddRemoveByContactID", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
@@ -202,12 +217,24 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@EMAIL", ReadProperty(EmailProperty)));
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                    command.Parameters.Add(new SqlParameter("@RESULT", 3)); // 3 is a fail for default?...
-                    command.Parameters["@RESULT"].Direction = System.Data.ParameterDirection.Output;
-                    command.ExecuteNonQuery();
-                    LoadProperty(ResultValueProperty, command.Parameters["@RESULT"].Value);
+                    //command.Parameters.Add(new SqlParameter("@RESULT", 3)); // 3 is a fail for default?...
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        while (reader.Read())
+                        {
+                            LoadProperty<int>(ResultValueProperty, reader.GetInt32("RESULT"));
+                            LoadProperty<string>(contactNameProperty, reader.GetString("CONTACT_NAME"));
+                            LoadProperty<string>(ReviewNameProperty, reader.GetString("REVIEW_NAME"));
+                        }
+                    }
                 }
                 connection.Close();
+
+                if (ReadProperty(ResultValueProperty) == 0)
+                {
+                    InviteAccountEmail(ReadProperty(EmailProperty), ReadProperty(contactNameProperty),
+                        ReadProperty(ReviewNameProperty), ri.Name, "");
+                }
             }
         }
 
@@ -259,6 +286,69 @@ namespace BusinessLibrary.BusinessClasses
 
         }
 
+        public string InviteAccountEmail(string mailTo, string inviteeName, string reviewName, string inviterName, 
+            string stAdditional)
+        {
+            string emailID = "3"; // this is based on the values in the database
 
+            MailMessage msg = new MailMessage();
+            msg.To.Add(mailTo);
+            msg.Subject = "EPPI Reviewer: Account invitation";
+            msg.IsBodyHtml = true;
+
+            using (SqlConnection connection = new SqlConnection(DataConnection.AdmConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_EmailGet", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@EMAIL_ID", emailID));
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        if (reader.Read())
+                        {
+                            msg.Body = reader["EMAIL_MESSAGE"].ToString();
+                        }
+                    }
+                }
+            }
+
+            msg.Body = msg.Body.Replace("InviteeNameHere", inviteeName);
+            msg.Body = msg.Body.Replace("InviterNameHere", inviterName);
+            msg.Body = msg.Body.Replace("ReviewNameHere", reviewName);
+
+            if (stAdditional != "")
+            {
+                msg.Body = msg.Body.Replace("ProblemWithAccountMsgHere", stAdditional);
+            }
+            else
+            {
+                msg.Body = msg.Body.Replace("ProblemWithAccountMsgHere", "");
+            }
+
+            string SMTP = AzureSettings.SMTP;
+            string SMTPUser = AzureSettings.SMTPUser;
+            string fromCred = AzureSettings.SMTPAuthentic;
+            string mailFrom = AzureSettings.mailFrom;
+
+            msg.From = new MailAddress(mailFrom);
+            SmtpClient smtp = new SmtpClient(SMTP);
+
+            System.Net.NetworkCredential SMTPUserInfo = new System.Net.NetworkCredential(SMTPUser, fromCred);
+            smtp.UseDefaultCredentials = false;
+            smtp.Credentials = SMTPUserInfo;
+            smtp.EnableSsl = true; smtp.Port = 587;
+            try
+            {
+                //smtp.Send(msg);
+                return "OK";
+            }
+            catch (Exception ex)
+            {
+                return "Could not send verification email";// +ex.ToString();
+            }
+        }
     }
+
+
 }

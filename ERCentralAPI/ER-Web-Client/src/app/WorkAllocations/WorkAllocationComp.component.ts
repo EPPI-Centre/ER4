@@ -107,6 +107,11 @@ export class WorkAllocationComp implements OnInit {
     return this._workAllocationListService.AllWorkAllocationsForReview;
   }
 
+  public get HasAdminRights(): boolean {
+    return this.ReviewerIdentityServ.HasAdminRights;
+  }
+
+
   //START of telerik grid (Allocations)
   public sortWorkAllocations: SortDescriptor[] = [{
     dir: "desc", field: "workAllocationId"
@@ -146,6 +151,33 @@ export class WorkAllocationComp implements OnInit {
   public get ShowAllocationsText(): string {
     if (this.ShowAllocations) return "Collapse";
     else return "Expand";
+  }
+  public editingReviewMembers: boolean = false;
+  public EditReviewMembers() {
+    if (this.editingReviewMembers == false) {
+      this.editingReviewMembers = true;
+      this.ShowAllocations = false;
+    }
+    else {
+      this.editingReviewMembers = false;
+      this.ShowAllocations = true;
+    }
+  }
+
+  public ShowHideAllocations() {
+    if (this.ShowAllocations == true) {
+      this.ShowAllocations = false;
+    }
+    else {
+      this.ShowAllocations = true;
+      this.editingReviewMembers = false;
+      this.ShowReviewerEditText;
+    }
+  }
+
+  public get ShowReviewerEditText(): string {
+    if (this.editingReviewMembers) return "Close Edit";
+    else return "Edit";
   }
   public get ShowComparisonsText(): string {
     if (this.ShowComparisons) return "Collapse";

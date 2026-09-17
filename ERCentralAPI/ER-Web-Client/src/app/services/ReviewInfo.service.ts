@@ -188,6 +188,7 @@ export class ReviewInfo {
       this.canUseRobots = iRnfo.canUseRobots;
       this.hasCreditForRobots = iRnfo.hasCreditForRobots;
       this.comparisonsInCodingOnly = iRnfo.comparisonsInCodingOnly;
+      this.isCochrane = iRnfo.isCochrane;
     }
   }
   public Clone(): ReviewInfo {
@@ -218,6 +219,7 @@ export class ReviewInfo {
     res.canUseRobots = this.canUseRobots;
     res.hasCreditForRobots = this.hasCreditForRobots;
     res.comparisonsInCodingOnly = this.comparisonsInCodingOnly;
+    res.isCochrane = this.isCochrane;
     return res;
   }
   reviewId: number = 0;
@@ -246,6 +248,7 @@ export class ReviewInfo {
   canUseRobots: boolean = false;
   hasCreditForRobots: boolean = false;
   comparisonsInCodingOnly: boolean = false;
+  isCochrane: boolean = false;
 }
 export interface iReviewInfo {
   reviewId: number;
@@ -274,6 +277,7 @@ export interface iReviewInfo {
   canUseRobots: boolean;
   hasCreditForRobots: boolean;
   comparisonsInCodingOnly: boolean;
+  isCochrane: boolean;
 }
 export class Contact {
 
@@ -283,7 +287,7 @@ export class Contact {
   email: string = '';
   expiry: string = '';
   role: string = '';
-
+  roles: string = '';
   isExpired: number = 1;
 }
 export interface iReviewJob {

@@ -40,8 +40,9 @@ export class ReviewerListComponent implements OnInit {
   }
   public isAddReviewerExpanded: boolean = false;
   private _ReviewContacts: Contact[] = [];
+  public isCochraneReview: boolean = true;
   public get Contacts(): Contact[] {
-    //return this._ReviewContacts;
+    this.isCochraneReview = this.reviewInfoService.ReviewInfo.isCochrane
     return this.reviewInfoService.Contacts;
   }
   public reviewerEmail: string = '';
@@ -64,7 +65,6 @@ export class ReviewerListComponent implements OnInit {
   public get HasWriteRights(): boolean {
     return this.ReviewerIdentityService.HasWriteRights;
   }
-
 
   CanInviteReviewer() {
     if (this.CheckEmail) {
@@ -115,6 +115,9 @@ export class ReviewerListComponent implements OnInit {
   }
 
   async RemoveReviewerFromReview(member: Contact) {
+
+
+
     let result = await this.AccountManagerService.RemoveReviewer(member.contactId);
     if (result == true) {
       // reload the list to show updated list 
@@ -172,7 +175,7 @@ export class ReviewerListComponent implements OnInit {
       // Rather than having to go through and hide those bits the cleaner (easier) solution is to just not allow the reviewer to 
       // remove their own admin access. Someone else will need to do that.
       // This also means that we don't need to check that there is still at least one admin in the review.
-      this.modalService.GenericErrorMessage("You cannot remove yourself as a review admin.<br>Another review admin must do this for you.");
+      this.modalService.GenericErrorMessage("You cannot change your own role as a review admin.<br>Another review admin must do this for you.");
 
       // change the reviewer back to review admin (how do I do that??)
       // This reloads all of the reviewers. Not ideal but works for now.
@@ -202,10 +205,96 @@ export class ReviewerListComponent implements OnInit {
           databaseRoleName = "ReadOnlyUser";
           break;
       }
-      this.ChangeRole(databaseRoleName, reviewer.contactId);
+      let roles = reviewer.roles;
+      // we need to be sure we are not removing the only role they have
+      // Actually......., this check is unnecessay as you can select the already selected item in a dropdown
+      // Maybe I should leave it here anyway just so I know I thought about it?
+      const numberOfRoleSplits = roles.split(",").length - 1;
+      if ((numberOfRoleSplits == 0) && (roles == friendlyRoleName)) {
+        // they only have one role and we can't remove the only role they have...
+        this.ConfirmationDialogService.ShowInformationalModal(
+          "You cannot remove the only role this user has been assigned."
+          , "Unable to remove role.")
+      }
+      else {
+        // we can add/remove the role
+        if (reviewer.roles.includes(friendlyRoleName)) {
+          // we are removing a role
+          this.ConfirmationDialogService.confirm("Removing a role",
+            "Are you sure you want to remove the <strong>" + friendlyRoleName + "</strong> role from <strong>" + reviewer.contactName + "</strong>?", false, '')
+            .then((confirm: any) => {
+              if (confirm) {
+                this.ChangeRole(databaseRoleName, reviewer.contactId);
+              }
+              this.reviewInfoService.FetchReviewMembers();
+            });
+        }
+        else {
+          // we are adding a role
+          this.ConfirmationDialogService.confirm("Adding a role",
+            "Are you sure you want to add the <strong>" + friendlyRoleName + "</strong> role to <strong>" + reviewer.contactName + "</strong>?", false, '')
+            .then((confirm: any) => {
+              if (confirm) {
+                this.ChangeRole(databaseRoleName, reviewer.contactId);
+              }
+              this.reviewInfoService.FetchReviewMembers();
+            });
+        }
+      }
     }
   }
 
+  public RemoveRoleFromReviewer(controllingRole: string, reviewer: Contact) {
+    // we need a delete button to delete the role when it is at the top of the hierarchy
+    let roles = reviewer.roles;
+    const numberOfRoleSplits = roles.split(",").length - 1;
+    if ((numberOfRoleSplits == 0) && (roles == controllingRole)) {
+      // they only have one role and we can't remove the only role they have...
+      this.ConfirmationDialogService.ShowInformationalModal(
+        "You cannot remove the only role this user has been assigned."
+        , "Unable to remove role.")
+    }
+    else {
+      var databaseRoleName = "";
+      switch (controllingRole) {
+        case ("Review admin"):
+          databaseRoleName = "AdminUser";
+          break;
+        case ("Reviewer"):
+          databaseRoleName = "RegularUser";
+          break;
+        case ("Coding only"):
+          databaseRoleName = "Coding only";
+          break;
+        default:
+          databaseRoleName = "ReadOnlyUser";
+          break;
+      }
+      // we are removing a role
+      this.ConfirmationDialogService.confirm("Removing a role",
+        "Are you sure you want to remove the <strong>" + controllingRole + "</strong> role from <strong>" + reviewer.contactName + "</strong>?", false, '')
+        .then((confirm: any) => {
+          if (confirm) {
+            this.ChangeRole(databaseRoleName, reviewer.contactId);
+          }
+          this.reviewInfoService.FetchReviewMembers();
+        });
+    }
+
+  }
+
+
+  public AddCheckMarkIfRole(role: string, controllingRole: string, contactId: number): string  {
+    let index = this.reviewInfoService.Contacts.findIndex(f => f.contactId == contactId);
+    let roles = this.reviewInfoService.Contacts[index].roles;
+    if (roles.includes(role)) {
+      if (role == controllingRole) {
+        return "X" + role; // controlling role
+      }
+      return "x " + role; // other assigned role
+    }
+    return "-  " + role; // unassigned role
+  }
 
   async ChangeRole(role: string, reviewerID: number) {
     let result = await this.AccountManagerService.UpdateReviewerRole(role, reviewerID);
@@ -213,6 +302,7 @@ export class ReviewerListComponent implements OnInit {
       // put up a message saying the account was updated?
       this.showAccountRoleUpdatedNotification();
     }
+    
   }
 
   private showAccountRoleUpdatedNotification(): void {

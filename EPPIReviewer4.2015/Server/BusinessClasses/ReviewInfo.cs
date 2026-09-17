@@ -316,6 +316,18 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ComparisonsInCodingOnlyProperty, value);
             }
         }
+        public static readonly PropertyInfo<bool> IsCochraneProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsCochrane", "IsCochrane"));
+        public bool IsCochrane
+        {
+            get
+            {
+                return GetProperty(IsCochraneProperty);
+            }
+            set
+            {
+                SetProperty(IsCochraneProperty, value);
+            }
+        }
 #if !WEBDB
         public static readonly PropertyInfo<bool> OpenAIEnabledProperty = RegisterProperty<bool>(new PropertyInfo<bool>("OpenAIEnabled", "OpenAIEnabled", false));
         public bool OpenAIEnabled
@@ -498,6 +510,14 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<string>(BL_CC_TXProperty, reader.GetString("BL_CC_TX"));
                             LoadProperty<int>(MagEnabledProperty, reader.GetInt32("MAG_ENABLED"));
                             LoadProperty<bool>(ComparisonsInCodingOnlyProperty, reader.GetBoolean("ENABLE_COMPARISON_IN_CODING_ONLY"));
+                            if ((reader.GetString("ARCHIE_ID").ToString() == "") || ((reader.GetString("ARCHIE_ID").ToString() == "prospective_______")))
+                            {
+                                LoadProperty<bool>(IsCochraneProperty, false);
+                            }
+                            else
+                            {
+                                LoadProperty<bool>(IsCochraneProperty, true);
+                            }
 #if !WEBDB
                             LoadProperty<bool>(OpenAIEnabledProperty, reader.GetBoolean("OPEN_AI_ENABLED"));
 #endif
