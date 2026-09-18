@@ -212,7 +212,9 @@ export class SourcesComponent implements OnInit, OnDestroy {
     return this.SourcesService.SomeSourceIsBeingDeleted;
   }
   CanDeleteSourceForever(): boolean {
-    if (this._CurrentSource == null || !this.CanWrite() || this.SourcesService.SomeSourceIsBeingDeleted) return false;
+    if (this._CurrentSource == null || !this.CanWrite()
+      || !this.ReviewerIdentityServ.HasAdminRights
+      || this.SourcesService.SomeSourceIsBeingDeleted) return false;
     else if (this._CurrentSource.isFlagDeleted && this._CurrentSource.isMasterOf == 0) return true;
     else return false;
   }

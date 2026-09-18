@@ -210,21 +210,8 @@ namespace ERxWebClient2.Controllers
             }
             try
             {
-                if (SetCSLAUser4Writing())
+                if (SetCSLAUser4Writing() && UserIsAdmin())
                 {
-                    //we want extra protections here. The command itself does not check if the source belongs to the review the user is logged on to...
-                    DataPortal<ReadOnlySourceList> dp = new DataPortal<ReadOnlySourceList>();
-                    ReadOnlySourceList ROSL = dp.Fetch();
-                    bool SourceIsInReview = false;
-                    foreach (ReadOnlySource src in ROSL.Sources)
-                    {
-                        if (src.Source_ID == sourceId.Value)
-                        {
-                            SourceIsInReview = true;
-                            break;
-                        }
-                    }
-                    if (SourceIsInReview == false) return NotFound();
                     SourceDeleteForeverCommand cmd = new SourceDeleteForeverCommand(sourceId.Value);
                     DataPortal<SourceDeleteForeverCommand> dp2 = new DataPortal<SourceDeleteForeverCommand>();
                     cmd = dp2.Execute(cmd);
@@ -234,7 +221,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "DeleteUndeleteSource error");
+                _logger.LogException(e, "DeleteSourceForever error");
                 return StatusCode(500, e.Message);
             }
 
