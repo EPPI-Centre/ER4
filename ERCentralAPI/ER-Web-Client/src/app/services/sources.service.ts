@@ -100,7 +100,7 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
 
   public FetchSources() {
     this._BusyMethods.push("FetchSources");
-    return this._httpC.get<ReadOnlySourcesList>(this._baseUrl + 'api/Sources/GetSources').subscribe(result => {
+    return lastValueFrom(this._httpC.get<ReadOnlySourcesList>(this._baseUrl + 'api/Sources/GetSources')).then(result => {
       this._ReviewSources = result.sources;
       this._SomeSourceIsBeingDeleted = result.someSourceIsBeingDeleted;
       this.RemoveBusy("FetchSources");
@@ -133,14 +133,13 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
     if (SearchString.trim().length < 2) return;
     this._BusyMethods.push("FetchNewPubMedSearch");
     let body = JSON.stringify({ Value: SearchString.trim() });
-    this._httpC.post<PubMedSearch>(this._baseUrl + 'api/Sources/NewPubMedSearchPreview', body).subscribe(result => {
+    lastValueFrom(this._httpC.post<PubMedSearch>(this._baseUrl + 'api/Sources/NewPubMedSearchPreview', body)).then(result => {
       this._CurrentPMsearch = result;
       //this.gotSource.emit();
     }, error => {
       this.RemoveBusy("FetchNewPubMedSearch");
       this.modalService.GenericError(error);
-    }
-      , () => {
+    }).finally(() => {
         this.gotPmSearchToCheck.emit();
         this.RemoveBusy("FetchNewPubMedSearch");
       }
@@ -151,7 +150,7 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
     //same logic as ER4 to figure if we're doing the import or just getting some results to show.
     let IsGettingAPreview: boolean = (PmSearch.showEnd != 0 && PmSearch.showStart <= PmSearch.showEnd && PmSearch.saveEnd == 0 && PmSearch.saveStart == 0);
     let body = JSON.stringify(PmSearch);
-    this._httpC.post<PubMedSearch>(this._baseUrl + 'api/Sources/ActOnPubMedSearchPreview', body).subscribe(result => {
+    lastValueFrom(this._httpC.post<PubMedSearch>(this._baseUrl + 'api/Sources/ActOnPubMedSearchPreview', body)).then(result => {
       this._CurrentPMsearch = result;
       this._LastUploadOrUpdateStatus = "Success";
       this.RemoveBusy("ActOnPubMedSearch");
@@ -161,8 +160,7 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
       this.RemoveBusy("ActOnPubMedSearch");
       this.PubMedSearchImported.emit();
       this._LastUploadOrUpdateStatus = "Error";
-    }
-      , () => {
+    }).finally(() => {
         if (IsGettingAPreview) {
           //we're getting a different preview
           this.gotPmSearchToCheck.emit();
@@ -177,7 +175,7 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
     this._LastDeleteForeverStatus = "";
     this._BusyMethods.push("DeleteSourceForever");
     let body = JSON.stringify({ Value: SourceId });
-    this._httpC.post<string>(this._baseUrl + 'api/Sources/DeleteSourceForever', body).subscribe(result => {
+    lastValueFrom(this._httpC.post<string>(this._baseUrl + 'api/Sources/DeleteSourceForever', body)).then(result => {
       if (this._Source && SourceId == this._Source.source_ID) this._Source = null;//we wipe it here only if user has not changed source in the mean time!!
       this._LastDeleteForeverStatus = result;
       this.SourceDeleted.emit(SourceId);
@@ -191,21 +189,19 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
         this.modalService.GenericError(error);//best way to show the error, as it will include the error details, no matter what!
         this.FetchSources();
         //this.SourceDeleted.emit(SourceId);
-      }
-
-    );
+      });
   }
+
   public FetchImportFilters() {
     this._BusyMethods.push("FetchImportFilters");
-    this._httpC.get<ImportFilter[]>(this._baseUrl + 'api/Sources/GetImportFilters').subscribe(result => {
+    lastValueFrom(this._httpC.get<ImportFilter[]>(this._baseUrl + 'api/Sources/GetImportFilters')).then(result => {
       this._ImportFilters = result;
     }, error => {
       this.modalService.GenericError(error);
       this.RemoveBusy("FetchImportFilters");
-    }, () => {
+    }).finally(() => {
       this.RemoveBusy("FetchImportFilters");
-    }
-    );
+    });
   }
 
   public CheckUpload(data: SourceForUpload): Promise<boolean> {
@@ -240,8 +236,8 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
     this._LastUploadOrUpdateStatus = "Uploading";//probably redundant, we only use this value when API call is finished.
     console.log('Upload Source started');
     let body = JSON.stringify(data);
-    this._httpC.post<IncomingItemsList>(this._baseUrl + 'api/Sources/UploadSource',
-      body).subscribe(result => {
+    lastValueFrom(this._httpC.post<IncomingItemsList>(this._baseUrl + 'api/Sources/UploadSource',
+      body)).then(result => {
         this.FetchSources()
         this._LastUploadOrUpdateStatus = "Success";
       }, error => {
@@ -250,7 +246,7 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
         this.modalService.GenericError(error);
         this.RemoveBusy("Upload");
         this._LastUploadOrUpdateStatus = "Error";
-      },
+      }).finally(
         () => {
           this.RemoveBusy("Upload");
           this.SourceUploaded.emit();
@@ -262,13 +258,13 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
     if (this._Source && this._Source.source_ID == ros.source_ID) this._Source = null;//we are deleting/undeleting this, so catch all solution: just forget it...
     this._BusyMethods.push("DeleteUndeleteSource");
     let body = JSON.stringify({ Value: ros.source_ID });
-    this._httpC.post<IncomingItemsList>(this._baseUrl + 'api/Sources/DeleteUndeleteSource',
-      body).subscribe(result => {
+    lastValueFrom(this._httpC.post<IncomingItemsList>(this._baseUrl + 'api/Sources/DeleteUndeleteSource',
+      body)).then(result => {
         this.FetchSources();
       }, error => {
         this.RemoveBusy("DeleteUndeleteSource");
         this.modalService.GenericError(error);
-      },
+      }).finally(
         () => {
           this.RemoveBusy("DeleteUndeleteSource");
         }
@@ -280,15 +276,14 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
     this._LastUploadOrUpdateStatus = "Updating";//probably redundant, we only use this value when API call is finished.
     console.log('UpdateSource Source started');
     let body = JSON.stringify(source);
-    this._httpC.post<IncomingItemsList>(this._baseUrl + 'api/Sources/UpdateSource',
-      body).subscribe(result => {
+    lastValueFrom(this._httpC.post<IncomingItemsList>(this._baseUrl + 'api/Sources/UpdateSource',
+      body)).then(result => {
         this._LastUploadOrUpdateStatus = "Success";
       }, error => {
         //this.modalService.GenericErrorMessage();
         this._LastUploadOrUpdateStatus = "Error";
         this.RemoveBusy("UpdateSource");
-      },
-        () => {
+      }).finally(() => {
           this._Source = null;//resets the source also on the UI - this ensures the "cancel" buttons will disappear in the component
           this.FetchSource(source.source_ID);
           this.FetchSources();

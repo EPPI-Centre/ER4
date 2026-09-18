@@ -9,7 +9,7 @@
             <kendo-tabstrip-tab [title]="'Manage Sources'" >
                 <ng-template kendoTabContent>
                     <div *ngIf="ReviewSources.length > 1" class="container" > <!--[ngClass]="{disableThisAndChildren:!CanWrite()}">-->
-                        <form *ngIf="CurrentSource" class="row" #CurrentSourceForm="ngForm" (ngSubmit)="onSubmit()">
+                        <form *ngIf="CurrentSource" class="row" #CurrentSourceForm="ngForm" >
                             <div class=" col-6">
                                 <div class="form-group">
                                     <label for="source_Name">Source Name</label>
@@ -148,47 +148,52 @@
             </div>
         </div>
         <div class="pane-content">
-            <div>SOURCES in Review:</div>
-            <div *ngIf="ReviewSources.length <= 1">
-                No Sources in review.
-            </div>
-            <div style="max-height:80vh; overflow:auto;">
-                <table *ngIf="ReviewSources.length > 1" class="table-striped table table-bordered small">
-                    <tbody>
-                        <tr *ngFor="let ROsource of ReviewSources" class="p-0"
-                            [hidden]="HideManuallyCreatedItems(ROsource)">
+          <div class="row mx-0 px-0">
+            <div class="my-auto">Sources in Review:</div>
+            <button class="btn btn-sm btn-outline-success mx-1 my-auto py-0 px-1 " (click)="Refresh()" [disabled]="IsServiceBusy()">
+              <fa-icon [icon]="faArrowsRotate" class="my-0"></fa-icon>
+            </button>
+          </div>
+          <div *ngIf="ReviewSources.length <= 1">
+            No Sources in review.
+          </div>
+          <div style="max-height:80vh; overflow:auto;">
+            <table *ngIf="ReviewSources.length > 1" class="table-striped table table-bordered small">
+              <tbody>
+                <tr *ngFor="let ROsource of ReviewSources" class="p-0"
+                    [hidden]="HideManuallyCreatedItems(ROsource)">
 
-                            <td class="p-0 align-middle" width="30px">
-                                <button *ngIf="ROsource.isDeleted;else optionToDelete" [disabled]="!HasWriteRights || ROsource.isBeingDeleted" (click)="ToggleDelSource(ROsource)" class="btn btn-sm btn-danger" title="Undelete this source">
-                                  <span class="k-icon k-i-undo"></span>
-                                </button>
-                                <ng-template #optionToDelete>
-                                    <button [disabled]="!HasWriteRights" (click)="ToggleDelSource(ROsource)" class="btn btn-sm btn-success" title="Mark this source as 'Deleted'">
-                                      <span class="k-icon k-i-trash"></span>
-                                    </button>
-                                </ng-template>
-                            </td>
-                            <td class="p-0 align-middle">
-                                <button *ngIf="ROsource.isDeleted;else not_deleted" class="btn btn-link btn-sm p-0 ml-2" style="white-space: normal; text-align:left"
-                                     [disabled]="ROsource.isBeingDeleted"
-                                     [ngClass]="{'font-weight-bold' : (CurrentSource && CurrentSource.source_ID == ROsource.source_ID)}"
-                                     (click)="SelectSource(ROsource)">
-                                    <s>{{ROsource.source_Name}}</s>
-                                    <span *ngIf="ROsource.isBeingDeleted" class="k-icon k-i-trash ml-2" style="animation: oscillate 2s infinite; color:gray;"></span>
-                                </button>
-                                <ng-template #not_deleted>
-                                    <div class="btn btn-link btn-sm p-0 ml-2" style="white-space: normal; text-align:left"
-                                         [ngClass]="{'font-weight-bold' : (CurrentSource && CurrentSource.source_ID == ROsource.source_ID)}"
-                                         (click)="SelectSource(ROsource)">
-                                        {{ROsource.source_Name}}
-                                    </div>
-                                </ng-template>
-                            </td>
+                  <td class="p-0 align-middle" width="30px">
+                    <button *ngIf="ROsource.isDeleted;else optionToDelete" [disabled]="!HasWriteRights || ROsource.isBeingDeleted" (click)="ToggleDelSource(ROsource)" class="btn btn-sm btn-danger" title="Undelete this source">
+                      <span class="k-icon k-i-undo"></span>
+                    </button>
+                    <ng-template #optionToDelete>
+                      <button [disabled]="!HasWriteRights" (click)="ToggleDelSource(ROsource)" class="btn btn-sm btn-success" title="Mark this source as 'Deleted'">
+                        <span class="k-icon k-i-trash"></span>
+                      </button>
+                    </ng-template>
+                  </td>
+                  <td class="p-0 align-middle">
+                    <button *ngIf="ROsource.isDeleted;else not_deleted" class="btn btn-link btn-sm p-0 ml-2" style="white-space: normal; text-align:left"
+                            [disabled]="ROsource.isBeingDeleted"
+                            [ngClass]="{'font-weight-bold' : (CurrentSource && CurrentSource.source_ID == ROsource.source_ID)}"
+                            (click)="SelectSource(ROsource)">
+                      <s>{{ROsource.source_Name}}</s>
+                      <span *ngIf="ROsource.isBeingDeleted" class="k-icon k-i-trash ml-2" style="animation: oscillate 2s infinite; color:gray;"></span>
+                    </button>
+                    <ng-template #not_deleted>
+                      <div class="btn btn-link btn-sm p-0 ml-2" style="white-space: normal; text-align:left"
+                           [ngClass]="{'font-weight-bold' : (CurrentSource && CurrentSource.source_ID == ROsource.source_ID)}"
+                           (click)="SelectSource(ROsource)">
+                        {{ROsource.source_Name}}
+                      </div>
+                    </ng-template>
+                  </td>
 
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
     </kendo-splitter-pane>
 </kendo-splitter>

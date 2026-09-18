@@ -13,7 +13,7 @@ using Csla.DataPortalClient;
 using System.Threading;
 using System.Security.Cryptography;
 using Csla.Data;
-using static System.Net.Mime.MediaTypeNames;
+
 
 
 
@@ -65,55 +65,78 @@ namespace BusinessLibrary.BusinessClasses
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             int Rid = ri.ReviewId;
-            System.Threading.Tasks.Task.Run(() => FireAndForgetExcecuteCommand(Rid, ri.UserId));//fire and forget. We don't wait to see what happens.
-            //st_SourceDeleteForever will resume any previously interrupted source deletion that didn't finish, for whatever reason (most likely: timeout or app pool refresh).
-
-            if (SourceId > 0)
+            int JobId;
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
-                //we triggered this to actually delete a source (other option is to make sure an interrupted source deletion gets a chance to resume, if necessary)
-                //so we'll wait a bit to see if the deletion ends in 30s
-                for (int count = 0; count < 3; count++)
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("sp_SourceDeleteForever_start", connection))
                 {
-                    System.Threading.Thread.Sleep(10 * 1000);//wait 10s
-                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", Rid));
+                    command.Parameters.Add(new SqlParameter("@source_ID", _SourceId));
+                    command.Parameters.Add(new SqlParameter("@contactID", ri.UserId));
+                    command.Parameters.Add(new SqlParameter("@Result", System.Data.SqlDbType.Int));
+                    command.Parameters["@Result"].Direction = System.Data.ParameterDirection.Output;
+                    command.ExecuteNonQuery();
+                    int? res = command.Parameters["@Result"].Value as int?;
+                    if (res == null || res < 1)
+                    {//didn't work: either we got -1 (another deletion is running or should be resumed) or calling the SP failed
+                        _Result = "Task is already running for a different source.";
+                        return;
+                    }
+                    else
                     {
-                        connection.Open();
-                        using (SqlCommand command = new SqlCommand("st_SourceDeleteForeverIsRunning", connection))
-                        {
-                            command.CommandType = System.Data.CommandType.StoredProcedure;
-                            command.Parameters.Add(new SqlParameter("@revID", Rid));
-                            command.Parameters.Add(new SqlParameter("@result", System.Data.SqlDbType.Int));
-                            command.Parameters["@result"].Direction = System.Data.ParameterDirection.Output;
-                            command.ExecuteNonQuery();
-                            int? res = command.Parameters["@result"].Value as int?;
-
-                            if (res != null && res != 0)
-                            {
-                                if (res != SourceId)
-                                {//a deletion is running for another source, which can always happen because of concurrent usage
-                                    _Result = "Deletion is  already running for a different source (id: " + res.ToString() + ")";
-                                    //we can stop checking, current source isn't going to be deleted!
-                                    count = 100;
-                                }
-                                else _Result = "Deletion running for SourceId: " + res.ToString();
-                            }
-                            else
-                            {//must have finished already!
-                                _Result = "No deletion is running";
-                                count = 100;//end the loop!
-                            }
-                        }
-                        connection.Close();
+                        JobId = (int)res;
                     }
                 }
             }
-            else _Result = "Task fired and forgotten - not checking if a deletion is running";
+            System.Threading.Tasks.Task.Run(() => FireAndForgetExcecuteCommand(Rid, ri.UserId, JobId));//fire and forget. We don't wait to see what happens.
+            _Result = "Deletion running for SourceId: " + _SourceId.ToString();
+            //if (SourceId > 0)
+            //{
+            //    //we triggered this to actually delete a source (other option is to make sure an interrupted source deletion gets a chance to resume, if necessary)
+            //    //so we'll wait a bit to see if the deletion ends in 30s
+            //    for (int count = 0; count < 3; count++)
+            //    {
+            //        System.Threading.Thread.Sleep(10 * 1000);//wait 10s
+            //        using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            //        {
+            //            connection.Open();
+            //            using (SqlCommand command = new SqlCommand("st_SourceDeleteForeverIsRunning", connection))
+            //            {
+            //                command.CommandType = System.Data.CommandType.StoredProcedure;
+            //                command.Parameters.Add(new SqlParameter("@revID", Rid));
+            //                command.Parameters.Add(new SqlParameter("@result", System.Data.SqlDbType.Int));
+            //                command.Parameters["@result"].Direction = System.Data.ParameterDirection.Output;
+            //                command.ExecuteNonQuery();
+            //                int? res = command.Parameters["@result"].Value as int?;
+
+            //                if (res != null && res != 0)
+            //                {
+            //                    if (res != SourceId)
+            //                    {//a deletion is running for another source, which can always happen because of concurrent usage
+            //                        _Result = "Deletion is  already running for a different source (id: " + res.ToString() + ")";
+            //                        //we can stop checking, current source isn't going to be deleted!
+            //                        count = 100;
+            //                    }
+            //                    else _Result = "Deletion running for SourceId: " + res.ToString();
+            //                }
+            //                else
+            //                {//must have finished already!
+            //                    _Result = "No deletion is running";
+            //                    count = 100;//end the loop!
+            //                }
+            //            }
+            //            connection.Close();
+            //        }
+            //    }
+            //}
+            //else _Result = "Task fired and forgotten - not checking if a deletion is running";
         }
-        private void FireAndForgetExcecuteCommand(int revID, int ContactId)
+        private async void FireAndForgetExcecuteCommand(int revID, int ContactId, int JobId)
         {
             try 
             {
-                
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
                     connection.Open();
@@ -134,46 +157,98 @@ namespace BusinessLibrary.BusinessClasses
                                 {
                                     DocsToDelete.Add(id, reader.GetString("DOCUMENT_EXTENSION"));
                                 }
-                                
                             }
                         }
-                        System.Threading.Tasks.Task.Run(() => DeleteDocsFromBlob(DocsToDelete));//we'll do this in parallel
+                        if (AppIsShuttingDown)
+                        {
+                            CancelJobWithStatusMessage(JobId, revID, "Paused (at deleting docs) while ER restarts");
+                        }
+                        if (DocsToDelete.Count > 0)
+                        {
+                            bool docsdeleted = DeleteDocsFromBlob(DocsToDelete, JobId, revID);//we'll do this first!
+                            if (docsdeleted == false)
+                            {
+                                return;
+                            }
+                        }
                     }
-
-
-                        using (SqlCommand command = new SqlCommand("st_SourceDeleteForever", connection))
-                    {
-                        //st_SourceDeleteForever can take a long time. Does deletion in batches of 400 items, stopping 4s between batches.
-                        //this is because all deletions include multiple tables and are wrapped in a transaction (no partial deletions are possible)
-                        //consequence is that SP "locks" lots of tables, thus, between batches we stop to let other queries execute.
-                        //Deleting rows from TB_ITEM is slow because of all "CASCADE on delete" foreign keys on ITEM_ID.
-                        command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@srcID", _SourceId));
-                        command.Parameters.Add(new SqlParameter("@revID", revID));
-                        command.Parameters.Add(new SqlParameter("@contactID", ContactId));
-                        command.Parameters.Add(new SqlParameter("@result", System.Data.SqlDbType.Int));
-                        command.Parameters["@result"].Direction = System.Data.ParameterDirection.Output;
-                        command.CommandTimeout = 600;//ten minutes
-                        command.ExecuteNonQuery();
-                        //for debugging: get the result value. We don't do anything with it, but it's useful to check if it's what we'd expect...
-                        //possible values are:
-                        //0: SP was triggered _without_ a SourceId(null or zero) and no Job was running for this review.
-                        //1: SP was triggered with a SourceId and the execution ended correctly.
-                        //-1: Check on currently running JOB found a job active and still running(last activity was less than 10m ago).
-                        //-2: SP was triggered with a SourceId, but the check on currently running JOB found a job that needed resuming, so SP resumed the older job and ignored the SourceId supplied.
-                        //-10: (should be impossible to trigger) SP reached the "active" deletion portion, but doesn't have a SourceId to work on (either supplied or retrieved from `TB_REVIEW_JOB`) so can't continue and is stopping instead.
-                        //-11: we have a SourceId to act on, but it either doesn't belong to the review or it isn't already marked as deleted.
-                        //-12: an exception occurred(either in the batches or the final deletions).Error should appear in the "job message" field in `TB_REVIEW_JOB`.
-
-                        //Debug: put a breakpoint here to "see" the result value
-                        int? result = command.Parameters["@result"].Value as int?;
+                    int? result = 1;
+                    int loopCount = 0;
+                    DateTime start;
+                    int batchSize = 50; //nice and small, so we'll call the "delete in batches" SP many times, but be quick about it each time
+                    //and we wait between batches!
+                    while (result > 0 && loopCount < 1000000)//we put a hard limit on the number of repeats, for safety...
+                    {//this will break if we try to delete a source with 50*1M records! should be safe enough!
+                        start = DateTime.Now;
+                        using (SqlCommand command = new SqlCommand("st_SourceDeleteForeverInBatches", connection))
+                        {
+                            //st_SourceDeleteForeverInBatches is not fast.
+                            //this is because all deletions include multiple tables and are wrapped in a transaction (no partial deletions are possible)
+                            //consequence is that SP "locks" lots of tables, thus, between batches we stop to let other queries execute.
+                            //Deleting rows from TB_ITEM is slow because of all "CASCADE on delete" foreign keys on ITEM_ID.
+                            command.CommandType = System.Data.CommandType.StoredProcedure;
+                            command.Parameters.Add(new SqlParameter("@srcID", _SourceId));
+                            command.Parameters.Add(new SqlParameter("@revID", revID));
+                            command.Parameters.Add(new SqlParameter("@contactID", ContactId));
+                            command.Parameters.Add(new SqlParameter("@JobId", JobId));
+                            command.Parameters.Add(new SqlParameter("@batchSize", batchSize));
+                            command.Parameters.Add(new SqlParameter("@result", System.Data.SqlDbType.Int));
+                            command.Parameters["@result"].Direction = System.Data.ParameterDirection.Output;
+                            command.CommandTimeout = 60;//1 min
+                            command.ExecuteNonQuery();
+                            
+                            //Debug: put a breakpoint here to "see" the result value
+                            result = command.Parameters["@result"].Value as int?;
+                            if (result == null)
+                            {//don't know what to do, should not happen!!
+                                break;
+                            }
+                        }
+                        if (AppIsShuttingDown)
+                        {
+                            CancelJobWithStatusMessage(JobId, revID, "Paused (at deleting DB records) while ER restarts");
+                            break;
+                        }
+                        if (result > 0)
+                        {//we'll loop again so we wait a bit, to give the DB time to recover from locking many tables
+                            TimeSpan time = DateTime.Now - start;
+                            try
+                            { //we wait for twice as long as it took to delete a single batch
+                                time = time * 2;
+                                await Task.Delay(time, CancelToken);
+                            }
+                            catch//if we get to cancel the delay, it triggers an exception!
+                            {
+                                if (AppIsShuttingDown)
+                                {
+                                    CancelJobWithStatusMessage(JobId, revID, "Paused (at deleting DB records) while ER restarts");
+                                }
+                            }
+                        }
+                        loopCount++;
                     }
                     connection.Close();
                 }
             }
-            catch { }            
+            catch (Exception ex)
+            {
+                MarkJobAsFailed(JobId, revID, "Failed at FireAndForget stage", ex);
+            }
         }
-        private void DeleteDocsFromBlob(Dictionary<long, string> DocsToDelete)
+        private void CancelJobWithStatusMessage(int JobId, int RevId, string message)
+        {
+            DataFactoryHelper.UpdateReviewJobLog(JobId, RevId, "Cancelled", message, "SourceDeleteForever");//resume information is already in the record
+        }
+        private void MarkJobAsRunning(int JobId, int RevId)
+        {
+            DataFactoryHelper.UpdateReviewJobLog(JobId, RevId, "running", "", "SourceDeleteForever");//resume information is already in the record
+        }
+        private void MarkJobAsFailed(int JobId, int RevId, string message, Exception ex)
+        {
+            DataFactoryHelper.LogExceptionToFile(ex, RevId, JobId, "SourceDeleteForever");
+            DataFactoryHelper.UpdateReviewJobLog(JobId, RevId, "Failed", message, "SourceDeleteForever", true, false);//resume information is already in the record
+        }
+        private bool DeleteDocsFromBlob(Dictionary<long, string> DocsToDelete, int JobId, int revID)
         {
             try
             {
@@ -184,15 +259,34 @@ namespace BusinessLibrary.BusinessClasses
                         string BlobFilename = ItemDocument.DocBlobFileName(kvp.Key, kvp.Value);
                         BlobOperations.DeleteIfExists(AzureSettings.blobConnection, AzureSettings.FullTextDocsBlobContainer, BlobFilename);
                     }
+                    if (AppIsShuttingDown)
+                    {
+                        CancelJobWithStatusMessage(JobId, revID, "Paused (at deleting docs) while ER restarts");
+                    }
                 }
             }
-            catch
+            catch(Exception ex)
             {
-
+                MarkJobAsFailed(JobId, revID, "Failed at DeleteDocsFromBlob stage", ex);
+                return false;
             }
+            return true;
         }
 #if !ER4
-        public void ResumeJob(ER_Web.Services.RawTaskToResume rttr) { }
+        public void ResumeJob(ER_Web.Services.RawTaskToResume rttr) 
+        {
+            string IdString = rttr.ParamsInJson.Replace("SourceId: ", "");
+            int recoveredId;
+            if (int.TryParse(IdString, out recoveredId)) this._SourceId = recoveredId;
+            else
+            {
+                DataFactoryHelper.UpdateReviewJobLog(rttr.JobId, rttr.ReviewId, "Failed", "Failed to resume task - source ID is missing"
+                    , "SourceDeleteForever", true, false);
+                return;
+            }
+            MarkJobAsRunning(rttr.JobId, rttr.ReviewId);
+            System.Threading.Tasks.Task.Run(() => FireAndForgetExcecuteCommand(rttr.ReviewId, rttr.ContactId, rttr.JobId));
+        }
 #endif
 #endif
     }

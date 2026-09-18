@@ -9,9 +9,8 @@ import { CodesetStatisticsService } from '../services/codesetstatistics.service'
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { TabStripComponent, SelectEvent } from '@progress/kendo-angular-layout';
 import { Helpers } from '../helpers/HelperMethods';
-import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
-
+import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
 
 
 @Component({
@@ -68,10 +67,7 @@ export class SourcesComponent implements OnInit, OnDestroy {
       // select the first source
     }
   }
-  onSubmit(): boolean {
-    console.log("Sources onSubmit");
-    return false;
-  }
+  
   @ViewChild('tabstrip') public tabstrip!: TabStripComponent;
   get ReviewSources(): ReadOnlySource[] {
     //console.log("rev srcs:", this.SourcesService.ReviewSources.length);
@@ -84,11 +80,13 @@ export class SourcesComponent implements OnInit, OnDestroy {
   private _CurrentSource: Source | null = null;
   private tabFromQueryString: Subscription | null = null;
   private goToTab: string = "";
-
+  public faArrowsRotate = faArrowsRotate;
   public get HasWriteRights(): boolean {
     return this.ReviewerIdentityService.HasWriteRights;
   }
-
+  public Refresh() {
+    this.SourcesService.FetchSources();
+  }
   ToggleDelSource(ros: ReadOnlySource) {
     if ((ros.source_Name == "NN_SOURCELESS_NN" && ros.source_ID == -1) || ros.source_ID > 0) {
       let msg: string;
@@ -241,15 +239,16 @@ export class SourcesComponent implements OnInit, OnDestroy {
     console.log('got into showDeletedForeverNotification');
     let typeElement: "success" | "error" | "none" | "warning" | "info" | undefined = undefined;
     let contentSt: string = "";
-    if (status == "No deletion is running") {
-      typeElement = "success";
-      contentSt = 'Permanent deletion of source "' + sourcename + '" completed successfully.';
-    }
-    else if (status == "Deletion running for SourceId: " + sourceId.toString()) {
+    //if (status == "No deletion is running") {
+    //  typeElement = "success";
+    //  contentSt = 'Permanent deletion of source "' + sourcename + '" completed successfully.';
+    //}
+    //else
+    if (status == "Deletion running for SourceId: " + sourceId.toString()) {
       typeElement = "success";
       contentSt = 'Permanent deletion of source "' + sourcename + '" is running (it can take some time!)';
     }
-    else if (status.indexOf("Deletion is  already running for a different source") > -1) {
+    else if (status.indexOf("Task is already running for a different source.") > -1) {
       typeElement = "error";
       contentSt = 'Permanent deletion of source "' + sourcename + '" did not start, because another source is being deleted.';
     }
