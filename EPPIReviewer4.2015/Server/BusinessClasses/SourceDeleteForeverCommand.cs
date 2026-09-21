@@ -275,17 +275,26 @@ namespace BusinessLibrary.BusinessClasses
 #if !ER4
         public void ResumeJob(ER_Web.Services.RawTaskToResume rttr) 
         {
-            string IdString = rttr.ParamsInJson.Replace("SourceId: ", "");
-            int recoveredId;
-            if (int.TryParse(IdString, out recoveredId)) this._SourceId = recoveredId;
-            else
+            try
             {
-                DataFactoryHelper.UpdateReviewJobLog(rttr.JobId, rttr.ReviewId, "Failed", "Failed to resume task - source ID is missing"
-                    , "SourceDeleteForever", true, false);
+                string IdString = rttr.ParamsInJson.Replace("SourceId: ", "");
+                int recoveredId;
+                if (int.TryParse(IdString, out recoveredId)) this._SourceId = recoveredId;
+                else
+                {
+                    DataFactoryHelper.UpdateReviewJobLog(rttr.JobId, rttr.ReviewId, "Failed", "Failed to resume task - source ID is missing"
+                        , "SourceDeleteForever", true, false);
+                    return;
+                }
+                MarkJobAsRunning(rttr.JobId, rttr.ReviewId);
+                System.Threading.Tasks.Task.Run(() => FireAndForgetExcecuteCommand(rttr.ReviewId, rttr.ContactId, rttr.JobId));
+            }
+            catch (Exception ex)
+            {
+                DataFactoryHelper.UpdateReviewJobLog(rttr.JobId, rttr.ReviewId, "Failed", "Failed to resume task", "SourceDeleteForever", true, false);
+                DataFactoryHelper.LogExceptionToFile(ex, rttr.ReviewId, rttr.JobId, "SourceDeleteForever");
                 return;
             }
-            MarkJobAsRunning(rttr.JobId, rttr.ReviewId);
-            System.Threading.Tasks.Task.Run(() => FireAndForgetExcecuteCommand(rttr.ReviewId, rttr.ContactId, rttr.JobId));
         }
 #endif
 #endif
