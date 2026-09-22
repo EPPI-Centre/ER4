@@ -106,7 +106,7 @@ export class ReviewInfoService extends BusyAwareService implements OnDestroy {
     let ErrMsg = "Something went wrong when fetching review members \r\n If the problem persists, please contact EPPISupport.";
 
     this._BusyMethods.push("FetchReviewMembers");
-    this._httpC.get<Contact[]>(this._baseUrl + 'api/ReviewInfo/ReviewMembers').subscribe(
+    lastValueFrom( this._httpC.get<Contact[]>(this._baseUrl + 'api/ReviewInfo/ReviewMembers')).then(
 
       (result) => {
         this._ReviewContacts = result;

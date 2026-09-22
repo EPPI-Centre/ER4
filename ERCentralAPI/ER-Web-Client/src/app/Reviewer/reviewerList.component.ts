@@ -301,6 +301,18 @@ export class ReviewerListComponent implements OnInit {
     if (result == true) {
       // put up a message saying the account was updated?
       this.showAccountRoleUpdatedNotification();
+      let user = this.Contacts.find(f => f.contactId == reviewerID);
+      if (user) {
+        let roles = user.roles.split(',');
+        const index = roles.findIndex(f => f == role);
+        if (index == -1) {//we were adding a role
+          roles.push(role);
+        }
+        else {//we're removing the role
+          roles.splice(index, 1);
+        }
+        user.roles = roles.join(',');
+      }
     }
     
   }
