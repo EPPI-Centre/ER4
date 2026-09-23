@@ -101,23 +101,23 @@ export class ReviewInfoService extends BusyAwareService implements OnDestroy {
       });
   }
 
-  public FetchReviewMembers() {
+  public FetchReviewMembers(): Promise<boolean> {
 
     let ErrMsg = "Something went wrong when fetching review members \r\n If the problem persists, please contact EPPISupport.";
 
     this._BusyMethods.push("FetchReviewMembers");
-    lastValueFrom( this._httpC.get<Contact[]>(this._baseUrl + 'api/ReviewInfo/ReviewMembers')).then(
+    return lastValueFrom( this._httpC.get<Contact[]>(this._baseUrl + 'api/ReviewInfo/ReviewMembers')).then(
 
       (result) => {
         this._ReviewContacts = result;
         if (!result) this.modalService.GenericErrorMessage(ErrMsg);
         this.RemoveBusy("FetchReviewMembers");
-        return result;
+        return true;
       }
       , (error) => {
         this.RemoveBusy("FetchReviewMembers");
         this.modalService.GenericErrorMessage(ErrMsg);
-        return error;
+        return false;
       });
 
   }

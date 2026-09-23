@@ -124,7 +124,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Error occured when logging into a review");
+                _logger.LogException(e, "Error occurred when logging into a review");
                 return Forbid();
             }
         }

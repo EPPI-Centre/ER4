@@ -107,7 +107,7 @@ namespace ERxWebClient2.Controllers
             {
                 if (SetCSLAUser4Writing() && UserIsAdmin())
                 {
-                    ReviewMembers res = new ReviewMembers(data.role, data.contactId);
+                    ReviewMember res = new ReviewMember(data.role, data.contactId);
                     res = res.Save();
                     return Ok(res.Result);
                 }
@@ -130,7 +130,7 @@ namespace ERxWebClient2.Controllers
             {
                 if (SetCSLAUser4Writing() && UserIsAdmin())
                 {
-                    ReviewMembers res = new ReviewMembers(data.Value);
+                    ReviewMember res = new ReviewMember(data.Value);
                     res = res.Save();
                     return Ok(res.ResultValue);
                 }
@@ -146,14 +146,19 @@ namespace ERxWebClient2.Controllers
 
 
         [HttpPost("[action]")]
-        public IActionResult RemoveReviewer([FromBody] SingleStringCriteria data)
+        public IActionResult RemoveReviewer([FromBody] SingleIntCriteria data)
         {
             try
             {
                 if (SetCSLAUser4Writing() && UserIsAdmin())
                 {
                     //ReviewMembers res = new ReviewMembers(data.Value);
-                    ReviewMembers res = DataPortal.Fetch<ReviewMembers>(new SingleCriteria<ReviewMembers, string>(data.Value));
+                    ReviewMember res = DataPortal.Fetch<ReviewMember>(new SingleCriteria<ReviewMember, int>(data.Value));
+
+                    if (res == null || res.Result == false) {
+                        return StatusCode(404, "Reviewer with id " + data.Value.ToString() + " does not belong to this review.");
+                    }
+                    
                     res.Delete();
                     res = res.Save();
                     return Ok(res.Result);

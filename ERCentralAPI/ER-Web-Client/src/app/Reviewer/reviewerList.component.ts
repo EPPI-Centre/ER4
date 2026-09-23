@@ -12,6 +12,7 @@ import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
 import { ModalService } from '../services/modal.service';
 import { ReviewService } from '../services/review.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
+import { RobotsService } from '../services/Robots.service';
 
 
 @Component({
@@ -23,9 +24,7 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 export class ReviewerListComponent implements OnInit {
   //some inspiration taken from: https://malcoded.com/posts/angular-file-upload-component-with-express
   constructor(
-    private ItemListService: ItemListService,
-    private _eventEmitter: EventEmitterService,
-    private SourcesService: SourcesService,
+    private robotsService: RobotsService,
     private ConfirmationDialogService: ConfirmationDialogService,
     private ReviewerIdentityService: ReviewerIdentityService,
     private reviewInfoService: ReviewInfoService,
@@ -35,15 +34,32 @@ export class ReviewerListComponent implements OnInit {
     @Inject('BASE_URL') private _baseUrl: string,
   ) { }
   ngOnInit() {
+    if (this.robotsService.RobotsList.length == 0) {
+      this.robotsService.GetRobotsList().then(()=> this.DoFilterContacts());
+    }
+    else this.DoFilterContacts();
     //this.RefreshData();
     //this.reviewInfoService.FetchReviewMembers();
   }
   public isAddReviewerExpanded: boolean = false;
-  private _ReviewContacts: Contact[] = [];
-  public isCochraneReview: boolean = true;
+  private _FilteredContacts: Contact[] = [];
+  public get isCochraneReview(): boolean {
+    return this.reviewInfoService.ReviewInfo.isCochrane;
+  };
   public get Contacts(): Contact[] {
-    this.isCochraneReview = this.reviewInfoService.ReviewInfo.isCochrane
     return this.reviewInfoService.Contacts;
+  }
+  public get FilteredContacts(): Contact[] {
+    return this._FilteredContacts;
+  }
+  public DoFilterContacts(): void {
+    const theFullList = this.robotsService.RobotsList.concat(this.robotsService.RobotsExpiredList);
+    this._FilteredContacts = this.reviewInfoService.Contacts.filter(
+      f => {
+        if (theFullList.findIndex(ff => ff.robotContactId == f.contactId) != -1) return false;
+        if (f.contactName == "Auto-Reconcile User" && f.expiry == "") return false;
+        return true;
+      });
   }
   public reviewerEmail: string = '';
 
@@ -110,7 +126,7 @@ export class ReviewerListComponent implements OnInit {
     if (result == true) {
       // close the invite area and reload the list to show the new reviewer 
       this.isAddReviewerExpanded = false;
-      this.reviewInfoService.FetchReviewMembers();
+      this.reviewInfoService.FetchReviewMembers().then(()=> this.DoFilterContacts());
     }
   }
 
@@ -121,7 +137,7 @@ export class ReviewerListComponent implements OnInit {
     let result = await this.AccountManagerService.RemoveReviewer(member.contactId);
     if (result == true) {
       // reload the list to show updated list 
-      this.reviewInfoService.FetchReviewMembers();
+      this.reviewInfoService.FetchReviewMembers().then(() => this.DoFilterContacts());
     }
   }
 
@@ -135,7 +151,7 @@ export class ReviewerListComponent implements OnInit {
       this.reviewInfoService.Fetch();
     }
     if (this.reviewInfoService.Contacts.length == 0)
-      this.reviewInfoService.FetchReviewMembers();
+      this.reviewInfoService.FetchReviewMembers().then(()=> this.DoFilterContacts());
   }
 
 
@@ -285,15 +301,18 @@ export class ReviewerListComponent implements OnInit {
 
 
   public AddCheckMarkIfRole(role: string, controllingRole: string, contactId: number): string  {
-    let index = this.reviewInfoService.Contacts.findIndex(f => f.contactId == contactId);
-    let roles = this.reviewInfoService.Contacts[index].roles;
-    if (roles.includes(role)) {
-      if (role == controllingRole) {
-        return "X" + role; // controlling role
+    let index = this.FilteredContacts.findIndex(f => f.contactId == contactId);
+    if (index != -1) {
+      let roles = this.FilteredContacts[index].roles;
+      if (roles.includes(role)) {
+        if (role == controllingRole) {
+          return "X" + role; // controlling role
+        }
+        return "x " + role; // other assigned role
       }
-      return "x " + role; // other assigned role
+      return "-  " + role; // unassigned role
     }
-    return "-  " + role; // unassigned role
+    else return "";
   }
 
   async ChangeRole(role: string, reviewerID: number) {
@@ -301,7 +320,7 @@ export class ReviewerListComponent implements OnInit {
     if (result == true) {
       // put up a message saying the account was updated?
       this.showAccountRoleUpdatedNotification();
-      let user = this.Contacts.find(f => f.contactId == reviewerID);
+      let user = this.FilteredContacts.find(f => f.contactId == reviewerID);
       if (user) {
         let roles = user.roles.split(',');
         const index = roles.findIndex(f => f == role);

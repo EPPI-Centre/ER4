@@ -25,10 +25,10 @@ namespace BusinessLibrary.BusinessClasses
 
     [Serializable]
 
-    public class ReviewMembers : BusinessBase<ReviewMembers>
+    public class ReviewMember : BusinessBase<ReviewMember>
     {
 
-        public ReviewMembers(string Role, int ContactID)
+        public ReviewMember(string Role, int ContactID)
         {
             MarkOld();
             ReviewRole = Role;
@@ -36,7 +36,7 @@ namespace BusinessLibrary.BusinessClasses
             MarkDirty();
         }
 
-        public ReviewMembers(string EmailToUse)
+        public ReviewMember(string EmailToUse)
         {
             Email = EmailToUse;
         }
@@ -44,7 +44,7 @@ namespace BusinessLibrary.BusinessClasses
 
 
 
-        public ReviewMembers() { }
+        public ReviewMember() { }
 
 
         public static readonly PropertyInfo<int> ReviewIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewId", "ReviewId"));
@@ -239,9 +239,10 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 
-        protected void DataPortal_Fetch()
+        protected void DataPortal_Fetch(SingleCriteria<ReviewMember, int> crit)
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            bool found = false;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
@@ -253,17 +254,24 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         while (reader.Read())
                         {
-                            LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
-                            LoadProperty<string>(contactNameProperty, reader.GetString("CONTACT_NAME"));
-                            LoadProperty<string>(EmailProperty, reader.GetString("EMAIL"));
-                            LoadProperty<string>(ExpiryProperty, reader.GetString("EXPIRY_DATE"));
-                            LoadProperty<string>(RoleProperty, reader.GetString("ROLE_NAME"));
-                            LoadProperty<int>(IsExpiredProperty, reader.GetInt32("IS_EXPIRED"));
+                            int TmpId = reader.GetInt32("CONTACT_ID");
+                            if (TmpId == crit.Value)
+                            {
+                                LoadProperty<int>(ContactIdProperty, TmpId);
+                                LoadProperty<string>(contactNameProperty, reader.GetString("CONTACT_NAME"));
+                                LoadProperty<string>(EmailProperty, reader.GetString("EMAIL"));
+                                LoadProperty<string>(ExpiryProperty, reader.GetString("EXPIRY_DATE"));
+                                LoadProperty<string>(RoleProperty, reader.GetString("ROLE_NAME"));
+                                LoadProperty<int>(IsExpiredProperty, reader.GetInt32("IS_EXPIRED"));
+                                found = true;
+                                break;
+                            }
                         }
                     }
                 }
                 connection.Close();
             }
+            LoadProperty<bool>(ResultProperty, found);
         }
 
 

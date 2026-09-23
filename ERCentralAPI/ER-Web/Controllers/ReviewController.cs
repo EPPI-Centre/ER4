@@ -137,7 +137,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Error occured when Preparing (/checkout) ArchieReview ");
+                _logger.LogException(e, "Error occurred when Preparing (/checkout) ArchieReview ");
                 return StatusCode(500, e.Message);
             }
         }
@@ -157,7 +157,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Error occured when undoing Archie review Checkout");
+                _logger.LogException(e, "Error occurred when undoing Archie review Checkout");
                 return StatusCode(500, e.Message);
             }
         }
