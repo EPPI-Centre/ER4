@@ -16,6 +16,13 @@
       "webRoot": "${workspaceFolder}"
     },
     {
+      "type": "chrome",
+      "request": "launch",
+      "name": "James' Win VM (Chrome)",
+      "url": "http://10.211.55.3:4200",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
       "type": "edge",
       "request": "launch",
       "name": "localhost (Edge)",
