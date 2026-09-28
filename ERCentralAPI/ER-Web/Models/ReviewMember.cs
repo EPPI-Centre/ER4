@@ -348,7 +348,7 @@ namespace BusinessLibrary.BusinessClasses
             smtp.EnableSsl = true; smtp.Port = 587;
             try
             {
-                //smtp.Send(msg);
+                smtp.Send(msg);
                 return "OK";
             }
             catch (Exception ex)

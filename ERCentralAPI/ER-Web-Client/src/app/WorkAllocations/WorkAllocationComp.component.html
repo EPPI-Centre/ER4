@@ -267,7 +267,7 @@
             </h5>
           </td>
           <td>
-            <button *ngIf="HasAdminRights" [disabled]="!HasWriteRights" class="btn btn-outline-primary btn px-1 py-0 m-0 mb-1 float-right" (click)="EditReviewMembers()">
+            <button *ngIf="HasAdminRights" [disabled]="!HasWriteRights" class="btn btn-outline-primary btn px-1 py-0 m-0 mb-1 float-right" (click)="toggleEditReviewMembers()">
               {{ShowReviewerEditText}}
             </button>
           </td>
@@ -295,38 +295,13 @@
       <h5 class="m-1 p-1 font-weight-bold">
         Coding Assignments
 
-        <button class="btn btn-outline-primary btn-sm px-1 py-0 m-0 mb-1 float-right" EditReviewMembers()
+        <button class="btn btn-outline-primary btn-sm px-1 py-0 m-0 mb-1 float-right" 
                 (click)="ShowHideAllocations()">
           {{ShowAllocationsText}}
         </button>
       </h5>
       <div style="max-height:400px;overflow:auto;">
-        <!--<table class='small table table-striped bg-light' *ngIf="ShowAllocations && AllWorkAllocationsForReview">
-          <thead>
-              <tr>
-                  <th>ID</th>
-                  <th>Contact</th>
-                  <th>Study Group</th>
-                  <th>Codes to apply</th>
-                  <th>Allocated</th>
-                  <th>Started</th>
-                  <th>Remaining</th>
-                  <th>Delete</th>
-              </tr>
-          </thead>
-          <tbody>
-              <tr class="" *ngFor="let wa of _workAllocationListService.AllWorkAllocationsForReview; let i = index">
-                  <td>{{ wa.contactId }}</td>
-                  <td>{{ wa.contactName }}</td>
-                  <td>{{ wa.attributeName }}</td>
-                  <td>{{wa.setName}}</td>
-                  <td class="p-0" id="waAll-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationList')"><div class="btn btn-link mt-1">{{ wa.totalAllocation}}</div></td>
-                  <td class="p-0 " id="waStarted-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationListStarted')"><div class="btn btn-link mt-1">{{ wa.totalStarted}}</div></td>
-                  <td class="p-0" id="waRemaining-{{wa.workAllocationId}}" [ngClass]="{'UsedWorkAllocation' : 'waAll-'+ wa.workAllocationId == this.clickedIndex}" (click)="LoadGivenList(wa.workAllocationId,'GetItemWorkAllocationListRemaining')"><div class="btn btn-link mt-1">{{ wa.totalRemaining}}</div></td>
-                  <td class="p-0"><button class="btn btn-outline-danger p-1 m-1" [disabled]="!HasWriteRights" (click)="removeWarning(wa.workAllocationId)">Delete</button></td>
-              </tr>
-          </tbody>
-      </table>-->
+        
 
         <kendo-grid *ngIf="ShowAllocations && AllWorkAllocationsForReview"
                     [data]="DataSourceWorkAllocations" [style.maxHeight.px]="390" [style.minWidth.px]="510"

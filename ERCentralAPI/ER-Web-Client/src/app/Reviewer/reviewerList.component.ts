@@ -126,21 +126,30 @@ export class ReviewerListComponent implements OnInit {
     if (result == true) {
       // close the invite area and reload the list to show the new reviewer 
       this.isAddReviewerExpanded = false;
-      this.reviewInfoService.FetchReviewMembers().then(()=> this.DoFilterContacts());
     }
+    this.reviewInfoService.FetchReviewMembers().then(() => this.AfterInviting(this.reviewerEmail.trim()));
   }
+
+  private AfterInviting(email: string) {
+    this.DoFilterContacts();
+    const newUser = this.FilteredContacts.find(f => f.email == email);
+    if (newUser) {
+      this.showAccountUpdatedNotification("User \"" + newUser.contactName + "\" added to the review with the detault 'Reviewer' role");
+    } 
+  }
+
 
   async RemoveReviewerFromReview(member: Contact) {
-
-
-
-    let result = await this.AccountManagerService.RemoveReviewer(member.contactId);
-    if (result == true) {
-      // reload the list to show updated list 
-      this.reviewInfoService.FetchReviewMembers().then(() => this.DoFilterContacts());
+    await this.AccountManagerService.RemoveReviewer(member.contactId);
+    this.reviewInfoService.FetchReviewMembers().then(() => this.AfterRemoving(member));
+  }
+  private AfterRemoving(member: Contact) {
+    this.DoFilterContacts();
+    const Index = this.FilteredContacts.findIndex(f => member.contactId == f.contactId);
+    if (Index == -1) {
+      this.showAccountUpdatedNotification("User \"" + member.contactName + "\" has been removed from this review");
     }
   }
-
 
   public RefreshData() {
     this.getMembers();
@@ -242,7 +251,6 @@ export class ReviewerListComponent implements OnInit {
               if (confirm) {
                 this.ChangeRole(databaseRoleName, reviewer.contactId);
               }
-              this.reviewInfoService.FetchReviewMembers();
             });
         }
         else {
@@ -253,7 +261,6 @@ export class ReviewerListComponent implements OnInit {
               if (confirm) {
                 this.ChangeRole(databaseRoleName, reviewer.contactId);
               }
-              this.reviewInfoService.FetchReviewMembers();
             });
         }
       }
@@ -293,7 +300,6 @@ export class ReviewerListComponent implements OnInit {
           if (confirm) {
             this.ChangeRole(databaseRoleName, reviewer.contactId);
           }
-          this.reviewInfoService.FetchReviewMembers();
         });
     }
 
@@ -319,31 +325,20 @@ export class ReviewerListComponent implements OnInit {
     let result = await this.AccountManagerService.UpdateReviewerRole(role, reviewerID);
     if (result == true) {
       // put up a message saying the account was updated?
-      this.showAccountRoleUpdatedNotification();
-      let user = this.FilteredContacts.find(f => f.contactId == reviewerID);
-      if (user) {
-        let roles = user.roles.split(',');
-        const index = roles.findIndex(f => f == role);
-        if (index == -1) {//we were adding a role
-          roles.push(role);
-        }
-        else {//we're removing the role
-          roles.splice(index, 1);
-        }
-        user.roles = roles.join(',');
-      }
+      this.showAccountUpdatedNotification("Account role updated");
     }
-    
+    //we refresh our list in all cases, if it worked, because we want the results of the change
+    //if it didn't work, because probably the list is outdated
+    this.reviewInfoService.FetchReviewMembers().then(() => this.DoFilterContacts());
   }
 
-  private showAccountRoleUpdatedNotification(): void {
-    let contentSt: string = "Account role updated";
+  private showAccountUpdatedNotification(contentSt: string): void {
     this.notificationService.show({
       content: contentSt,
       animation: { type: 'slide', duration: 400 },
       position: { horizontal: 'center', vertical: 'top' },
       type: { style: "success", icon: true },
-      closable: true
+      hideAfter: 4000
     });
   }
 

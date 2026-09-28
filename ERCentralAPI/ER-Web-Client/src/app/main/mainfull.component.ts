@@ -39,6 +39,7 @@ import { ClassifierService } from '../services/classifier.service';
 import { ArmTimepointLinkListService } from '../services/ArmTimepointLinkList.service';
 import { RobotInvestigate } from '../Robots/robotInvestigate.component';
 import {  RobotsService } from '../services/Robots.service';
+import { ReviewService } from '../services/review.service';
 
 
 @Component({
@@ -94,6 +95,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     private excelService: ExcelService,
     private robotsService: RobotsService,
     private reviewInfoService: ReviewInfoService,
+    private reviewService: ReviewService,
     private classifierService: ClassifierService,
     private ArmTimepointLinkListService: ArmTimepointLinkListService
   ) { }
@@ -243,7 +245,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
       this.ReviewSetsEditingService.IsBusy ||
       this.SourcesService.IsBusy ||
       this.ComparisonsService.IsBusy ||
-      this.ArmTimepointLinkListService.IsBusy);
+      this.ArmTimepointLinkListService.IsBusy ||
+      this.reviewService.IsBusy
+    );
   }
   public get ReviewSets(): ReviewSet[] {
     return this.reviewSetsService.ReviewSets;
@@ -886,13 +890,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     else return '&darr;';
   }
 
-  toggleReviewersPanel() {
-    if (!this.isReviewersPanelVisible) {
-      this.reviewInfoService.FetchReviewMembers();
-      //this.ReviewersService.FetchSources();
-    }
-    this.isReviewersPanelVisible = !this.isReviewersPanelVisible;
-  }
+  
 
   ShowHideCodes() {
     this.CodesAreCollapsed = !this.CodesAreCollapsed;

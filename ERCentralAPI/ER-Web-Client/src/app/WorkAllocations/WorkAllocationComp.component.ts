@@ -153,7 +153,7 @@ export class WorkAllocationComp implements OnInit {
     else return "Expand";
   }
   public editingReviewMembers: boolean = false;
-  public EditReviewMembers() {
+  public toggleEditReviewMembers() {
     if (this.editingReviewMembers == false) {
       this.editingReviewMembers = true;
       this.ShowAllocations = false;
@@ -487,6 +487,7 @@ export class WorkAllocationComp implements OnInit {
     this.DropDownBasicCodingTool = new ReviewSet();
     this.selectedMemberDropDown = new Contact();
     this.PanelName = '';
+    if (this.editingReviewMembers == true) this.editingReviewMembers = false;
     //console.log('WA - Called Clear: ' + this.DropdownSelectedCodingTool);
 
   }

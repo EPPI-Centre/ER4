@@ -10,10 +10,12 @@
   </head>
   <body>
     <app-root>
-      <p id="LoadingPara">Loading...</p>
-      <p>Please note that this app <b>cannot work in Internet Explorer</b>.</p>
-      <p>Supported browsers include all fairly recent versions of Edge, FireFox, Safari (including iOS) and Chrome.</p>
-      <p id="wrongURLwarning" style="display:none;"> EPPI-Reviewer Web can't load correctly from this URL. Will try to <strong>redirect to the correct page</strong>. Click <button onclick="CancelRedirectionAction()">here</button> to cancel and correct this yourself.</p>
+      <div style="padding:0.75em;">
+        <p id="LoadingPara">Loading...</p>
+        <p>Please note that this app <b>cannot work in Internet Explorer</b>.</p>
+        <p>Supported browsers include all fairly recent versions of Edge, FireFox, Safari (including iOS) and Chrome.</p>
+        <p id="wrongURLwarning" style="display:none;"> EPPI-Reviewer Web can't load correctly from this URL. Will try to <strong>redirect to the correct page</strong>. Click <button onclick="CancelRedirectionAction()">here</button> to cancel and correct this yourself.</p>
+      </div>
     </app-root>
     <script src="assets/lib/webviewer.min.js"></script>
     <script>
