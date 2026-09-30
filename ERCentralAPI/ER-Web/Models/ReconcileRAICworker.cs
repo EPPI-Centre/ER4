@@ -189,13 +189,14 @@ namespace BusinessLibrary.BusinessClasses
                             using (SqlConnection connection = new SqlConnection(DataConnection.AdmConnectionString))
                             {
                                 connection.Open();
-                                using (SqlCommand command = new SqlCommand("st_ReviewAddContact", connection))
+                                using (SqlCommand command = new SqlCommand("st_ReviewAddMember", connection))
                                 {//this adds the user to the review as 'RegularUser'
                                     command.CommandType = System.Data.CommandType.StoredProcedure;
                                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewID));
-                                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", DummyUserId));
-                                    command.Parameters.Add(new SqlParameter("@old_review_id", ""));
-                                    command.ExecuteNonQuery();
+                                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", DummyUserId)); 
+                                    command.Parameters.Add(new SqlParameter("@result", 0));
+                                    command.Parameters["@result"].Direction = System.Data.ParameterDirection.Output;
+                                    command.ExecuteNonQuery();//we don't check the result, but this SP will ensure we're not adding the same user twice
                                 }
                                 // make the user "Coding only"
                                 using (SqlCommand command = new SqlCommand("st_ReviewRoleUpdateByContactID", connection))

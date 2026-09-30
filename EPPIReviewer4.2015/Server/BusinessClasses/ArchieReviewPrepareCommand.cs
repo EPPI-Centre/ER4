@@ -203,7 +203,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             else
             {
-                Result = "Unexpected Error, please contact EPPISupport@ioe.ac.uk";
+                Result = "Unexpected Error, please contact EPPISupport";
             }
         }
         
