@@ -60,11 +60,35 @@ namespace PDF_hashing
             if (IgnoreDocsFromId == -1) return res;//we check everything from the oldest doc in the DB
             long tVal;
             string tString = "";
-            foreach (BlobInHierarchy blob in blobs) 
+            if (AddHostNameToBlobFiles)
+            {//we need to only consider the blobs that are inside the folder identified by the current prefix
+                blobs = blobs.FindAll(f => {
+                    if (f.IsVirtualFolder) return false;
+                    if (f.BlobName.StartsWith(prefix)) return true;
+                    return false;
+                });
+            } 
+            else
+            {//we need to only consider blobs that are NOT in a virtual folder
+                List<BlobInHierarchy> folders = blobs.FindAll(f => {
+                    if (f.IsVirtualFolder) return true;
+                    return false;
+                });
+                foreach (BlobInHierarchy folder in folders) 
+                {
+                    blobs = blobs.FindAll(f => {
+                        if (f.IsVirtualFolder) return false;
+                        if (f.BlobName.StartsWith(folder.BlobName)) return false;
+                        return true;
+                    });
+                }
+            }
+            foreach (BlobInHierarchy blob in blobs)
             {
                 if (blob.IsVirtualFolder) continue;
-                tString = blob.BlobName.Replace(prefix, string.Empty);
-                tString = tString.Substring(0,tString.IndexOf('.'));
+                if (AddHostNameToBlobFiles == true && prefix != "") tString = blob.BlobName.Replace(prefix, string.Empty);
+                else tString = blob.BlobName;
+                tString = tString.Substring(0, tString.IndexOf('.'));
                 if (long.TryParse(tString, out tVal))
                 {
                     if (tVal > res && (IgnoreDocsFromId == 0 || tVal < IgnoreDocsFromId)) res = tVal;
