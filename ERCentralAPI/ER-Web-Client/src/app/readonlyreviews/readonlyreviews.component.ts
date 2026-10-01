@@ -108,7 +108,7 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy{
     }
     ConfirmActivate(Ror: ReadOnlyArchieReview) {
         this.confirmationDialogService.confirm('Activate Review?',
-            'Activation will create the review in EPPI-Reviewer. <br />No data will be transferred from RevMan/Archie.<br /><br />'
+            'Activation will create the review in EPPI-Reviewer. <br />No data will be transferred from RevMan.<br /><br />'
             + 'You will be given the <em>Review Administrator</em> role in this review.'
             , false, '')
             .then(
