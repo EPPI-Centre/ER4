@@ -146,12 +146,15 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlConnection connection = new SqlConnection(DataConnection.AdmConnectionString))
                 {
                     connection.Open();
-                    using (SqlCommand command = new SqlCommand("st_ReviewAddContact", connection))
+                    using (SqlCommand command = new SqlCommand("st_ReviewAddMember", connection))
                     {//this adds the user to the review as 'RegularUser'
+                        //2026: there is a good chance this code block can't be reached, given how the APIs interact at this point
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewID));
                         command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
-                        command.Parameters.Add(new SqlParameter("@old_review_id", ""));
+                        command.Parameters.Add(new SqlParameter("@result", 0));
+                        command.Parameters["@result"].Direction = System.Data.ParameterDirection.Output;
+                        command.ExecuteNonQuery();//we don't check the result, but this SP will ensure we're not adding the same user twice
                         command.ExecuteNonQuery();
                     }
                     connection.Close();
