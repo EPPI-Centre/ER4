@@ -311,12 +311,12 @@ export class ReviewerListComponent implements OnInit {
     if (index != -1) {
       let roles = this.FilteredContacts[index].roles;
       if (roles.includes(role)) {
-        if (role == controllingRole) {
-          return "X" + role; // controlling role
-        }
-        return "x " + role; // other assigned role
+        //if (role == controllingRole) {
+        //  return "X" + role; // controlling role
+        //}
+        return "X " + role; // assigned role
       }
-      return "-  " + role; // unassigned role
+      return "" + role; // unassigned role
     }
     else return "";
   }

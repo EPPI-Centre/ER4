@@ -12,6 +12,7 @@ using Csla.DataPortalClient;
 using BusinessLibrary.Security;
 using System.Collections.ObjectModel;
 using System.Net.Mail;
+using NuGet.Protocol.Plugins;
 
 #if!SILVERLIGHT
 using System.Data.SqlClient;
@@ -208,34 +209,66 @@ namespace BusinessLibrary.BusinessClasses
         protected override void DataPortal_Insert()
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            bool accountExists = false;
+            int contactID = 0;
+            string contactName = "";
             LoadProperty(ReviewIdProperty, ri.ReviewId);
             using (SqlConnection connection = new SqlConnection(DataConnection.AdmConnectionString))
             {
                 connection.Open();
-                using (SqlCommand command = new SqlCommand("st_ContactAddToReview", connection))
+                using (SqlCommand command = new SqlCommand("st_ContactDetailsEmail", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@EMAIL", ReadProperty(EmailProperty)));
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                    //command.Parameters.Add(new SqlParameter("@RESULT", 3)); // 3 is a fail for default?...
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
-                        while (reader.Read())
+                        if (reader.Read())
                         {
-                            LoadProperty<int>(ResultValueProperty, reader.GetInt32("RESULT"));
-                            LoadProperty<string>(contactNameProperty, reader.GetString("CONTACT_NAME"));
-                            LoadProperty<string>(ReviewNameProperty, reader.GetString("REVIEW_NAME"));
+                            // there is an account with that email
+                            accountExists = true;
+                            contactID = reader.GetInt32("CONTACT_ID");
+                            contactName = reader.GetString("CONTACT_NAME");
+                        }
+                        else
+                        {
+                            LoadProperty<int>(ResultValueProperty, 2); 
+                            // 2 (interpreted as account not found)
+
                         }
                     }
                 }
                 connection.Close();
+            }
 
-                if (ReadProperty(ResultValueProperty) == 0)
+            if (accountExists == true)
+            {
+                using (SqlConnection connection1 = new SqlConnection(DataConnection.AdmConnectionString))
                 {
-                    InviteAccountEmail(ReadProperty(EmailProperty), ReadProperty(contactNameProperty),
-                        ReadProperty(ReviewNameProperty), ri.Name, "");
+                    connection1.Open();
+                    using (SqlCommand command1 = new SqlCommand("st_ReviewAddMember", connection1))
+                    {
+                        command1.CommandType = System.Data.CommandType.StoredProcedure;                      
+                        command1.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                        command1.Parameters.Add(new SqlParameter("@CONTACT_ID", contactID));
+                        command1.Parameters.Add(new SqlParameter("@result", 0)); // 0 is a fail for default
+                        command1.Parameters["@result"].Direction = System.Data.ParameterDirection.Output;
+                        command1.ExecuteNonQuery();
+
+                        LoadProperty(ResultValueProperty, Convert.ToInt32(command1.Parameters["@result"].Value));
+                        // 0 - user already in the review
+                        // 1 - good to proceed
+                    }
+                    connection1.Close();
                 }
             }
+
+
+            if (ReadProperty(ResultValueProperty) == 1)
+            {
+                InviteAccountEmail(ReadProperty(EmailProperty), contactName,
+                    ReadProperty(ReviewNameProperty), ri.Name, "");
+            }
+            
         }
 
 
@@ -348,7 +381,7 @@ namespace BusinessLibrary.BusinessClasses
             smtp.EnableSsl = true; smtp.Port = 587;
             try
             {
-                smtp.Send(msg);
+                //smtp.Send(msg);
                 return "OK";
             }
             catch (Exception ex)
