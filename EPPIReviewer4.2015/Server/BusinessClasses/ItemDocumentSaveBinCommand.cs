@@ -122,7 +122,8 @@ namespace BusinessLibrary.BusinessClasses
                 //0x1C209ADD594DF6B37167F1F668D582D1F37658F7
                 hashed = "0x0000000000000000000000000000000000000000";
             }
-
+            //TO DO! find full duplicates (docs with identical bin content) and thus decide
+            //whether to add a new full record (st_ItemDocumentBinInsert) or not (to be written SP)
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
