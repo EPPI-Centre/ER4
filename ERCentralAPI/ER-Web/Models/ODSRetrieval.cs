@@ -349,7 +349,7 @@ namespace BusinessLibrary.BusinessClasses
             foreach (string concept in query.GetValues("concept") ?? [])
                 parts.Add("concept=" + Uri.EscapeDataString(concept));
 
-            parts.Add("page=1");
+            //parts.Add("page=1");
 
             if (!hasQ)
                 parts.Add("sort=-publication_year");

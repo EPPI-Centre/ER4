@@ -243,6 +243,17 @@ export class ODSSearchComponent implements OnInit, OnDestroy {
           this.WizPhase = 2;
         }
     }
+    isEvidenceRepositoryUrl(input: string): boolean {
+  const trimmed = (input ?? '').trim();
+  if (!trimmed || /\s/.test(trimmed)) return false; // reject any internal whitespace
+  try {
+    const { protocol, hostname } = new URL(trimmed);
+    return (protocol === 'https:' || protocol === 'http:') &&
+      (hostname === 'evidence-repository.org' || hostname.endsWith('.evidence-repository.org'));
+  } catch {
+    return false;
+  }
+}
 
 
 
