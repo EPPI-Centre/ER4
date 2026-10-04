@@ -216,22 +216,21 @@ export class ReviewService extends BusyAwareService {
 
     public async InviteReviewer(reviewerEmail: string): Promise<boolean> {
       let res = await this.AddNewReviewer(reviewerEmail);
-      // res = 0 - everything OK
-      // res = 1 - email not found
-      // res = 2 - there is more than 1 account with this email address
-      // res = 3 - API call failed, error has been shown already
+      // res = 0 - user is already in the review (from st_ReviewAddMember)
+      // res = 1 - everything is OK (from st_ReviewAddMember)
+      // res = 2 - email not found (from st_ContactDetailsEmail)
 
-      if (res == 0) {
+      if (res == 1) {
         return true;
       }
       else {
-        if (res == 1) {
+        if (res == 2) {
           this.modalService.GenericErrorMessage("This email was not found in the database.<br>" +
             "Are sure an EPPI-Reviewer account exists with this email address?<br>" +
             "New accounts can be created in the ACCOUNT MANAGER, found at " +
             "<a href=\"https://eppi.ioe.ac.uk/cms/er4 \"target=\"_blank\">https://eppi.ioe.ac.uk/cms/er4</a>");
-        } else if (res == 2) {
-          this.modalService.GenericErrorMessage("There is more than 1 account with this email address.<br>Please contact EPPISupport@ucl.ac.uk for assistance.");
+        } else if (res == 0) {
+          this.modalService.GenericErrorMessage("This reviewer is already in this review. Please reload this page to update the list of reviewers.");
         }
         return false;
       }

@@ -724,11 +724,26 @@ public partial class ReviewDetails : System.Web.UI.Page
     {
         if (Utils.GetSessionString("variableID") != "")
         {
-            if (Utils.GetSessionString("variableID") != "")
+            int ContactId, ReviewId;
+            if (int.TryParse(Utils.GetSessionString("variableID"), out ContactId)
+                && int.TryParse(lblReviewID.Text, out ReviewId)
+                )
             {
                 bool isAdmDB = true;
-                Utils.ExecuteSP(isAdmDB, Server, "st_ReviewAddContact",
-                     lblReviewID.Text, Utils.GetSessionString("variableID"), lblER3ReviewID.Text);
+                SqlParameter[] paramList = new SqlParameter[3];
+                //@REVIEW_ID int,
+                //@CONTACT_ID int,
+                //@result int output
+
+                paramList[0] = new SqlParameter("@REVIEW_ID", SqlDbType.Int);
+                paramList[0].Value = ReviewId;
+                paramList[1] = new SqlParameter("@CONTACT_ID", SqlDbType.Int);
+                paramList[1].Value = ContactId;
+                paramList[2] = new SqlParameter("@result", SqlDbType.Int);
+                paramList[2].Value = 0;
+                paramList[2].Direction = ParameterDirection.Output;
+                Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_ReviewAddMember",
+                     paramList);//this won't add the same member twice, but here we don't check if it did/did not make changes
             }
             Utils.SetSessionString("variableID", "");
             buildGrid();

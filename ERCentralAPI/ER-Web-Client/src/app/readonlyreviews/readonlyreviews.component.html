@@ -81,19 +81,21 @@
                 </ng-template>
             </kendo-grid-column>
             <kendo-grid-column field="lastAccess" [style]="{'width':'145px', 'padding':'0.30rem'}" [headerStyle]="{'width':'145px'}" title="Last Access:">
-                <ng-template kendoGridCellTemplate let-dataItem >
-                    <div *ngIf="dataItem.isLocal">
-                        {{FormatDate(dataItem.lastAccess)}}
-                    </div>
-                    <button *ngIf="!dataItem.isLocal" title="Activate: creates a record for this review in the EPPI-Reviewer database"
-                             [disabled]="dataItem.reviewName == 'Place holder: no real reviews are in this list'"
-                            class="btn btn-sm btn-outline-danger" (click)="ConfirmActivate(dataItem)">Activate</button>
-                </ng-template>
+              <ng-template kendoGridCellTemplate let-dataItem>
+                <div *ngIf="dataItem.isLocal">
+                  {{FormatDate(dataItem.lastAccess)}}
+                </div>
+                <button *ngIf="!dataItem.isLocal" title="Activate: creates a record for this review in the EPPI-Reviewer database"
+                        [disabled]="dataItem.reviewName == 'Place holder: no real reviews are in this list'"
+                        class="btn btn-sm btn-outline-danger" (click)="ConfirmActivate(dataItem)">
+                  Activate
+                </button>
+              </ng-template>
             </kendo-grid-column>
             <kendo-grid-column [style]="{'max-width':'220px', 'min-width':'95px', 'width':'200px', 'padding':'0.30rem'}" 
-                               [headerStyle]="{'max-width':'220px', 'width':'200px', 'min-width':'95px'}" title="Archie IDs:">
+                               [headerStyle]="{'max-width':'220px', 'width':'200px', 'min-width':'95px'}" title="Cochrane IDs:">
                 <ng-template kendoGridCellTemplate let-dataItem let-rowIndex="rowIndex">
-                    Archie ID {{dataItem.archieReviewId}}<br />
+                    ID: {{dataItem.archieReviewId}}<br />
                     CD: {{dataItem.archieReviewCD}}
                 </ng-template>
             </kendo-grid-column>
