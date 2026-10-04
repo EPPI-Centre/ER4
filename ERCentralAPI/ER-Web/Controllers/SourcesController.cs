@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using System;
 using System.Collections.Generic;
+using System.Composition;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -299,6 +300,76 @@ namespace ERxWebClient2.Controllers
 
         }
 
+        [EnableRateLimiting("HighCostEndpoints")]
+        [HttpPost("[action]")]
+        public IActionResult NewODSRetrievalPreview([FromBody] SingleStringCriteria UrlSt)
+        {
+            //called the first time we run a given search (assumed new search string)
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<ODSRetrieval> dp = new DataPortal<ODSRetrieval>();
+                    ODSRetrieval res = dp.Fetch(new SingleCriteria<ODSRetrieval, string>(UrlSt.Value));
+                    //if (FullRes.Count > 100)
+                    //{//send back only 100 results...
+                    //    res.incomingItems = FullRes.GetRange(0, 100);
+                    //}
+                    //else
+                    //{
+                    //    res.incomingItems = FullRes;
+                    //}
+                    return Ok(res);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "New Evidence Repository Retrieval Preview error");
+                return StatusCode(500, e.Message);
+            }
+
+        }
+
+        [EnableRateLimiting("MaxCostEndpoints")]
+        [HttpPost("[action]")]
+        public IActionResult ActOnODSRetrievalPreview([FromBody] ODSRetrievalJSON OdsRetrievalJSON)
+        {
+            //called to fetch a different subset of results in existing search OR to save(import) the search
+            //difference is in the values of ShowStart/End and SaveStart/End.
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ODSRetrieval res = new ODSRetrieval();
+                    res.QueMax = OdsRetrievalJSON.queMax;
+                    res.UrlStr = OdsRetrievalJSON.urlStr;
+                    res.saveEnd = OdsRetrievalJSON.saveEnd;
+                    res.saveStart = OdsRetrievalJSON.saveStart;
+                    res.showEnd = OdsRetrievalJSON.showEnd;
+                    res.showStart = OdsRetrievalJSON.showStart;
+                    res.Summary = OdsRetrievalJSON.summary;
+                    res.ItemsList = new IncomingItemsList();
+                    res.ItemsList.IsIncluded = true;
+                    res.ItemsList.SourceName = OdsRetrievalJSON.ItemsList.SourceName;
+                    res.ItemsList.SearchDescr = OdsRetrievalJSON.ItemsList.SearchDescr;
+                    res.ItemsList.SearchStr = OdsRetrievalJSON.urlStr;
+                    res.ItemsList.SourceDB = OdsRetrievalJSON.ItemsList.SourceDB;
+                    res.ItemsList.DateOfImport = OdsRetrievalJSON.ItemsList.DateOfImport == new DateTime() ? DateTime.Now : OdsRetrievalJSON.ItemsList.DateOfImport;
+                    res.ItemsList.DateOfSearch = OdsRetrievalJSON.ItemsList.DateOfSearch == new DateTime() ? DateTime.Now : OdsRetrievalJSON.ItemsList.DateOfSearch;
+                    res = res.Save();
+                    return Ok(res);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Act on Evidence Repository Retrieval (import or fetch specific subset) error");
+                return StatusCode(500, e.Message);
+            }
+
+        }
+
 
         private FilterRules GetFilterRules(string FilterName, out int RuleID)
         {
@@ -444,5 +515,16 @@ namespace ERxWebClient2.Controllers
         public string importWhat { get; set; } = "";
         public string fileName { get; set; } = "";
     }
-}
 
+    public class ODSRetrievalJSON
+    {
+        public string urlStr = "";
+        public int queMax = 0;
+        public int showStart = 0;
+        public int showEnd = 0;
+        public int saveStart = 0;
+        public int saveEnd = 0;
+        public string summary = "";
+        public IncomingItemsList ItemsList = new IncomingItemsList();
+    }
+}

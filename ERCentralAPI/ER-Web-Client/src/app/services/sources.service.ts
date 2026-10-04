@@ -42,7 +42,9 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
   @Output() SourceUpdated = new EventEmitter();
   @Output() SourceDeleted = new EventEmitter<number>();
   @Output() gotPmSearchToCheck = new EventEmitter();
+  @Output() gotOdsRetrievalToCheck = new EventEmitter();
   @Output() PubMedSearchImported = new EventEmitter();
+  @Output() ODSRetrievalImported = new EventEmitter();
 
   private _PerSourceReport: boolean = true;
   private _ReviewSources: ReadOnlySource[] = [];
@@ -69,6 +71,10 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
   public get CurrentPMsearch(): PubMedSearch | null {
     return this._CurrentPMsearch;
   }
+  private _CurrentODSRetrieval: ODSRetrieval | null = null;
+  public get CurrentODSRetrieval(): ODSRetrieval | null {
+    return this._CurrentODSRetrieval;
+  }
 
   public ClearIncomingItems4Checking() {
     this._IncomingItems4Checking = null;
@@ -76,6 +82,10 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
   }
   public ClearPMsearchState() {
     this._CurrentPMsearch = null;
+    this._LastUploadOrUpdateStatus = "";
+  }
+  public ClearOdsRetrievalState() {
+    this._CurrentODSRetrieval = null;
     this._LastUploadOrUpdateStatus = "";
   }
 
@@ -351,6 +361,7 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
     this._SomeSourceIsBeingDeleted = false;
     this.ClearIncomingItems4Checking();
     this.ClearPMsearchState();
+    this.ClearOdsRetrievalState();
     this.StopSourcesReport();
   }
   public static LimitedAuthorsString(IncomingItemAuthors: IncomingItemAuthor[]): string {
@@ -647,6 +658,57 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
         return false;
       });
   }
+
+  // ************************** ODS SOURCE **********************************************
+
+  public FetchNewODSRetrieval(UrlString: string) {
+    if (UrlString.trim().length < 2) return;
+    this._BusyMethods.push("FetchNewODSRetrieval");
+    let body = JSON.stringify({ Value: UrlString.trim() });
+    lastValueFrom(this._httpC.post<ODSRetrieval>(this._baseUrl + 'api/Sources/NewODSRetrievalPreview', body)).then(result => {
+      this._CurrentODSRetrieval = result;
+      //this.gotSource.emit();
+    }, error => {
+      this.RemoveBusy("FetchNewODSRetrieval");
+      this.modalService.GenericError(error);
+    }).finally(() => {
+        this.gotOdsRetrievalToCheck.emit();
+        this.RemoveBusy("FetchNewODSRetrieval");
+      }
+    );
+  }
+
+
+  public ActOnODSRetrieval(odsRetr: ODSRetrieval) {
+    this._BusyMethods.push("ActOnODSRetrieval");
+    //same logic as ER4 to figure if we're doing the import or just getting some results to show.
+    let IsGettingAPreview: boolean = (odsRetr.showEnd != 0 && odsRetr.showStart <= odsRetr.showEnd && odsRetr.saveEnd == 0 && odsRetr.saveStart == 0);
+    let body = JSON.stringify(odsRetr);
+    lastValueFrom(this._httpC.post<ODSRetrieval>(this._baseUrl + 'api/Sources/ActOnODSRetrievalPreview', body)).then(result => {
+      this._CurrentODSRetrieval = result;
+      this._LastUploadOrUpdateStatus = "Success";
+      this.RemoveBusy("ActOnODSRetrieval");
+      if (!IsGettingAPreview) this.FetchSources();
+    }, error => {
+      console.log("something went wrong: ", error);
+      this.RemoveBusy("ActOnODSRetrieval");
+      this.ODSRetrievalImported.emit();
+      this._LastUploadOrUpdateStatus = "Error";
+    }).finally(() => {
+        if (IsGettingAPreview) {
+          //we're getting a different preview
+          this.gotOdsRetrievalToCheck.emit();
+        } else {//importing
+          this.ODSRetrievalImported.emit();
+        }
+        this.RemoveBusy("ActOnODSRetrieval");
+      }
+    );
+  }
+
+  // ********************************* END ODS SOURCE ****************************************
+
+
 }
 export interface Source {
   source_ID: number;
@@ -740,4 +802,24 @@ export interface iJSONreport4upolad {
   importWhat: string;
   fileName: string;
   returnMessage: string;
+}
+
+export interface ODSRetrieval {
+  urlStr: string;
+  queMax: number;
+  showStart: number;
+  showEnd: number;
+  saveStart: number;
+  saveEnd: number;
+  summary: string;
+  itemsList: ODSIncomingItems;
+}
+export interface ODSIncomingItems {
+  sourceName: string;
+  incomingItems: IncomingItem[];
+  notes: string;
+  searchDescr: string;
+  sourceDB: string;
+  dateOfSerach: string;
+  dateOfImport: string;
 }

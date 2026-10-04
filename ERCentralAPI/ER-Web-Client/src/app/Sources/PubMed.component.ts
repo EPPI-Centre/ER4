@@ -107,7 +107,7 @@ export class PubMedComponent implements OnInit, OnDestroy {
     }
     AdjustedMax(): number {
         if (this._DataToCheck) {
-            return this._DataToCheck.queMax > 10000 ? this._DataToCheck.queMax : this._DataToCheck.queMax ;
+            return this._DataToCheck.queMax > 10000 ? 10000 : this._DataToCheck.queMax ;
         }
         else return 1;
     }

@@ -18,9 +18,11 @@
             <button type="button" class="btn btn-primary m-1" [disabled]="NewSearchString.trim().length < 2" (click)="DoNewSearch()">Search PubMed</button>
         </form>
     </div>
+
     <div *ngIf="WizPhase==1.5">
         Phase 1.5: uploading <button (click)="back()">back/cancel</button> <br />
     </div>
+
     <div *ngIf="WizPhase==2" class="row m-0">
         <div class="col-12">
 			<div class="col-12">Step 2: Preview and import</div>
