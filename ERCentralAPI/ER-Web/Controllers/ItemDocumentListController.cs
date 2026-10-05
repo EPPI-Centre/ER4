@@ -313,14 +313,14 @@ namespace ERxWebClient2.Controllers
 
         [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
-        public IActionResult DeleteDoc([FromBody] SingleInt64Criteria id)
+        public IActionResult DeleteDoc([FromBody] DeleteDoc deleteDoc)
         {
 
             try
             {
                 if (SetCSLAUser4Writing())
                 {
-                    ItemDocumentDeleteCommand cmd = new ItemDocumentDeleteCommand(id.Value);
+                    ItemDocumentDeleteCommand cmd = new ItemDocumentDeleteCommand(deleteDoc.itemDocumentID, deleteDoc.itemID);
                     DataPortal<ItemDocumentDeleteCommand> dp = new DataPortal<ItemDocumentDeleteCommand>();
                     cmd = dp.Execute(cmd);
 
@@ -333,7 +333,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error when Deleting uploaded Document: {0}", id.Value);
+                _logger.LogError(e, "Error when Deleting uploaded Document: {0}", deleteDoc.itemDocumentID);
                 return StatusCode(500, e.Message);
             }
         }
@@ -342,6 +342,11 @@ namespace ERxWebClient2.Controllers
     {
         public long itemID { get; set; }
         public IFormFile[] files { get; set; } 
+    }
+    public class DeleteDoc
+    {
+        public long itemID { get; set; }
+        public long itemDocumentID { get; set; }
     }
 }
 

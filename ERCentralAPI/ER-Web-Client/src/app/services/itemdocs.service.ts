@@ -137,26 +137,26 @@ export class ItemDocsService extends BusyAwareService   {
 
     }
 
-    DeleteItemDoc(ID: number) {
+  DeleteItemDoc(docId: number, itemId: number) {
 
-		this._BusyMethods.push("DeleteItemDoc");
-        let ErrMsg = "Something went wrong when deleting the document. \r\n If the problem persists, please contact EPPISupport.";
-        let body = JSON.stringify({ Value: ID });
-        this._httpC.post(this._baseUrl + 'api/ItemDocumentList/DeleteDoc', body).subscribe(
-                (result) => {
-					console.log(result);
-					this.Refresh();
-					this.RemoveBusy("DeleteItemDoc");
-                }
-                , (error) => {
-                    this.modalService.GenericErrorMessage(ErrMsg);
-                    console.log(error);
-					this.Refresh();
-					this.RemoveBusy("DeleteItemDoc");
-                }
-            );
+    this._BusyMethods.push("DeleteItemDoc");
+    let ErrMsg = "Something went wrong when deleting the document. \r\n If the problem persists, please contact EPPISupport.";
+    let body = JSON.stringify({ itemDocumentID: docId, itemID: itemId });
+    lastValueFrom(this._httpC.post(this._baseUrl + 'api/ItemDocumentList/DeleteDoc', body)).then(
+      (result) => {
+        console.log(result);
+        this.Refresh();
+        this.RemoveBusy("DeleteItemDoc");
+      }
+      , (error) => {
+        this.modalService.GenericErrorMessage(ErrMsg);
+        console.log(error);
+        this.Refresh();
+        this.RemoveBusy("DeleteItemDoc");
+      }
+    );
 
-    }
+  }
     
     //public Save() {
     //    if (this._itemDocs != null)
