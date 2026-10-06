@@ -11,9 +11,6 @@ using Csla.Silverlight;
 using System.ComponentModel;
 using Csla.DataPortalClient;
 using System.Threading;
-using static System.Net.Mime.MediaTypeNames;
-using Azure;
-using Microsoft.AspNetCore.Mvc;
 
 #if!SILVERLIGHT
 using System.Data.SqlClient;
@@ -116,8 +113,33 @@ namespace BusinessLibrary.BusinessClasses
             }
             else
             {
-                _documentText = ImportItems.ImportRefs.StripIllegalChars(res.SimpleText);
+                _documentText = ImportItems.ImportRefs.StripIllegalChars(res.SimpleText, true);
                 _documentText = _documentText.Replace("\r\n", "\n");
+                //char[] chars = [ (char)1
+                //        , '|', (char)2
+                //        , '|', (char)7
+                //        , '|', (char)16
+                //        , '|', (char)17
+                //        , '|', (char)21
+                //        , '|', (char)23
+                //        , '|', (char)12
+                //        , '|', (char)30
+                //        , '|', (char)31 ];
+                //string test = "this is some string" + new string(chars)
+                //    + "this is some string " + new string(chars)
+                //    + " this is some string " + new string(chars)
+                //    + " this is some string " + new string(chars)
+                //    + " this is some string " + new string(chars)
+                //    + " this is some string " + new string(chars)
+                //    + " this is some string " + new string(chars)
+                //    + " this is some string " + new string(chars)
+                //    + " this is some string.";
+                //string test2 = test;
+                //test = ImportItems.ImportRefs.StripIllegalChars(test, true);
+                //if (test != test2)
+                //{
+                //    Console.WriteLine("YAY!!");
+                //}
             }
             if (_documentText.Length > 200) hashed = HashString(_documentText);
             else
@@ -164,7 +186,7 @@ namespace BusinessLibrary.BusinessClasses
                                     CandidateBin = (byte[])reader["DOCUMENT_BINARY"];
                                 }
                                 if (_docbin.Length == CandidateBin.Length
-                                    && _docbin == CandidateBin
+                                    && _docbin.SequenceEqual(CandidateBin)
                                     )
                                 {//we found a match
                                     break;
@@ -199,7 +221,7 @@ namespace BusinessLibrary.BusinessClasses
                         command.Parameters.Add(new SqlParameter("@REVIEW_ID", RevId));
                         command.Parameters.Add(new SqlParameter("@DOCUMENT_TITLE", _documentTitle));
                         command.Parameters.Add(new SqlParameter("@BIN", System.Data.SqlDbType.Image));
-                        command.Parameters[2].Value = System.DBNull.Value;
+                        command.Parameters["@BIN"].Value = System.DBNull.Value;
                         command.Parameters.Add(new SqlParameter("@DOCUMENT_EXTENSION", _documentExtension));
                         command.Parameters.Add(new SqlParameter("@DOCUMENT_TEXT", _documentText));
                         command.Parameters.Add(new SqlParameter("@ZoteroKey", _ZoteroKey));

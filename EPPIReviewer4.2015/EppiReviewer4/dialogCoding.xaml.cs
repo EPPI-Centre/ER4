@@ -1271,7 +1271,7 @@ namespace EppiReviewer4
         {
             bool warn = false;
             windowConfirmDocDelete.cmdDeleteDoc.Tag = (sender as Button).Tag;
-            ItemDocumentDeleteWarningCommand cmd = new ItemDocumentDeleteWarningCommand((long)windowConfirmDocDelete.cmdDeleteDoc.Tag);
+            ItemDocumentDeleteWarningCommand cmd = new ItemDocumentDeleteWarningCommand((long)windowConfirmDocDelete.cmdDeleteDoc.Tag, (DataContext as Item).ItemId);
             DataPortal<ItemDocumentDeleteWarningCommand> dp = new DataPortal<ItemDocumentDeleteWarningCommand>();
             dp.ExecuteCompleted += (o, e2) =>
             {
@@ -1315,7 +1315,7 @@ namespace EppiReviewer4
         private void cmdDeleteDoc_Click(object sender, RoutedEventArgs e)
         {
             DataPortal<ItemDocumentDeleteCommand> dp = new DataPortal<ItemDocumentDeleteCommand>();
-            ItemDocumentDeleteCommand command = new ItemDocumentDeleteCommand((long)((sender as Button).Tag));
+            ItemDocumentDeleteCommand command = new ItemDocumentDeleteCommand((long)((sender as Button).Tag), (DataContext as Item).ItemId);
             dp.ExecuteCompleted += (o, e2) =>
             {
                 if (e2.Error != null)

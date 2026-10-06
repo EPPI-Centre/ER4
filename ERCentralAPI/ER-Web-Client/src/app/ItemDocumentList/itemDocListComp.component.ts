@@ -118,7 +118,7 @@ export class ItemDocListComp implements OnInit, OnDestroy {
     };
   }
   public DeleteDoc(DocId: number) {
-    this.ItemDocsService.DeleteDocWarning(DocId).then(
+    this.ItemDocsService.DeleteDocWarning(DocId, this.itemID).then(
       //errors are handled within the service (will return -1 if anything went wrong...)
       (result) => {
         if (result >= 0) this.DoDeleteDoc(DocId, result);

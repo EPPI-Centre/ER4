@@ -9,7 +9,6 @@ using Csla.Serialization;
 using Csla.Silverlight;
 //using Csla.Validation;
 using Csla.DataPortalClient;
-using static System.Net.Mime.MediaTypeNames;
 
 #if!SILVERLIGHT
 using System.Data.SqlClient;

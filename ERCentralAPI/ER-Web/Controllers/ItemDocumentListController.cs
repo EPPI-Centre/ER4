@@ -286,7 +286,7 @@ namespace ERxWebClient2.Controllers
 
         // DELETE WARNING COMMAND OBJECT
         [HttpPost("[action]")]
-        public IActionResult DeleteDocWarning([FromBody] SingleInt64Criteria id)
+        public IActionResult DeleteDocWarning([FromBody] DeleteDoc crit)
         {
 
             try
@@ -294,7 +294,7 @@ namespace ERxWebClient2.Controllers
                 if (SetCSLAUser4Writing())
                 {
                     DataPortal<ItemDocumentDeleteWarningCommand> dp = new DataPortal<ItemDocumentDeleteWarningCommand>();
-                    ItemDocumentDeleteWarningCommand command = new ItemDocumentDeleteWarningCommand(id.Value);
+                    ItemDocumentDeleteWarningCommand command = new ItemDocumentDeleteWarningCommand(crit.itemDocumentID, crit.itemID);
                     command = dp.Execute(command);
                     return Ok(command.NumCodings);
                 }
@@ -305,7 +305,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error when delete doc warning is called: {0}", id.Value);
+                _logger.LogError(e, "Error when delete doc warning is called: {0}", crit.itemDocumentID);
                 return StatusCode(500, e.Message);
             }
 

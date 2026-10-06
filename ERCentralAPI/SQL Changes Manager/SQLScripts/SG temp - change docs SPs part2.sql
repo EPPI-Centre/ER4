@@ -288,7 +288,7 @@ ALTER procedure [dbo].[st_ItemDocumentBinInsert]
 	@REVIEW_ID INT,
 	@DOCUMENT_TITLE NVARCHAR(255),
 	@DOCUMENT_EXTENSION NVARCHAR(5),
-	@BIN IMAGE,
+	@BIN IMAGE = null,
 	@DOCUMENT_TEXT NVARCHAR(MAX),
 	@ZoteroKey NVARCHAR(50) = '',
 	@HashString char(42),

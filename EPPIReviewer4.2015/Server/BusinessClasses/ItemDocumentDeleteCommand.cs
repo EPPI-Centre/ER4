@@ -10,9 +10,6 @@ using Csla.Silverlight;
 //using Csla.Validation;
 using System.ComponentModel;
 using Csla.DataPortalClient;
-using System.Threading;
-using Microsoft.CodeAnalysis.Elfie.Serialization;
-using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using Csla.Data;
 
 #if!SILVERLIGHT
@@ -51,7 +48,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             base.OnGetState(info, mode);
             info.AddValue("_DocumentId", _DocumentId);
-            info.AddValue("_ItemDocumentId", _ItemId);
+            info.AddValue("_ItemId", _ItemId);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
@@ -78,7 +75,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@RevID", RevId));
                     command.Parameters.Add(new SqlParameter("@IsLast", System.Data.SqlDbType.Bit));
                     command.Parameters["@IsLast"].Direction = System.Data.ParameterDirection.Output;
-                    command.Parameters.Add(new SqlParameter("@Extension", System.Data.SqlDbType.Bit));
+                    command.Parameters.Add(new SqlParameter("@Extension", System.Data.SqlDbType.NVarChar, 5));
                     command.Parameters["@Extension"].Direction = System.Data.ParameterDirection.Output;
                     command.ExecuteNonQuery();
                     if (command.Parameters["@IsLast"].Value != null && (bool)command.Parameters["@IsLast"].Value == true)

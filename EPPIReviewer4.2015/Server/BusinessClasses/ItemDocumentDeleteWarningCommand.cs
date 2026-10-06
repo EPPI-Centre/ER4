@@ -24,14 +24,26 @@ namespace BusinessLibrary.BusinessClasses
     public class ItemDocumentDeleteWarningCommand : CommandBase<ItemDocumentDeleteWarningCommand>
     {
         public ItemDocumentDeleteWarningCommand() { }
+        public ItemDocumentDeleteWarningCommand(long docId, long itemId) {
+            _ItemId = itemId;
+            _DocumentId = docId;        
+        }
 
-        private Int64 _docId;
+        
         private int _numCodings;
 
 
-        public ItemDocumentDeleteWarningCommand(Int64 docId)
+        private Int64 _DocumentId;
+
+        public Int64 DocumentId
         {
-            _docId = docId;
+            get { return _DocumentId; }
+        }
+        private Int64 _ItemId;
+
+        public Int64 ItemId
+        {
+            get { return _ItemId; }
         }
 
         public int NumCodings
@@ -42,12 +54,14 @@ namespace BusinessLibrary.BusinessClasses
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
             base.OnGetState(info, mode);
-            info.AddValue("_docId", _docId);
+            info.AddValue("_DocumentId", _DocumentId);
+            info.AddValue("_ItemId", _ItemId);
             info.AddValue("_numCodings", _numCodings);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
-            _docId = info.GetValue<Int64>("_docId");
+            _ItemId = info.GetValue<Int64>("_ItemId");
+            _DocumentId = info.GetValue<Int64>("_DocumentId");
             _numCodings = info.GetValue<int>("_numCodings");
         }
 
@@ -67,7 +81,8 @@ namespace BusinessLibrary.BusinessClasses
                     output.Direction = System.Data.ParameterDirection.Output;
                     command.Parameters.Add(output);
 
-                    command.Parameters.Add(new SqlParameter("@ITEM_DOCUMENT_ID", _docId));
+                    command.Parameters.Add(new SqlParameter("@ITEM_DOCUMENT_ID", _DocumentId));
+                    command.Parameters.Add(new SqlParameter("@ITEM_ID", _ItemId));
                     command.ExecuteNonQuery();
                     int? tmp = output.Value as int?;
                     if (tmp == null) _numCodings = 0;
