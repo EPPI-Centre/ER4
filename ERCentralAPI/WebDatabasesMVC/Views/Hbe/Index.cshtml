@@ -1,0 +1,2068 @@
+﻿<!-- DHSC Home -->
+@model WebDbWithRevInfo;
+@using WebDatabasesMVC.ViewModels;
+@using Microsoft.AspNetCore.Html;
+@using System.IO;
+@using System.Security.Claims;
+@using Newtonsoft.Json;
+@using Newtonsoft.Json.Serialization;
+
+@{
+    Claim WebDbIDclaim = User.FindFirst("WebDbID");
+    string imgPath1 = "";
+    string imgPath2 = "";
+    bool smallPhone = false;
+
+    //string imgMapPath1 = "";
+    if (WebDbIDclaim != null)
+    {
+        var service = Context.RequestServices.GetService(typeof(Microsoft.AspNetCore.Hosting.IWebHostEnvironment)) as Microsoft.AspNetCore.Hosting.IWebHostEnvironment;
+        string absolutePath = service.WebRootPath + "\\HeaderImages\\";
+        if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-1.jpg")) imgPath1 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-1.jpg");
+        else if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-1.png")) imgPath1 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-1.png");
+        if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-2.jpg")) imgPath2 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-2.jpg");
+        else if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-2.png")) imgPath2 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-2.png");
+        //if (System.IO.File.Exists(absolutePath + "ImgMap-" + WebDbIDclaim.Value + "-1.jpg")) imgMapPath1 = Url.Content("~/HeaderImages/ImgMap-" + WebDbIDclaim.Value + "-1.jpg");
+        //else if (System.IO.File.Exists(absolutePath + "ImgMap-" + WebDbIDclaim.Value + "-1.png")) imgMapPath1 = Url.Content("~/HeaderImages/ImgMap-" + WebDbIDclaim.Value + "-1.png");
+    }
+}
+
+
+<style>
+    .fieldlist {
+        margin: 0 0 -1em;
+        padding: 0;
+        color: black;
+    }
+
+    .fieldlist li {
+        list-style: none;
+        padding-bottom: 1em;
+        color:black;
+      
+    }
+
+    .disabledFilterDiv {
+        pointer-events: none;
+        opacity: 0.4;
+    }
+
+</style>
+
+
+<script>
+
+
+
+    // declare some global variables
+    var documentData;
+    var SavedCodingData = [];
+
+    var visualHTML = "";
+    var globalCounter = 0;
+    var itemCounter = 0;
+    var attributeIdFilter = 0;
+
+    // slider settings
+    var qualityMin = 0;
+    var qualityMax = 5;
+    var strengthMin = 0;
+    var strengthMax = 5;
+    var volumeMin = 1;
+    var volumeMax = 5;
+
+    // checkbox settings
+    var cbOutcomes = "";
+    var cbExposures = "";
+
+    var searchFor = "";
+
+    // default colours blueish tints of #68b4f2
+    var topColourBlue = "#a4d2f7";
+    var topColourRed = "#f8cbc7";
+    var topColourGreen = "#9ad68c";
+    var topColourOrange = "#ffd29a";
+    var topColourPurple = "#ada9e4";
+    var botColour = "#d1e8fb";
+    //var offIcons = "#68b4f2";
+    var offIcons = "#e9ecef";
+    var headerSectionColour = "background: linear-gradient(to right, #0099ff 0%, #3366cc 100%);";
+
+    //var qualityslider;
+    var loadingDiv;
+
+    $(document).ready(function () {
+
+     loadingDiv = $("#loadingDiv");
+        const descrPanel = $("#WebDBDescription");
+        if (sessionStorage.getItem("HideShowDescription") == "Yes") {
+            $("#ExpandDescription").hide();
+            $("#ReduceDescription").hide();
+            $("#WebDBDescriptionBody").hide();
+            $("#ShowHideDescriptionDivIcon")[0].className = "fa fa-plus";
+        }
+        else {
+            if (descrPanel && descrPanel.height() > 300) {
+                //ExpandDescription ReduceDescription
+                $("#ExpandDescription").show();
+                $("#ReduceDescription").hide();
+                $("#HideDescriptionDiv").show();
+                $("#ShowDescriptionDiv").hide();
+                descrPanel.css("max-height", "250px");
+            } else {
+                $("#ExpandDescription").hide();
+                $("#ReduceDescription").hide();
+            }
+        }
+
+
+        // reset variables on document load
+        visualHTML = "";
+        globalCounter = 0;
+        qualityMin = 0;
+        qualityMax = 5;
+        strengthMin = 0;
+        strengthMax = 5;
+        volumeMin = 1;
+        volumeMax = 5;
+        cbOutcomes = "";
+        cbExposures = "";
+        searchFor = "";
+
+
+        $("#smallPhoneButton").hide();
+        if ($(window).outerWidth() <= 325) {
+            $("#smallPhoneButton").show();
+        }
+
+
+        if (sessionStorage.getItem("ColourThemeSet") == "Yes") {
+            var colourTheme = sessionStorage.getItem("ColourTheme")
+            var element = document.getElementById("headerDiv");
+
+            switch (colourTheme) {
+
+                case '1': // blueish Tints of #68b4f2
+                    topColour = "#a4d2f7";
+                    botColour = "#d1e8fb";
+                    offIcons = "#68b4f2";                                  
+                    headerSectionColour = "linear-gradient(to right, #0099ff 0%, #3366cc 100%)";
+                    break;
+
+                case '2': // reddish like YEF
+                    topColour = "#f8cbc7";
+                    botColour = "#fbe2e0";
+                    offIcons = "#f0847b";
+                    headerSectionColour = "linear-gradient(to right, #ff6666 0%, #ff0000 100%)";
+                    break;
+
+                case '3': // greenish Tints of #57bc40
+                    topColour = "#9ad68c";
+                    botColour = "#cceac5";
+                    offIcons = "#57bc40";
+                    headerSectionColour = "linear-gradient(to right, #33cc33 0%, #009900 100%)";
+                    break;
+
+                case '4': // orangish Tints of #ffb558
+                    topColour = "#ffd29a";
+                    botColour = "#ffe8cc";
+                    offIcons = "#ffb558";
+                    headerSectionColour = "linear-gradient(to right, #ffcc00 0%, #ff9900 100%)";
+                    break;
+
+                case '5': // purplish Tints of #7770d3
+                    topColour = "#ada9e4";
+                    botColour = "#d6d4f1";
+                    offIcons = "#7770d3";
+                    headerSectionColour = "linear-gradient(to right, #9966ff 0%, #6600ff 100%)";
+                    break;
+
+                default:
+                    break;
+            }
+            element.style["background"] = headerSectionColour;
+        } 
+
+        GetDocumentAndCodingData();
+
+        BuildSliderFilters();
+
+    });
+
+    function GoToHbeItemDetails(ItemId) {
+
+        let pars = { itemID: ItemId, itemIds: attributeIdFilter };
+        postwith(pathRoot + "ItemList/HbeItemDetails", pars);
+
+    };
+
+
+    function enableSearch() {
+        if (document.getElementById("SearchString").value === "") {
+            document.getElementById('searchButton').disabled = true;
+        } else {
+            document.getElementById('searchButton').disabled = false;
+        }
+    }
+
+
+    function searchRecords(searchString) 
+    {
+        console.log("search", searchString.value);
+        searchFor = searchString.value;
+
+        // on a search we want to clear all of the filters
+        // as the search is on everything.
+
+        qualityMin = 0;
+        qualityMax = 5;
+        strengthMin = 0;
+        strengthMax = 5;
+        volumeMin = 1;
+        volumeMax = 5;
+        cbOutcomes = "";
+        cbExposures = "";
+
+        visualHTML = "";
+        globalCounter = 0;
+
+        //itemData(documentData, "success");
+        updateByFilter();
+
+
+        // move the sliders back to the starting positions
+        var qualitySlider = $("#qualitySlider").getKendoRangeSlider();
+        qualitySlider.value([qualityMin, qualityMax]);
+        var strengthSlider = $("#strengthSlider").getKendoRangeSlider();
+        strengthSlider.value([strengthMin, strengthMax]);
+        var qualitySlider = $("#qualitySlider").getKendoRangeSlider();
+        qualitySlider.value([qualityMin, qualityMax]);
+        var volumeSlider = $("#volumeSlider").getKendoRangeSlider();
+        volumeSlider.value([volumeMin, volumeMax]);
+
+        // uncheck all of the check boxes.
+        uncheckAllCheckboxes();
+        
+        //$.post("../ItemList/GetFreqListJSon"
+        //    , { attId: attributeIdFilter, attName: 'test' }
+        //    , function (data, result) { itemData(data, result); }
+        //);
+
+
+    }
+
+
+    function uncheckAllCheckboxes() {
+        var element = document.getElementById("cbAirPollution");
+        element.checked = false;
+        element = document.getElementById("cbNoise");
+        element.checked = false;
+        element = document.getElementById("cbFoodEnvironment");
+        element.checked = false;
+        element = document.getElementById("cbGreenspaceGardensAndNature");
+        element.checked = false;
+        element = document.getElementById("cbTransportInfrastructure");
+        element.checked = false;
+        element = document.getElementById("cbWalkabilityAndLandUse");
+        element.checked = false;
+        element = document.getElementById("cbNeighbourhoodDisorder");
+        element.checked = false;
+        element = document.getElementById("cbLight");
+        element.checked = false;
+        element = document.getElementById("cbRetailEnvironment");
+        element.checked = false;
+        element = document.getElementById("cbHousing");
+        element.checked = false;
+        element = document.getElementById("cbPhysicalHealth");
+        element.checked = false;
+        element = document.getElementById("cbHealthRiskFactors");
+        element.checked = false;
+        element = document.getElementById("cbHealthBehaviours");
+        element.checked = false;
+        element = document.getElementById("cbMentalHealthAndWellBeing");
+        element.checked = false;        
+    }
+
+
+
+
+    function changeColour(value) {
+        var element = document.getElementById("headerDiv");
+        switch (value) {
+
+            case '1': // blueish Tints of #68b4f2
+                topColour = "#a4d2f7";
+                botColour = "#d1e8fb";
+                offIcons = "#68b4f2";
+                headerSectionColour = "linear-gradient(to right, #0099ff 0%, #3366cc 100%)";
+                break;
+
+            case '2': // reddish like YEF
+                topColour = "#f8cbc7";
+                botColour = "#fbe2e0";
+                offIcons = "#f0847b";
+                headerSectionColour = "linear-gradient(to right, #ff6666 0%, #ff0000 100%)";
+                break;
+
+            case '3': // greenish Tints of #57bc40
+                topColour = "#9ad68c";
+                botColour = "#cceac5";
+                offIcons = "#57bc40";
+                headerSectionColour = "linear-gradient(to right, #33cc33 0%, #009900 100%)";
+                break;
+
+            case '4': // orangish Tints of #ffb558
+                topColour = "#ffd29a";
+                botColour = "#ffe8cc";
+                offIcons = "#ffb558";
+                headerSectionColour = "linear-gradient(to right, #ffcc00 0%, #ff9900 100%)";
+                break;
+
+            case '5': // purplish Tints of #7770d3
+                topColour = "#ada9e4";
+                botColour = "#d6d4f1";
+                offIcons = "#7770d3";
+                headerSectionColour = "linear-gradient(to right, #9966ff 0%, #6600ff 100%)";
+                break;
+
+            default:
+                break;           
+        }
+
+        element.style["background"] = headerSectionColour;
+        sessionStorage.setItem("ColourThemeSet", "Yes");
+        sessionStorage.setItem("ColourTheme", value);
+
+        var element = document.getElementById("SearchString");
+        element.value = "";
+        searchFor = "";
+        visualHTML = "";
+        globalCounter = 0;
+
+        //itemData(documentData, "success");
+        updateByFilter();
+
+        //$.post("../ItemList/GetFreqListJSon"
+        //    , { attId: attributeIdFilter, attName: 'test' }
+        //    , function (data, result) { itemData(data, result); }
+        //);
+    }
+
+
+    function BuildSliderFilters() {
+
+        $("#qualitySlider").kendoRangeSlider({
+            change: qualityRangeSliderOnChange,
+            min: 0,
+            max: 5,
+            smallStep: 1,
+            largeStep: 1
+        });
+
+        $("#strengthSlider").kendoRangeSlider({
+            change: strengthRangeSliderOnChange,
+            min: 0,
+            max: 5,
+            smallStep: 1,
+            largeStep: 1
+        });
+
+        $("#volumeSlider").kendoRangeSlider({
+            change: volumeRangeSliderOnChange,
+            min: 1,
+            max: 5,
+            smallStep: 1,
+            largeStep: 1
+        });
+
+    }
+
+    function qualityRangeSliderOnSlide(e) {
+        console.log("Slide :: new slide values are: " + e.value.toString().replace(",", " - "));
+        let pos = e.value.toString().indexOf(',');
+        qualityMin = e.value.toString().substring(0,pos);
+        qualityMax = e.value.toString().substring(pos+1);
+
+        var element = document.getElementById("SearchString");
+        element.value = "";
+        searchFor = "";
+        visualHTML = "";
+        globalCounter = 0;
+        itemCounter = 0;
+
+        // disable slider div      
+        var element = document.getElementById("filterDiv");
+        element.classList.add("disabledFilterDiv");
+        
+        updateByFilter();
+
+    }
+
+    function qualityRangeSliderOnChange(e) {
+        console.log("Change :: new values are: " + e.value.toString().replace(",", " - "));
+        let pos = e.value.toString().indexOf(',');
+        qualityMin = e.value.toString().substring(0, pos);
+        qualityMax = e.value.toString().substring(pos+1);
+
+        var element = document.getElementById("SearchString");
+        element.value = "";
+        searchFor = "";
+        visualHTML = "";
+        globalCounter = 0;
+        itemCounter = 0;
+
+        // disable slider div
+        var element = document.getElementById("filterDiv");
+        element.classList.add("disabledFilterDiv");
+        // disable checkbox div
+        var element1 = document.getElementById("outcomesFilterDiv");
+        element1.classList.add("disabledFilterDiv");
+        var element2 = document.getElementById("exposuresFilterDiv");
+        element2.classList.add("disabledFilterDiv");
+
+        updateByFilter();
+
+    }
+
+    function strengthRangeSliderOnSlide(e) {
+        console.log("Slide :: new slide values are: " + e.value.toString().replace(",", " - "));
+        let pos = e.value.toString().indexOf(',');
+        strengthMin = e.value.toString().substring(0, pos);
+        strengthMax = e.value.toString().substring(pos+1);
+
+        var element = document.getElementById("SearchString");
+        element.value = "";
+        searchFor = "";
+        visualHTML = "";
+        globalCounter = 0;
+        itemCounter = 0;
+
+        // disable slider div
+        var element = document.getElementById("filterDiv");
+        element.classList.add("disabledFilterDiv");
+
+        updateByFilter();
+
+    }
+
+    function strengthRangeSliderOnChange(e) {
+        console.log("Change :: new values are: " + e.value.toString().replace(",", " - "));
+        let pos = e.value.toString().indexOf(',');
+        strengthMin = e.value.toString().substring(0, pos);
+        strengthMax = e.value.toString().substring(pos+1);
+
+        var element = document.getElementById("SearchString");
+        element.value = "";
+        searchFor = "";
+        visualHTML = "";
+        globalCounter = 0;
+        itemCounter = 0;
+
+        // disable slider div
+        var element = document.getElementById("filterDiv");
+        element.classList.add("disabledFilterDiv");
+        // disable checkbox div
+        var element1 = document.getElementById("outcomesFilterDiv");
+        element1.classList.add("disabledFilterDiv");
+        var element2 = document.getElementById("exposuresFilterDiv");
+        element2.classList.add("disabledFilterDiv");
+
+        updateByFilter();
+
+    }
+
+    function volumeRangeSliderOnSlide(e) {
+        console.log("Slide :: new slide values are: " + e.value.toString().replace(",", " - "));
+        let pos = e.value.toString().indexOf(',');
+        volumeMin = e.value.toString().substring(0, pos);
+        volumeMax = e.value.toString().substring(pos+1);
+
+        var element = document.getElementById("SearchString");
+        element.value = "";
+        searchFor = "";
+        visualHTML = "";
+        globalCounter = 0;
+        itemCounter = 0;
+
+        // disable slider div
+        var element = document.getElementById("filterDiv");
+        element.classList.add("disabledFilterDiv");
+
+        updateByFilter();
+
+    }
+
+    function volumeRangeSliderOnChange(e) {
+        console.log("Change :: new values are: " + e.value.toString().replace(",", " - "));
+        let pos = e.value.toString().indexOf(',');
+        volumeMin = e.value.toString().substring(0, pos);
+        volumeMax = e.value.toString().substring(pos+1);
+
+        var element = document.getElementById("SearchString");
+        element.value = "";
+        searchFor = "";
+        visualHTML = "";
+        globalCounter = 0;
+        itemCounter = 0;
+
+        // disable slider div
+        var element = document.getElementById("filterDiv");
+        element.classList.add("disabledFilterDiv");
+        // disable checkbox div
+        var element1 = document.getElementById("outcomesFilterDiv");
+        element1.classList.add("disabledFilterDiv");
+        var element2 = document.getElementById("exposuresFilterDiv");
+        element2.classList.add("disabledFilterDiv");
+
+        updateByFilter();
+
+    }
+
+    function filterToggle(divName) {
+        var x = document.getElementById(divName);
+        if (x.style.display === "none") {
+            x.style.display = "block";
+        } else {
+            x.style.display = "none";
+        }
+    }
+
+    function cbOutcomesChange(cbName, value) {
+        var x = document.getElementById(cbName);
+        if (x.checked == true) {
+            cbOutcomes += value;
+        }
+        else {
+            cbOutcomes = cbOutcomes.replace(value, '');
+        }
+        console.log("cbOutcomes", cbOutcomes);
+
+        var element = document.getElementById("SearchString");
+        element.value = "";
+        searchFor = "";
+        visualHTML = "";
+        globalCounter = 0;
+        itemCounter = 0;
+
+        // disable slider div
+        var element = document.getElementById("filterDiv");
+        element.classList.add("disabledFilterDiv");
+        // disable checkbox div
+        var element1 = document.getElementById("outcomesFilterDiv");
+        element1.classList.add("disabledFilterDiv");
+        var element2 = document.getElementById("exposuresFilterDiv");
+        element2.classList.add("disabledFilterDiv");
+        
+        updateByFilter();
+
+    }
+
+    function cbExposuresChange(cbName, value) {
+        var x = document.getElementById(cbName);
+        if (x.checked === true) {
+            cbExposures += value;            
+        }
+        else {
+            cbExposures = cbExposures.replace(value, '');
+        }
+        console.log("cbExposures", cbExposures);
+
+        var element = document.getElementById("SearchString");
+        element.value = "";
+        searchFor = "";
+        visualHTML = "";
+        globalCounter = 0;
+        itemCounter = 0;
+
+        // disable slider div
+        var element = document.getElementById("filterDiv");
+        element.classList.add("disabledFilterDiv");
+        // disable checkbox div
+        var element1 = document.getElementById("outcomesFilterDiv");
+        element1.classList.add("disabledFilterDiv");
+        var element2 = document.getElementById("exposuresFilterDiv");
+        element2.classList.add("disabledFilterDiv");
+        
+        updateByFilter();
+
+    }
+
+
+    function ToggleDescrPanelSize() {
+        const descrPanel = $("#WebDBDescription");
+        if (descrPanel) {
+            if (descrPanel.css("max-height") == "250px") {
+                descrPanel.css("max-height", "");
+            }
+            else {
+                descrPanel.css("max-height", "250px");
+            }
+            $("#ExpandDescription").toggle();
+            $("#ReduceDescription").toggle();
+        }
+    }
+
+    function HideShowDescriptionDiv() {
+        const descrPanel = $("#WebDBDescription");
+        const descrShowHideIcon = $("#ShowHideDescriptionDivIcon");
+        if (descrPanel) {
+            descrPanel.css("max-height", "250px");
+            if (descrShowHideIcon[0].className == "fa fa-plus") {
+                $("#ExpandDescription").show();
+                $("#ReduceDescription").hide();
+                $("#WebDBDescriptionBody").show();
+                $("#ShowHideDescriptionDivIcon")[0].className = "fa fa-minus";
+                sessionStorage.setItem("HideShowDescription", "No");
+            }
+            else {
+                $("#ExpandDescription").hide();
+                $("#ReduceDescription").hide();
+                $("#WebDBDescriptionBody").hide();
+                $("#ShowHideDescriptionDivIcon")[0].className = "fa fa-plus";
+                sessionStorage.setItem("HideShowDescription", "Yes");
+            }
+        }
+    }
+
+
+    function HideShowPublicationDiv() {
+        if ("#publicationDiv") {
+            if (HideShowPublicationDivIcon.className == "fa fa-plus") {
+                $("#publicationDiv").show();
+                HideShowPublicationDivIcon.className = "fa fa-minus";
+                $("#publicationDiv").css("max-height", "1000px");
+                $("#YearFreq").show();
+                $("#YearFreqTable").show();
+                if (YearFreqTable.disabled == false) {
+                    $("#BarByYearChartVisible").show();
+                }
+            }
+            else {
+                $("#publicationDiv").hide();
+                HideShowPublicationDivIcon.className = "fa fa-plus";
+                $("#publicationDiv").css("max-height", "0px");
+                $("#YearFreq").hide();
+                $("#YearFreqTable").hide();
+                $("#BarByYearChartVisible").hide();
+            }
+        }
+    }
+
+
+    function GetDocumentAndCodingData() {      
+        @{
+            var jdata = @Html.Raw(JsonConvert.SerializeObject(Model, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }));
+        };
+        var ListData = @jdata;
+        console.log("webDbData", ListData);
+        loadingDiv.show();
+        attributeIdFilter = ListData.webDb.attributeIdFilter;
+        $.post(pathRoot + "ItemList/GetFreqListJSon"
+            , { attId: attributeIdFilter, attName: 'test' }
+            , function (data, result) { itemData(data, result); }
+        ).fail((response) => {handleFreqsError(response); loadingDiv.hide(); });
+    }
+
+
+    async function itemData(data, result) {
+        if (result == "success") {
+            var CurrentDelay = 80;//milliseconds!
+            var DelayIncrement = 100; //100 milliseconds;
+            const delayCommand = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+            documentData = data;
+            console.log("documentData", documentData, result);
+            
+            var IterationsWithoutError = 1;
+            for (var i = 0; i < documentData.items.totalItemCount; i++) {
+                loadingDiv.html("Loading: " + (i+1).toString() + " of " + documentData.items.totalItemCount.toString());
+                    await $.ajax({
+                        url: pathRoot + "Coding/FetchItemCodingJSON",
+                        type: 'POST',
+                        data: { ItemId: documentData.items.items[i].itemId },
+                        datatype: 'json'
+                    })
+                    .done(function (data, result) {
+                        //console.log("Is this success?", result);
+                        if (result === "success") buildArrayOfCodingData(data, result, i);
+                    })
+                    .catch(async function (jqErr, textStatus, errorThrown) { 
+                        console.log("catch block, error on:", jqErr, textStatus, errorThrown, i);
+                        if (jqErr.status == 429){
+                            const waitfor = jqErr.getResponseHeader("retry-after");
+                            if (!waitfor) waitfor = 1;
+                            var possibleNewDelay = (1000 * waitfor)/(IterationsWithoutError);
+                            if (possibleNewDelay > DelayIncrement) DelayIncrement = possibleNewDelay;
+                            CurrentDelay = CurrentDelay + DelayIncrement;
+                            console.log("New per call delay:", CurrentDelay);
+                            IterationsWithoutError = 1;
+                            i = i - 1;
+                            await delayCommand((1000 * waitfor) - CurrentDelay);//wait for the amount of time we're told to, minus the amount we'll wait anyway before looping
+                        }
+                        else {
+                            loadingDiv.hide();
+                            alert("Unexpected error - data failed to load, please try again. \r\nError status code is: "  + jqErr.status.toString()
+                                + ". \r\nError message is: " + jqErr.statusText);
+                            throw(jqErr);
+                        }
+                        
+                    });
+                await delayCommand(CurrentDelay);
+                IterationsWithoutError++;
+            }
+            loadingDiv.hide();
+        }
+        else {
+            console.log("error", "unable to get data");
+        }
+    }
+
+    function buildArrayOfCodingData(codingData, result, i) {
+        if (result == "success") {
+            SavedCodingData.push(codingData);
+            //var jat = $("#justATest");
+            //if (jat) jat.html("Coding data count:" + SavedCodingData.length.toString());
+            buildCard(SavedCodingData[i], result, i);
+        }
+    }
+
+    function updateByFilter() {
+        for (var i = 0; i < documentData.items.totalItemCount; i++) {
+            buildCard(SavedCodingData[i], "success", i);
+        }
+    }
+
+
+    function buildCard(codingData, result, i) {
+        if (result == "success") 
+        {
+            //console.log("codingData", codingData, result);         
+
+            var studyTitle = documentData.items.items[i].title;
+            var studyAbstract = documentData.items.items[i].abstract;
+            var itemId = documentData.items.items[i].itemId;
+
+            var evidenceVolumeValue = "?";
+            var evidenceVolumeIcon = "";
+            var evidenceQualityValue = "?";
+            var evidenceQualityIcon = "";
+            var evidenceStrengthValue = "?";
+            var evidenceStrengthIcon = "";
+            var outcomeValue = "?";
+            var exposureValue = "?"
+
+            var volumeOnIcon = "<i class='fas fa-sm fa-file-alt'></i>&nbsp;&nbsp;";
+            var volumeOffIcon = "<i class='fas fa-sm fa-file-alt' style='color:" + offIcons + "'></i>&nbsp;&nbsp;";
+            var strengthOnIcon = "<i class='fas fa-sm fa-wifi'></i>&nbsp;&nbsp;"
+            var strengthOffIcon = "<i class='fas fa-sm fa-wifi' style='color:" + offIcons + "'></i>&nbsp;&nbsp;";
+            var qualityOnIcon = "<i class='fas fa-sm fa-search-plus'></i>&nbsp;&nbsp;";
+            var qualityOffIcon = "<i class='fas fa-sm fa-search-plus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;";
+            
+            // the itemAttributesList entries are in the order the codes are assigned so we need to loop through all of them to
+            // be sure we look at all of them
+
+            for (var k = 0; k < codingData.itemSetList[0].itemAttributesList.length; k++) 
+            {
+                switch (codingData.itemSetList[0].itemAttributesList[k].attributeId) 
+                {
+                    // Evidence volume (1-5)
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[0].attributeId:
+                        evidenceVolumeValue = "1";
+                        evidenceVolumeIcon = volumeOnIcon + volumeOffIcon + volumeOffIcon + volumeOffIcon + volumeOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[1].attributeId:
+                        evidenceVolumeValue = "2";
+                        evidenceVolumeIcon = volumeOnIcon + volumeOnIcon + volumeOffIcon + volumeOffIcon + volumeOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[2].attributeId:
+                        evidenceVolumeValue = "3";
+                        evidenceVolumeIcon = volumeOnIcon + volumeOnIcon + volumeOnIcon + volumeOffIcon + volumeOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[3].attributeId:
+                        evidenceVolumeValue = "4";
+                        evidenceVolumeIcon = volumeOnIcon + volumeOnIcon + volumeOnIcon + volumeOnIcon + volumeOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[4].attributeId:
+                        evidenceVolumeValue = "5";
+                        evidenceVolumeIcon = volumeOnIcon + volumeOnIcon + volumeOnIcon + volumeOnIcon + volumeOnIcon;
+                        break;                   
+
+                    // Evidence quality (0-5 in 1/2 steps)
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[0].attributeId:
+                        evidenceQualityValue = "0";
+                        evidenceQualityIcon = qualityOffIcon + qualityOffIcon + qualityOffIcon + qualityOffIcon + qualityOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[1].attributeId:
+                        evidenceQualityValue = "0.5";
+                        evidenceQualityIcon = qualityOnIcon + qualityOffIcon + qualityOffIcon + qualityOffIcon + qualityOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[2].attributeId:
+                        evidenceQualityValue = "1";
+                        evidenceQualityIcon = qualityOnIcon + qualityOffIcon + qualityOffIcon + qualityOffIcon + qualityOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[3].attributeId:
+                        evidenceQualityValue = "1.5";
+                        evidenceQualityIcon = qualityOnIcon + qualityOnIcon + qualityOffIcon + qualityOffIcon + qualityOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[4].attributeId:
+                        evidenceQualityValue = "2";
+                        evidenceQualityIcon = qualityOnIcon + qualityOnIcon + qualityOffIcon + qualityOffIcon + qualityOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[5].attributeId:
+                        evidenceQualityValue = "2.5";
+                        evidenceQualityIcon = qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOffIcon + qualityOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[6].attributeId:
+                        evidenceQualityValue = "3";
+                        evidenceQualityIcon = qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOffIcon + qualityOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[7].attributeId:
+                        evidenceQualityValue = "3.5";
+                        evidenceQualityIcon = qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[8].attributeId:
+                        evidenceQualityValue = "4";
+                        evidenceQualityIcon = qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[9].attributeId:
+                        evidenceQualityValue = "4.5";
+                        evidenceQualityIcon = qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOnIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[10].attributeId:
+                        evidenceQualityValue = "5";
+                        evidenceQualityIcon = qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOnIcon;
+                        break;
+
+                    // Evidence strength (0-5 in 1/2 steps)
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[0].attributeId:
+                        evidenceStrengthValue = "0";
+                        evidenceStrengthIcon = strengthOffIcon + strengthOffIcon + strengthOffIcon + strengthOffIcon + strengthOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[1].attributeId:
+                        evidenceStrengthValue = "0.5";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOffIcon + strengthOffIcon + strengthOffIcon + strengthOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[2].attributeId:
+                        evidenceStrengthValue = "1";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOffIcon + strengthOffIcon + strengthOffIcon + strengthOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[3].attributeId:
+                        evidenceStrengthValue = "1.5";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOnIcon + strengthOffIcon + strengthOffIcon + strengthOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[4].attributeId:
+                        evidenceStrengthValue = "2";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOnIcon + strengthOffIcon + strengthOffIcon + strengthOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[5].attributeId:
+                        evidenceStrengthValue = "2.5";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOffIcon + strengthOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[6].attributeId:
+                        evidenceStrengthValue = "3";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOffIcon + strengthOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[7].attributeId:
+                        evidenceStrengthValue = "3.5";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[8].attributeId:
+                        evidenceStrengthValue = "4";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[9].attributeId:
+                        evidenceStrengthValue = "4.5";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOnIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[10].attributeId:
+                        evidenceStrengthValue = "5";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOnIcon;
+                        break;                 
+
+                    // Exposure
+                    case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[0].attributeId:
+                        // cbAirPollution
+                        exposureValue = "0";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[1].attributeId:
+                        // cbNoise
+                        exposureValue = "1";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[2].attributeId:
+                        // cbFoodEnvironment
+                        exposureValue = "2";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[3].attributeId:
+                        // cbGreenspaceGardensAndNature
+                        exposureValue = "3";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[4].attributeId:
+                        // cbTransportInfrastructure
+                        exposureValue = "4";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[5].attributeId:
+                        // cbWalkabilityAndLandUse
+                        exposureValue = "5";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[6].attributeId:
+                        // cbNeighbourhoodDisorder
+                        exposureValue = "6";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[7].attributeId:
+                        // cbLight
+                        exposureValue = "7";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[8].attributeId:
+                        // cbRetailEnvironment
+                        exposureValue = "8";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[9].attributeId:
+                        // cbHousing
+                        exposureValue = "9";
+                        break;
+
+                    // Outcome
+                    case codingData.reviewSets[0].attributes.attributesList[4].attributes.attributesList[0].attributeId:
+                        // cbPhysicalHealth
+                        outcomeValue = "0";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[4].attributes.attributesList[1].attributeId:
+                        // cbHealthRiskFactors
+                        outcomeValue = "1";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[4].attributes.attributesList[2].attributeId:
+                        // cbHealthBehaviours
+                        outcomeValue = "2";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[4].attributes.attributesList[3].attributeId:
+                        // cbMentalHealthAndWellBeing
+                        outcomeValue = "3";
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+
+            if (searchFor == "")
+            {
+                // for slider filtering I can check the values to see if they reside within the selected ranges and ignore that which isn't...
+                if (((evidenceQualityValue >= qualityMin) && (evidenceQualityValue <= qualityMax)) &&
+                    ((evidenceStrengthValue >= strengthMin) && (evidenceStrengthValue <= strengthMax)) &&
+                    ((evidenceVolumeValue >= volumeMin) && (evidenceVolumeValue <= volumeMax)))
+                {
+                    // for checkbox filtering the selected items are included unless nothing is selected which mean everthing is included....
+                    // start with exposures...
+                    if (cbExposures.includes(exposureValue) || (cbExposures == ""))
+                    {
+                        // check for outcomes
+                        if (cbOutcomes.includes(outcomeValue) || (cbOutcomes == "")) 
+                        {                           
+                             if (itemCounter == 0) {
+                                visualHTML += "<div class='row' width='100%'>";
+                             }
+                            
+                            
+                            if (itemCounter == 0) {
+                                visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px;>";
+
+                                //-----------------------------------------------------
+                                visualHTML += "<div class='card' >";
+                                switch (outcomeValue)
+                                {
+                                    case "0":
+                                        topColour = topColourRed;
+                                        break;
+                                    case "1":
+                                        topColour = topColourGreen;
+                                        break;
+                                    case "2":
+                                        topColour = topColourPurple;
+                                        break;
+                                    default:
+                                        topColour = topColourBlue;
+                                        break;
+                                }
+                                visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
+
+                                visualHTML += "<table width='100%'>";
+                                visualHTML += "<tr>";
+
+                                visualHTML += "<td width='100%' colspan='2' style='padding: 0px 5px 0px 0px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<b>" + studyTitle + "</b>";
+                                visualHTML += "<br>";
+                                if (studyAbstract.length > 150) {
+                                    studyAbstract = studyAbstract.substring(0, 150) + '...';
+                                }
+                                visualHTML += studyAbstract;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "<tr>";
+                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px;cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<h5><b>Quality</b></h5>"
+                                visualHTML += "</td>";
+                                visualHTML += "<td>";
+                                visualHTML += evidenceQualityIcon;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "<tr>";
+                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<h5><b>Strength</b></h5>"
+                                visualHTML += "</td>";
+                                visualHTML += "<td>";
+                                visualHTML += evidenceStrengthIcon;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "<tr>";
+                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<h5><b>Volume</b></h5>"
+                                visualHTML += "</td>";
+                                visualHTML += "<td>";
+                                visualHTML += evidenceVolumeIcon;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "</table>";
+
+                                visualHTML += "</div>";
+                                visualHTML += "</div>";
+                                //-------------------------------------------------------
+
+                            }
+
+                            if (itemCounter == 1) {
+
+                                visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px;>";
+
+                                //-----------------------------------------------------
+                                visualHTML += "<div class='card' >";
+                                switch (outcomeValue)
+                                {
+                                    case "0":
+                                        topColour = topColourRed;
+                                        break;
+                                    case "1":
+                                        topColour = topColourGreen;
+                                        break;
+                                    case "2":
+                                        topColour = topColourPurple;
+                                        break;
+                                    default:
+                                        topColour = topColourBlue;
+                                        break;
+                                }
+                                visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
+
+                                visualHTML += "<table width='100%'>";
+                                visualHTML += "<tr>";
+
+                                visualHTML += "<td width='100%' colspan='2' style='padding: 0px 5px 0px 0px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<b>" + studyTitle + "</b>";
+                                visualHTML += "<br>";
+                                if (studyAbstract.length > 150) {
+                                    studyAbstract = studyAbstract.substring(0, 150) + '...';
+                                }
+                                visualHTML += studyAbstract;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "<tr>";
+                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px;cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<h5><b>Quality</b></h5>"
+                                visualHTML += "</td>";
+                                visualHTML += "<td>";
+                                visualHTML += evidenceQualityIcon;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "<tr>";
+                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<h5><b>Strength</b></h5>"
+                                visualHTML += "</td>";
+                                visualHTML += "<td>";
+                                visualHTML += evidenceStrengthIcon;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "<tr>";
+                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<h5><b>Volume</b></h5>"
+                                visualHTML += "</td>";
+                                visualHTML += "<td>";
+                                visualHTML += evidenceVolumeIcon;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "</table>";
+
+                                visualHTML += "</div>";
+                                visualHTML += "</div>";
+                                //-------------------------------------------------------
+
+                            }
+
+                            if (itemCounter == 2) {
+
+                                visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px;>";
+
+                                //-----------------------------------------------------
+                                visualHTML += "<div class='card' >";
+                                switch (outcomeValue)
+                                {
+                                    case "0":
+                                        topColour = topColourRed;
+                                        break;
+                                    case "1":
+                                        topColour = topColourGreen;
+                                        break;
+                                    case "2":
+                                        topColour = topColourPurple;
+                                        break;
+                                    default:
+                                        topColour = topColourBlue;
+                                        break;
+                                }
+                                visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
+
+                                visualHTML += "<table width='100%'>";
+                                visualHTML += "<tr>";
+
+                                visualHTML += "<td width='100%' colspan='2' style='padding: 0px 5px 0px 0px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<b>" + studyTitle + "</b>";
+                                visualHTML += "<br>";
+                                if (studyAbstract.length > 150) {
+                                    studyAbstract = studyAbstract.substring(0, 150) + '...';
+                                }
+                                visualHTML += studyAbstract;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "<tr>";
+                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px;cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<h5><b>Quality</b></h5>"
+                                visualHTML += "</td>";
+                                visualHTML += "<td>";
+                                visualHTML += evidenceQualityIcon;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "<tr>";
+                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<h5><b>Strength</b></h5>"
+                                visualHTML += "</td>";
+                                visualHTML += "<td>";
+                                visualHTML += evidenceStrengthIcon;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "<tr>";
+                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<h5><b>Volume</b></h5>"
+                                visualHTML += "</td>";
+                                visualHTML += "<td>";
+                                visualHTML += evidenceVolumeIcon;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "</table>";
+
+                                visualHTML += "</div>";
+                                visualHTML += "</div>";
+                                //-------------------------------------------------------
+
+                            }
+
+                            if (itemCounter == 3) {
+
+                                visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px;>";
+
+                                //-----------------------------------------------------
+                                visualHTML += "<div class='card' >";
+                                switch (outcomeValue)
+                                {
+                                    case "0":
+                                        topColour = topColourRed;
+                                        break;
+                                    case "1":
+                                        topColour = topColourGreen;
+                                        break;
+                                    case "2":
+                                        topColour = topColourPurple;
+                                        break;
+                                    default:
+                                        topColour = topColourBlue;
+                                        break;
+                                }
+                                visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
+
+                                visualHTML += "<table width='100%'>";
+                                visualHTML += "<tr>";
+
+                                visualHTML += "<td width='100%' colspan='2' style='padding: 0px 5px 0px 0px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<b>" + studyTitle + "</b>";
+                                visualHTML += "<br>";
+                                if (studyAbstract.length > 150) {
+                                    studyAbstract = studyAbstract.substring(0, 150) + '...';
+                                }
+                                visualHTML += studyAbstract;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "<tr>";
+                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px;cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<h5><b>Quality</b></h5>"
+                                visualHTML += "</td>";
+                                visualHTML += "<td>";
+                                visualHTML += evidenceQualityIcon;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "<tr>";
+                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<h5><b>Strength</b></h5>"
+                                visualHTML += "</td>";
+                                visualHTML += "<td>";
+                                visualHTML += evidenceStrengthIcon;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "<tr>";
+                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<h5><b>Volume</b></h5>"
+                                visualHTML += "</td>";
+                                visualHTML += "<td>";
+                                visualHTML += evidenceVolumeIcon;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "</table>";
+
+                                visualHTML += "</div>";
+                                visualHTML += "</div>";
+                                //-------------------------------------------------------
+
+                            }
+
+                            visualHTML += "</div>";
+
+                            if (itemCounter == 3) {
+                                itemCounter = 0;
+                                visualHTML += "</div>";
+                            }
+                            else {
+                                itemCounter +=1;
+                            }
+                        }
+                    }
+                }
+                globalCounter += 1;
+                if (globalCounter == documentData.items.totalItemCount) 
+                {
+                    let resultsDiv = $("#visualsHBEDiv");
+                    resultsDiv.html(visualHTML);
+                    globalCounter = 0;
+                    itemCounter = 0;
+
+                    // enable controls
+                    var element = document.getElementById("filterDiv");
+                    element.classList.remove("disabledFilterDiv");
+                    // disable checkbox div
+                    var element1 = document.getElementById("outcomesFilterDiv");
+                    element1.classList.remove("disabledFilterDiv");
+                    var element2 = document.getElementById("exposuresFilterDiv");
+                    element2.classList.remove("disabledFilterDiv");
+                }
+            }
+            
+            
+            if (searchFor != "") 
+            {
+                // there are search terms so see if the container should be created
+                // str.toLowerCase().includes(substr.toLowerCase())
+                if ((studyTitle.toLowerCase().includes(searchFor.toLowerCase())) || (studyAbstract.toLowerCase().includes(searchFor.toLowerCase()))) 
+                {
+                             if (itemCounter == 0) {
+                                visualHTML += "<div class='row' width='100%'>";
+                             }
+
+
+                            if (itemCounter == 0) {
+                                visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px;>";
+
+                                //-----------------------------------------------------
+                                visualHTML += "<div class='card' >";
+                                switch (outcomeValue)
+                                {
+                                    case "0":
+                                        topColour = topColourRed;
+                                        break;
+                                    case "1":
+                                        topColour = topColourGreen;
+                                        break;
+                                    case "2":
+                                        topColour = topColourPurple;
+                                        break;
+                                    default:
+                                        topColour = topColourBlue;
+                                        break;
+                                }
+                                visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
+
+                                visualHTML += "<table width='100%'>";
+                                visualHTML += "<tr>";
+
+                                visualHTML += "<td width='100%' colspan='2' style='padding: 0px 5px 0px 0px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<b>" + studyTitle + "</b>";
+                                visualHTML += "<br>";
+                                if (studyAbstract.length > 150) {
+                                    studyAbstract = studyAbstract.substring(0, 150) + '...';
+                                }
+                                visualHTML += studyAbstract;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "<tr>";
+                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px;cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<h5><b>Quality</b></h5>"
+                                visualHTML += "</td>";
+                                visualHTML += "<td>";
+                                visualHTML += evidenceQualityIcon;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "<tr>";
+                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<h5><b>Strength</b></h5>"
+                                visualHTML += "</td>";
+                                visualHTML += "<td>";
+                                visualHTML += evidenceStrengthIcon;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "<tr>";
+                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<h5><b>Volume</b></h5>"
+                                visualHTML += "</td>";
+                                visualHTML += "<td>";
+                                visualHTML += evidenceVolumeIcon;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "</table>";
+
+                                visualHTML += "</div>";
+                                visualHTML += "</div>";
+                                //-------------------------------------------------------
+
+                            }
+
+                            if (itemCounter == 1) {
+
+                                visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px;>";
+
+                                //-----------------------------------------------------
+                                visualHTML += "<div class='card' >";
+                                switch (outcomeValue)
+                                {
+                                    case "0":
+                                        topColour = topColourRed;
+                                        break;
+                                    case "1":
+                                        topColour = topColourGreen;
+                                        break;
+                                    case "2":
+                                        topColour = topColourPurple;
+                                        break;
+                                    default:
+                                        topColour = topColourBlue;
+                                        break;
+                                }
+                                visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
+
+                                visualHTML += "<table width='100%'>";
+                                visualHTML += "<tr>";
+
+                                visualHTML += "<td width='100%' colspan='2' style='padding: 0px 5px 0px 0px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<b>" + studyTitle + "</b>";
+                                visualHTML += "<br>";
+                                if (studyAbstract.length > 150) {
+                                    studyAbstract = studyAbstract.substring(0, 150) + '...';
+                                }
+                                visualHTML += studyAbstract;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "<tr>";
+                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px;cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<h5><b>Quality</b></h5>"
+                                visualHTML += "</td>";
+                                visualHTML += "<td>";
+                                visualHTML += evidenceQualityIcon;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "<tr>";
+                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<h5><b>Strength</b></h5>"
+                                visualHTML += "</td>";
+                                visualHTML += "<td>";
+                                visualHTML += evidenceStrengthIcon;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "<tr>";
+                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<h5><b>Volume</b></h5>"
+                                visualHTML += "</td>";
+                                visualHTML += "<td>";
+                                visualHTML += evidenceVolumeIcon;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "</table>";
+
+                                visualHTML += "</div>";
+                                visualHTML += "</div>";
+                                //-------------------------------------------------------
+
+                            }
+
+                            if (itemCounter == 2) {
+
+                                visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px;>";
+
+                                //-----------------------------------------------------
+                                visualHTML += "<div class='card' >";
+                                switch (outcomeValue)
+                                {
+                                    case "0":
+                                        topColour = topColourRed;
+                                        break;
+                                    case "1":
+                                        topColour = topColourGreen;
+                                        break;
+                                    case "2":
+                                        topColour = topColourPurple;
+                                        break;
+                                    default:
+                                        topColour = topColourBlue;
+                                        break;
+                                }
+                                visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
+
+                                visualHTML += "<table width='100%'>";
+                                visualHTML += "<tr>";
+
+                                visualHTML += "<td width='100%' colspan='2' style='padding: 0px 5px 0px 0px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<b>" + studyTitle + "</b>";
+                                visualHTML += "<br>";
+                                if (studyAbstract.length > 150) {
+                                    studyAbstract = studyAbstract.substring(0, 150) + '...';
+                                }
+                                visualHTML += studyAbstract;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "<tr>";
+                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px;cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<h5><b>Quality</b></h5>"
+                                visualHTML += "</td>";
+                                visualHTML += "<td>";
+                                visualHTML += evidenceQualityIcon;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "<tr>";
+                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<h5><b>Strength</b></h5>"
+                                visualHTML += "</td>";
+                                visualHTML += "<td>";
+                                visualHTML += evidenceStrengthIcon;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "<tr>";
+                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<h5><b>Volume</b></h5>"
+                                visualHTML += "</td>";
+                                visualHTML += "<td>";
+                                visualHTML += evidenceVolumeIcon;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "</table>";
+
+                                visualHTML += "</div>";
+                                visualHTML += "</div>";
+                                //-------------------------------------------------------
+
+                            }
+
+                            if (itemCounter == 3) {
+
+                                visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px;>";
+
+                                //-----------------------------------------------------
+                                visualHTML += "<div class='card' >";
+                                switch (outcomeValue)
+                                {
+                                    case "0":
+                                        topColour = topColourRed;
+                                        break;
+                                    case "1":
+                                        topColour = topColourGreen;
+                                        break;
+                                    case "2":
+                                        topColour = topColourPurple;
+                                        break;
+                                    default:
+                                        topColour = topColourBlue;
+                                        break;
+                                }
+                                visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
+
+                                visualHTML += "<table width='100%'>";
+                                visualHTML += "<tr>";
+
+                                visualHTML += "<td width='100%' colspan='2' style='padding: 0px 5px 0px 0px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<b>" + studyTitle + "</b>";
+                                visualHTML += "<br>";
+                                if (studyAbstract.length > 150) {
+                                    studyAbstract = studyAbstract.substring(0, 150) + '...';
+                                }
+                                visualHTML += studyAbstract;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "<tr>";
+                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px;cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<h5><b>Quality</b></h5>"
+                                visualHTML += "</td>";
+                                visualHTML += "<td>";
+                                visualHTML += evidenceQualityIcon;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "<tr>";
+                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<h5><b>Strength</b></h5>"
+                                visualHTML += "</td>";
+                                visualHTML += "<td>";
+                                visualHTML += evidenceStrengthIcon;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "<tr>";
+                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
+                                visualHTML += "<h5><b>Volume</b></h5>"
+                                visualHTML += "</td>";
+                                visualHTML += "<td>";
+                                visualHTML += evidenceVolumeIcon;
+                                visualHTML += "</td>";
+                                visualHTML += "</tr>";
+
+                                visualHTML += "</table>";
+
+                                visualHTML += "</div>";
+                                visualHTML += "</div>";
+                                //-------------------------------------------------------
+
+                            }
+
+                            visualHTML += "</div>";
+
+                            if (itemCounter == 3) {
+                                itemCounter = 0;
+                                visualHTML += "</div>";
+                            }
+                            else {
+                                itemCounter +=1;
+                            }
+                }
+
+                globalCounter += 1;
+                if (globalCounter == documentData.items.totalItemCount) {
+                    let resultsDiv = $("#visualsHBEDiv");
+                    resultsDiv.html(visualHTML);
+                    globalCounter = 0;
+                    searchFor = "";
+                    itemCounter = 0;
+                }
+            }
+
+        }
+        else {
+            console.log("error", "unable to get data");
+        }
+    }
+
+
+
+
+
+</script>
+
+@{
+    Layout = "~/Views/Shared/_HbeLayout.cshtml";
+}
+
+
+<!-- Side bar coding tools area -->
+<div class="sidebar sidebar-style-2">
+    <div class="sidebar-wrapper scrollbar scrollbar-inner">
+        <div class="sidebar-content">
+
+            <ul class="nav nav-primary">
+                <li class="nav-section">
+                    <span class="sidebar-mini-icon">
+                        <i class="fa fa-ellipsis-h"></i>
+                    </span>
+
+                    <div style="padding-left:10px">
+                        <!-- this button should be invisible if the screen is > 325px wide -->
+                        <button id="smallPhoneButton" class="navbar-toggler sidenav-toggler ml-auto" type="button" data-toggle="collapse"
+                                data-target="collapse" aria-expanded="false" aria-label="Toggle navigation" style="padding-left:0px">
+                            <span class="navbar-toggler-icon">
+                                <i class="icon-menu"></i>
+                            </span>
+                        </button>
+
+                        
+                        <!--<table width="100%">
+                            <tr>
+                                <td style="padding: 0px 0px 0px 0px;">
+                                    <button type="button" id="blue" class="btn btn-icon btn-xs btn-round" style="background-color:#a4d2f7" onclick="changeColour('1')" > </button>
+                                </td>
+                                <td style="padding: 0px 0px 0px 0px;">
+                                    <button type="button" id="red" class="btn btn-icon btn-xs btn-round" style="background-color:#f8cbc7" onclick="changeColour('2')"> </button>
+                                </td>
+                                <td style="padding: 0px 0px 0px 0px;">
+                                    <button type="button" id="green" class="btn btn-icon btn-xs btn-round" style="background-color:#9ad68c" onclick="changeColour('3')"> </button>
+                                </td>
+                                <td style="padding: 0px 0px 0px 0px;">
+                                    <button type="button" id="orange" class="btn btn-icon btn-xs btn-round" style="background-color:#ffd29a" onclick="changeColour('4')"> </button>
+                                </td>
+                                <td style="padding: 0px 0px 0px 0px;">
+                                    <button type="button" id="purple" class="btn btn-icon btn-xs btn-round" style="background-color:#ada9e4" onclick="changeColour('5')"> </button>
+                                </td>
+                            </tr>
+                        </table>-->
+
+
+                        <div id="filterDiv" class="text-body pb-2" style="width: 95%">
+                            <table width="100%">
+                                <tr>
+                                    <td style="vertical-align:middle; border-bottom: solid; border-color: black;  border-width: 3px; padding: 10px 10px 15px 10px; width:95%">
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend border rounded my-auto">
+                                                    <button type="button" id="searchButton" onclick="searchRecords(SearchString)" class="btn btn-search pr-1 py-2 px-2" disabled>
+                                                        <span style="color:#0b52ad"><i class="fas fa-search search-icon"></i></span>
+                                                    </button>
+                                                </div>
+                                                <input type="text" placeholder="Search records..." onkeyup="enableSearch()" style="background-color:white" class="form-control" maxlength="4000" name="SearchString" id="SearchString">
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+
+
+                            <!--Filtering controls-->
+                        <div id="filterDiv2" class="text-body pb-2" style="width: 95%">
+                            <table width="100%">
+                                <tr>                             
+                                    <td style="width: 40%; vertical-align:middle; border-bottom: solid; border-color: black;  border-width: 1px; padding: 13px 10px 5px 5px;">
+                                        <h3 class="text-body pb-2"><b>Filter by:</b></h3>
+                                    </td>
+                                    <td style="width: 10%; vertical-align:top; text-align:left;  border-bottom: solid; border-color: black;  border-width: 1px; padding: 15px 10px 5px 5px;">
+                                        <button type="button" id="costLegend" class="fas fa-lg fa-question-circle" style="border-style:none;background-color:white" onclick="filterToggle('advancedFilterHelpDiv')"></button>
+                                    </td>
+                                    <td style="width: 50%; vertical-align:top; text-align:right; border-bottom: solid; border-color: black;  border-width: 1px; padding: 13px 10px 5px 10px;">
+                                        <a class="btn btn-primary btn-sm btn-border" href="~/Hbe">Clear all</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="advancedFilterHelpDiv" style="width: 95%; display:none">
+                            <table width="100%">
+                                <tr>
+                                    <td style="padding: 0px 0px 0px 10px;">
+                                        <label>
+                                            You can select topics to help identify relevant studies.<br />
+                                            Selections <b>within</b> a section use<br />
+                                            the <b>OR</b> operator.<br />
+                                            Selections <b>across</b> sections use <br />
+                                            the <b>AND</b> operator.<br />
+                                        </label>
+                                    </td>
+                                </tr>
+                            </table>
+                            <br />
+                        </div>
+                        <div class="text-body pb-2" style="cursor: pointer;width: 95%;" onclick="filterToggle('exposuresFilterDiv')">
+                            <table width="100%">
+                                <tr>
+                                    <td width="80%"><h5><b>EXPOSURE</b></h5></td>
+                                    <td width="20%">
+                                        <svg width="10" height="5" viewBox="0 0 10 5" class="ml-4" fill="none">
+                                            <path fill="#000" d="M0 0l5 5 5-5H0z"></path>
+                                        </svg>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="exposuresFilterDiv" style="width: 95%; display:none">
+                            <table width="100%">
+                                <tr>
+                                    <td style="padding: 0px 0px 0px 10px;">
+                                        <ul class="fieldlist">
+                                            <li>
+                                                <input type="checkbox" id="cbAirPollution" onclick="cbExposuresChange('cbAirPollution', '0')" />
+                                                <label>&nbsp;&nbsp;&nbsp;Air pollution</label>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" id="cbNoise" onclick="cbExposuresChange('cbNoise', '1')" />
+                                                <label>&nbsp;&nbsp;&nbsp;Noise</label>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" id="cbFoodEnvironment" onclick="cbExposuresChange('cbFoodEnvironment', '2')" />
+                                                <label>&nbsp;&nbsp;&nbsp;Food environment</label>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" id="cbGreenspaceGardensAndNature" onclick="cbExposuresChange('cbGreenspaceGardensAndNature', '3')" />
+                                                <label>&nbsp;&nbsp;&nbsp;Greenspace, gardens & nature</label>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" id="cbTransportInfrastructure" onclick="cbExposuresChange('cbTransportInfrastructure', '4')" />
+                                                <label>&nbsp;&nbsp;&nbsp;Transport infrastructure</label>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" id="cbWalkabilityAndLandUse" onclick="cbExposuresChange('cbWalkabilityAndLandUse', '5')" />
+                                                <label>&nbsp;&nbsp;&nbsp;Walkability & land use</label>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" id="cbNeighbourhoodDisorder" onclick="cbExposuresChange('cbNeighbourhoodDisorder', '6')" />
+                                                <label>&nbsp;&nbsp;&nbsp;Neighbourhood disorder</label>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" id="cbLight" onclick="cbExposuresChange('cbLight', '7')" />
+                                                <label>&nbsp;&nbsp;&nbsp;Light</label>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" id="cbRetailEnvironment" onclick="cbExposuresChange('cbRetailEnvironment', '8')" />
+                                                <label>&nbsp;&nbsp;&nbsp;Retail environment</label>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" id="cbHousing" onclick="cbExposuresChange('cbHousing', '9')" />
+                                                <label>&nbsp;&nbsp;&nbsp;Housing</label>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </table>
+                            <br />
+                        </div>
+
+                        <div class="text-body pb-2" style="cursor: pointer;width: 95%;" onclick="filterToggle('outcomesFilterDiv')">
+                            <table width="100%">
+                                <tr>
+                                    <td width="80%" style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 5px 0px;">
+                                        <h5><b>OUTCOMES</b></h5>
+                                    </td>
+                                    <td width="20%" style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 5px 0px;">
+                                        <svg width="10" height="5" viewBox="0 0 10 5" class="ml-4" fill="none">
+                                            <path fill="#000" d="M0 0l5 5 5-5H0z"></path>
+                                        </svg>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="outcomesFilterDiv" style="width: 95%; display:none">
+                            <table width="100%">
+                                <tr>
+                                    <td style="padding: 0px 0px 0px 10px;">
+                                        <ul class="fieldlist">
+                                            <li>
+                                                <input type="checkbox" id="cbPhysicalHealth" onclick="cbOutcomesChange('cbPhysicalHealth', '0')" />
+                                                <label>&nbsp;&nbsp;&nbsp;Physical health</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#f8cbc7"></span>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" id="cbHealthRiskFactors" onclick="cbOutcomesChange('cbHealthRiskFactors', '1')" />
+                                                <label>&nbsp;&nbsp;&nbsp;Health risk factors</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#9ad68c"></span>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" id="cbHealthBehaviours" onclick="cbOutcomesChange('cbHealthBehaviours', '2')" />
+                                                <label>&nbsp;&nbsp;&nbsp;Health behaviours</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#ada9e4"></span>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" id="cbMentalHealthAndWellBeing" onclick="cbOutcomesChange('cbMentalHealthAndWellBeing', '3')" />
+                                                <label>&nbsp;&nbsp;&nbsp;Mental health & wellbeing</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#a4d2f7"></span>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </table>
+                            <br />
+                        </div>
+
+
+
+                        <div id="filterDiv5" class="text-body pb-2" style="width: 95%">
+                            <table width="100%">
+                                <tr>
+                                    <td style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 0px 10px;">
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+
+                        <div id="filterDiv3" class="text-body pb-2" style="width: 95%">
+                            <table width="100%">
+                                <tr>
+                                    <td style="padding: 0px 10px 0px 10px;">   
+                                    </td>
+                                </tr>
+                            
+                                <tr>
+                                    <td style="padding: 10px 10px 10px 15px;">
+                                        <label><b>EVIDENCE QUALITY</b></label>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <button type="button" id="qualityLegend" class="fas fa-lg fa-question-circle" style="border-style:none;background-color:white" onclick="filterToggle('evidenceHelpDiv')"> </button><br />
+                                        <div id="qualitySlider" class="humidity">
+                                            <input />
+                                            <input />
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="evidenceHelpDiv" style="width: 95%; display:none">
+                            <table width="100%">
+                                <tr>
+                                    <td style="padding: 0px 0px 0px 10px;">
+                                        <label>
+                                            <b>Evidence quality</b><br />
+                                            &nbsp;&nbsp;&nbsp;0:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Not rated<br />
+                                            &nbsp;&nbsp;&nbsp;1:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Critically low<br />
+                                            &nbsp;&nbsp;&nbsp;2:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Low<br />
+                                            &nbsp;&nbsp;&nbsp;3:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Moderate<br />
+                                            &nbsp;&nbsp;&nbsp;4:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;High<br />
+                                            &nbsp;&nbsp;&nbsp;5:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Very high<br />
+                                        </label>
+                                    </td>
+                                </tr>
+                            </table>
+                            <br />
+                        </div>
+                        <div id="filterDiv4" class="text-body pb-2" style="width: 95%">
+                            <table width="100%">
+                                <tr>
+                                    <td style="padding: 10px 10px 10px 15px;">
+                                        <label><b>EVIDENCE STRENGTH</b></label>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <button type="button" id="strenghtLegend" class="fas fa-lg fa-question-circle" style="border-style:none;background-color:white" onclick="filterToggle('qualityHelpDiv')"></button><br />
+                                        <div id="strengthSlider" class="humidity">
+                                            <input />
+                                            <input />
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="qualityHelpDiv" style="width: 95%; display:none">
+                            <table width="100%">
+                                <tr>
+                                    <td style="padding: 0px 0px 0px 10px;">
+                                        <label>
+                                            <b>Evidence strength</b><br />
+                                            &nbsp;&nbsp;&nbsp;0:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Not rated<br />
+                                            &nbsp;&nbsp;&nbsp;1:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Critically low<br />
+                                            &nbsp;&nbsp;&nbsp;2:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Low<br />
+                                            &nbsp;&nbsp;&nbsp;3:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Moderate<br />
+                                            &nbsp;&nbsp;&nbsp;4:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;High<br />
+                                            &nbsp;&nbsp;&nbsp;5:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Very high<br />
+                                        </label>
+                                    </td>
+                                </tr>
+                            </table>
+                            <br />
+                        </div>
+                        <div id="filterDiv6" class="text-body pb-2" style="width: 95%">
+                            <table width="100%">
+                                <tr>
+                                    <td style="padding: 10px 10px 10px 15px;">
+                                        <label><b>EVIDENCE VOLUME</b></label>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <button type="button" id="volumeLegend" class="fas fa-lg fa-question-circle" style="border-style:none;background-color:white" onclick="filterToggle('volumeHelpDiv')"></button><br />
+                                        <div id="volumeSlider" class="humidity">
+                                            <input />
+                                            <input />
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="volumeHelpDiv" style="width: 95%; display:none">
+                            <table width="100%">
+                                <tr>
+                                    <td style="padding: 0px 0px 0px 10px;">
+                                        <label>
+                                            <b>Evidence volume</b><br />
+                                            &nbsp;&nbsp;&nbsp;1:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Critically low<br />
+                                            &nbsp;&nbsp;&nbsp;2:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Low<br />
+                                            &nbsp;&nbsp;&nbsp;3:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Moderate<br />
+                                            &nbsp;&nbsp;&nbsp;4:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;High<br />
+                                            &nbsp;&nbsp;&nbsp;5:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Very high<br />
+                                        </label>
+                                    </td>
+                                </tr>
+                            </table>
+                            <br />
+                        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    </div>
+                </li>
+
+            </ul>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="main-panel">
+    <div class="content">
+
+        <!-- header area -->
+        <!--//<div class="panel-header bg-primary-gradient">-->
+        <div id="headerDiv" class="panel-header" style="background: linear-gradient(to left, #0066cc 0%, #3399ff 100%);">
+            <div class="page-inner py-5">
+                <div class="row">
+                    <div class="col-8 col-md-7 px-1">
+                        <h2 class="text-white pb-2 fw-bold">@Model.WebDb.WebDBName</h2>
+                        <h3 class="text-white op-9 mb-2">@Model.WebDb.Subtitle</h5>
+                    </div>
+                    <div class="col-auto col-md-5 px-1 row mx-0">
+                        @if (@imgPath1 != "")
+                        {
+                            if (Model.WebDb.HeaderImage1Url == "")
+                            {
+                                <img src=@imgPath1 style="max-height: 60px; object-fit: cover;" class="pb-2 ml-auto" />
+                            }
+                            else if (Model.WebDb.HeaderImage1Url.ToLower().StartsWith("http://") || Model.WebDb.HeaderImage1Url.ToLower().StartsWith("https://"))
+                            {
+                                <a href="@(new HtmlString(Model.WebDb.HeaderImage1Url))" class="ml-auto" target="_blank" title="Header Image1">
+                                    <img src=@imgPath1 style="max-height: 60px; object-fit: cover;" class="pb-2 " />
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="@(new HtmlString("https://" + Model.WebDb.HeaderImage1Url))" class="ml-auto" target="_blank" title="Header Image1">
+                                    <img src=@imgPath1 style="max-height: 60px; object-fit: cover;" class="pb-2" />
+                                </a>
+                            }
+                        }
+                        @if (@imgPath2 != "")
+                        {
+                            if (Model.WebDb.HeaderImage2Url == "")
+                            {
+                                <img src=@imgPath2 style="max-height: 60px; object-fit: cover;" class="pb-2 ml-auto" />
+                            }
+                            else if (Model.WebDb.HeaderImage2Url.ToLower().StartsWith("http://") || Model.WebDb.HeaderImage2Url.ToLower().StartsWith("https://"))
+                            {
+                                <a href="@(new HtmlString(Model.WebDb.HeaderImage2Url))" class="ml-auto" target="_blank" title="Header Image2">
+                                    <img src=@imgPath2 style="max-height: 60px; object-fit: cover;" class="pb-2 " />
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="@(new HtmlString("https://" + Model.WebDb.HeaderImage2Url))" class="ml-auto" target="_blank" title="Header Image2">
+                                    <img src=@imgPath2 style="max-height: 60px; object-fit: cover;" class="pb-2" />
+                                </a>
+                            }
+                        }
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Everything below header -->
+        <div class="page-inner px-2 mt--5">
+            <div class="row mx-0 mt--2">
+                <div class="col-12">
+
+                    <!-- Description card -->
+                    <div class="card mb-2">
+                        <div class="card-header">
+                            <table width="100%">
+                                <tr>
+                                    <td>
+                                        <div class="card-title">Introduction</div>
+                                    </td>
+                                    <td style="text-align:right;padding-top:5px">
+                                        <div id="ExpandDescription" class="btn btn-primary btn-sm btn-round"
+                                             onclick="ToggleDescrPanelSize()">
+                                            <div class="flaticon-down-arrow-1">
+                                                &nbsp;&nbsp;View more&nbsp;
+                                            </div>
+                                        </div>
+                                        <div id="ReduceDescription" class="btn btn-primary btn-sm btn-round"
+                                             onclick="ToggleDescrPanelSize()">
+                                            <div class="flaticon-up-arrow-1">
+                                                &nbsp;&nbsp;View less&nbsp;
+                                            </div>
+                                        </div>
+                                        <div id="ShowHideDescriptionDivButton" class="btn btn-primary btn-sm"
+                                             onclick="HideShowDescriptionDiv()">
+                                            <div id="ShowHideDescriptionDivIcon" class="fa fa-minus">
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+
+                        </div>
+                        <div class="card-body" id="WebDBDescriptionBody" tooltip="">
+                            <div class="card-category" id="WebDBDescription" style="overflow-y:auto;">
+                                @(new HtmlString(Model.WebDb.WebDBDescription))
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="loadingDiv" class="text-center font-weight-bold ">Loading...</div>
+                    <div id="visualsHBEDiv"></div>
+
+
+                </div>
+
+
+                <div class="col-auto col-lg">
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+

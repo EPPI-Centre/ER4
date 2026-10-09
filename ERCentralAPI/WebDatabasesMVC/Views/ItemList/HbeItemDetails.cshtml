@@ -1,0 +1,610 @@
+﻿<!-- DHSC Item Details -->
+@model WebDatabasesMVC.Controllers.ItemSelCritMVC;
+@using WebDatabasesMVC.ViewModels;
+@using BusinessLibrary.BusinessClasses;
+@using Newtonsoft.Json;
+@using Newtonsoft.Json.Serialization;
+@using System.Linq;
+@using System.Security.Claims;
+
+
+<style>
+    #myBtn {
+        display: none;
+        position: fixed;
+        bottom: 20px;
+        right: 30px;
+        z-index: 99;
+        font-size: 18px;
+        border: none;
+        outline: none;
+        background-color: red;
+        color: white;
+        cursor: pointer;
+        padding: 15px;
+        border-radius: 4px;
+    }
+
+        #myBtn:hover {
+            background-color: #555;
+        }
+</style>
+
+
+
+<script>
+
+    let visualHTML = "";
+    var cardColour = "#a4d2f7";
+    var offIcons = "#68b4f2";
+
+    $(document).ready(function () {
+
+
+
+        $("#smallPhoneButton").hide();
+        if ($(window).outerWidth() <= 325) {
+            $("#smallPhoneButton").show();
+        }
+
+
+        if (sessionStorage.getItem("ColourThemeSet") == "Yes") {
+            var colourTheme = sessionStorage.getItem("ColourTheme")
+
+            switch (colourTheme) {
+
+                case '1': // blueish Tints of #68b4f2
+                    cardColour = "#a4d2f7";
+                    offIcons = "#68b4f2";
+                    break;
+
+                case '2': // reddish like YEF
+                    cardColour = "#f8cbc7";
+                    offIcons = "#f0847b";
+                    break;
+
+                case '3': // greenish Tints of #57bc40
+                    cardColour = "#9ad68c";
+                    offIcons = "#57bc40";
+                    break;
+
+                case '4': // orangish Tints of #ffb558
+                    cardColour = "#ffd29a";
+                    offIcons = "#ffb558";
+                    break;
+
+                case '5': // purplish Tints of #7770d3
+                    cardColour = "#ada9e4";
+                    offIcons = "#7770d3";
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+
+        GetDocumentAndCodingData();
+    });
+
+    function GetDocumentAndCodingData() {
+        // I don't think I have a call to get the details for just one item so I have to get them all.
+        // This can't be right but for now this will work...
+
+        // also a bit of a kludge...
+        var attributeIdFilter = @Model.itemIds;
+
+        $.post("../ItemList/GetFreqListJSon"
+            , { attId: attributeIdFilter, attName: '' }
+            , function (data, result) { itemData(data, result); }
+        ).fail((response) => handleFreqsError(response));
+    }
+
+
+    async function itemData(data, result) {
+        if (result == "success") {
+            var documentData = data;
+            console.log("documentData", documentData, result);
+
+            // I know the itemId so get the coding data.
+            await $.post("../Coding/FetchItemCodingJSON"
+                , { ItemId: @Model.itemID }
+                , function (data, result) { buildCard(data, result, documentData) }
+            ).fail((response) => handleFreqsError(response));
+        }
+        else {
+            console.log("error", "unable to get data");
+        }
+    }
+
+
+
+    function buildCard(codingData, result, documentData) {
+        if (result == "success") {
+            console.log("codingData", codingData, result);
+            let visualHTML = "";
+
+
+            var itemNumber = 0;
+            // I have all of the items so I need to find the right one.
+            for (i = 0; i < documentData.items.totalItemCount; i++) {
+                if (documentData.items.items[i].itemId == @Model.itemID) {
+                    itemNumber = i;
+                    i = documentData.items.length;
+                }
+            }
+
+
+            var evidenceVolumeValue = "?";
+            var evidenceVolumeIcon = "";
+            var evidenceQualityValue = "?";
+            var evidenceQualityIcon = "";
+            var evidenceStrengthValue = "?";
+            var evidenceStrengthIcon = "";
+            var outcomes1Value = "?";
+            var outcomeNumber = "";
+            var outcomes1ImpactValue = "?";
+            var outcomes2Value = "?";
+            var outcomes2ImpactValue = "?";
+            var outcomes3Value = "?";
+            var outcomes3ImpactValue = "?";
+            var violenceNumber = "";
+            var exposureValue = "?"
+            var impact1Icon = "";
+            var impact2Icon = "";
+            var impact3Icon = "";
+
+
+            var volumeOnIcon = "<i class='fas fa-lg fa-file-alt'></i>&nbsp;&nbsp;";
+            var volumeOffIcon = "<i class='fas fa-lg fa-file-alt' style='color:" + offIcons + "'></i>&nbsp;&nbsp;";
+            var strengthOnIcon = "<i class='fas fa-lg fa-wifi'></i>&nbsp;&nbsp;"
+            var strengthOffIcon = "<i class='fas fa-lg fa-wifi' style='color:" + offIcons + "'></i>&nbsp;&nbsp;";
+            var qualityOnIcon = "<i class='fas fa-lg fa-search-plus'></i>&nbsp;&nbsp;";
+            var qualityOffIcon = "<i class='fas fa-lg fa-search-plus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;";
+
+
+            // the itemAttributesList entries are in the order the codes are assigned so we need to loop through all of them to
+            // be sure we look at all of them
+
+            for (var k = 0; k < codingData.itemSetList[0].itemAttributesList.length; k++) {
+                switch (codingData.itemSetList[0].itemAttributesList[k].attributeId) {
+
+                    // Evidence volume (1-5)
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[0].attributeId:
+                        evidenceVolumeValue = "1";
+                        evidenceVolumeIcon = volumeOnIcon + volumeOffIcon + volumeOffIcon + volumeOffIcon + volumeOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[1].attributeId:
+                        evidenceVolumeValue = "2";
+                        evidenceVolumeIcon = volumeOnIcon + volumeOnIcon + volumeOffIcon + volumeOffIcon + volumeOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[2].attributeId:
+                        evidenceVolumeValue = "3";
+                        evidenceVolumeIcon = volumeOnIcon + volumeOnIcon + volumeOnIcon + volumeOffIcon + volumeOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[3].attributeId:
+                        evidenceVolumeValue = "4";
+                        evidenceVolumeIcon = volumeOnIcon + volumeOnIcon + volumeOnIcon + volumeOnIcon + volumeOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[4].attributeId:
+                        evidenceVolumeValue = "5";
+                        evidenceVolumeIcon = volumeOnIcon + volumeOnIcon + volumeOnIcon + volumeOnIcon + volumeOnIcon;
+                        break;
+
+
+
+                    // Evidence quality (0-5 in 1/2 steps)
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[0].attributeId:
+                        evidenceQualityValue = "0";
+                        evidenceQualityIcon = qualityOffIcon + qualityOffIcon + qualityOffIcon + qualityOffIcon + qualityOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[1].attributeId:
+                        evidenceQualityValue = "0.5";
+                        evidenceQualityIcon = qualityOnIcon + qualityOffIcon + qualityOffIcon + qualityOffIcon + qualityOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[2].attributeId:
+                        evidenceQualityValue = "1";
+                        evidenceQualityIcon = qualityOnIcon + qualityOffIcon + qualityOffIcon + qualityOffIcon + qualityOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[3].attributeId:
+                        evidenceQualityValue = "1.5";
+                        evidenceQualityIcon = qualityOnIcon + qualityOnIcon + qualityOffIcon + qualityOffIcon + qualityOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[4].attributeId:
+                        evidenceQualityValue = "2";
+                        evidenceQualityIcon = qualityOnIcon + qualityOnIcon + qualityOffIcon + qualityOffIcon + qualityOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[5].attributeId:
+                        evidenceQualityValue = "2.5";
+                        evidenceQualityIcon = qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOffIcon + qualityOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[6].attributeId:
+                        evidenceQualityValue = "3";
+                        evidenceQualityIcon = qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOffIcon + qualityOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[7].attributeId:
+                        evidenceQualityValue = "3.5";
+                        evidenceQualityIcon = qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[8].attributeId:
+                        evidenceQualityValue = "4";
+                        evidenceQualityIcon = qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[9].attributeId:
+                        evidenceQualityValue = "4.5";
+                        evidenceQualityIcon = qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOnIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[10].attributeId:
+                        evidenceQualityValue = "5";
+                        evidenceQualityIcon = qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOnIcon;
+                        break;
+
+                    // Evidence strength (0-5 in 1/2 steps)
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[0].attributeId:
+                        evidenceStrengthValue = "0";
+                        evidenceStrengthIcon = strengthOffIcon + strengthOffIcon + strengthOffIcon + strengthOffIcon + strengthOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[1].attributeId:
+                        evidenceStrengthValue = "0.5";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOffIcon + strengthOffIcon + strengthOffIcon + strengthOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[2].attributeId:
+                        evidenceStrengthValue = "1";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOffIcon + strengthOffIcon + strengthOffIcon + strengthOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[3].attributeId:
+                        evidenceStrengthValue = "1.5";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOnIcon + strengthOffIcon + strengthOffIcon + strengthOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[4].attributeId:
+                        evidenceStrengthValue = "2";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOnIcon + strengthOffIcon + strengthOffIcon + strengthOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[5].attributeId:
+                        evidenceStrengthValue = "2.5";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOffIcon + strengthOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[6].attributeId:
+                        evidenceStrengthValue = "3";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOffIcon + strengthOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[7].attributeId:
+                        evidenceStrengthValue = "3.5";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[8].attributeId:
+                        evidenceStrengthValue = "4";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[9].attributeId:
+                        evidenceStrengthValue = "4.5";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOnIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[10].attributeId:
+                        evidenceStrengthValue = "5";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOnIcon;
+                        break;
+
+
+                    // Exposure
+                    case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[0].attributeId:
+                        // cbAirPollution
+                        exposureValue = "1";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[1].attributeId:
+                        // cbNoise
+                        exposureValue = "2";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[2].attributeId:
+                        // cbFoodEnvironment
+                        exposureValue = "3";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[3].attributeId:
+                        // cbGreenspaceGardensAndNature
+                        exposureValue = "4";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[4].attributeId:
+                        // cbTransportInfrastructure
+                        exposureValue = "5";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[5].attributeId:
+                        // cbWalkabilityAndLandUse
+                        exposureValue = "6";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[6].attributeId:
+                        // cbNeighbourhoodDisorder
+                        exposureValue = "7";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[7].attributeId:
+                        // cbLight
+                        exposureValue = "8";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[8].attributeId:
+                        // cbRetailEnvironment
+                        exposureValue = "9";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[3].attributes.attributesList[9].attributeId:
+                        // cbHousing
+                        exposureValue = "10";
+                        break;
+
+                    // Outcome
+                    case codingData.reviewSets[0].attributes.attributesList[4].attributes.attributesList[0].attributeId:
+                        // cbInterventionsForVictims
+                        interventionValue = "1";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[4].attributes.attributesList[1].attributeId:
+                        // cbForBroaderImpactsOfViolence
+                        interventionValue = "2";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[4].attributes.attributesList[2].attributeId:
+                        // cbInterventionsForPerpetrators
+                        interventionValue = "3";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[4].attributes.attributesList[3].attributeId:
+                        // cbOrganisationalInterventions
+                        interventionValue = "4";
+                        break;
+
+                    default:
+                        break;
+
+                }
+            }
+
+            for (var k = 0; k < codingData.itemSetList[1].itemAttributesList.length; k++) {
+                switch (codingData.itemSetList[1].itemAttributesList[k].attributeId) {
+
+                    // is_there_an_association_and_how_large_is_it
+                    case codingData.reviewSets[1].attributes.attributesList[0].attributeId:
+                        is_there_an_association_and_how_large_is_it = codingData.itemSetList[1].itemAttributesList[k].additionalText;
+                        break;
+                     // how_large_is_the_evidence_base
+                    case codingData.reviewSets[1].attributes.attributesList[1].attributeId:
+                        how_large_is_the_evidence_base = codingData.itemSetList[1].itemAttributesList[k].additionalText;
+                        break;
+                    // what_is_the_quality_of_the_reviews
+                    case codingData.reviewSets[1].attributes.attributesList[2].attributeId:
+                        what_is_the_quality_of_the_reviews = codingData.itemSetList[1].itemAttributesList[k].additionalText;
+                        break;
+                    // how_secure_is_the_evidence
+                    case codingData.reviewSets[1].attributes.attributesList[3].attributeId:
+                        how_secure_is_the_evidence = codingData.itemSetList[1].itemAttributesList[k].additionalText;
+                        break;
+                    // what_might_explain_this_finding
+                    case codingData.reviewSets[1].attributes.attributesList[4].attributeId:
+                        what_might_explain_this_finding = codingData.itemSetList[1].itemAttributesList[k].additionalText;
+                        break;
+                    // is_any_of_the_evidence_from_the_UK
+                    case codingData.reviewSets[1].attributes.attributesList[5].attributeId:
+                        is_any_of_the_evidence_from_the_UK = codingData.itemSetList[1].itemAttributesList[k].additionalText;
+                        break;
+                        // are_there_differences_between_groups
+                    case codingData.reviewSets[1].attributes.attributesList[6].attributeId:
+                        are_there_differences_between_groups = codingData.itemSetList[1].itemAttributesList[k].additionalText;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+
+            var studyTitle = documentData.items.items[itemNumber].title;
+            var studyAbstract = documentData.items.items[itemNumber].abstract;
+
+            // the title area
+            visualHTML += "<br>";
+            visualHTML += "<br>";
+            visualHTML += "<table>";
+            visualHTML += "<tr>";
+            visualHTML += "<td style='border-bottom: solid; border-width: 1px; padding: 10px 0px 10px 0px;'>";
+            visualHTML += "<p><h1><b>" + studyTitle + "</b></h1></p>";
+            visualHTML += "<p><h3>" + studyAbstract + "</h3></p>";
+            //visualHTML += "<a href=" + report_link + " target='_blank'><button class='btn btn-sm btn-info btn-round'>Full report</button></a>";
+            //visualHTML += "<p><h3>" + report_link + "</h3></p>";
+            visualHTML += "</td>";
+            visualHTML += "</tr>";
+            visualHTML += "</table>";
+
+            visualHTML += "<br>";
+
+            // the data card
+            visualHTML += "<div class='card' >";
+            visualHTML += "<div class='card-body' style='background-color: " + cardColour + "; '> ";
+
+            visualHTML += "<table style='width: 100%'>";
+            visualHTML += "<tr>";
+
+            /*
+            visualHTML += "<td width='50%' style='border-right: solid; border-width: 1px; padding: 0px 15px 0px 0px;'>";
+            if (outcomes1Value != "?") {
+                visualHTML += "Estimated impact on <b>" + outcomes1Value + "</b><br>";
+                if (outcomes1ImpactValue == "?") {
+                    visualHTML += "<b>Unknown</b>";
+                    visualHTML += "<br><hr><br>";
+                } else {
+                    visualHTML += "<b>" + outcomes1ImpactValue + "</b>";
+                    visualHTML += "<br><hr><br>";
+                }
+            }
+            else {
+                visualHTML += "No outcome impacts";
+            }
+            if (outcomes2Value != "?") {
+                visualHTML += "Estimated impact on <b>" + outcomes2Value + "</b><br>";
+                visualHTML += "<b>" + outcomes2ImpactValue + "</b>";
+                visualHTML += "<br><hr><br>";
+            }
+            if (outcomes3Value != "?") {
+                visualHTML += "Estimated impact on <b>" + outcomes3Value + "</b><br>";
+                visualHTML += "<b>" + outcomes3ImpactValue + "</b>";
+
+            }
+            visualHTML += "</td>";
+            */
+            visualHTML += "<td width='33%' style='padding: 0px 0px 0px 15px;'>";
+            visualHTML += "Evidence quality<br>";
+            visualHTML += "<b>" + evidenceQualityIcon + "</b><td>";
+            visualHTML += "<td width='33%' style='padding: 0px 0px 0px 15px;'>";
+            visualHTML += "Evidence strength<br>";
+            visualHTML += "<b>" + evidenceStrengthIcon + "</b><td>";
+            visualHTML += "<td width='33%' style='padding: 0px 0px 0px 15px;'>";
+            visualHTML += "<span id='what_is_it'>Evidence volume</span><br>";
+            visualHTML += "<b>" + evidenceVolumeIcon + "</b>";
+            visualHTML += "</td>";
+
+            visualHTML += "</tr>";
+            visualHTML += "</table>";
+
+            visualHTML += "</div>";
+            visualHTML += "</div>";
+
+
+            // the details below the card
+
+            //visualHTML += "<div id='what_is_it'><div>"
+            visualHTML += "<p><h3 id='is_there_an_association_and_how_large_is_it'><b>Is there an association and how large is it?</b></h3></p>";
+            visualHTML += "<p style='white-space: pre-line;'>" + is_there_an_association_and_how_large_is_it + "</p>";
+            visualHTML += "<br>";
+            visualHTML += "<p><h3 id='how_large_is_the_evidence_base'><b>How large is the evidence base?</b></h3></p>";
+            visualHTML += "<p style='white-space: pre-line;'>" + how_large_is_the_evidence_base + "</p>";
+            visualHTML += "<br>";
+            visualHTML += "<p><h3 id='what_is_the_quality_of_the_reviews'><b>What is the quality of the reviews?</b></h3></p>";
+            visualHTML += "<p style='white-space: pre-line;'>" + what_is_the_quality_of_the_reviews + "</p>";
+            visualHTML += "<br>";
+            visualHTML += "<p><h3 id='how_secure_is_the_evidence'><b>How secure is the evidence?</b></h3></p>";
+            visualHTML += "<p style='white-space: pre-line;'>" + how_secure_is_the_evidence + "</p>";
+            visualHTML += "<br>";
+            visualHTML += "<p><h3 id='what_might_explain_this_finding'><b>What might explain this finding?</b></h3></p>";
+            visualHTML += "<p style='white-space: pre-line;'>" + "<img src=\"https://eppi.ioe.ac.uk/cms/portals/35/ER6 Help Images/whatMightExplain.png\" >" + "</p>";
+            visualHTML += "<br>";
+            visualHTML += "<p><h3 id='is_any_of_the_evidence_from_the_UK'><b>Is any of the evidence from the UK?</b></h3></p>";
+            visualHTML += "<p style='white-space: pre-line;'>" + is_any_of_the_evidence_from_the_UK + "</p>";
+            visualHTML += "<br>";
+            visualHTML += "<p><h3 ><b>Are there differences between groups?</b></h3></p>";
+            visualHTML += "<p style='white-space: pre-line;'>" + are_there_differences_between_groups + "</p>";
+            visualHTML += "<br>";
+
+
+            let resultsDiv = $("#visualsDHSCDiv");
+            resultsDiv.html(visualHTML);
+
+        }
+        else {
+            console.log("error", "unable to get data");
+        }
+
+    }
+
+
+
+
+
+
+
+
+
+</script>
+
+
+@{
+    Layout = "~/Views/Shared/_HbeLayout.cshtml";
+}
+
+
+<!-- Side bar coding tools area -->
+<div class="sidebar sidebar-style-2">
+    <div class="sidebar-wrapper scrollbar scrollbar-inner">
+        <div class="sidebar-content">
+
+            <ul class="nav nav-primary">
+                <li class="nav-section">
+                    <span class="sidebar-mini-icon">
+                        <i class="fa fa-ellipsis-h"></i>
+                    </span>
+
+                    <div style="padding-left:10px">
+                        <!-- this button should be invisible if the screen is > 325px wide -->
+                        <button id="smallPhoneButton" class="navbar-toggler sidenav-toggler ml-auto" type="button" data-toggle="collapse"
+                                data-target="collapse" aria-expanded="false" aria-label="Toggle navigation" style="padding-left:0px">
+                            <span class="navbar-toggler-icon">
+                                <i class="icon-menu"></i>
+                            </span>
+                        </button>
+
+                        <!--Filtering controls-->
+                        <table width="100%">
+                            <tr>
+                                <td style='border-bottom: solid; border-width: 1px border-color: black; padding: 10px 10px 10px 10px;'>
+                                    <br /><br /><br />
+                                </td>
+                            </tr>
+                        </table>
+                        <a href="#is_there_an_association_and_how_large_is_it" style="color: #343a40"><h4>Is there an association and how large?</h4></a><hr />
+                        <a href="#how_large_is_the_evidence_base" style="color: #343a40"><h4>How large is the evidence base?</h4></a><hr />
+                        <a href="#what_is_the_quality_of_the_reviews" style="color: #343a40"><h4>What is the quality of the reviews?</h4></a><hr />
+                        <a href="#how_secure_is_the_evidence" style="color: #343a40"><h4>How secure is the evidence?</h4></a><hr />
+                        <a href="#what_might_explain_this_finding" style="color: #343a40"><h4>What might explain this finding?</h4></a><hr />
+                        <a href="#is_any_of_the_evidence_from_the_UK" style="color: #343a40"><h4>Is any of the evidence from the UK?</h4></a><hr />
+                        <a href="#are_there_differences_between_groups" style="color: #343a40"><h4>Are there differences between groups?</h4></a>
+                    </div>
+                </li>
+                <!--<li class="nav-item">
+                    <div id="treeView" style="overflow: auto;height: 100%;max-height: 75vh;font-size: 14px;color: #000000;font-family: Lato,sans-serif;"></div>
+                </li>-->
+
+            </ul>
+            <button onclick="topFunction()" id="myBtn" title="Go to top">Top</button>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="main-panel">
+    <div class="content">
+
+
+
+        <!-- Everything below header -->
+        <div class="page-inner px-2 mt--5">
+            <div class="row mx-0 mt--2">
+                <div class="col-12">
+
+                    <div id="visualsDHSCDiv"></div>
+
+
+                </div>
+
+
+                <div class="col-auto col-lg">
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // Get the button
+    let mybutton = document.getElementById("myBtn");
+
+    // When the user scrolls down 20px from the top of the document, show the button
+    window.onscroll = function () { scrollFunction() };
+
+    function scrollFunction() {
+        if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+            mybutton.style.display = "block";
+        } else {
+            mybutton.style.display = "none";
+        }
+    }
+
+    // When the user clicks on the button, scroll to the top of the document
+    function topFunction() {
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+    }
+</script>

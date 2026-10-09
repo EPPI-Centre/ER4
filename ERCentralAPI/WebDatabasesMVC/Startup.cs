@@ -46,6 +46,11 @@ namespace WebDatabasesMVC
                 {
                     config.Cookie.Name = "WebDbErLoginCookieVawg";
                     config.LoginPath = "/Vawg/Login";
+                })
+                .AddCookie("HbeAuthentication", config =>
+                {
+                    config.Cookie.Name = "WebDbErLoginCookieHbe";
+                    config.LoginPath = "/Hbe/Login";
                 });
             //Rate Limiting: first, get the values we want from Configuration
             var RateLimitingSettings = Configuration.GetSection("RateLimiting")?.GetChildren();
