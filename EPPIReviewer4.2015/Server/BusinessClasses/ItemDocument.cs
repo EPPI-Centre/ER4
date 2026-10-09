@@ -247,6 +247,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@ITEM_DOCUMENT_ID", ReadProperty(ItemDocumentIdProperty)));
+                    command.Parameters.Add(new SqlParameter("@ITEM_ID", ReadProperty(ItemIdProperty)));
                     command.Parameters.Add(new SqlParameter("@DOCUMENT_TITLE", ReadProperty(TitleProperty)));
                     command.Parameters.Add(new SqlParameter("@DOCUMENT_FREE_NOTES", FreeNotesXML));
 					command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));

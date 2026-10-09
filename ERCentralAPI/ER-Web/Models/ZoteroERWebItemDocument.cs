@@ -1,9 +1,11 @@
 using Csla;
+
 //using Csla.Configuration;
 
 #if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
+using BusinessLibrary.Security;
 using Csla.Data;
 #endif
 
@@ -12,15 +14,13 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ZoteroERWebItemDocument : BusinessBase<ZoteroERWebItemDocument>
     {
-        public ZoteroERWebItemDocument()
-        {
-                
-        }
+        public ZoteroERWebItemDocument() { }
 
-        public ZoteroERWebItemDocument(long item_Document_Id, string doc_Zotero_Key) {
+        public ZoteroERWebItemDocument(long item_Document_Id, string doc_Zotero_Key, long ItemID) {
 
             itemDocumentId = item_Document_Id;
             DocZoteroKey = doc_Zotero_Key;
+            itemId = ItemID;
         }
 
         public static readonly PropertyInfo<long> ItemDocumentIdProperty = RegisterProperty<long>(new PropertyInfo<long>("ItemDocumentId", "ItemDocumentId", 0m));
@@ -36,6 +36,18 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<long> ItemIdProperty = RegisterProperty<long>(new PropertyInfo<long>("ItemId", "ItemId"));
+        public long itemId
+        {
+            get
+            {
+                return GetProperty(ItemIdProperty);
+            }
+            set
+            {
+                SetProperty(ItemIdProperty, value);
+            }
+        }
 
         public static readonly PropertyInfo<string> DocZoteroKeyProperty = RegisterProperty<string>(new PropertyInfo<string>("DocZoteroKey", "DocZoteroKey", ""));
         public string DocZoteroKey
@@ -125,6 +137,7 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Insert()
         {
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
@@ -133,6 +146,8 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@DocZoteroKey", ReadProperty(DocZoteroKeyProperty)));
                     command.Parameters.Add(new SqlParameter("@ItemDocumentId", ReadProperty(ItemDocumentIdProperty)));
+                    command.Parameters.Add(new SqlParameter("@ITEM_ID", ReadProperty(ItemIdProperty)));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     command.ExecuteNonQuery();
 
                 }

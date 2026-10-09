@@ -391,7 +391,7 @@ export class ZoteroService extends BusyAwareService implements OnDestroy {
   private deleteERZoterolinkstoItemsAndDocs(ItemKeys: string, DocKeys: string) {
     this._BusyMethods.push("deleteERZoterolinkstoItemsAndDocs");
     const body = { itemKeys: ItemKeys, docKeys: DocKeys };
-    return this._httpC.post<boolean>(this._baseUrl + 'api/Zotero/DeleteLinkedDocsAndItems', body).subscribe(
+    lastValueFrom(this._httpC.post<boolean>(this._baseUrl + 'api/Zotero/DeleteLinkedDocsAndItems', body)).then(
       result => {
         this.RemoveBusy("deleteERZoterolinkstoItemsAndDocs");
       },
@@ -428,9 +428,8 @@ export class ZoteroService extends BusyAwareService implements OnDestroy {
   public async fetchZoteroERWebReviewItemListAsync(attributeId: string, sortResultsBy: LocalSort) {
     this._BusyMethods.push("fetchZoteroERWebReviewItemListAsync");
     this._zoteroERWebReviewItemList = [];
-    return this._httpC.post<iZoteroERWebReviewItem[]>(this._baseUrl +
-      'api/Zotero/FetchZoteroERWebReviewItemList', attributeId)
-      .subscribe(result => {
+    lastValueFrom(this._httpC.post<iZoteroERWebReviewItem[]>(this._baseUrl +
+      'api/Zotero/FetchZoteroERWebReviewItemList', attributeId)).then(result => {
         for (let rr of result) {
           let zri = new ZoteroERWebReviewItem(rr);
           if (zri.itemKey != "") {

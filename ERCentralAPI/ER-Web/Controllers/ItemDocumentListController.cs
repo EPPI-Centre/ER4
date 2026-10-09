@@ -184,45 +184,22 @@ namespace ERxWebClient2.Controllers
                                     return StatusCode(404, "Unrecognised data");
                             }
                             FileContentResult result;
-                            if (type.ToLower() != ".txt")
+                            byte[] stBytes = GetDocBytes(type, ItemDocumentID, dr);
+                            Response.Headers.Add("Content-Length", stBytes.Length.ToString());
+                            result = new FileContentResult(stBytes, Response.ContentType)
                             {
-                                string BlobFilename = ItemDocument.DocBlobFileName(ItemDocumentID, type);
-                                if (BlobOperations.ThisBlobExist(AzureSettings.blobConnection, AzureSettings.FullTextDocsBlobContainer, BlobFilename))
-                                {
-                                    MemoryStream MS = BlobOperations.DownloadBlobAsMemoryStream(AzureSettings.blobConnection, AzureSettings.FullTextDocsBlobContainer, BlobFilename);
-                                    Response.Headers.Add("Content-Length", MS.Length.ToString());
-                                    result = new FileContentResult((byte[])MS.ToArray(), Response.ContentType)
-                                    {
-                                        FileDownloadName = name
-                                    };
-                                }
-                                else
-                                {
-                                    Response.Headers.Add("Content-Length", ((byte[])dr["DOCUMENT_BINARY"]).Length.ToString());
-                                    result = new FileContentResult((byte[])dr["DOCUMENT_BINARY"], Response.ContentType)
-                                    {
-                                        FileDownloadName = name
-                                    };
-                                }
-                            }
-                            else
-                            {
-                                byte[] stBytes = System.Text.Encoding.UTF8.GetBytes(dr["DOCUMENT_TEXT"].ToString());
-                                Response.Headers.Add("Content-Length", stBytes.Length.ToString());
-                                result = new FileContentResult(stBytes, Response.ContentType)
-                                {
-                                    FileDownloadName = name
-                                };
-                            }
+                                FileDownloadName = name
+                            };
+                            
                             //provisional test: can we get the extracted text?
                             //if (type.ToLower() == ".pdf")
                             //{
 
-                                //var bin = dr["DOCUMENT_BINARY"];
-                                //PdfFormatProvider provider = new PdfFormatProvider();
-                                //RadFixedDocument document = provider.Import((byte[])dr["DOCUMENT_BINARY"]);
-                                //TextFormatProvider textFormatProvider = new TextFormatProvider();
-                                //string text = textFormatProvider.Export(document);
+                            //var bin = dr["DOCUMENT_BINARY"];
+                            //PdfFormatProvider provider = new PdfFormatProvider();
+                            //RadFixedDocument document = provider.Import((byte[])dr["DOCUMENT_BINARY"]);
+                            //TextFormatProvider textFormatProvider = new TextFormatProvider();
+                            //string text = textFormatProvider.Export(document);
                             //}
                             cmd.Cancel();//we found in the logs that closing/disposing of the SQLdatareader sometimes times out
                             //calling [command].Cancel() is supposed to speed it up 
@@ -238,6 +215,28 @@ namespace ERxWebClient2.Controllers
                 _logger.SQLActionFailed("Download Error...", parameters, e);
                 return NotFound();
             }
+        }
+        internal static byte[] GetDocBytes(string type, long ItemDocumentID, SqlDataReader dr)
+        {
+            byte[] res = Array.Empty<byte>();
+            if (type.ToLower() != ".txt")
+            {
+                string BlobFilename = ItemDocument.DocBlobFileName(ItemDocumentID, type);
+                if (BlobOperations.ThisBlobExist(AzureSettings.blobConnection, AzureSettings.FullTextDocsBlobContainer, BlobFilename))
+                {
+                    MemoryStream MS = BlobOperations.DownloadBlobAsMemoryStream(AzureSettings.blobConnection, AzureSettings.FullTextDocsBlobContainer, BlobFilename);
+                    res = MS.ToArray();
+                }
+                else
+                {
+                    res = (byte[])dr["DOCUMENT_BINARY"];
+                }
+            }
+            else
+            {
+                res = System.Text.Encoding.UTF8.GetBytes(dr["DOCUMENT_TEXT"].ToString());
+            }
+            return res;
         }
 
         [EnableRateLimiting("HighCostEndpoints")]

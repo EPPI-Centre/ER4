@@ -140,7 +140,8 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
                     connection.Open();
-                    using (SqlCommand command = new SqlCommand("st_SourceGetAllDocsIDs", connection))
+                    using (SqlCommand command = new SqlCommand("st_SourceGetAllNotDuplicateDocsIDs", connection))
+                    //using (SqlCommand command = new SqlCommand("st_SourceGetAllDocsIDs", connection))
                     {
                         //need to at least try to delete docs from blobs
                         //if docs are deduped, then we should get ONLY the docs that belong only to this source

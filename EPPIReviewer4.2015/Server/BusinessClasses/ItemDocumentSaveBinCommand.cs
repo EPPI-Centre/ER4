@@ -207,6 +207,7 @@ namespace BusinessLibrary.BusinessClasses
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.Parameters.Add(new SqlParameter("@ITEM_ID", _itemId));
                         command.Parameters.Add(new SqlParameter("@REVIEW_ID", RevId));
+                        command.Parameters.Add(new SqlParameter("@DOCUMENT_TITLE", _documentTitle));
                         command.Parameters.Add(new SqlParameter("@ZoteroKey", _ZoteroKey));
                         command.Parameters.Add(new SqlParameter("@ItemDocumentId", _itemDocumentId));
                         command.ExecuteNonQuery();
