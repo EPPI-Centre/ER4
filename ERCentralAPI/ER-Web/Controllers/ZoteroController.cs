@@ -1518,7 +1518,7 @@ namespace ERxWebClient2.Controllers
              int RevId, ZoteroBatchError errors)
         {
             var counter = 0;
-            foreach (var itemDoc in erWebZoteroItemDocs)
+            foreach (ErWebZoteroItemDocument itemDoc in erWebZoteroItemDocs)
             {
                 SQLHelper sQLHelper = new SQLHelper(_configuration, _logger);
                 SqlParameter DOC_ID = new SqlParameter("@DOC_ID", SqlDbType.Int);
@@ -1543,31 +1543,21 @@ namespace ERxWebClient2.Controllers
 
                             dr.Read();
                             // TODO CHANGE THIS AT THE END
-                            if (!dr.HasRows) throw new Exception("No rows from SP this does not make sense");
+                            if (!dr.HasRows) throw new Exception("Failed to get data for document: " + DOC_ID.ToString());
 
                             string type = (string)dr["DOCUMENT_EXTENSION"];
                             string name = (string)dr["DOCUMENT_TITLE"];
 
                             name = System.Web.HttpUtility.UrlEncode(name.Replace(type, "") + type);
                             if (name.IndexOf(type) == -1) name = name + type;
-                            byte[] stBytes;
-                            if (type.ToLower() != ".txt")
-                            {
-                                stBytes = (byte[])dr["DOCUMENT_BINARY"];
-
-                            }
-                            else
-                            {
-                                stBytes = System.Text.Encoding.UTF8.GetBytes(dr["DOCUMENT_TEXT"].ToString());
-                            }
-
+                            byte[] stBytes = ItemDocumentListController.GetDocBytes(type, itemDoc.itemDocumentId, dr);
+                            
                             var parentItemKey = itemDoc.parentItemFileKey;
-                            var fileBytes = stBytes;
 
-                            var uploadKeyString =await UploadFileBytesToZoteroAsync(fileBytes, itemDoc.itemDocumentId, parentItemKey, name, type, errors);
+                            var uploadKeyString =await UploadFileBytesToZoteroAsync(stBytes, itemDoc.itemDocumentId, parentItemKey, name, type, errors);
                             if (uploadKeyString != "Failure!")
-                            {
-                                InsertUploadedDocLocally(itemDoc.itemDocumentId, name, uploadKeyString, errors);
+                            { 
+                                InsertUploadedDocLocally(itemDoc.itemDocumentId, itemDoc.itemId, name, uploadKeyString, errors);
                             }
                         }
                     }
@@ -1575,7 +1565,7 @@ namespace ERxWebClient2.Controllers
                 catch (Exception ex)
                 {
                     errors.Add(new SingleError(ex, itemDoc.itemDocumentId.ToString(), "An error happened when uploading this document to Zotero."));
-                    this._logger.LogError("uploading docs to Zotero failed", ex);
+                    _logger.LogException(ex, "Uploading docs to Zotero failed for ER DocId:");
                 }
                 counter++;
             }
@@ -1845,7 +1835,7 @@ namespace ERxWebClient2.Controllers
             }
             return sb.ToString();
         }
-        private void InsertUploadedDocLocally( long itemDocumentId, string filename, 
+        private void InsertUploadedDocLocally( long itemDocumentId, long itemId, string filename, 
             string uploadKeyString, ZoteroBatchError errors)
         {
             try
@@ -1854,12 +1844,8 @@ namespace ERxWebClient2.Controllers
                 {
                     DocZoteroKey = uploadKeyString,
                     itemDocumentId = itemDocumentId,
-                    //ParentItem = fileKey,
-                    //Version = 0, // TODO check with Sergio
-                    //LAST_MODIFIED = DateTime.Now,
-                    //SimpleText = "blah",  // TODO check with Sergio
+                    itemId = itemId,
                     documenT_TITLE = filename
-                    //Extension = extension
                 };
 
                 var dp2 = new DataPortal<ZoteroERWebItemDocument>();

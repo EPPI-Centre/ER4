@@ -184,45 +184,22 @@ namespace ERxWebClient2.Controllers
                                     return StatusCode(404, "Unrecognised data");
                             }
                             FileContentResult result;
-                            if (type.ToLower() != ".txt")
+                            byte[] stBytes = GetDocBytes(type, ItemDocumentID, dr);
+                            Response.Headers.Add("Content-Length", stBytes.Length.ToString());
+                            result = new FileContentResult(stBytes, Response.ContentType)
                             {
-                                string BlobFilename = ItemDocument.DocBlobFileName(ItemDocumentID, type);
-                                if (BlobOperations.ThisBlobExist(AzureSettings.blobConnection, AzureSettings.FullTextDocsBlobContainer, BlobFilename))
-                                {
-                                    MemoryStream MS = BlobOperations.DownloadBlobAsMemoryStream(AzureSettings.blobConnection, AzureSettings.FullTextDocsBlobContainer, BlobFilename);
-                                    Response.Headers.Add("Content-Length", MS.Length.ToString());
-                                    result = new FileContentResult((byte[])MS.ToArray(), Response.ContentType)
-                                    {
-                                        FileDownloadName = name
-                                    };
-                                }
-                                else
-                                {
-                                    Response.Headers.Add("Content-Length", ((byte[])dr["DOCUMENT_BINARY"]).Length.ToString());
-                                    result = new FileContentResult((byte[])dr["DOCUMENT_BINARY"], Response.ContentType)
-                                    {
-                                        FileDownloadName = name
-                                    };
-                                }
-                            }
-                            else
-                            {
-                                byte[] stBytes = System.Text.Encoding.UTF8.GetBytes(dr["DOCUMENT_TEXT"].ToString());
-                                Response.Headers.Add("Content-Length", stBytes.Length.ToString());
-                                result = new FileContentResult(stBytes, Response.ContentType)
-                                {
-                                    FileDownloadName = name
-                                };
-                            }
+                                FileDownloadName = name
+                            };
+                            
                             //provisional test: can we get the extracted text?
                             //if (type.ToLower() == ".pdf")
                             //{
 
-                                //var bin = dr["DOCUMENT_BINARY"];
-                                //PdfFormatProvider provider = new PdfFormatProvider();
-                                //RadFixedDocument document = provider.Import((byte[])dr["DOCUMENT_BINARY"]);
-                                //TextFormatProvider textFormatProvider = new TextFormatProvider();
-                                //string text = textFormatProvider.Export(document);
+                            //var bin = dr["DOCUMENT_BINARY"];
+                            //PdfFormatProvider provider = new PdfFormatProvider();
+                            //RadFixedDocument document = provider.Import((byte[])dr["DOCUMENT_BINARY"]);
+                            //TextFormatProvider textFormatProvider = new TextFormatProvider();
+                            //string text = textFormatProvider.Export(document);
                             //}
                             cmd.Cancel();//we found in the logs that closing/disposing of the SQLdatareader sometimes times out
                             //calling [command].Cancel() is supposed to speed it up 
@@ -238,6 +215,28 @@ namespace ERxWebClient2.Controllers
                 _logger.SQLActionFailed("Download Error...", parameters, e);
                 return NotFound();
             }
+        }
+        internal static byte[] GetDocBytes(string type, long ItemDocumentID, SqlDataReader dr)
+        {
+            byte[] res = Array.Empty<byte>();
+            if (type.ToLower() != ".txt")
+            {
+                string BlobFilename = ItemDocument.DocBlobFileName(ItemDocumentID, type);
+                if (BlobOperations.ThisBlobExist(AzureSettings.blobConnection, AzureSettings.FullTextDocsBlobContainer, BlobFilename))
+                {
+                    MemoryStream MS = BlobOperations.DownloadBlobAsMemoryStream(AzureSettings.blobConnection, AzureSettings.FullTextDocsBlobContainer, BlobFilename);
+                    res = MS.ToArray();
+                }
+                else
+                {
+                    res = (byte[])dr["DOCUMENT_BINARY"];
+                }
+            }
+            else
+            {
+                res = System.Text.Encoding.UTF8.GetBytes(dr["DOCUMENT_TEXT"].ToString());
+            }
+            return res;
         }
 
         [EnableRateLimiting("HighCostEndpoints")]
@@ -286,7 +285,7 @@ namespace ERxWebClient2.Controllers
 
         // DELETE WARNING COMMAND OBJECT
         [HttpPost("[action]")]
-        public IActionResult DeleteDocWarning([FromBody] SingleInt64Criteria id)
+        public IActionResult DeleteDocWarning([FromBody] DeleteDoc crit)
         {
 
             try
@@ -294,7 +293,7 @@ namespace ERxWebClient2.Controllers
                 if (SetCSLAUser4Writing())
                 {
                     DataPortal<ItemDocumentDeleteWarningCommand> dp = new DataPortal<ItemDocumentDeleteWarningCommand>();
-                    ItemDocumentDeleteWarningCommand command = new ItemDocumentDeleteWarningCommand(id.Value);
+                    ItemDocumentDeleteWarningCommand command = new ItemDocumentDeleteWarningCommand(crit.itemDocumentID, crit.itemID);
                     command = dp.Execute(command);
                     return Ok(command.NumCodings);
                 }
@@ -305,7 +304,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error when delete doc warning is called: {0}", id.Value);
+                _logger.LogError(e, "Error when delete doc warning is called: {0}", crit.itemDocumentID);
                 return StatusCode(500, e.Message);
             }
 
@@ -313,14 +312,14 @@ namespace ERxWebClient2.Controllers
 
         [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
-        public IActionResult DeleteDoc([FromBody] SingleInt64Criteria id)
+        public IActionResult DeleteDoc([FromBody] DeleteDoc deleteDoc)
         {
 
             try
             {
                 if (SetCSLAUser4Writing())
                 {
-                    ItemDocumentDeleteCommand cmd = new ItemDocumentDeleteCommand(id.Value);
+                    ItemDocumentDeleteCommand cmd = new ItemDocumentDeleteCommand(deleteDoc.itemDocumentID, deleteDoc.itemID);
                     DataPortal<ItemDocumentDeleteCommand> dp = new DataPortal<ItemDocumentDeleteCommand>();
                     cmd = dp.Execute(cmd);
 
@@ -333,7 +332,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error when Deleting uploaded Document: {0}", id.Value);
+                _logger.LogError(e, "Error when Deleting uploaded Document: {0}", deleteDoc.itemDocumentID);
                 return StatusCode(500, e.Message);
             }
         }
@@ -342,6 +341,11 @@ namespace ERxWebClient2.Controllers
     {
         public long itemID { get; set; }
         public IFormFile[] files { get; set; } 
+    }
+    public class DeleteDoc
+    {
+        public long itemID { get; set; }
+        public long itemDocumentID { get; set; }
     }
 }
 

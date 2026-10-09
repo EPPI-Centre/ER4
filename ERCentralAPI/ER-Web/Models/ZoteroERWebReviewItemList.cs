@@ -62,7 +62,7 @@ namespace BusinessLibrary.BusinessClasses
                             var currentItem = this.Where(f => f.ItemID == itemId).FirstOrDefault();
                             if (currentItem != null)
                             {
-                                var zoteroDoc = new ZoteroERWebItemDocument(reader.GetInt64("ITEM_DOCUMENT_ID"),  reader.GetString("DocZoteroKey"));
+                                var zoteroDoc = new ZoteroERWebItemDocument(reader.GetInt64("ITEM_DOCUMENT_ID"),  reader.GetString("DocZoteroKey"), itemId);
                                 if (zoteroDoc != null)
                                 {
                                     currentItem.PdfList.Add(zoteroDoc);

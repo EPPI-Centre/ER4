@@ -852,7 +852,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             String delim = " ,.*|@/\\+=-_!£$%^&*()`\"";
             return inSt.Trim(delim.ToCharArray());
         }
-        public static string StripIllegalChars(string text)
+        public static string StripIllegalChars(string text, bool alsoStrip10more = false)
         {//from http://codeclarity.blogspot.com/2009/05/c-strip-invalid-xml-10-characters.html
             //text = text.Replace("ﬁ", "fi"); 
             const string illegalXmlChars = @"[\u0000-\u0008]|[\u000B-\u000C]|[\u000E-\u0019]|[\u007F-\u009F]|[\uD800-\uDBFF]|[\uDC00-\uDFFF]";
@@ -905,6 +905,25 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             else if (returns == 1 && newlines > 1)
             {
                 text = text.Replace("\n", System.Environment.NewLine);
+            }
+            if (alsoStrip10more)
+            {//added in Oct 2026 to replace dbo.fn_CLEAN_SIMPLE_TEXT as we need this to happen in C# to fully dedup Uploaded Docs
+                char[] chars = [ (char)1
+                        , '|', (char)2
+                        , '|', (char)7
+                        , '|', (char)16
+                        , '|', (char)17
+                        , '|', (char)21
+                        , '|', (char)23
+                        , '|', (char)12
+                        , '|', (char)30
+                        , '|', (char)31 ];
+                string toremove = "[" + new string(chars) + "]"; 
+                regex = new Regex(toremove);
+                if (regex.IsMatch(text))
+                {
+                    text = regex.Replace(text, " ");
+                }
             }
             return text.Trim();
         }

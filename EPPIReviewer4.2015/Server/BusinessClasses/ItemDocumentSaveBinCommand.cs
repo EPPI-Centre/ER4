@@ -11,7 +11,6 @@ using Csla.Silverlight;
 using System.ComponentModel;
 using Csla.DataPortalClient;
 using System.Threading;
-using static System.Net.Mime.MediaTypeNames;
 
 #if!SILVERLIGHT
 using System.Data.SqlClient;
@@ -114,7 +113,33 @@ namespace BusinessLibrary.BusinessClasses
             }
             else
             {
-                _documentText = ImportItems.ImportRefs.StripIllegalChars(res.SimpleText);
+                _documentText = ImportItems.ImportRefs.StripIllegalChars(res.SimpleText, true);
+                _documentText = _documentText.Replace("\r\n", "\n");
+                //char[] chars = [ (char)1
+                //        , '|', (char)2
+                //        , '|', (char)7
+                //        , '|', (char)16
+                //        , '|', (char)17
+                //        , '|', (char)21
+                //        , '|', (char)23
+                //        , '|', (char)12
+                //        , '|', (char)30
+                //        , '|', (char)31 ];
+                //string test = "this is some string" + new string(chars)
+                //    + "this is some string " + new string(chars)
+                //    + " this is some string " + new string(chars)
+                //    + " this is some string " + new string(chars)
+                //    + " this is some string " + new string(chars)
+                //    + " this is some string " + new string(chars)
+                //    + " this is some string " + new string(chars)
+                //    + " this is some string " + new string(chars)
+                //    + " this is some string.";
+                //string test2 = test;
+                //test = ImportItems.ImportRefs.StripIllegalChars(test, true);
+                //if (test != test2)
+                //{
+                //    Console.WriteLine("YAY!!");
+                //}
             }
             if (_documentText.Length > 200) hashed = HashString(_documentText);
             else
@@ -123,33 +148,102 @@ namespace BusinessLibrary.BusinessClasses
                 hashed = "0x0000000000000000000000000000000000000000";
             }
 
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            int RevId = ri.ReviewId;
+            long ExistingDuplicateDocId = -1;
+            //TO DO! find full duplicates (docs with identical bin content) and thus decide
+            //whether to add a new full record (st_ItemDocumentBinInsert) or not (to be written SP)
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-                using (SqlCommand command = new SqlCommand("st_ItemDocumentBinInsert", connection))
+                string CandidateExtractedText = "";
+                string CandidateType = "";//file extension
+                byte[] CandidateBin = Array.Empty<byte>(); //needs to be the same as _docbin
+                //find exact duplicates on binary content - if we have just one doc we show only that.
+                if (hashed != "0x0000000000000000000000000000000000000000")
                 {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@ITEM_ID", _itemId));
-                    command.Parameters.Add(new SqlParameter("@DOCUMENT_TITLE", _documentTitle));
-                    command.Parameters.Add(new SqlParameter("@BIN", System.Data.SqlDbType.Image));
-                    command.Parameters[2].Value = System.DBNull.Value;
-                    command.Parameters.Add(new SqlParameter("@DOCUMENT_EXTENSION", _documentExtension));
-                    command.Parameters.Add(new SqlParameter("@DOCUMENT_TEXT", _documentText));
-                    command.Parameters.Add(new SqlParameter("@ZoteroKey", _ZoteroKey));
-                    command.Parameters.Add(new SqlParameter("@HashString", hashed));
-                    command.Parameters.Add(new SqlParameter("@ItemDocumentId", System.Data.SqlDbType.BigInt));
-                    command.Parameters["@ItemDocumentId"].Direction = System.Data.ParameterDirection.Output;
-                    command.ExecuteNonQuery();
-                    //if (_ZoteroKey != "")
-                    //{
+                    using (SqlCommand command = new SqlCommand("st_ItemDocumentFindDuplicateCandidates", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@HashString", hashed));
+                        using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                        {
+                            while (reader.Read())
+                            {
+                                CandidateType = reader.GetString("DOCUMENT_EXTENSION");
+                                if (CandidateType != _documentExtension) continue;
+                                CandidateExtractedText = reader.GetString("DOCUMENT_TEXT");
+                                if (CandidateExtractedText != _documentText) continue;
+                                ExistingDuplicateDocId = reader.GetInt64("ITEM_DOCUMENT_ID");
+                                string BlobFilename = ItemDocument.DocBlobFileName(ExistingDuplicateDocId, CandidateType);
+                                if (BlobOperations.ThisBlobExist(AzureSettings.blobConnection, AzureSettings.FullTextDocsBlobContainer, BlobFilename))
+                                {
+                                    MemoryStream MS = BlobOperations.DownloadBlobAsMemoryStream(AzureSettings.blobConnection, AzureSettings.FullTextDocsBlobContainer, BlobFilename);
+                                    CandidateBin = (byte[])MS.ToArray();
+                                }
+                                else
+                                {
+                                    CandidateBin = (byte[])reader["DOCUMENT_BINARY"];
+                                }
+                                if (_docbin.Length == CandidateBin.Length
+                                    && _docbin.SequenceEqual(CandidateBin)
+                                    )
+                                {//we found a match
+                                    break;
+                                }
+                                else
+                                {
+                                    ExistingDuplicateDocId = -1;
+                                } 
+                            }
+                        }
+                    }
+                }
+                if (ExistingDuplicateDocId > 0)
+                {//we're adding this as a new reference to the existing doc
+                    _itemDocumentId = ExistingDuplicateDocId;
+                    using (SqlCommand command = new SqlCommand("st_ItemDocumentLinkInsert", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@ITEM_ID", _itemId));
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", RevId));
+                        command.Parameters.Add(new SqlParameter("@DOCUMENT_TITLE", _documentTitle));
+                        command.Parameters.Add(new SqlParameter("@ZoteroKey", _ZoteroKey));
+                        command.Parameters.Add(new SqlParameter("@ItemDocumentId", _itemDocumentId));
+                        command.ExecuteNonQuery();
+                    }
+                }
+                else
+                {//add a new doc!
+                    using (SqlCommand command = new SqlCommand("st_ItemDocumentBinInsert", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@ITEM_ID", _itemId));
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", RevId));
+                        command.Parameters.Add(new SqlParameter("@DOCUMENT_TITLE", _documentTitle));
+                        command.Parameters.Add(new SqlParameter("@BIN", System.Data.SqlDbType.Image));
+                        command.Parameters["@BIN"].Value = System.DBNull.Value;
+                        command.Parameters.Add(new SqlParameter("@DOCUMENT_EXTENSION", _documentExtension));
+                        command.Parameters.Add(new SqlParameter("@DOCUMENT_TEXT", _documentText));
+                        command.Parameters.Add(new SqlParameter("@ZoteroKey", _ZoteroKey));
+                        command.Parameters.Add(new SqlParameter("@HashString", hashed));
+                        command.Parameters.Add(new SqlParameter("@ItemDocumentId", System.Data.SqlDbType.BigInt));
+                        command.Parameters["@ItemDocumentId"].Direction = System.Data.ParameterDirection.Output;
+                        command.ExecuteNonQuery();
+
                         _itemDocumentId = (long)command.Parameters["@ItemDocumentId"].Value;
-                    //}
+                        
+
+                    }
                 }
                 connection.Close();
             }
-            string blobname = ItemDocument.DocBlobFileName(ItemDocumentId, _documentExtension);
-            MemoryStream ms = new MemoryStream(_docbin);
-            BlobOperations.UploadStream(AzureSettings.blobConnection, AzureSettings.FullTextDocsBlobContainer, blobname, ms);
+            if (ExistingDuplicateDocId == -1)
+            {//we added a new full doc record, so we'll upload the actual file to blob storage
+                string blobname = ItemDocument.DocBlobFileName(ItemDocumentId, _documentExtension);
+                MemoryStream ms = new MemoryStream(_docbin);
+                BlobOperations.UploadStream(AzureSettings.blobConnection, AzureSettings.FullTextDocsBlobContainer, blobname, ms);
+            }
         }
         public ItemDocumentSaveBinCommand doItNow()
         {

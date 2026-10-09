@@ -29,6 +29,7 @@ namespace BusinessLibrary.BusinessClasses
             _ClassifierSettings = config.GetSection("ClassifierSettings");
             _AppSettings = config.GetSection("AppSettings");
             _RobotSettings = config.GetSection("RobotSettings");
+            _OpenDataSystemSettings = config.GetSection("OpenDataSystemSettings");
         }
 
         private static Microsoft.Extensions.Configuration.IConfigurationSection _AppSettings;
@@ -90,6 +91,14 @@ namespace BusinessLibrary.BusinessClasses
                 return _RobotSettings;
             }
         }
+        private static Microsoft.Extensions.Configuration.IConfigurationSection _OpenDataSystemSettings;
+        private static Microsoft.Extensions.Configuration.IConfigurationSection OpenDataSystemSettings
+        {
+            get
+            {
+                return _OpenDataSystemSettings;
+            }
+        }
 #else
         private static NameValueCollection _AllAppSettings;
         private static NameValueCollection AppSettings
@@ -125,6 +134,14 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         private static NameValueCollection RobotSettings
+        {
+            get
+            {
+                if (_AllAppSettings == null) _AllAppSettings = ConfigurationManager.AppSettings;
+                return _AllAppSettings;
+            }
+        }
+        private static NameValueCollection OpenDataSystemSettings
         {
             get
             {
@@ -231,6 +248,11 @@ namespace BusinessLibrary.BusinessClasses
         //robots:
         public static string RobotReviewerEndpoint { get { return RobotSettings["RobotReviewerEndpoint"]; } }
         public static string RobotHBCPEndpoint { get { return RobotSettings["RobotHBCPEndpoint"]; } }
+
+        // Open Data System
+        public static string ODSTokenEndpoint { get { return OpenDataSystemSettings["ODSTokenEndpoint"]; } }
+        public static string ODSClientId { get { return OpenDataSystemSettings["ODSClientId"]; } }
+        public static string ODSClientSecret { get { return OpenDataSystemSettings["ODSClientSecret"]; } }
 
         public static string RobotAPIKeyByRobotName(string robotName)
         {

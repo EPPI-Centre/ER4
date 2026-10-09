@@ -50,6 +50,7 @@ import { ImportReferencesFileComponent } from './Sources/importreferencesfile.co
 import { ROSourcesListComponent } from './Sources/ROSourcesList.component';
 import { SourcesComponent } from './Sources/sources.component';
 import { PubMedComponent } from './Sources/PubMed.component';
+import { ODSSearchComponent } from './Sources/ODSSearch.component'
 import { ReviewSetsEditorComponent } from './CodesetTrees/reviewSetsEditor.component';
 import { CodesetTreeMainComponent } from './CodesetTrees/codesetTreeMain.component';
 import { CodesetTreeEditComponent } from './CodesetTrees/codesetTreeEdit.component';
@@ -225,6 +226,7 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
     BuildModelComponent,
     ImportReferencesFileComponent,
     PubMedComponent,
+    ODSSearchComponent,
     intropageComponent,
     ModalDialogComponent,
     HeaderComponent,
