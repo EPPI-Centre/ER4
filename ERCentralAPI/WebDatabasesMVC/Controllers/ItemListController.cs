@@ -199,6 +199,7 @@ namespace WebDatabasesMVC.Controllers
             }
         }
         [Authorize(AuthenticationSchemes = "VawgAuthentication")]
+        [Authorize(AuthenticationSchemes = "HbeAuthentication")]
         [Authorize(AuthenticationSchemes = "CookieAuthentication")]
 
         [EnableRateLimiting("HighCostEndpoints")]
@@ -563,6 +564,24 @@ namespace WebDatabasesMVC.Controllers
                 if (SetCSLAUser())
                 {
                     return View("VawgItemDetails", crit);
+                }
+                else return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in ItemDetails");
+                return StatusCode(500, e.Message);
+            }
+        }
+        [Authorize(AuthenticationSchemes = "HbeAuthentication")]
+        [HttpPost]
+        public IActionResult HbeItemDetails(ItemSelCritMVC crit)
+        {
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    return View("HbeItemDetails", crit);
                 }
                 else return Unauthorized();
             }

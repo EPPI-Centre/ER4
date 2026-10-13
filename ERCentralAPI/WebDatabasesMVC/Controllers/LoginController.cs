@@ -71,6 +71,7 @@ namespace WebDatabasesMVC.Controllers
             await HttpContext.SignOutAsync("FairAuthentication");
             await HttpContext.SignOutAsync("CookieAuthentication");
             await HttpContext.SignOutAsync("VawgAuthentication");
+            await HttpContext.SignOutAsync("HbeAuthentication");
             await HttpContext.SignOutAsync();
         }
 
