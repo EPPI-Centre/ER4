@@ -41,6 +41,29 @@ namespace ERxWebClient2.Controllers
             }
 
         }
+        [HttpGet("[action]")]
+        public IActionResult GetAllRobotsIds()
+        {
+
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                SingleCriteria<RobotCoderReadOnlyList, bool> OmitPrivateRobotsCrit = new SingleCriteria<RobotCoderReadOnlyList, bool>(false);
+                RobotCoderReadOnlyList res0 = DataPortal.Fetch<RobotCoderReadOnlyList>(OmitPrivateRobotsCrit);
+                List<KeyValuePair<long, long>> res = new List<KeyValuePair<long, long>>();
+                foreach(RobotCoderReadOnly r in res0)
+                {
+                    res.Add(new KeyValuePair<long, long>(r.RobotId, r.RobotContactId));
+                }
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "GetAllRobotsIds error");
+                return StatusCode(500, e.Message);
+            }
+
+        }
 
 
         [HttpGet("[action]")]

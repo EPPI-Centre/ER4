@@ -41,6 +41,8 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
   public RobotsList: iRobotCoderReadOnly[] = [];//only the currently active robots, since July 2026
   public RobotsExpiredList: iRobotCoderReadOnly[] = [];
 
+  public RobotIdsList: iRobotIds[] = []; //ids of all robots, used to know what review members can't be edited in the UI
+
   public CurrentQueue: iRobotOpenAiTaskReadOnly[] = [];
   public PastJobs: RobotOpenAiTaskReadOnly[] = [];
 
@@ -62,6 +64,28 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
         })
       .catch((err) => {
         this.RemoveBusy("GetRobotsList");
+        this.modalService.GenericError(err);
+      });
+  }
+
+  public GetAllRobotIDs(): Promise<void> {
+    this.RobotIdsList = [];
+    this._BusyMethods.push("GetAllRobotIDs");
+    return lastValueFrom(this._httpC.get<ikvNumber[]>(this._baseUrl + 'api/Robots/GetAllRobotsIds'))
+      .then((res) => {
+        for (const rcro of res) {
+          this.RobotIdsList.push({
+            robotId: rcro.key, robotContactId: rcro.value
+          });
+        }
+        this.RemoveBusy("GetAllRobotIDs");
+      },
+        (err) => {
+          this.RemoveBusy("GetAllRobotIDs");
+          this.modalService.GenericError(err);
+        })
+      .catch((err) => {
+        this.RemoveBusy("GetAllRobotIDs");
         this.modalService.GenericError(err);
       });
   }
@@ -774,6 +798,14 @@ export interface iRobotCoderReadOnly {
   isRetired: boolean;
   inputTokenCostPerMillion: number;
   outputTokenCostPerMillion: number;
+}
+export interface iRobotIds {
+  robotId: number;
+  robotContactId: number;
+}
+export interface ikvNumber {
+  key: number;
+  value: number;
 }
 
 export interface iRobotOpenAiTaskError {

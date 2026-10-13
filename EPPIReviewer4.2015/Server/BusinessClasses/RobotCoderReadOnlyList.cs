@@ -24,11 +24,20 @@ namespace BusinessLibrary.BusinessClasses
         public RobotCoderReadOnlyList() 
         {
         }
-        
+
 
 #if !SILVERLIGHT
 
+        private void DataPortal_Fetch(SingleCriteria<RobotCoderReadOnlyList, bool> OmitPrivateRobotsCrit)
+        {
+            InnerDataPortal_Fetch(OmitPrivateRobotsCrit.Value);
+        }
         private void DataPortal_Fetch()
+        {
+            InnerDataPortal_Fetch(true);
+        }
+        
+        private void InnerDataPortal_Fetch(bool OmitPrivateRobots)
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             RaiseListChangedEvents = false;
@@ -39,8 +48,8 @@ namespace BusinessLibrary.BusinessClasses
                 connection.Open();
                 using (SqlCommand command = new SqlCommand("st_RobotCoderList", connection))
                 {
-                    command.CommandType = System.Data.CommandType.StoredProcedure; 
-                    if (ri.IsSiteAdmin)
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    if (ri.IsSiteAdmin || OmitPrivateRobots == false)
                     {
                         command.Parameters.Add(new SqlParameter("@isSiteAdmin", true));
                     }
@@ -53,7 +62,6 @@ namespace BusinessLibrary.BusinessClasses
             IsReadOnly = true;
             RaiseListChangedEvents = true;
         }
-        
         private void Child_Fetch(SafeDataReader reader)
         {
             RaiseListChangedEvents = false;
