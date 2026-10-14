@@ -2,18 +2,35 @@
 
 USE Reviewer
 GO
-
-
-if (select count(distinct z.Zotero_Item_Document_ID)
-	from TB_ZOTERO_ITEM_DOCUMENT z
-	inner join TB_ITEM_DOCUMENT itd on z.ItemDocumentId = itd.ITEM_DOCUMENT_ID
-	inner join TB_ITEM_REVIEW ir on itd.ITEM_ID = ir.ITEM_ID) != (select count(*) from TB_ZOTERO_ITEM_DOCUMENT)
-BEGIN 
-	SELECT * from TB_ZOTERO_ITEM_DOCUMENT z
-	inner join TB_ITEM_DOCUMENT itd on z.ItemDocumentId = itd.ITEM_DOCUMENT_ID
-	inner join TB_ITEM_REVIEW ir on itd.ITEM_ID = ir.ITEM_ID
-	if (1 = 1) THROW 51000, 'Will delete data from TB_ZOTERO_ITEM_DOCUMENT!!!!', 1;
+IF COL_LENGTH('dbo.TB_ITEM_DOCUMENT', 'ITEM_ID_STALE') IS NOT NULL
+BEGIN
+	EXECUTE sp_executesql N'if (select count(distinct z.Zotero_Item_Document_ID)
+								from TB_ZOTERO_ITEM_DOCUMENT z
+								inner join TB_ITEM_DOCUMENT itd on z.ItemDocumentId = itd.ITEM_DOCUMENT_ID
+								inner join TB_ITEM_REVIEW ir on itd.ITEM_ID_STALE = ir.ITEM_ID) != (select count(*) from TB_ZOTERO_ITEM_DOCUMENT)
+							BEGIN 
+								SELECT * from TB_ZOTERO_ITEM_DOCUMENT z
+								inner join TB_ITEM_DOCUMENT itd on z.ItemDocumentId = itd.ITEM_DOCUMENT_ID
+								inner join TB_ITEM_REVIEW ir on itd.ITEM_ID_STALE = ir.ITEM_ID
+								if (1 = 1) print ''Will delete data from TB_ZOTERO_ITEM_DOCUMENT!!!!'';
+							END
+							else print ''will NOT delete data from TB_ZOTERO_ITEM_DOCUMENT'''
 END
+else
+BEGIN
+	EXECUTE sp_executesql N'if (select count(distinct z.Zotero_Item_Document_ID)
+								from TB_ZOTERO_ITEM_DOCUMENT z
+								inner join TB_ITEM_DOCUMENT itd on z.ItemDocumentId = itd.ITEM_DOCUMENT_ID
+								inner join TB_ITEM_REVIEW ir on itd.ITEM_ID = ir.ITEM_ID) != (select count(*) from TB_ZOTERO_ITEM_DOCUMENT)
+							BEGIN 
+								SELECT * from TB_ZOTERO_ITEM_DOCUMENT z
+								inner join TB_ITEM_DOCUMENT itd on z.ItemDocumentId = itd.ITEM_DOCUMENT_ID
+								inner join TB_ITEM_REVIEW ir on itd.ITEM_ID = ir.ITEM_ID
+								if (1 = 1) print ''Will delete data from TB_ZOTERO_ITEM_DOCUMENT!!!!'';
+							END
+							else print ''will NOT delete data from TB_ZOTERO_ITEM_DOCUMENT'''
+END
+GO
 
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES
            WHERE TABLE_NAME = N'TB_ITEM_TO_DOCUMENT')
