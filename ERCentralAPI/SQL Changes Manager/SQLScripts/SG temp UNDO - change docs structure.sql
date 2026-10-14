@@ -9,7 +9,7 @@ delete from TB_ITEM_TO_DOCUMENT
 from TB_ITEM_TO_DOCUMENT itd
 inner join TB_ITEM_DOCUMENT d on itd.ITEM_DOCUMENT_ID = d.ITEM_DOCUMENT_ID and itd.ITEM_ID != d.ITEM_ID_STALE
 
---put data in TB_ITEM_TO_DOCUMENT for new records that used new SPs
+--put data in TB_ITEM_DOCUMENT for new records that used new SPs
 IF COL_LENGTH('dbo.TB_ITEM_TO_DOCUMENT', 'DOCUMENT_TITLE') IS NULL
 BEGIN
 	EXECUTE sp_executesql N'update TB_ITEM_DOCUMENT set ITEM_ID_STALE = itd.ITEM_ID

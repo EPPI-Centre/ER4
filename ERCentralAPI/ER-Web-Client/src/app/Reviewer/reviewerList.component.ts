@@ -34,8 +34,8 @@ export class ReviewerListComponent implements OnInit {
     @Inject('BASE_URL') private _baseUrl: string,
   ) { }
   ngOnInit() {
-    if (this.robotsService.RobotsList.length == 0) {
-      this.robotsService.GetRobotsList().then(()=> this.DoFilterContacts());
+    if (this.robotsService.RobotIdsList.length == 0) {
+      this.robotsService.GetAllRobotIDs().then(()=> this.DoFilterContacts());
     }
     else this.DoFilterContacts();
     //this.RefreshData();
@@ -53,7 +53,7 @@ export class ReviewerListComponent implements OnInit {
     return this._FilteredContacts;
   }
   public DoFilterContacts(): void {
-    const theFullList = this.robotsService.RobotsList.concat(this.robotsService.RobotsExpiredList);
+    const theFullList = this.robotsService.RobotIdsList;
     this._FilteredContacts = this.reviewInfoService.Contacts.filter(
       f => {
         if (theFullList.findIndex(ff => ff.robotContactId == f.contactId) != -1) return false;
