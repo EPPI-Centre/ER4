@@ -153,6 +153,7 @@
             var impact1Icon = "";
             var impact2Icon = "";
             var impact3Icon = "";
+            var report_image = "?";
 
 
             var volumeOnIcon = "<i class='fas fa-lg fa-file-alt'></i>&nbsp;&nbsp;";
@@ -373,7 +374,7 @@
                         break;
                     // what_might_explain_this_finding
                     case codingData.reviewSets[1].attributes.attributesList[4].attributeId:
-                        what_might_explain_this_finding = codingData.itemSetList[1].itemAttributesList[k].additionalText;
+                        report_image = codingData.itemSetList[1].itemAttributesList[k].additionalText;
                         break;
                     // is_any_of_the_evidence_from_the_UK
                     case codingData.reviewSets[1].attributes.attributesList[5].attributeId:
@@ -466,6 +467,9 @@
             visualHTML += "<p><h3 id='is_there_an_association_and_how_large_is_it'><b>Is there an association and how large is it?</b></h3></p>";
             visualHTML += "<p style='white-space: pre-line;'>" + is_there_an_association_and_how_large_is_it + "</p>";
             visualHTML += "<br>";
+            visualHTML += "<p><h3 id='what_might_explain_this_finding'><b>What might explain this finding?</b></h3></p>";
+            visualHTML += "<p style='white-space: pre-line;'>" + "<img src=\"" + report_image  + "\" >" + "</p>";
+            visualHTML += "<br>";
             visualHTML += "<p><h3 id='how_large_is_the_evidence_base'><b>How large is the evidence base?</b></h3></p>";
             visualHTML += "<p style='white-space: pre-line;'>" + how_large_is_the_evidence_base + "</p>";
             visualHTML += "<br>";
@@ -474,10 +478,7 @@
             visualHTML += "<br>";
             visualHTML += "<p><h3 id='how_secure_is_the_evidence'><b>How secure is the evidence?</b></h3></p>";
             visualHTML += "<p style='white-space: pre-line;'>" + how_secure_is_the_evidence + "</p>";
-            visualHTML += "<br>";
-            visualHTML += "<p><h3 id='what_might_explain_this_finding'><b>What might explain this finding?</b></h3></p>";
-            visualHTML += "<p style='white-space: pre-line;'>" + "<img src=\"https://eppi.ioe.ac.uk/cms/portals/35/ER6 Help Images/whatMightExplain.png\" >" + "</p>";
-            visualHTML += "<br>";
+            visualHTML += "<br>";         
             visualHTML += "<p><h3 id='is_any_of_the_evidence_from_the_UK'><b>Is any of the evidence from the UK?</b></h3></p>";
             visualHTML += "<p style='white-space: pre-line;'>" + is_any_of_the_evidence_from_the_UK + "</p>";
             visualHTML += "<br>";
