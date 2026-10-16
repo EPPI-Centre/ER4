@@ -1,7 +1,7 @@
 <div class="m-1">
   <div>
     <b>Edit Review members</b>
-    <button [disabled]="isCochraneReview" class="btn btn-primary btn-sm px-1 py-0 mb-1 mr-1 float-right"
+    <button *ngIf="shareableReview" [disabled]="isCochraneReview" class="btn btn-primary btn-sm px-1 py-0 mb-1 mr-1 float-right"
             (click)="ExpandAddReviewer()">
       Add reviewer
     </button>

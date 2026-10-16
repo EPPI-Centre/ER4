@@ -972,13 +972,14 @@
                         // check for outcomes
                         if (cbOutcomes.includes(outcomeValue) || (cbOutcomes == "")) 
                         {                           
-                             if (itemCounter == 0) {
+
+                            if (itemCounter == 0) {
                                 visualHTML += "<div class='row' width='100%'>";
                              }
                             
                             
                             if (itemCounter == 0) {
-                                visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px;>";
+                                visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px; min-height: 150px;>";
 
                                 //-----------------------------------------------------
                                 topColour = returnTopColour (exposureValue);
@@ -1036,7 +1037,7 @@
 
                             if (itemCounter == 1) {
 
-                                visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px;>";
+                                visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px; min-height: 150px;>";
 
                                 //-----------------------------------------------------
                                 topColour = returnTopColour (exposureValue);
@@ -1094,7 +1095,7 @@
 
                             if (itemCounter == 2) {
 
-                                visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px;>";
+                                visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px; min-height: 150px;>";
 
                                 //-----------------------------------------------------
                                 topColour = returnTopColour (exposureValue);
@@ -1152,7 +1153,7 @@
 
                             if (itemCounter == 3) {
 
-                                visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px;>";
+                                visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px; min-height: 150px;>";
 
                                 //-----------------------------------------------------
                                 topColour = returnTopColour (exposureValue);
@@ -1217,6 +1218,7 @@
                             else {
                                 itemCounter +=1;
                             }
+
                         }
                     }
                 }

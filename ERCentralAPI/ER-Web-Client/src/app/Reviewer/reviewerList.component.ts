@@ -46,6 +46,17 @@ export class ReviewerListComponent implements OnInit {
   public get isCochraneReview(): boolean {
     return this.reviewInfoService.ReviewInfo.isCochrane;
   };
+
+  public get shareableReview(): boolean {
+    if (this.ReviewerIdentityService.getDaysLeftReview() == -999999) {//review is private
+      return false;
+    }
+    else {
+      return true;
+    }
+  }
+
+
   public get Contacts(): Contact[] {
     return this.reviewInfoService.Contacts;
   }
