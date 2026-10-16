@@ -339,6 +339,28 @@ namespace BusinessLibrary.BusinessClasses
                                             + extension;
             return BlobFilename;
         }
+        public static byte[] GetDocBytes(string type, long ItemDocumentID, SafeDataReader dr)
+        {
+            byte[] res = Array.Empty<byte>();
+            if (type.ToLower() != ".txt")
+            {
+                string BlobFilename = DocBlobFileName(ItemDocumentID, type);
+                if (BlobOperations.ThisBlobExist(AzureSettings.blobConnection, AzureSettings.FullTextDocsBlobContainer, BlobFilename))
+                {
+                    System.IO.MemoryStream MS = BlobOperations.DownloadBlobAsMemoryStream(AzureSettings.blobConnection, AzureSettings.FullTextDocsBlobContainer, BlobFilename);
+                    res = MS.ToArray();
+                }
+                else
+                {
+                    res = (byte[])dr["DOCUMENT_BINARY"];
+                }
+            }
+            else
+            {
+                res = System.Text.Encoding.UTF8.GetBytes(dr["DOCUMENT_TEXT"].ToString());
+            }
+            return res;
+        }
 #endif
 
     }

@@ -73,6 +73,50 @@ BEGIN
 	--alter table TB_ZOTERO_ITEM_DOCUMENT drop constraint FK_tb_ZOTERO_ITEM_DOCUMENTtb_ITEM_REVIEW
 	alter table TB_ZOTERO_ITEM_DOCUMENT drop column ITEM_REVIEW_ID
 END
+------------recreate one function------------
+USE [Reviewer]
+GO
+
+/****** Object:  UserDefinedFunction [dbo].[fn_CLEAN_SIMPLE_TEXT]    Script Date: 15/10/2026 14:10:09 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		Sergio
+-- Create date: 24/07/09
+-- Description:	Function to clean simple text fields
+-- =============================================
+CREATE or alter FUNCTION [dbo].[fn_CLEAN_SIMPLE_TEXT] 
+(
+	-- Add the parameters for the function here
+	@txt nvarchar(max)
+)
+RETURNS nvarchar(max)
+AS
+BEGIN
+	-- Declare the return variable here
+	DECLARE @Res nvarchar(max)
+
+	-- Add the T-SQL statements to compute the return value here
+	SET @Res = replace(cast(@txt as nvarchar(max)), CAST(0x01 AS nvarchar), ' ')
+	SET @Res = replace(cast(@Res as nvarchar(max)), CAST(0x02 AS nvarchar), ' ')
+	SET @Res = replace(cast(@Res as nvarchar(max)), CAST(0x07 AS nvarchar), ' ')
+	SET @Res = replace(cast(@Res as nvarchar(max)), CAST(0x10 AS nvarchar), ' ')
+	SET @Res = replace(cast(@Res as nvarchar(max)), CAST(0x11 AS nvarchar), ' ')
+	SET @Res = replace(cast(@Res as nvarchar(max)), CAST(0x15 AS nvarchar), ' ')
+	SET @Res = replace(cast(@Res as nvarchar(max)), CAST(0x17 AS nvarchar), ' ')
+	SET @Res = replace(cast(@Res as nvarchar(max)), CAST(0x0C AS nvarchar), ' ')
+	SET @Res = replace(cast(@Res as nvarchar(max)), CAST(0x1E AS nvarchar), ' ')
+	SET @Res = replace(cast(@Res as nvarchar(max)), CAST(0x1F AS nvarchar), ' ')
+	-- Return the result of the function
+	RETURN @Res
+
+END
+GO
+
 
 -------------SPs-----------------
 Use Reviewer

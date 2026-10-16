@@ -1538,25 +1538,23 @@ namespace ERxWebClient2.Controllers
                     {
                         conn.Open();
 
-                        using (SqlDataReader dr = sQLHelper.ExecuteQuerySP(conn, "st_ItemDocumentBin", DOC_ID, REV_ID))
+                        using (Csla.Data.SafeDataReader dr = new Csla.Data.SafeDataReader(sQLHelper.ExecuteQuerySP(conn, "st_ItemDocumentBin", DOC_ID, REV_ID)))
                         {
-
-                            dr.Read();
                             // TODO CHANGE THIS AT THE END
-                            if (!dr.HasRows) throw new Exception("Failed to get data for document: " + DOC_ID.ToString());
+                            if (!dr.Read()) throw new Exception("Failed to get data for document: " + DOC_ID.ToString());
 
                             string type = (string)dr["DOCUMENT_EXTENSION"];
                             string name = (string)dr["DOCUMENT_TITLE"];
 
                             name = System.Web.HttpUtility.UrlEncode(name.Replace(type, "") + type);
                             if (name.IndexOf(type) == -1) name = name + type;
-                            byte[] stBytes = ItemDocumentListController.GetDocBytes(type, itemDoc.itemDocumentId, dr);
-                            
+                            byte[] stBytes = ItemDocument.GetDocBytes(type, itemDoc.itemDocumentId, dr);
+
                             var parentItemKey = itemDoc.parentItemFileKey;
 
-                            var uploadKeyString =await UploadFileBytesToZoteroAsync(stBytes, itemDoc.itemDocumentId, parentItemKey, name, type, errors);
+                            var uploadKeyString = await UploadFileBytesToZoteroAsync(stBytes, itemDoc.itemDocumentId, parentItemKey, name, type, errors);
                             if (uploadKeyString != "Failure!")
-                            { 
+                            {
                                 InsertUploadedDocLocally(itemDoc.itemDocumentId, itemDoc.itemId, name, uploadKeyString, errors);
                             }
                         }

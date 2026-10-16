@@ -175,16 +175,7 @@ namespace BusinessLibrary.BusinessClasses
                                 CandidateExtractedText = reader.GetString("DOCUMENT_TEXT");
                                 if (CandidateExtractedText != _documentText) continue;
                                 ExistingDuplicateDocId = reader.GetInt64("ITEM_DOCUMENT_ID");
-                                string BlobFilename = ItemDocument.DocBlobFileName(ExistingDuplicateDocId, CandidateType);
-                                if (BlobOperations.ThisBlobExist(AzureSettings.blobConnection, AzureSettings.FullTextDocsBlobContainer, BlobFilename))
-                                {
-                                    MemoryStream MS = BlobOperations.DownloadBlobAsMemoryStream(AzureSettings.blobConnection, AzureSettings.FullTextDocsBlobContainer, BlobFilename);
-                                    CandidateBin = (byte[])MS.ToArray();
-                                }
-                                else
-                                {
-                                    CandidateBin = (byte[])reader["DOCUMENT_BINARY"];
-                                }
+                                CandidateBin = ItemDocument.GetDocBytes(CandidateType, ExistingDuplicateDocId, reader);
                                 if (_docbin.Length == CandidateBin.Length
                                     && _docbin.SequenceEqual(CandidateBin)
                                     )
