@@ -3068,7 +3068,7 @@ GO
 ----------------Added here for other reasons, nothing to do with deduping docs!-----------------
 USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[st_RobotOpenAIPromptEvaluationCreate]    Script Date: 10/12/2026 1:46:33 PM ******/
+/****** Object:  StoredProcedure [dbo].[st_RobotOpenAIPromptEvaluationCreate]    Script Date: 10/19/2026 9:05:14 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -3107,7 +3107,7 @@ SET NOCOUNT ON
 	select distinct @NEW_OPENAI_PROMPT_EVALUATION_ID, ia.ITEM_ID, 0, ia.ATTRIBUTE_ID, a.ATTRIBUTE_NAME, ia.ADDITIONAL_TEXT, 1 from tb_review_set rs
 		  inner join tb_item_set iset on iset.SET_ID = rs.SET_ID and iset.IS_COMPLETED = 1
 		  inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = iset.ITEM_SET_ID
-		  inner join TB_ITEM_REVIEW ir on ir.REVIEW_ID = rs.REVIEW_ID
+		  inner join TB_ITEM_REVIEW ir on ir.REVIEW_ID = rs.REVIEW_ID and ir.ITEM_ID = iset.ITEM_ID
 		  inner join TB_ATTRIBUTE a on a.ATTRIBUTE_ID = ia.ATTRIBUTE_ID
 		  where REVIEW_SET_Id = @REVIEW_SET_ID and ir.IS_DELETED = 0 and ia.ITEM_ID in
 		  (
