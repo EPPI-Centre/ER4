@@ -367,7 +367,7 @@
                     // what_is_the_quality_of_the_reviews
                     case codingData.reviewSets[1].attributes.attributesList[2].attributeId:
                         what_is_the_quality_of_the_reviews = codingData.itemSetList[1].itemAttributesList[k].additionalText;
-                        break;
+                        break;                                      
                     // how_secure_is_the_evidence
                     case codingData.reviewSets[1].attributes.attributesList[3].attributeId:
                         how_secure_is_the_evidence = codingData.itemSetList[1].itemAttributesList[k].additionalText;
@@ -380,7 +380,7 @@
                     case codingData.reviewSets[1].attributes.attributesList[5].attributeId:
                         is_any_of_the_evidence_from_the_UK = codingData.itemSetList[1].itemAttributesList[k].additionalText;
                         break;
-                        // are_there_differences_between_groups
+                    // are_there_differences_between_groups
                     case codingData.reviewSets[1].attributes.attributesList[6].attributeId:
                         are_there_differences_between_groups = codingData.itemSetList[1].itemAttributesList[k].additionalText;
                         break;
@@ -467,6 +467,7 @@
             visualHTML += "<p><h3 id='is_there_an_association_and_how_large_is_it'><b>Is there an association and how large is it?</b></h3></p>";
             visualHTML += "<p style='white-space: pre-line;'>" + is_there_an_association_and_how_large_is_it + "</p>";
             visualHTML += "<br>";
+
             visualHTML += "<p><h3 id='what_might_explain_this_finding'><b>What might explain this finding?</b></h3></p>";
             visualHTML += "<p style='white-space: pre-line;'>" + "<img src=\"" + report_image  + "\" >" + "</p>";
             visualHTML += "<br>";
@@ -475,10 +476,10 @@
             visualHTML += "<br>";
             visualHTML += "<p><h3 id='what_is_the_quality_of_the_reviews'><b>What is the quality of the reviews?</b></h3></p>";
             visualHTML += "<p style='white-space: pre-line;'>" + what_is_the_quality_of_the_reviews + "</p>";
-            visualHTML += "<br>";
+            visualHTML += "<br>";  
             visualHTML += "<p><h3 id='how_secure_is_the_evidence'><b>How secure is the evidence?</b></h3></p>";
             visualHTML += "<p style='white-space: pre-line;'>" + how_secure_is_the_evidence + "</p>";
-            visualHTML += "<br>";         
+            visualHTML += "<br>";
             visualHTML += "<p><h3 id='is_any_of_the_evidence_from_the_UK'><b>Is any of the evidence from the UK?</b></h3></p>";
             visualHTML += "<p style='white-space: pre-line;'>" + is_any_of_the_evidence_from_the_UK + "</p>";
             visualHTML += "<br>";
@@ -542,10 +543,10 @@
                             </tr>
                         </table>
                         <a href="#is_there_an_association_and_how_large_is_it" style="color: #343a40"><h4>Is there an association and how large?</h4></a><hr />
+                        <a href="#what_might_explain_this_finding" style="color: #343a40"><h4>What might explain this finding?</h4></a><hr />
                         <a href="#how_large_is_the_evidence_base" style="color: #343a40"><h4>How large is the evidence base?</h4></a><hr />
                         <a href="#what_is_the_quality_of_the_reviews" style="color: #343a40"><h4>What is the quality of the reviews?</h4></a><hr />
-                        <a href="#how_secure_is_the_evidence" style="color: #343a40"><h4>How secure is the evidence?</h4></a><hr />
-                        <a href="#what_might_explain_this_finding" style="color: #343a40"><h4>What might explain this finding?</h4></a><hr />
+                        <a href="#how_secure_is_the_evidence" style="color: #343a40"><h4>How secure is the evidence?</h4></a><hr />           
                         <a href="#is_any_of_the_evidence_from_the_UK" style="color: #343a40"><h4>Is any of the evidence from the UK?</h4></a><hr />
                         <a href="#are_there_differences_between_groups" style="color: #343a40"><h4>Are there differences between groups?</h4></a>
                     </div>
