@@ -311,7 +311,7 @@ SET NOCOUNT ON
 	declare @actualHash varbinary(20) = CONVERT(varbinary(20),@HashString, 1);
 
 	INSERT INTO TB_ITEM_DOCUMENT(DOCUMENT_EXTENSION, DOCUMENT_BINARY, DOCUMENT_TEXT, TXT_HASH)
-	VALUES(@DOCUMENT_EXTENSION, @BIN, [dbo].fn_CLEAN_SIMPLE_TEXT(@DOCUMENT_TEXT),
+	VALUES(@DOCUMENT_EXTENSION, @BIN, @DOCUMENT_TEXT,
 		@actualHash);
 	set @ItemDocumentId = SCOPE_IDENTITY();
 	INSERT INTO TB_ITEM_TO_DOCUMENT (ITEM_ID, ITEM_DOCUMENT_ID, DOCUMENT_TITLE) select @ITEM_ID, @ItemDocumentId, @DOCUMENT_TITLE;
@@ -339,7 +339,6 @@ ALTER procedure [dbo].[st_ItemDocumentInsert]
 	@DOCUMENT_EXTENSION NVARCHAR(5),
 	@DOCUMENT_TEXT NVARCHAR(MAX),
 	@ZoteroKey NVARCHAR(50) = '',
-	@HashString char(42),
 	@ItemDocumentId bigint = -1 output 
 )
 
@@ -353,10 +352,11 @@ SET NOCOUNT ON
 		return;
 	END
 	SET @DOCUMENT_TEXT = replace(@DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10));
+	declare	@HashString char(42) = '0x0000000000000000000000000000000000000000'
 	declare @actualHash varbinary(20) = CONVERT(varbinary(20),@HashString, 1);
 
 	INSERT INTO TB_ITEM_DOCUMENT(DOCUMENT_EXTENSION, DOCUMENT_BINARY, DOCUMENT_TEXT, TXT_HASH)
-	VALUES(@DOCUMENT_EXTENSION, NULL, [dbo].fn_CLEAN_SIMPLE_TEXT(@DOCUMENT_TEXT),
+	VALUES(@DOCUMENT_EXTENSION, NULL, @DOCUMENT_TEXT,
 		@actualHash);
 	set @ItemDocumentId = SCOPE_IDENTITY();
 	INSERT INTO TB_ITEM_TO_DOCUMENT (ITEM_ID, ITEM_DOCUMENT_ID, DOCUMENT_TITLE) select @ITEM_ID, @ItemDocumentId, @DOCUMENT_TITLE;
@@ -457,15 +457,26 @@ BEGIN
 	if (@check != 1) return
 	--next find out if we have multiple copies of this doc associated to different items
 	set @check = (select count(ITEM_DOCUMENT_ID) from TB_ITEM_TO_DOCUMENT where ITEM_DOCUMENT_ID = @DocID)
+	declare @linkedItems table (item_id bigint)
+	insert into @linkedItems select @ItemID
+	insert into @linkedItems select ITEM_ID_PRIMARY from TB_ITEM_LINK where ITEM_ID_SECONDARY = @ItemID and ITEM_ID_PRIMARY != @ItemID
+	insert into @linkedItems select ITEM_ID_SECONDARY from TB_ITEM_LINK where ITEM_ID_PRIMARY = @ItemID 
+		and ITEM_ID_SECONDARY not in (Select item_id from @linkedItems)
 	if (@check > 1)
 	BEGIN --we only delete the doc for this item
 		BEGIN TRY
 			BEGIN TRANSACTION
 			select @Extension = DOCUMENT_EXTENSION from TB_ITEM_DOCUMENT where ITEM_DOCUMENT_ID = @DocID;
-			delete from TB_ITEM_ATTRIBUTE_TEXT where ITEM_DOCUMENT_ID = @DocID 
-				and ITEM_ATTRIBUTE_ID in (select ITEM_ATTRIBUTE_ID from TB_ITEM_ATTRIBUTE where ITEM_ID = @ItemID);
-			delete from TB_ITEM_ATTRIBUTE_PDF where ITEM_DOCUMENT_ID = @DocID 
-				and ITEM_ATTRIBUTE_ID in (select ITEM_ATTRIBUTE_ID from TB_ITEM_ATTRIBUTE where ITEM_ID = @ItemID);
+			delete from TB_ITEM_ATTRIBUTE_TEXT
+				from @linkedItems i 
+					inner join TB_ITEM_ATTRIBUTE tia on i.item_id = tia.ITEM_ID
+					inner join TB_ITEM_ATTRIBUTE_TEXT t on tia.ITEM_ATTRIBUTE_ID = t.ITEM_ATTRIBUTE_ID and t.ITEM_DOCUMENT_ID = @DocID
+					inner join TB_ITEM_TO_DOCUMENT itd on t.ITEM_DOCUMENT_ID = itd.ITEM_DOCUMENT_ID and i.item_id = itd.ITEM_ID;
+			delete from TB_ITEM_ATTRIBUTE_PDF
+				from @linkedItems i
+					inner join TB_ITEM_ATTRIBUTE tia on i.item_id = tia.ITEM_ID
+					inner join TB_ITEM_ATTRIBUTE_PDF p on tia.ITEM_ATTRIBUTE_ID = p.ITEM_ATTRIBUTE_ID and p.ITEM_DOCUMENT_ID = @DocID
+					inner join TB_ITEM_TO_DOCUMENT itd on p.ITEM_DOCUMENT_ID = itd.ITEM_DOCUMENT_ID and i.item_id = itd.ITEM_ID;
 			delete from tb_ITEM_TO_DOCUMENT where ITEM_DOCUMENT_ID = @DocID and ITEM_ID = @ItemID;
 			COMMIT TRANSACTION
 		END TRY
@@ -479,10 +490,16 @@ BEGIN
 			BEGIN TRANSACTION
 			set @IsLast = 1;
 			select @Extension = DOCUMENT_EXTENSION from TB_ITEM_DOCUMENT where ITEM_DOCUMENT_ID = @DocID;
-			delete from TB_ITEM_ATTRIBUTE_TEXT where ITEM_DOCUMENT_ID = @DocID 
-				and ITEM_ATTRIBUTE_ID in (select ITEM_ATTRIBUTE_ID from TB_ITEM_ATTRIBUTE where ITEM_ID = @ItemID);
-			delete from TB_ITEM_ATTRIBUTE_PDF where ITEM_DOCUMENT_ID = @DocID 
-				and ITEM_ATTRIBUTE_ID in (select ITEM_ATTRIBUTE_ID from TB_ITEM_ATTRIBUTE where ITEM_ID = @ItemID);
+			delete from TB_ITEM_ATTRIBUTE_TEXT
+				from @linkedItems i 
+					inner join TB_ITEM_ATTRIBUTE tia on i.item_id = tia.ITEM_ID
+					inner join TB_ITEM_ATTRIBUTE_TEXT t on tia.ITEM_ATTRIBUTE_ID = t.ITEM_ATTRIBUTE_ID and t.ITEM_DOCUMENT_ID = @DocID
+					inner join TB_ITEM_TO_DOCUMENT itd on t.ITEM_DOCUMENT_ID = itd.ITEM_DOCUMENT_ID and i.item_id = itd.ITEM_ID;
+			delete from TB_ITEM_ATTRIBUTE_PDF
+				from @linkedItems i
+					inner join TB_ITEM_ATTRIBUTE tia on i.item_id = tia.ITEM_ID
+					inner join TB_ITEM_ATTRIBUTE_PDF p on tia.ITEM_ATTRIBUTE_ID = p.ITEM_ATTRIBUTE_ID and p.ITEM_DOCUMENT_ID = @DocID
+					inner join TB_ITEM_TO_DOCUMENT itd on p.ITEM_DOCUMENT_ID = itd.ITEM_DOCUMENT_ID and i.item_id = itd.ITEM_ID;
 			delete from tb_ITEM_TO_DOCUMENT where ITEM_DOCUMENT_ID = @DocID and ITEM_ID = @ItemID;
 			delete from tb_ITEM_DOCUMENT where ITEM_DOCUMENT_ID = @DocID;
 			COMMIT TRANSACTION
@@ -515,14 +532,23 @@ ALTER procedure [dbo].[st_ItemDocumentDeleteWarning]
 As
 
 SET NOCOUNT ON
-select @NUM_CODING = count(p.item_attribute_id) from TB_ITEM_ATTRIBUTE_PDF p
-	inner join TB_ITEM_TO_DOCUMENT itd on p.ITEM_DOCUMENT_ID = itd.ITEM_DOCUMENT_ID and p.ITEM_DOCUMENT_ID = @ITEM_DOCUMENT_ID and itd.ITEM_ID = @ITEM_ID
-	inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_ATTRIBUTE_ID = p.ITEM_ATTRIBUTE_ID and ia.ITEM_ID = @ITEM_ID
+
+declare @linkedItems table (item_id bigint)
+insert into @linkedItems select @ITEM_ID
+insert into @linkedItems select ITEM_ID_PRIMARY from TB_ITEM_LINK where ITEM_ID_SECONDARY = @ITEM_ID and ITEM_ID_PRIMARY != @ITEM_ID
+insert into @linkedItems select ITEM_ID_SECONDARY from TB_ITEM_LINK where ITEM_ID_PRIMARY = @ITEM_ID 
+	and ITEM_ID_SECONDARY not in (Select item_id from @linkedItems)
+
+select @NUM_CODING = count(p.item_attribute_id) from @linkedItems i
+	inner join TB_ITEM_ATTRIBUTE tia on i.item_id = tia.ITEM_ID
+	inner join TB_ITEM_ATTRIBUTE_PDF p on tia.ITEM_ATTRIBUTE_ID = p.ITEM_ATTRIBUTE_ID and p.ITEM_DOCUMENT_ID = @ITEM_DOCUMENT_ID
+	inner join TB_ITEM_TO_DOCUMENT itd on p.ITEM_DOCUMENT_ID = itd.ITEM_DOCUMENT_ID and i.item_id = itd.ITEM_ID
 
 select @NUM_CODING = @NUM_CODING + count(t.item_attribute_id) 
-	from TB_ITEM_ATTRIBUTE_TEXT t
-	inner join TB_ITEM_TO_DOCUMENT itd on t.ITEM_DOCUMENT_ID = itd.ITEM_DOCUMENT_ID and t.ITEM_DOCUMENT_ID = @ITEM_DOCUMENT_ID and itd.ITEM_ID = @ITEM_ID
-	inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_ATTRIBUTE_ID = t.ITEM_ATTRIBUTE_ID and ia.ITEM_ID = @ITEM_ID
+	from @linkedItems i
+	inner join TB_ITEM_ATTRIBUTE tia on i.item_id = tia.ITEM_ID
+	inner join TB_ITEM_ATTRIBUTE_TEXT t on tia.ITEM_ATTRIBUTE_ID = t.ITEM_ATTRIBUTE_ID and t.ITEM_DOCUMENT_ID = @ITEM_DOCUMENT_ID
+	inner join TB_ITEM_TO_DOCUMENT itd on t.ITEM_DOCUMENT_ID = itd.ITEM_DOCUMENT_ID and i.item_id = itd.ITEM_ID
 	
 SET NOCOUNT OFF
 GO
@@ -3042,7 +3068,7 @@ GO
 ----------------Added here for other reasons, nothing to do with deduping docs!-----------------
 USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[st_RobotOpenAIPromptEvaluationCreate]    Script Date: 10/12/2026 1:46:33 PM ******/
+/****** Object:  StoredProcedure [dbo].[st_RobotOpenAIPromptEvaluationCreate]    Script Date: 10/19/2026 9:05:14 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -3081,7 +3107,7 @@ SET NOCOUNT ON
 	select distinct @NEW_OPENAI_PROMPT_EVALUATION_ID, ia.ITEM_ID, 0, ia.ATTRIBUTE_ID, a.ATTRIBUTE_NAME, ia.ADDITIONAL_TEXT, 1 from tb_review_set rs
 		  inner join tb_item_set iset on iset.SET_ID = rs.SET_ID and iset.IS_COMPLETED = 1
 		  inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = iset.ITEM_SET_ID
-		  inner join TB_ITEM_REVIEW ir on ir.REVIEW_ID = rs.REVIEW_ID
+		  inner join TB_ITEM_REVIEW ir on ir.REVIEW_ID = rs.REVIEW_ID and ir.ITEM_ID = iset.ITEM_ID
 		  inner join TB_ATTRIBUTE a on a.ATTRIBUTE_ID = ia.ATTRIBUTE_ID
 		  where REVIEW_SET_Id = @REVIEW_SET_ID and ir.IS_DELETED = 0 and ia.ITEM_ID in
 		  (

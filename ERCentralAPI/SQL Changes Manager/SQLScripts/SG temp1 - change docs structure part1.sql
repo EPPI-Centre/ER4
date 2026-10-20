@@ -99,3 +99,9 @@ BEGIN
 END
 GO
 
+IF object_id('[dbo].[fn_CLEAN_SIMPLE_TEXT]', 'FN') IS NOT NULL
+BEGIN
+	print 'dropping fn_CLEAN_SIMPLE_TEXT'
+    DROP FUNCTION [dbo].[fn_CLEAN_SIMPLE_TEXT]
+END
+GO

@@ -65,7 +65,7 @@ namespace BusinessLibrary.BusinessClasses
             _itemId = itemId;
             _documentTitle = documentTitle;
             _documentExtension = documentExtension;
-            _documentText = ImportItems.ImportRefs.StripIllegalChars(documentText);
+            _documentText = ImportItems.ImportRefs.StripIllegalChars(documentText, true);
             _ZoteroKey = "";
         }
         public ItemDocumentSaveCommand(Int64 itemId, string documentTitle, string documentExtension, string documentText, string zoteroKey)
@@ -73,7 +73,7 @@ namespace BusinessLibrary.BusinessClasses
             _itemId = itemId;
             _documentTitle = documentTitle;
             _documentExtension = documentExtension;
-            _documentText = ImportItems.ImportRefs.StripIllegalChars(documentText);
+            _documentText = ImportItems.ImportRefs.StripIllegalChars(documentText, true);
             _ZoteroKey = zoteroKey;
         }
 

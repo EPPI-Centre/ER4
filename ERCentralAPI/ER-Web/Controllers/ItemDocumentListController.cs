@@ -87,11 +87,10 @@ namespace ERxWebClient2.Controllers
                     using (SqlCommand? cmd = sQLHelper.BuildSPCommand(conn, "st_ItemDocumentBin", parameters))
                     {
                         if (cmd == null) return StatusCode(500, "Could not collect data from database");
-                        using (SqlDataReader dr = cmd.ExecuteReader())
+                        using (Csla.Data.SafeDataReader dr = new Csla.Data.SafeDataReader(cmd.ExecuteReader()))
                         {
-                            dr.Read();
                             // CHANGE THIS AT THE END
-                            if (!dr.HasRows) return NotFound();
+                            if (!dr.Read()) return NotFound();
                             Response.Headers.Clear();
 
                             string type = (string)dr["DOCUMENT_EXTENSION"];
@@ -184,13 +183,13 @@ namespace ERxWebClient2.Controllers
                                     return StatusCode(404, "Unrecognised data");
                             }
                             FileContentResult result;
-                            byte[] stBytes = GetDocBytes(type, ItemDocumentID, dr);
+                            byte[] stBytes = ItemDocument.GetDocBytes(type, ItemDocumentID, dr);
                             Response.Headers.Add("Content-Length", stBytes.Length.ToString());
                             result = new FileContentResult(stBytes, Response.ContentType)
                             {
                                 FileDownloadName = name
                             };
-                            
+
                             //provisional test: can we get the extracted text?
                             //if (type.ToLower() == ".pdf")
                             //{
@@ -216,28 +215,7 @@ namespace ERxWebClient2.Controllers
                 return NotFound();
             }
         }
-        internal static byte[] GetDocBytes(string type, long ItemDocumentID, SqlDataReader dr)
-        {
-            byte[] res = Array.Empty<byte>();
-            if (type.ToLower() != ".txt")
-            {
-                string BlobFilename = ItemDocument.DocBlobFileName(ItemDocumentID, type);
-                if (BlobOperations.ThisBlobExist(AzureSettings.blobConnection, AzureSettings.FullTextDocsBlobContainer, BlobFilename))
-                {
-                    MemoryStream MS = BlobOperations.DownloadBlobAsMemoryStream(AzureSettings.blobConnection, AzureSettings.FullTextDocsBlobContainer, BlobFilename);
-                    res = MS.ToArray();
-                }
-                else
-                {
-                    res = (byte[])dr["DOCUMENT_BINARY"];
-                }
-            }
-            else
-            {
-                res = System.Text.Encoding.UTF8.GetBytes(dr["DOCUMENT_TEXT"].ToString());
-            }
-            return res;
-        }
+        
 
         [EnableRateLimiting("HighCostEndpoints")]
         [HttpPost("[action]")]
