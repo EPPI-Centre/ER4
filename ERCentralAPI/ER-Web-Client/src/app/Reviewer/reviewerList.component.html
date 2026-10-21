@@ -36,11 +36,11 @@
     <table width="100%" class="table-striped table table-bordered tableFixHead">
       <thead>
         <tr>
-          <th class="p-0" width="20px"></th>
-          <th class="p-0" style="min-width:80px">Name</th>
-          <th class="p-0" width="50">Email</th>
-          <th class="p-0" width="60">Expiry</th>
-          <th class="p-0" style="min-width:70px">Role(s)</th>
+          <th class="p-0" style="max-width:10px"></th>
+          <th class="p-0" style="max-width:100px">Name</th>
+          <th class="p-0" style="max-width:150px">Email</th>
+          <th class="p-0" style="max-width:100px">Expiry</th>
+          <th class="p-0">Role(s)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Select to Add/Remove roles</th>
         </tr>
       </thead>
       <tbody>
@@ -51,28 +51,24 @@
           <td class="p-1 align-middle">{{member.contactName}}</td>
           <td class="p-1 align-middle">{{member.email}}</td>
           <td class="p-1 align-middle" style="color:white;"><div [ngStyle]="{'background-color':member.isExpired == 1 ? '#dc3545' : '#28a745'}">{{member.expiry}}</div></td>
-          <td class="p-0 align-middle ">
-            <table width="100%">
-              <tr>
-                <td style="width: 85%; padding-right: 3px; padding-left: 3px">
-                  <select #AllocateOptionsDropDown class="form-control form-control-sm my-auto px-0 py-0" name="RoleOptions"
-                          (change)="SetRelevantDropDownValues($event, member)" style="min-width:90px">                
-                    <option *ngFor="let item of RoleOptions" [value]="item.key">
-                      <!--  this sets the selected role....[selected]="item.value == member.role"-->
-                      {{AddCheckMarkIfRole(item.value,member.role,member.contactId).replace('X','✅')}}
+          <td class="p-0 align-middle "style="padding-right: 3px; padding-left: 3px">
 
-                    </option>
-                  </select>
-                </td>
-                <td style="width: 15%; padding-right:2px;padding-left:2px">
-                  <button class="btn btn-sm btn-outline-danger my-auto px-0 py-0"
-                          (click)="RemoveRoleFromReviewer(member.role,member)" title="Remove role from reviewer">
-                    <span class="k-icon k-i-trash k-color-error"></span>
-                  </button>
-                </td>
-              </tr>
-            </table>
+            <select #AllocateOptionsDropDown class="form-control form-control-sm my-auto px-0 py-0" name="RoleOptions"
+                    (change)="SetRelevantDropDownValues($event, member)" style="min-width:90px">
+              <option [ngValue]="false">Please select</option>
+              <option *ngFor="let item of RoleOptions" [value]="item.key">
+                <!--  this sets the selected role....[selected]="item.value == member.role"-->
+                {{AddCheckMarkIfRole(item.value,member.role,member.contactId).replace('X','✅')}}
+              </option>
+            </select>
           </td>
+                <!--<td style="width: 15%; padding-right:2px;padding-left:2px">
+                <button class="btn btn-sm btn-outline-danger my-auto px-0 py-0"
+                        (click)="RemoveRoleFromReviewer(member.role,member)" title="Remove role from reviewer">
+                  <span class="k-icon k-i-trash k-color-error"></span>
+                </button>
+              </td>-->
+
         </tr>
       </tbody>
     </table>
