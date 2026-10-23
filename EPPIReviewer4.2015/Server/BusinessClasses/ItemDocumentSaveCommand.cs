@@ -102,6 +102,7 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Execute()
         {
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
@@ -109,6 +110,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@ITEM_ID", _itemId));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@DOCUMENT_TITLE", _documentTitle));
                     command.Parameters.Add(new SqlParameter("@DOCUMENT_EXTENSION", _documentExtension));
                     command.Parameters.Add(new SqlParameter("@DOCUMENT_TEXT", _documentText));
