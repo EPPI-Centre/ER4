@@ -382,14 +382,16 @@ namespace BusinessLibrary.BusinessClasses
                 tItem.Title = biblioEnhancement.content.title;
                 tItem.Abstract = abstractEnhancement != null && abstractEnhancement.content != null ? abstractEnhancement.content._abstract : "";
                 tItem.Year = biblioEnhancement.content.publication_year != null ? biblioEnhancement.content.publication_year.ToString() : "";
+                tItem.TypeId = biblioEnhancement.content.publication_venue != null ? ItemTypeIdFromOpenAlexPublicationType(biblioEnhancement.content.publication_venue.venue_type) : 1;
                 tItem.Publisher = biblioEnhancement.content.publisher != null ? biblioEnhancement.content.publisher : "";
                 tItem.Parent_title = biblioEnhancement.content.publication_venue != null ? biblioEnhancement.content.publication_venue.display_name : "";
                 tItem.Pages = biblioEnhancement.content.pagination != null ? biblioEnhancement.content.pagination.first_page + "-" + biblioEnhancement.content.pagination.last_page : "";
                 tItem.Volume = biblioEnhancement.content.pagination != null ? biblioEnhancement.content.pagination.volume + "-" + biblioEnhancement.content.pagination.volume : "";
-                tItem.Volume = biblioEnhancement.content.pagination != null ? biblioEnhancement.content.pagination.issue + "-" + biblioEnhancement.content.pagination.issue: "";
+                tItem.Issue = biblioEnhancement.content.pagination != null ? biblioEnhancement.content.pagination.issue + "-" + biblioEnhancement.content.pagination.issue: "";
                 tItem.AuthorsLi = getAuthors(biblioEnhancement);
                 tItem.Url = getURL(biblioEnhancement);
                 tItem.DOI = getDoi(reference);
+                tItem.SearchText = Item.ToShortSearchText(biblioEnhancement.content.title);
                 this.ItemsList.IncomingItems.Add(tItem);
             }
         }
@@ -503,6 +505,38 @@ namespace BusinessLibrary.BusinessClasses
             //ItemsList.Save();
             FetchOrSaveResults();
         }
+        public static int ItemTypeIdFromOpenAlexPublicationType(string incomingType) // might want to move this somewhere else in the codebase as it works for any OpenAlex or CrossRef article type
+        {
+            switch (incomingType)
+            {
+                case "article": return 14;
+                case "book": return 2;
+                case "book-chapter": return 3;
+                case "book-review": return 4;
+                case "conference-abstract": return 5;
+                case "conference-paper": return 5;
+                case "data-paper": return 7;
+                case "dataset": return 9;
+                case "dissertation": return 4;
+                case "editorial": return 14;
+                case "erratum": return 14;
+                case "letter": return 14;
+                case "libguides": return 1;
+                case "other": return 1;
+                case "paratext": return 1;
+                case "peer-review": return 1;
+                case "preprint": return 14;
+                case "reference-entry": return 1;
+                case "report": return 1;
+                case "retraction": return 14;
+                case "review": return 14;
+                case "software": return 1;
+                case "software-paper": return 1;
+                case "standard": return 1;
+                case "supplementary-materials": return 1;
+                default: return 1;
+            }
+        }
 #endif
     }
 
@@ -534,6 +568,9 @@ public class StringOrNumberConverter : System.Text.Json.Serialization.JsonConver
     {
         writer.WriteStringValue(value);
     }
+
+    
+
 }
 public class LenientBoolConverter : System.Text.Json.Serialization.JsonConverter<bool>
 {
