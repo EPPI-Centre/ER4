@@ -891,8 +891,9 @@ export class SearchComp implements OnInit, OnDestroy {
 
   getLogicSearches(logicChoice: string) {
 
-
     if (this.CanWrite() && this.HasSelectedSearches > 0) {
+
+      
 
       if (logicChoice == 'NOT (excluded)') {
         this._searchService.cmdSearches._included = 'false';
@@ -904,10 +905,13 @@ export class SearchComp implements OnInit, OnDestroy {
 
       let lstStrSearchIds = '';
       let lstStrSearchNos = logicChoice;
-      //alert(logicChoice);
+      let count = 0;
+      let TotalHits = 0
       for (var i = 0; i < this.DataSourceSearches.data.length; i++) {
 
         if (this.DataSourceSearches.data[i].add == true) {
+          count++;
+          TotalHits += (this.DataSourceSearches.data[i] as Search).hitsNo;
           if (lstStrSearchIds == "") {
             lstStrSearchIds = this.DataSourceSearches.data[i].searchId;
             if (logicChoice == 'NOT' || logicChoice == 'NOT(excluded)') {
@@ -922,18 +926,28 @@ export class SearchComp implements OnInit, OnDestroy {
           }
         }
       }
-      this._searchService.cmdSearches._title = lstStrSearchNos;
+      if (logicChoice == 'AND') {
+        const conditionalMaxSearches = 10;
+        const conditionalMaxHits = 2000000;//2M
+        if (count >= conditionalMaxSearches && TotalHits >= conditionalMaxHits) {
+          this.confirmationDialogService.ShowInformationalModal(
+            "You're trying to combine <strong>" + count.toString() + "</strong> searches containing <strong>" + TotalHits.toString()
+            + "</strong> hits in total. This will likely fail (time-out).<br />"
+            + "The limit on \"AND\" operations is: <br\> <div class='m-1 rounded py-1 px-2 alert-danger'><strong>" + conditionalMaxSearches.toString() + "</strong> or more searches, with more than <strong>"
+            + conditionalMaxHits.toString() + "</strong> hits in aggregate.</div>"
+            + "Please combine your searches in smaller incremental steps.", "Too many hits");
+          return;
+        }
+      }
 
+      this._searchService.cmdSearches._title = lstStrSearchNos;
       this._searchService.cmdSearches._logicType = logicChoice;
       this._searchService.cmdSearches._searches = lstStrSearchIds;
       if (this._searchService.cmdSearches._logicType != '') {
-
         this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeLogic');
         //reset
         this._searchService.cmdSearches._logicType = '';
-
       }
-
     }
   }
 

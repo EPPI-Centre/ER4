@@ -71,6 +71,31 @@ The client project is configured to use the "Hot Module Replacement" system whic
 ### API: what you need to know
 Hard to say! The project is configured to use https:// so hopefully at the first run, VS will ask if you want to use a self-signed certificate for this, to which **you should** answer YES. You also want to check that it's listening to port 44344, OR change the `\src\assets\APIUrl.txt` in the client to match the port you're using (which will cascade problems to _other_ developers, though).
 
+I found the recommendations here useful, to make things work again once the self-signed certificate expires:
+`https://stackoverflow.com/questions/70291876/how-to-force-visual-studio-to-re-create-the-ssl-certificate-for-a-net-core-web`.
+
+In my case, I had to:
+
+1. Run `dotnet dev-certs https --clean`
+1. Delete the cert from `(user)\Trusted root certifiction authorities\`
+1. Close VS entirely.
+
+After doing all three (a couple of attempts without deleting the cert didn't work) I was asked "Do you want to trust the cert?" which is strange as I expected to be asked "Do you want to create a new self-signed cert?". Unsurprisingly, things kept not working, and the cert kept reappearing in `(Local machine)\Personal` from the certificates MMC snap-in.
+
+Digging further, I found this page:
+`https://improveandrepeat.com/2020/05/how-to-change-the-https-certificate-in-iis-express/`
+And from there trying the following:
+
+- `"c:\Program Files (x86)\IIS Express\IisExpressAdminCmd.exe" deleteSslUrl -Url:https://localhost:44344`
+- `"c:\Program Files (x86)\IIS Express\IisExpressAdminCmd.exe" deleteSslUrl -Url:https://localhost:44344`
+- `"c:\Program Files\IIS Express\IisExpressAdminCmd.exe" setupSslUrl -Url:https://localhost:44344 -UseSelfSigned`
+- `"c:\Program Files (x86)\IIS Express\IisExpressAdminCmd.exe" setupSslUrl -Url:https://localhost:44344 -UseSelfSigned`
+- Close VS and re-open it. 
+ 
+After several attempts, where `https://localhost:44344/api/Login/VersionInfo` would fail with a "Connection reset", this url finally worked. Once it works, the client requests to the API will also work and things will be back to "normal". (I think the key was to make sure the x64 and x86 versions of IIS Express both had the same end state, but IDK why!)
+
+So, overall, initially, the cert was re-appearing (and I was asked if I'd trust it) because IIS Express was still in possession thereof. Using `IisExpressAdminCmd.exe` allows to remove it "for good" from IIS Express. However, at this point, for some reason the normal VS behaviour doesn't work, and it doesn't ask to create a new cert and to trus it. So we have to ask IIS Express to do it - which IIRC then results in VS asking whether to trust it, which then moves the cert into the stores mentioned above (both user and machine stores!!).
+
 # How to: recommended settings
 In most cases, you will want to click "debug(play)" once, get both projects started and then rely on hot-module-replacement to keep the angular side up-to-date. For this you can use the `Debug\Set startup project` dialog (from the VS menus).
 
