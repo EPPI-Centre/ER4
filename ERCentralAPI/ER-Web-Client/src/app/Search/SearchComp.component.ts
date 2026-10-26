@@ -928,7 +928,7 @@ export class SearchComp implements OnInit, OnDestroy {
       }
       if (logicChoice == 'AND') {
         const conditionalMaxSearches = 10;
-        const conditionalMaxHits = 200000;//2M
+        const conditionalMaxHits = 2000000;//2M
         if (count >= conditionalMaxSearches && TotalHits > conditionalMaxHits) {
           this.confirmationDialogService.ShowInformationalModal(
             "You're trying to combine <strong>" + count.toString() + "</strong> searches containing <strong>" + TotalHits.toString()
