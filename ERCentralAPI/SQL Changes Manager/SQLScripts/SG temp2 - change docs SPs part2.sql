@@ -3063,7 +3063,167 @@ BEGIN
 
 END
 GO
+USE [ReviewerAdmin]
+GO
+/****** Object:  StoredProcedure [dbo].[st_CopyReviewStep13]    Script Date: 27/10/2026 16:34:39 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER   procedure [dbo].[st_CopyReviewStep13]
+(	
+	@CONTACT_ID int,
+	@SOURCE_REVIEW_ID int,
+	@DESTINATION_REVIEW_ID int,
+	@RESULT nvarchar(50) output
+)
 
+As
+
+SET NOCOUNT ON
+
+
+declare @NEW_SEARCH_ID int
+declare @NEW_ITEM_DOCUMENT_ID bigint
+set @RESULT = '0'
+
+declare @tb_work_allocation table
+(new_set_id bigint, old_set_id bigint,
+ new_attribute_id bigint, old_attribute_id bigint)
+ 
+
+
+BEGIN TRY  --to be VERY sure this doesn't happen in part, we nest a transaction inside a try catch clause
+BEGIN TRANSACTION
+
+
+--01 copy the work assignments
+	insert into @tb_work_allocation (old_set_id, old_attribute_id)
+	select w_s.SET_ID, w_s.ATTRIBUTE_ID  
+	from sTB_WORK_ALLOCATION w_s
+	where w_s.REVIEW_ID = @SOURCE_REVIEW_ID
+
+	update t1
+	set new_set_id = t2.SET_ID
+	from @tb_work_allocation t1 inner join sTB_SET t2
+	on t2.OLD_GUIDELINE_ID = t1.old_set_id
+	where t2.SET_ID in (select SET_ID from sTB_REVIEW_SET r_s
+	where r_s.REVIEW_ID = @DESTINATION_REVIEW_ID)
+	
+	update t1
+	set new_attribute_id = t2.ATTRIBUTE_ID
+	from @tb_work_allocation t1 inner join sTB_ATTRIBUTE t2
+	on t2.OLD_ATTRIBUTE_ID = t1.old_attribute_id
+	where t2.ATTRIBUTE_ID in (select ATTRIBUTE_ID from sTB_ATTRIBUTE_SET a_s
+	where a_s.SET_ID in (select SET_ID from sTB_REVIEW_SET r_s
+	where r_s.REVIEW_ID = @DESTINATION_REVIEW_ID))
+	
+	insert into sTB_WORK_ALLOCATION (CONTACT_ID, REVIEW_ID, SET_ID, ATTRIBUTE_ID)
+	select @CONTACT_ID, @DESTINATION_REVIEW_ID, w_a.new_set_id, w_a.new_attribute_id  
+	from @tb_work_allocation w_a
+
+	--OUTDATED (copy diagrams)
+--02 copy diagrams
+	--insert into sTB_DIAGRAM (REVIEW_ID, DIAGRAM_NAME, DIAGRAM_DETAIL)
+	--select @DESTINATION_REVIEW_ID, d.DIAGRAM_NAME, d.DIAGRAM_DETAIL
+	--from  sTB_DIAGRAM d
+	--where d.REVIEW_ID = @SOURCE_REVIEW_ID
+
+--03 copy searches
+	declare @tb_search table (old_search_id int, review_id int, contact_id int, search_title nvarchar(4000),
+		search_no int, answers nvarchar(4000), hits_no int)
+	
+	insert into @tb_search (old_search_id, review_id, contact_id, search_title, search_no, answers, hits_no)
+	select s.SEARCH_ID, @DESTINATION_REVIEW_ID, @CONTACT_ID, s.SEARCH_TITLE, s.SEARCH_NO, s.ANSWERS, s.HITS_NO
+	from sTB_SEARCH s
+	where s.REVIEW_ID = @SOURCE_REVIEW_ID
+	
+	--select * from @tb_search
+	
+	declare @tb_search_item table (new_item_id bigint, old_item_id bigint, old_search_id int, item_rank int)
+	
+	insert into @tb_search_item (old_item_id, old_search_id, item_rank)
+	select s_i.ITEM_ID, s_i.SEARCH_ID, s_i.ITEM_RANK
+	from sTB_SEARCH_ITEM s_i
+	where SEARCH_ID in (select old_search_id from @tb_search)
+	
+	--select * from @tb_search_item
+	
+	update t1
+	set new_item_id = t2.ITEM_ID
+	from @tb_search_item t1 inner join sTB_ITEM t2
+	on t2.OLD_ITEM_ID = t1.old_item_id
+	where t2.ITEM_ID in (select ITEM_ID from sTB_ITEM_REVIEW i_r
+	where i_r.REVIEW_ID = @DESTINATION_REVIEW_ID)
+	
+	--select * from @tb_search_item
+	
+	declare @WORKING_SEARCH_ID int
+	declare SEARCH_ID_CURSOR cursor for
+	select old_search_id FROM @tb_search
+	open SEARCH_ID_CURSOR
+	fetch next from SEARCH_ID_CURSOR
+	into @WORKING_SEARCH_ID
+	while @@FETCH_STATUS = 0
+	begin
+		insert into sTB_SEARCH (REVIEW_ID, CONTACT_ID, SEARCH_TITLE, SEARCH_NO, ANSWERS, HITS_NO, SEARCH_DATE)	
+		SELECT review_id, @CONTACT_ID, search_title, search_no, answers, hits_no, GETDATE() FROM @tb_search
+		WHERE old_search_id = @WORKING_SEARCH_ID
+		set @NEW_SEARCH_ID = CAST(SCOPE_IDENTITY() AS INT)
+		
+		insert into sTB_SEARCH_ITEM (ITEM_ID, SEARCH_ID, ITEM_RANK)
+		select new_item_id, @NEW_SEARCH_ID, item_rank from @tb_search_item
+		where old_search_id = @WORKING_SEARCH_ID
+		
+		FETCH NEXT FROM SEARCH_ID_CURSOR 
+		INTO @WORKING_SEARCH_ID
+	END
+
+	CLOSE SEARCH_ID_CURSOR
+	DEALLOCATE SEARCH_ID_CURSOR
+	
+
+--04 copy pdfs
+	declare @tb_item_document table
+	(old_item_document_id bigint, 
+	 new_item_id bigint, old_item_id bigint, document_title nvarchar(255))
+
+	insert into @tb_item_document (old_item_document_id, old_item_id, document_title)
+	select i_d.ITEM_DOCUMENT_ID, i_d.ITEM_ID, i_d.DOCUMENT_TITLE
+	from sTB_ITEM_TO_DOCUMENT i_d
+	inner join sTB_ITEM_REVIEW ir on i_d.ITEM_ID = ir.ITEM_ID and ir.REVIEW_ID = @SOURCE_REVIEW_ID
+	
+	update t1
+	set new_item_id = t2.ITEM_ID
+	from @tb_item_document t1 inner join sTB_ITEM t2
+	on t2.OLD_ITEM_ID = t1.old_item_id
+	where t2.ITEM_ID in (select ITEM_ID from sTB_ITEM_REVIEW i_r
+	where i_r.REVIEW_ID = @DESTINATION_REVIEW_ID) 
+	
+--select * from @tb_item_document
+
+	INSERT into sTB_ITEM_TO_DOCUMENT (ITEM_DOCUMENT_ID, ITEM_ID, DOCUMENT_TITLE)
+		Select old_item_document_id, new_item_id, document_title from @tb_item_document
+
+
+	
+	
+COMMIT TRANSACTION
+END TRY
+
+BEGIN CATCH
+IF (@@TRANCOUNT > 0)
+begin	
+ROLLBACK TRANSACTION
+set @RESULT = 'Unable to copy the work assignments, diagrams, searches, uploaded documents'
+end
+END CATCH
+
+
+RETURN
+
+SET NOCOUNT OFF
+GO
 
 ----------------Added here for other reasons, nothing to do with deduping docs!-----------------
 USE [Reviewer]
