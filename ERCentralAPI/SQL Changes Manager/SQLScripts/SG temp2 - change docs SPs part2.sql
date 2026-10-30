@@ -542,13 +542,13 @@ insert into @linkedItems select ITEM_ID_SECONDARY from TB_ITEM_LINK where ITEM_I
 select @NUM_CODING = count(p.item_attribute_id) from @linkedItems i
 	inner join TB_ITEM_ATTRIBUTE tia on i.item_id = tia.ITEM_ID
 	inner join TB_ITEM_ATTRIBUTE_PDF p on tia.ITEM_ATTRIBUTE_ID = p.ITEM_ATTRIBUTE_ID and p.ITEM_DOCUMENT_ID = @ITEM_DOCUMENT_ID
-	inner join TB_ITEM_TO_DOCUMENT itd on p.ITEM_DOCUMENT_ID = itd.ITEM_DOCUMENT_ID and i.item_id = itd.ITEM_ID
+	inner join TB_ITEM_TO_DOCUMENT itd on p.ITEM_DOCUMENT_ID = itd.ITEM_DOCUMENT_ID and itd.ITEM_ID in (Select Item_id from @linkedItems)
 
 select @NUM_CODING = @NUM_CODING + count(t.item_attribute_id) 
 	from @linkedItems i
 	inner join TB_ITEM_ATTRIBUTE tia on i.item_id = tia.ITEM_ID
 	inner join TB_ITEM_ATTRIBUTE_TEXT t on tia.ITEM_ATTRIBUTE_ID = t.ITEM_ATTRIBUTE_ID and t.ITEM_DOCUMENT_ID = @ITEM_DOCUMENT_ID
-	inner join TB_ITEM_TO_DOCUMENT itd on t.ITEM_DOCUMENT_ID = itd.ITEM_DOCUMENT_ID and i.item_id = itd.ITEM_ID
+	inner join TB_ITEM_TO_DOCUMENT itd on t.ITEM_DOCUMENT_ID = itd.ITEM_DOCUMENT_ID and itd.ITEM_ID in (Select Item_id from @linkedItems)
 	
 SET NOCOUNT OFF
 GO
