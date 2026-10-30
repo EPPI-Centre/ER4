@@ -507,35 +507,30 @@ namespace BusinessLibrary.BusinessClasses
         }
         public static int ItemTypeIdFromOpenAlexPublicationType(string incomingType) // might want to move this somewhere else in the codebase as it works for any OpenAlex or CrossRef article type
         {
-            switch (incomingType)
+            return incomingType switch
             {
-                case "article": return 14;
-                case "book": return 2;
-                case "book-chapter": return 3;
-                case "book-review": return 4;
-                case "conference-abstract": return 5;
-                case "conference-paper": return 5;
-                case "data-paper": return 7;
-                case "dataset": return 9;
-                case "dissertation": return 4;
-                case "editorial": return 14;
-                case "erratum": return 14;
-                case "letter": return 14;
-                case "libguides": return 1;
-                case "other": return 1;
-                case "paratext": return 1;
-                case "peer-review": return 1;
-                case "preprint": return 14;
-                case "reference-entry": return 1;
-                case "report": return 1;
-                case "retraction": return 14;
-                case "review": return 14;
-                case "software": return 1;
-                case "software-paper": return 1;
-                case "standard": return 1;
-                case "supplementary-materials": return 1;
-                default: return 1;
-            }
+                "book" => 2,
+                "book-chapter" => 3,
+                
+                "dissertation" => 4,
+
+                "conference-abstract" or
+                "conference-paper" => 5,
+
+                "data-paper" => 7,
+                "dataset" => 9,
+
+                "book-review" or
+                "article" or
+                "editorial" or
+                "erratum" or
+                "letter" or
+                "preprint" or
+                "retraction" or
+                "review" => 14,
+
+                _ => 1
+            };
         }
 #endif
     }
