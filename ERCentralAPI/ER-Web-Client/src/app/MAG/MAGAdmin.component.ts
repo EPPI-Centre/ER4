@@ -4,7 +4,7 @@ import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service'
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { MAGAdminService } from '../services/MAGAdmin.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
-import { MAGLog, MAGReview } from '../services/MAGClasses.service';
+import { MAGLog, MAGReview, MagCurrentInfo } from '../services/MAGClasses.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { Router } from '@angular/router';
@@ -30,7 +30,7 @@ export class MAGAdminComp implements OnInit {
     }
     public previousMAG: string = '';
     public latestMag: string = '';
-    public ScoreThreshold: number = 0.20;
+    public ScoreThreshold: number = 0.90;
     public FoSThreshold: number = 0.20;
     public SampleSize: number = 20;
     public stepScore: number = 0.01;
@@ -40,18 +40,19 @@ export class MAGAdminComp implements OnInit {
     public reviewId: number = 0;
     public newMagEndPoint: string = '';
     public newMagVersion: string = '';
-    public DoCheckChangedPaperIds() {
 
-        let msg: string = "Are you sure?\nPlease check it is not already running first!\nOld: "
-            + this._magAdminService.previousMAGName + " new: " + this._magAdminService.latestMAGName;
-        this._confirmationDialogService.confirm('MAG Admin', msg, false, '')
-            .then((confirm: any) => {
-                if (confirm) {
-                    this._magAdminService.DoCheckChangedPaperIds(this._magAdminService.latestMAGName);
-                }
-            });
+    // public DoCheckChangedPaperIds() {
+
+    //     let msg: string = "Are you sure?\nPlease check it is not already running first!\nOld: "
+    //         + this._magAdminService.previousMAGName + " new: " + this._magAdminService.latestMAGName;
+    //     this._confirmationDialogService.confirm('MAG Admin', msg, false, '')
+    //         .then((confirm: any) => {
+    //             if (confirm) {
+    //                 this._magAdminService.DoCheckChangedPaperIds(this._magAdminService.latestMAGName);
+    //             }
+    //         });
         
-    }
+    // }
     public RefreshLogTable() {
         this._magAdminService.GetMAGLogList();
     }
@@ -63,6 +64,32 @@ export class MAGAdminComp implements OnInit {
     }
     public get MagReviewList(): MAGReview[] {
         return this._magAdminService.MAGReviewList;
+    }
+    public get MagCurrentInfoList(): MagCurrentInfo[] {
+      return this._magAdminService.MagCurrentInfoList;
+    }
+    public isValidDate(value: string | null | undefined): boolean {
+      if (!value) return false;
+
+      // Strict format: YYYY-MM-DD
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+      if (!m) return false;
+
+      const year = Number(m[1]);
+      const month = Number(m[2]);
+      const day = Number(m[3]);
+
+      // Basic range checks
+      if (month < 1 || month > 12) return false;
+      if (day < 1 || day > 31) return false;
+
+      // Real calendar date check (handles leap years, invalid days, etc.)
+      const d = new Date(Date.UTC(year, month - 1, day));
+      return (
+        d.getUTCFullYear() === year &&
+        d.getUTCMonth() === month - 1 &&
+        d.getUTCDate() === day
+      );
     }
     public UpdateMagInfo() {
 
@@ -77,8 +104,22 @@ export class MAGAdminComp implements OnInit {
         }
     } 
     public DeleteReview(magReview: MAGReview) {
-        console.log("got in here");
-        if (magReview.reviewId != null ) {
+        let message = "Are you sure you want to delete this row?";
+    this._confirmationDialogService.confirm('Please confirm', message, false, '')
+      .then(
+        (confirmed: any) => {
+          if (confirmed) {
+            this.ReallyDeleteReview(magReview);
+          }
+          else {
+            //alert('pressed cancel close dialog');
+          };
+        }
+      )
+      .catch(() => { });
+    }
+    public ReallyDeleteReview(magReview: MAGReview){
+      if (magReview.reviewId != null ) {
             this._magAdminService.DeleteReview(magReview.reviewId);
         }
     }
@@ -86,7 +127,28 @@ export class MAGAdminComp implements OnInit {
 
         this._magAdminService.GetMAGReviewList();
     }
+    public RefreshMagCurrentInfoList() {
+
+        this._magAdminService.GetMagCurrentInfoList();
+    }
+
     public CheckContReviewPipeLine() {
+    let message = "Are you sure you want to run the pipeline from: " + this._magAdminService.MagCurrentInfo.magFolder + " to: " + this.newMagVersion;
+    this._confirmationDialogService.confirm('Please confirm', message, false, '')
+      .then(
+        (confirmed: any) => {
+          if (confirmed) {
+            this.CheckContReviewPipeLineAlreadyRunning();
+          }
+          else {
+            //alert('pressed cancel close dialog');
+          };
+        }
+      )
+      .catch(() => { });
+  }
+
+    public CheckContReviewPipeLineAlreadyRunning() {
 
         let running: boolean = false;
         let msg: string = '';
@@ -97,16 +159,82 @@ export class MAGAdminComp implements OnInit {
             msg = 'There is a MAG pipeline already running!';
         } else {
             msg = 'Running pipline...';
-            this.DoRunContReviewPipeline("", 0, "Pipeline running...", this.FoSThreshold, this.SampleSize,
-            this.ScoreThreshold);
+            this.DoRunContReviewPipeline("", 0, "Pipeline running...", this.FoSThreshold, this.SampleSize, this.ScoreThreshold);
         }
         this._confirmationDialogService.showMAGRunMessage(msg);
     }
+    public MakeLive(selectedMagCurrentInfo: MagCurrentInfo){
+      if (selectedMagCurrentInfo.makesDeploymentStatus != "LIVE"){
+        selectedMagCurrentInfo.makesDeploymentStatus = "LIVE";
+        this._magAdminService.UpdateThisMagCurrentInfo(selectedMagCurrentInfo);
+      }
+      else
+      {
+        this._confirmationDialogService.showMAGRunMessage("This line cannot be set to LIVE");
+      }
+    }
+    public MakePending(selectedMagCurrentInfo: MagCurrentInfo){
+      if (selectedMagCurrentInfo.makesDeploymentStatus != "PENDING"){
+        selectedMagCurrentInfo.makesDeploymentStatus = "PENDING";
+        this._magAdminService.UpdateThisMagCurrentInfo(selectedMagCurrentInfo);
+      }
+      else
+      {
+        this._confirmationDialogService.showMAGRunMessage("This line cannot be set to PENDING");
+      }
+
+    }
+    public DeleteCurrentInfo(selectedMagCurrentInfo: MagCurrentInfo){
+       let message = "Are you sure you want to delete this row?";
+    this._confirmationDialogService.confirm('Please confirm', message, false, '')
+      .then(
+        (confirmed: any) => {
+          if (confirmed) {
+            this.ReallyDeleteCurrentInfo(selectedMagCurrentInfo);
+          }
+          else {
+            //alert('pressed cancel close dialog');
+          };
+        }
+      )
+      .catch(() => { });
+    }
+    public ReallyDeleteCurrentInfo(selectedMagCurrentInfo: MagCurrentInfo){
+      this._magAdminService.DeleteMagCurrentInfo(selectedMagCurrentInfo.magCurrentInfoId);
+    }
+
+    public DownloadResults(selectedMagLog: MAGLog){
+      let message = "Are you sure you want to download these results?";
+    this._confirmationDialogService.confirm('Please confirm', message, false, '')
+      .then(
+        (confirmed: any) => {
+          if (confirmed) {
+            this.ReallyDownloadResults(selectedMagLog);
+          }
+          else {
+            //alert('pressed cancel close dialog');
+          };
+        }
+      )
+      .catch(() => { });
+    }
+    public ReallyDownloadResults(selectedMagLog: MAGLog){
+      const i = selectedMagLog.jobMessage.indexOf("Folder:");
+      const folder = i >= 0 ? selectedMagLog.jobMessage.substring(i).replace("Folder:", "") : "";
+      if (folder != ""){
+        this.DoRunContReviewPipeline(folder, selectedMagLog.magLogId, "Downloading data from folder: " + folder, 0, 0, 0);
+      }
+      else
+      {
+        this._confirmationDialogService.showMAGRunMessage("Cannot locate folder");
+      }
+    }
+
     public DoRunContReviewPipeline(specificFolder: string, magLogId: number, alertText: string, editFoSThreshold: number,
         editReviewSampleSize: number, editScoreThreshold: number ) : void {
         console.log('editFoSThreshold:', editFoSThreshold);
         this._magAdminService.DoRunContReviewPipeline(specificFolder, magLogId, alertText, editFoSThreshold,
-            editReviewSampleSize, editScoreThreshold );
+            editReviewSampleSize, editScoreThreshold, this._magAdminService.MagCurrentInfo.magFolder, this.newMagVersion );
     }
     public get IsServiceBusy(): boolean {
 
@@ -116,8 +244,9 @@ export class MAGAdminComp implements OnInit {
         if (!this._ReviewerIdentityServ.reviewerIdentity.isSiteAdmin) this.Back();
         if (this._magAdminService != null) {
 
-            this._magAdminService.GetMAGBlobCommand();
+            //this._magAdminService.GetMAGBlobCommand();
             this._magAdminService.GetMAGReviewList();
+            this._magAdminService.GetMagCurrentInfoList();
             this.RefreshLogTable();
             //this._magAdminService.FetchMagCurrentInfo();
         }

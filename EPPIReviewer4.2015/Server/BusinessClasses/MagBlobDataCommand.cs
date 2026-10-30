@@ -93,125 +93,125 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Execute()
         {
-            var task = ListMagDbsAndMeta();
-            task.Wait();
+            //var task = ListMagDbsAndMeta();
+            //task.Wait();
         }
 
         //private static CloudBlob CurrentReleaseNotes { get; set; }
         //private static CloudBlobContainer containerLatest { get; set; }
         
 
-        private async Task ListMagDbsAndMeta()
-        {
-            string storageAccountName = AzureSettings.MAGStorageAccount;
-            string storageAccountKey = AzureSettings.MAGStorageAccountKey;
-#if (CSLA_NETCORE)
+//        private async Task ListMagDbsAndMeta()
+//        {
+//            string storageAccountName = AzureSettings.MAGStorageAccount;
+//            string storageAccountKey = AzureSettings.MAGStorageAccountKey;
+//#if (CSLA_NETCORE)
 
-            throw new NotImplementedException();
+//            throw new NotImplementedException();
 
-#else
+//#else
 
 
 
-            string storageConnectionString =
-                "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
-            storageConnectionString += storageAccountKey;
+//            string storageConnectionString =
+//                "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
+//            storageConnectionString += storageAccountKey;
 
-            // Check whether the connection string can be parsed.
-            CloudStorageAccount storageAccount;
-            if (CloudStorageAccount.TryParse(storageConnectionString, out storageAccount))
-            {
-                CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+//            // Check whether the connection string can be parsed.
+//            CloudStorageAccount storageAccount;
+//            if (CloudStorageAccount.TryParse(storageConnectionString, out storageAccount))
+//            {
+//                CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
 
-                CloudBlobContainer blobContainer = storageAccount.CreateCloudBlobClient().GetContainerReference("open-alex");
-                DateTime LatestDateMAG = new DateTime(2017, 1, 1);
-                _PreviousMAGName = "";
+//                CloudBlobContainer blobContainer = storageAccount.CreateCloudBlobClient().GetContainerReference("open-alex");
+//                DateTime LatestDateMAG = new DateTime(2017, 1, 1);
+//                _PreviousMAGName = "";
 
-                bool useFlatBlobListing = false;
-                var blobs = blobContainer.ListBlobs("OpenAlexData/", useFlatBlobListing, BlobListingDetails.None);
-                var folders = blobs.Where(b => b as CloudBlobDirectory != null).ToList();
-                foreach (var folder in folders)
-                {
-                    string dateStr = folder.Uri.ToString().Replace(folder.Parent.Uri.ToString(), "").Replace("/", "");
-                    DateTime date;
-                    if (DateTime.TryParse(dateStr, out date)) 
-                    {
-                        if (date > LatestDateMAG)
-                        {
-                            _PreviousMAGName = dateStr;
-                        }
-                    }
-                }
+//                bool useFlatBlobListing = false;
+//                var blobs = blobContainer.ListBlobs("OpenAlexData/", useFlatBlobListing, BlobListingDetails.None);
+//                var folders = blobs.Where(b => b as CloudBlobDirectory != null).ToList();
+//                foreach (var folder in folders)
+//                {
+//                    string dateStr = folder.Uri.ToString().Replace(folder.Parent.Uri.ToString(), "").Replace("/", "");
+//                    DateTime date;
+//                    if (DateTime.TryParse(dateStr, out date)) 
+//                    {
+//                        if (date > LatestDateMAG)
+//                        {
+//                            _PreviousMAGName = dateStr;
+//                        }
+//                    }
+//                }
 
-                LatestDateMAG = new DateTime(2017, 1, 1);
-                _LatestMAGName = "";
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-                {
-                    connection.Open();
-                    using (SqlCommand command = new SqlCommand("st_MagGetOpenAlexFolders", connection))
-                    {
-                        command.CommandType = System.Data.CommandType.StoredProcedure;
-                        using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                        {
-                            while (reader.Read())
-                            {
-                                string dateStr = reader["FolderName"].ToString();
-                                DateTime date;
-                                if (DateTime.TryParse(dateStr, out date))
-                                {
-                                    if (date > LatestDateMAG)
-                                    {
-                                        _LatestMAGName = dateStr;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    connection.Close();
-                }
+//                LatestDateMAG = new DateTime(2017, 1, 1);
+//                _LatestMAGName = "";
+//                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+//                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+//                {
+//                    connection.Open();
+//                    using (SqlCommand command = new SqlCommand("st_MagGetOpenAlexFolders", connection))
+//                    {
+//                        command.CommandType = System.Data.CommandType.StoredProcedure;
+//                        using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+//                        {
+//                            while (reader.Read())
+//                            {
+//                                string dateStr = reader["FolderName"].ToString();
+//                                DateTime date;
+//                                if (DateTime.TryParse(dateStr, out date))
+//                                {
+//                                    if (date > LatestDateMAG)
+//                                    {
+//                                        _LatestMAGName = dateStr;
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                    connection.Close();
+//                }
 
-                // This was used when we used MAG rather than OpenAlex. Leaving in case we need to generate Sas keys etc
-                //List<string> ListContainers = await ListContainersWithPrefixAsync(blobClient, "mag-");
-                //foreach (var item in ListContainers)
-                //{
-                //    CloudBlobContainer container = blobClient.GetContainerReference(item);
+//                // This was used when we used MAG rather than OpenAlex. Leaving in case we need to generate Sas keys etc
+//                //List<string> ListContainers = await ListContainersWithPrefixAsync(blobClient, "mag-");
+//                //foreach (var item in ListContainers)
+//                //{
+//                //    CloudBlobContainer container = blobClient.GetContainerReference(item);
 
-                //    var length = container.Name.Length;
-                //    int ind = container.Name.IndexOf("-", 0);
-                //    string dateStr = container.Name.Substring(ind + 1, length - ind - 1);
-                //    DateTime date;
-                //    if (DateTime.TryParse(dateStr, out date)) // might be some other folder than MAG
-                //    {
-                //        if (date > LatestDateMAG)
-                //        {
-                //            _PreviousMAGName = _LatestMAGName;
-                //            LatestDateMAG = date;
-                //            _LatestMAGName = item;
-                //        }
-                //    }
-                //}
-                //containerLatest = blobClient.GetContainerReference(_LatestMAGName);
+//                //    var length = container.Name.Length;
+//                //    int ind = container.Name.IndexOf("-", 0);
+//                //    string dateStr = container.Name.Substring(ind + 1, length - ind - 1);
+//                //    DateTime date;
+//                //    if (DateTime.TryParse(dateStr, out date)) // might be some other folder than MAG
+//                //    {
+//                //        if (date > LatestDateMAG)
+//                //        {
+//                //            _PreviousMAGName = _LatestMAGName;
+//                //            LatestDateMAG = date;
+//                //            _LatestMAGName = item;
+//                //        }
+//                //    }
+//                //}
+//                //containerLatest = blobClient.GetContainerReference(_LatestMAGName);
 
-                ////Console.WriteLine("The relevant SAS key is: ");
-                //_LatestMagSasUri = GetContainerSasUri(containerLatest);
+//                ////Console.WriteLine("The relevant SAS key is: ");
+//                //_LatestMagSasUri = GetContainerSasUri(containerLatest);
 
-                //var rootDirectory = containerLatest.GetDirectoryReference("");
+//                //var rootDirectory = containerLatest.GetDirectoryReference("");
 
-                //BlobContinuationToken token = new BlobContinuationToken();
-                //var results = await rootDirectory.ListBlobsSegmentedAsync(token);
+//                //BlobContinuationToken token = new BlobContinuationToken();
+//                //var results = await rootDirectory.ListBlobsSegmentedAsync(token);
 
-                //await ListBlobsFlatListingAsync(containerLatest, null);
+//                //await ListBlobsFlatListingAsync(containerLatest, null);
 
-                //if (CurrentReleaseNotes != null)
-                //{
-                //    CloudBlockBlob blockBlob = CurrentReleaseNotes as CloudBlockBlob;
-                //    _ReleaseNotes = await blockBlob.DownloadTextAsync();
-                //}
+//                //if (CurrentReleaseNotes != null)
+//                //{
+//                //    CloudBlockBlob blockBlob = CurrentReleaseNotes as CloudBlockBlob;
+//                //    _ReleaseNotes = await blockBlob.DownloadTextAsync();
+//                //}
 
-            }
-#endif
-        }
+//            }
+//#endif
+//        }
 
         //private async Task<List<string>> ListContainersWithPrefixAsync(CloudBlobClient blobClient, string prefix)
         //{

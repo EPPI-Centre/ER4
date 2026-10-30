@@ -85,6 +85,77 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+        [HttpPost("[action]")]
+        public IActionResult UpdateThisMagCurrentInfo([FromBody] MVCMagCurrentInfo magCurrentInfo)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing() && User.HasClaim(cl => cl.Type == "isSiteAdmin" && cl.Value == "True"))
+                {
+                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                    MagCurrentInfo mci = new MagCurrentInfo();
+                    mci.MagCurrentInfoId = magCurrentInfo.magCurrentInfoId;
+                    mci.WhenLive = magCurrentInfo.whenLive;
+                    mci.MakesDeploymentStatus = magCurrentInfo.makesDeploymentStatus;
+                    mci.MagOnline = magCurrentInfo.magOnline;
+                    
+
+                    //MagCurrentInfo.UpdateMagCurrentInfoStatic();
+                    DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
+                    MagCurrentInfo updated = dp.Update(mci);
+
+                    MVCMagCurrentInfo response = new MVCMagCurrentInfo
+                    {
+                        magCurrentInfoId = updated.MagCurrentInfoId,
+                        magFolder = updated.MagFolder,
+                        magVersion = updated.MagFolder,
+                        whenLive = updated.WhenLive,
+                        matchingAvailable = updated.MatchingAvailable,
+                        magOnline = updated.MagOnline,
+                        makesEndPoint = updated.MakesEndPoint,
+                        makesDeploymentStatus = updated.MakesDeploymentStatus
+                    };
+
+                    return Ok(response);
+                }
+                else return Forbid();
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "updating the  MagCurrent Info has an error");
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult DeleteMagCurrentInfo([FromBody] SingleIntCriteria magCurrentInfoId)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing() && User.HasClaim(cl => cl.Type == "isSiteAdmin" && cl.Value == "True"))
+                {
+
+                    DataPortal<MagCurrentInfoList> dp2 = new DataPortal<MagCurrentInfoList>();
+                    var magCurrentInfoList = dp2.Fetch();
+
+                    var mr = magCurrentInfoList.Where(x => x.MagCurrentInfoId == magCurrentInfoId.Value).FirstOrDefault();
+                    if (mr != null)
+                    {
+                        magCurrentInfoList.Remove(mr);
+
+                    }
+                    return Ok();
+                }
+
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Deleting a review from a Mag Review List has an error");
+                throw;
+            }
+        }
+
 
         [HttpGet("[action]")]
         public IActionResult GetMagReviewMagInfo()
@@ -101,6 +172,25 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Getting a MagReviewMagInfo Command has an error");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpGet("[action]")]
+        public IActionResult GetMagCurrentInfoList()
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                MagCurrentInfoList mco = new MagCurrentInfoList();
+                DataPortal<MagCurrentInfoList> dp = new DataPortal<MagCurrentInfoList>();
+                mco = dp.Fetch();
+
+                return Ok(mco);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Getting a MagReviewMagInfo get has an error");
                 return StatusCode(500, e.Message);
             }
         }
@@ -146,7 +236,7 @@ namespace ERxWebClient2.Controllers
                     MagContReviewPipelineRunCommand runPipelineCommand =
                         new MagContReviewPipelineRunCommand(
                             pipelineParams.previousVersion,
-                            pipelineParams.magVersion,
+                            pipelineParams.currentVersion,
                             pipelineParams.editScoreThreshold,
                             pipelineParams.editFoSThreshold,
                             pipelineParams.specificFolder,
@@ -168,56 +258,56 @@ namespace ERxWebClient2.Controllers
         }
 
 
-        [HttpPost("[action]")]
-        public IActionResult DoCheckChangedPaperIds([FromBody] SingleStringCriteria latestMag)
-        {
-            try
-            {
-                if (SetCSLAUser4Writing() && User.HasClaim(cl => cl.Type == "isSiteAdmin" && cl.Value == "True"))
-                {
-                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                    DataPortal<MagCheckPaperIdChangesCommand> dp = new DataPortal<MagCheckPaperIdChangesCommand>();
-                    MagCheckPaperIdChangesCommand magCheck = new MagCheckPaperIdChangesCommand(latestMag.Value);
+        //[HttpPost("[action]")]
+        //public IActionResult DoCheckChangedPaperIds([FromBody] SingleStringCriteria latestMag)
+        //{
+        //    try
+        //    {
+        //        if (SetCSLAUser4Writing() && User.HasClaim(cl => cl.Type == "isSiteAdmin" && cl.Value == "True"))
+        //        {
+        //            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+        //            DataPortal<MagCheckPaperIdChangesCommand> dp = new DataPortal<MagCheckPaperIdChangesCommand>();
+        //            MagCheckPaperIdChangesCommand magCheck = new MagCheckPaperIdChangesCommand(latestMag.Value);
 
 
-                    magCheck = dp.Execute(magCheck);
+        //            magCheck = dp.Execute(magCheck);
 
-                    return Ok(magCheck.LatestMAGName);
-                }
-                else return Forbid();
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "DoCheckChangedPaperIds has an error");
-                return StatusCode(500, e.Message);
-            }
-        }
-
-
-        [HttpGet("[action]")]
-        public IActionResult GetMAGBlobCommand()
-        {
-            try
-            {
-                if (SetCSLAUser4Writing() && User.HasClaim(cl => cl.Type == "isSiteAdmin" && cl.Value == "True"))
-                {
-
-                    DataPortal<MagBlobDataCommand> dp = new DataPortal<MagBlobDataCommand>();
-                    MagBlobDataCommand command = new MagBlobDataCommand();
+        //            return Ok(magCheck.LatestMAGName);
+        //        }
+        //        else return Forbid();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogException(e, "DoCheckChangedPaperIds has an error");
+        //        return StatusCode(500, e.Message);
+        //    }
+        //}
 
 
-                    command = dp.Execute(command);
+        //[HttpGet("[action]")]
+        //public IActionResult GetMAGBlobCommand()
+        //{
+        //    try
+        //    {
+        //        if (SetCSLAUser4Writing() && User.HasClaim(cl => cl.Type == "isSiteAdmin" && cl.Value == "True"))
+        //        {
 
-                    return Ok(command);
-                }
-                else return Forbid();
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "Getting a MAGBlobCommand has an error");
-                return StatusCode(500, e.Message);
-            }
-        }
+        //            DataPortal<MagBlobDataCommand> dp = new DataPortal<MagBlobDataCommand>();
+        //            MagBlobDataCommand command = new MagBlobDataCommand();
+
+
+        //            command = dp.Execute(command);
+
+        //            return Ok(command);
+        //        }
+        //        else return Forbid();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogException(e, "Getting a MAGBlobCommand has an error");
+        //        return StatusCode(500, e.Message);
+        //    }
+        //}
     }
 }
 
@@ -237,7 +327,7 @@ public class MVCMagCurrentInfo
 public class MVCContReviewPipeLineCommand
 {
     public string previousVersion { get; set; }
-    public string magVersion { get; set; }
+    public string currentVersion { get; set; }
     public double editScoreThreshold { get; set; }
     internal double editFoSThreshold { get; set; }
     public string specificFolder { get; set; }

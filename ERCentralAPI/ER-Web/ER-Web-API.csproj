@@ -147,6 +147,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagContReviewPipeline.cs" Link="Models\MagContReviewPipeline.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagContReviewPipelineRunCommand.cs" Link="Models\MagContReviewPipelineRunCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagCurrentInfo.cs" Link="Models\MagCurrentInfo.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagCurrentInfoList.cs" Link="Models\MagCurrentInfoList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagDataLakeHelpers.cs" Link="Models\MagDataLakeHelpers.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagFieldOfStudy.cs" Link="Models\MagFieldOfStudy.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagFieldOfStudyList.cs" Link="Models\MagFieldOfStudyList.cs" />

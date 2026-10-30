@@ -105,7 +105,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<DateTime> WhenLiveProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("WhenLive", "WhenLive"));
+        public static readonly PropertyInfo<DateTime> WhenLiveProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("WhenLive", "WhenLive", DateTime.Today));
         public DateTime WhenLive
         {
             get
@@ -118,7 +118,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<string> MakesEndPointProperty = RegisterProperty<string>(new PropertyInfo<string>("MakesEndPoint", "MakesEndPoint", ""));
+        public static readonly PropertyInfo<string> MakesEndPointProperty = RegisterProperty<string>(new PropertyInfo<string>("MakesEndPoint", "MakesEndPoint", "NOT USED"));
         public string MakesEndPoint
         {
             get
@@ -131,7 +131,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<string> MakesDeploymentStatusProperty = RegisterProperty<string>(new PropertyInfo<string>("MakesDeploymentStatus", "MakesDeploymentStatus", ""));
+        public static readonly PropertyInfo<string> MakesDeploymentStatusProperty = RegisterProperty<string>(new PropertyInfo<string>("MakesDeploymentStatus", "MakesDeploymentStatus", "PENDING"));
         public string MakesDeploymentStatus
         {
             get
@@ -266,7 +266,11 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Insert()
         {
-
+            if (this.MagCurrentInfoId > 0)
+            {
+                UpdateThisMagCurrentInfo();
+                return;
+            }
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -294,7 +298,11 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Update()
         {
-            
+            UpdateThisMagCurrentInfo();
+        }
+
+        private void UpdateThisMagCurrentInfo()
+        {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
@@ -315,7 +323,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 connection.Close();
             }
-        }
+        }       
 
         protected override void DataPortal_DeleteSelf()
         {

@@ -19,6 +19,8 @@ using System.IO;
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using BusinessLibrary.Security;
+using System.Reflection.Metadata.Ecma335;
+
 #if !CSLA_NETCORE
 using System.Web.Hosting;
 #endif
@@ -90,7 +92,16 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Execute()
         {
+
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+            if (_specificFolder == ""){
+                MagCurrentInfo mci = new MagCurrentInfo();
+                mci.MagFolder = this._NextMagVersion;
+                mci.MakesDeploymentStatus = "Pending";
+                mci = mci.Save();
+            }
+            //return;
 
             if (_doWhat == "Prepare parquet")
             {

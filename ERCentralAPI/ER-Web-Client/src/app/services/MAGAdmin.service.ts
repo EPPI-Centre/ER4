@@ -27,20 +27,23 @@ export class MAGAdminService extends BusyAwareService implements OnDestroy {
     }
 
     ngOnDestroy() {
-        console.log("Destroy DuplicatesService");
+        console.log("Destroy MAGAdminService");
         if (this.clearSub != null) this.clearSub.unsubscribe();
     }
     private clearSub: Subscription | null = null;
 
     public releaseNotes: string = '';
-    public latestMagSasUri: string = '';
+    //public latestMagSasUri: string = '';
     public latestMAGName: string = '';
     public previousMAGName: string = '';
     public MAGLogList: MAGLog[] = [];
     public MAGReviewList: MAGReview[] = [];
     public MagCurrentInfo: MagCurrentInfo = new MagCurrentInfo();
+    public MagCurrentInfoList: MagCurrentInfo[] = [];
+
+
     public DoRunContReviewPipeline(specificFolder: string, magLogId: number, alertText: string, editFoSThreshold: number,
-        editReviewSampleSize: number, editScoreThreshold: number 
+        editReviewSampleSize: number, editScoreThreshold: number, fromDate: string, toDate: string
     ) {
         this._BusyMethods.push("DoRunContReviewPipeline");
 
@@ -49,8 +52,8 @@ export class MAGAdminService extends BusyAwareService implements OnDestroy {
         pipelineParams.editReviewSampleSize = editReviewSampleSize;
         pipelineParams.editScoreThreshold = editScoreThreshold;
         pipelineParams.magLogId = magLogId;
-        pipelineParams.magFolder = this.MagCurrentInfo.magFolder;
-        pipelineParams.previousVersion = "";
+        pipelineParams.currentVersion = toDate;
+        pipelineParams.previousVersion = fromDate;
         pipelineParams.specificFolder = specificFolder;
         this._httpC.post<boolean>(this._baseUrl + 'api/MagCurrentInfo/DoRunContReviewPipeline', pipelineParams)
             .subscribe(result => {
@@ -67,26 +70,26 @@ export class MAGAdminService extends BusyAwareService implements OnDestroy {
                     this.RemoveBusy("DoRunContReviewPipeline");
                 });
     }
-    public DoCheckChangedPaperIds(magLatest: string ) {
+    // public DoCheckChangedPaperIds(magLatest: string ) {
 
-        this._BusyMethods.push("DoCheckChangedPaperIds");
-        let body = JSON.stringify({ Value: magLatest });
-        this._httpC.post<boolean>(this._baseUrl + 'api/MagCurrentInfo/DoCheckChangedPaperIds', body)
-            .subscribe(result => {
-                this.RemoveBusy("DoCheckChangedPaperIds");
-                if (result != null ) {
-                    this.SwitchOnAutoRefreshLogList();
-                }
-            },
-                error => {
-                    console.log(JSON.stringify(error));
-                    this.RemoveBusy("DoCheckChangedPaperIds");
-                    this.modalService.GenericError(error);
-                },
-                () => {
-                    this.RemoveBusy("DoCheckChangedPaperIds");
-                });
-    }
+    //     this._BusyMethods.push("DoCheckChangedPaperIds");
+    //     let body = JSON.stringify({ Value: magLatest });
+    //     this._httpC.post<boolean>(this._baseUrl + 'api/MagCurrentInfo/DoCheckChangedPaperIds', body)
+    //         .subscribe(result => {
+    //             this.RemoveBusy("DoCheckChangedPaperIds");
+    //             if (result != null ) {
+    //                 this.SwitchOnAutoRefreshLogList();
+    //             }
+    //         },
+    //             error => {
+    //                 console.log(JSON.stringify(error));
+    //                 this.RemoveBusy("DoCheckChangedPaperIds");
+    //                 this.modalService.GenericError(error);
+    //             },
+    //             () => {
+    //                 this.RemoveBusy("DoCheckChangedPaperIds");
+    //             });
+    // }
     public AddReview(reviewId: number) {
 
         this._BusyMethods.push("AddReview");
@@ -131,27 +134,29 @@ export class MAGAdminService extends BusyAwareService implements OnDestroy {
     private SwitchOnAutoRefreshLogList() {
         this.GetMAGLogList();
     }
-    public GetMAGBlobCommand() {
-        this._BusyMethods.push("GetMAGBlobCommand");
 
-        this._httpC.get<MAGBlobCommand>(this._baseUrl + 'api/MagCurrentInfo/GetMAGBlobCommand')
-            .subscribe(result => {
-                this.RemoveBusy("GetMAGBlobCommand");
-                if (result != null) {
-                    this.previousMAGName = result.previousMAGName;
-                    this.latestMAGName = result.latestMAGName;
-                    this.releaseNotes = result.releaseNotes;
-                    this.latestMagSasUri = result.latestMagSasUri;
-                }
-            },
-                error => {
-                    this.RemoveBusy("GetMAGBlobCommand");
-                    this.modalService.GenericError(error);
-                },
-                () => {
-                    this.RemoveBusy("GetMAGBlobCommand");
-                });
-    }
+    // public GetMAGBlobCommand() {
+    //     this._BusyMethods.push("GetMAGBlobCommand");
+
+    //     this._httpC.get<MAGBlobCommand>(this._baseUrl + 'api/MagCurrentInfo/GetMAGBlobCommand')
+    //         .subscribe(result => {
+    //             this.RemoveBusy("GetMAGBlobCommand");
+    //             if (result != null) {
+    //                 this.previousMAGName = result.previousMAGName;
+    //                 this.latestMAGName = result.latestMAGName;
+    //                 this.releaseNotes = result.releaseNotes;
+    //                 //this.latestMagSasUri = result.latestMagSasUri;
+    //             }
+    //         },
+    //             error => {
+    //                 this.RemoveBusy("GetMAGBlobCommand");
+    //                 this.modalService.GenericError(error);
+    //             },
+    //             () => {
+    //                 this.RemoveBusy("GetMAGBlobCommand");
+    //             });
+    // }
+
     public GetMAGLogList() {
         this._BusyMethods.push("GetMAGLogList");
 
@@ -188,6 +193,23 @@ export class MAGAdminService extends BusyAwareService implements OnDestroy {
                 this.RemoveBusy("MAGReviewList");
             });
     }
+    GetMagCurrentInfoList() {
+        this._BusyMethods.push("MAGCurrentInfoList");
+        this._httpC.get<MagCurrentInfo[]>(this._baseUrl + 'api/MagCurrentInfo/GetMagCurrentInfoList')
+            .subscribe(result => {
+                this.RemoveBusy("MAGCurrentInfoList");
+                if (result != null) {
+                    this.MagCurrentInfoList = result;
+                }
+            },
+            error => {
+                this.RemoveBusy("MAGCurrentInfoList");
+                this.modalService.GenericError(error);
+            },
+            () => {
+                this.RemoveBusy("MAGCurrentInfoList");
+            });
+    }
     public UpdateMagCurrentInfo(newMagEndPoint: string , newMagVersion: string ) {
 
         this._BusyMethods.push("UpdateMagCurrentInfo");
@@ -212,6 +234,27 @@ export class MAGAdminService extends BusyAwareService implements OnDestroy {
                     this.RemoveBusy("UpdateMagCurrentInfo");
                 });
     }
+
+    public UpdateThisMagCurrentInfo(thisMagCurrentInfo: MagCurrentInfo ) {
+
+        this._BusyMethods.push("UpdateThisMagCurrentInfo");
+        this._httpC.post<MagCurrentInfo>(this._baseUrl + 'api/MagCurrentInfo/UpdateThisMagCurrentInfo', thisMagCurrentInfo)
+            .subscribe(result => {
+                this.RemoveBusy("UpdateThisMagCurrentInfo");
+                if (result != null) {
+                    this.MagCurrentInfo = result;
+                }
+                this.FetchMagCurrentInfo();
+            },
+                error => {
+                    this.RemoveBusy("UpdateThisMagCurrentInfo");
+                    this.modalService.GenericError(error);
+                },
+                () => {
+                    this.RemoveBusy("UpdateThisMagCurrentInfo");
+                });
+    }
+
     public FetchMagCurrentInfo() {
         this._BusyMethods.push("FetchMagCurrentInfo");
         this._httpC.get<MagCurrentInfo>(this._baseUrl + 'api/MagCurrentInfo/GetMagCurrentInfo')
@@ -229,10 +272,32 @@ export class MAGAdminService extends BusyAwareService implements OnDestroy {
                     this.RemoveBusy("FetchMagCurrentInfo");
                 });
     }
+    public DeleteMagCurrentInfo(magCurrentInfoId: number) {
+
+        this._BusyMethods.push("DeleteMagCurrentInfo");
+        let body = JSON.stringify({ Value: magCurrentInfoId });
+      lastValueFrom(this._httpC.post<boolean>(this._baseUrl + 'api/MagCurrentInfo/DeleteMagCurrentInfo', body)
+            ).then(() => {
+                this.RemoveBusy("DeleteMagCurrentInfo");
+                let index: number = this.MagCurrentInfoList.findIndex(x => x.magCurrentInfoId == magCurrentInfoId);
+                if (index > -1) {
+                    this.MagCurrentInfoList.splice(index, 1);
+                    return true;
+                } else {
+                    return false;
+                }
+                
+            },
+                (error) => {
+                    this.RemoveBusy("DeleteMagCurrentInfo");
+                    this.modalService.GenericError(error);
+                });
+    }
+
 
     public Clear() {
         this.releaseNotes = '';
-        this.latestMagSasUri = '';
+        //this.latestMagSasUri = '';
         this.latestMAGName = '';
         this.previousMAGName = '';
         this.MAGLogList = [];

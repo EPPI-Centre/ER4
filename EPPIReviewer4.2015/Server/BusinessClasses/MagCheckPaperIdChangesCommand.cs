@@ -24,6 +24,8 @@ using System.Web.Hosting;
 #endif
 #endif
 
+// *********************************************** THIS IS CURRENTLY A LEGACY OBJECT. IT UPDATED MAG IDS WHEN THEY CHANGED DUE TO MERGING. WE DON'T UPDATE OPENALEX IDS (MAYBE WE SHOULD) ******************************
+
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
@@ -71,17 +73,17 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Execute()
         {
-            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-            int ReviewId = ri.ReviewId; // we don't use this, but it checks we have a valid ticket
-            int ContactId = ri.UserId; // putting to variable in case the user invalidates ticket
-            // spin the task off into another thread and return
+//            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+//            int ReviewId = ri.ReviewId; // we don't use this, but it checks we have a valid ticket
+//            int ContactId = ri.UserId; // putting to variable in case the user invalidates ticket
+//            // spin the task off into another thread and return
 
-#if CSLA_NETCORE
-            System.Threading.Tasks.Task.Run(() => RunCheckUpdates(ReviewId, ContactId));
-#else
-            //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/
-            HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => RunCheckUpdates(ReviewId, ContactId, cancellationToken));
-#endif
+//#if CSLA_NETCORE
+//            System.Threading.Tasks.Task.Run(() => RunCheckUpdates(ReviewId, ContactId));
+//#else
+//            //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/
+//            HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => RunCheckUpdates(ReviewId, ContactId, cancellationToken));
+//#endif
         }
 
         private async Task RunCheckUpdates(int ReviewId, int ContactId, CancellationToken cancellationToken = default(CancellationToken))

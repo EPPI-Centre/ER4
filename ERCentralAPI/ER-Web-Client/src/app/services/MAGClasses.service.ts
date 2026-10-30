@@ -384,7 +384,7 @@ export class topicInfo {
 export class ContReviewPipeLineCommand {
 
   previousVersion: string = '';
-  magFolder: string = '';
+  currentVersion: string = ''; // was magFolder
   editScoreThreshold: number = 0;
   editFoSThreshold: number = 0;
   specificFolder: string = '';
