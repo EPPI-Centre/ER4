@@ -84,7 +84,7 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
     || this.IsServiceBusy) return;
     else {
       let index = parseInt(event.key);
-      if (index == NaN || index > this.SelectedNodeData.attributes.length) return;
+      if (Number.isNaN(index) || index > this.SelectedNodeData.attributes.length) return;
       else if (index == 0) index = 9; //10th code as per zero-based indexing
       else index--;//move it to zero-based indexing
       if (this.SelectedNodeData.attributes[index].showCheckBox == true //code is selectable

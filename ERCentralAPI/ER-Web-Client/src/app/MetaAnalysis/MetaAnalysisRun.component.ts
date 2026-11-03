@@ -94,7 +94,7 @@ export class MetaAnalysisRunComp implements OnInit, OnDestroy {
   public SigLevLostFocus() {
     if (this.CurrentMA) {
       const check = parseInt(this.CurrentMA.significanceLevel.toString());
-      if (check == NaN) this.CurrentMA.significanceLevel = 95;
+      if (Number.isNaN(check)) this.CurrentMA.significanceLevel = 95;
       else if (check > this.SigLevMax) this.CurrentMA.significanceLevel = this.SigLevMax;
       else if (check < this.SigLevMin) this.CurrentMA.significanceLevel = this.SigLevMin;
       else if (check != this.CurrentMA.significanceLevel) this.CurrentMA.significanceLevel = check;
@@ -103,7 +103,7 @@ export class MetaAnalysisRunComp implements OnInit, OnDestroy {
   public DecPlacesLostFocus() {
     if (this.CurrentMA) {
       const check = parseInt(this.CurrentMA.decPlaces.toString());
-      if (check == NaN) this.CurrentMA.decPlaces = 4;
+      if (Number.isNaN(check)) this.CurrentMA.decPlaces = 4;
       else if (check > this.decPlacesMax) this.CurrentMA.decPlaces = this.decPlacesMax;
       else if (check < this.decPlacesMin) this.CurrentMA.decPlaces = this.decPlacesMin;
       else if (check != this.CurrentMA.decPlaces) this.CurrentMA.decPlaces = check;

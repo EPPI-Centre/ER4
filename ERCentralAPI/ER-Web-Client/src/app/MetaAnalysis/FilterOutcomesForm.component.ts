@@ -1,5 +1,4 @@
 import { Component, OnInit,Input, ViewChild, OnDestroy, EventEmitter, Output } from '@angular/core';
-import { sep } from 'path';
 import { StringKeyValue } from '../services/ItemList.service';
 import { FilterSettings, MetaAnalysis, MetaAnalysisService } from '../services/MetaAnalysis.service';
 import { ExtendedOutcome } from '../services/outcomes.service';
