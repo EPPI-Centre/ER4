@@ -207,7 +207,7 @@ ul.k-tabstrip-items li.k-item.k-state-active {
     See: https://groups.google.com/forum/#!topic/pdfnet-webviewer/pxbrn_apLKM
     and https://www.pdftron.com/documentation/web/faq/loading-errors/#getcomputedstyle-is-null for the details.
 */
-.specialHideSystem > .k-content.k-state-active {
+.specialHideSystem > .k-content.k-active {
     height: auto;
     width: auto;
     position: inherit;
