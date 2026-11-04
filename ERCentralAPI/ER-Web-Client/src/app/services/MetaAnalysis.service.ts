@@ -527,16 +527,16 @@ export class MetaAnalysisService extends BusyAwareService {
       res = res.filter(f => f[field] != "");
     }
     else if (Operator == "IsLessThan") {
-      res = res.filter(f => f[field] < FilterBy);
+      res = res.filter(f => (f[field] as number) < FilterBy);
     }
     else if (Operator == "IsLessThanOrEqualTo") {
-      res = res.filter(f => f[field] <= FilterBy);
+      res = res.filter(f => (f[field] as number) <= FilterBy);
     }
     else if (Operator == "IsGreaterThan") {
-      res = res.filter(f => f[field] > FilterBy);
+      res = res.filter(f => (f[field] as number) > FilterBy);
     }
     else if (Operator == "IsGreaterThanOrEqualTo") {
-      res = res.filter(f => f[field] >= FilterBy);
+      res = res.filter(f => (f[field] as number) >= FilterBy);
     }
     else if (Operator == "IsNull") {
       res = res.filter(f => f[field] == "");
