@@ -77,10 +77,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "ER-Web_Client:build:production"
+              "buildTarget": "ER-Web_Client:build:production"
             },
             "development": {
-              "browserTarget": "ER-Web_Client:build:development"
+              "buildTarget": "ER-Web_Client:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -88,7 +88,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "ER-Web_Client:build"
+            "buildTarget": "ER-Web_Client:build"
           }
         },
         "test": {
