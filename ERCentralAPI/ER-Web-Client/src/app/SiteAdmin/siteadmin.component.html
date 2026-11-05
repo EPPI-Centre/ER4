@@ -1,375 +1,390 @@
-<HeaderComponent *ngIf="IsSiteAdmin" PageTitle="Site Admin"></HeaderComponent>
-<div *ngIf="IsSiteAdmin" class="bg-light">
-
-  <button class="page-link pt-0 pb-1 mb-1 rounded float-right" style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
-    Close/back
-  </button>
-  <kendo-tabstrip #tabstrip [keepTabContent]="true"
-                  (tabSelect)="onTabSelect($event)">
-    <kendo-tabstrip-tab [selected]="true" [title]="'Main'">
-      <ng-template kendoTabContent>
-
-
-
-        <p class="font-weight-bold">Feedback (and error) messages:</p>
-        <div *ngIf="FeedbackMessageList.length > 0">
-
-          <kendo-grid [data]="DataSource" [height]="490"
-                      [sort]="state.sort"
+@if (IsSiteAdmin) {
+  <HeaderComponent PageTitle="Site Admin"></HeaderComponent>
+}
+@if (IsSiteAdmin) {
+  <div class="bg-light">
+    <button class="page-link pt-0 pb-1 mb-1 rounded float-right" style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
+      Close/back
+    </button>
+    <kendo-tabstrip #tabstrip [keepTabContent]="true"
+      (tabSelect)="onTabSelect($event)">
+      <kendo-tabstrip-tab [selected]="true" [title]="'Main'">
+        <ng-template kendoTabContent>
+          <p class="font-weight-bold">Feedback (and error) messages:</p>
+          @if (FeedbackMessageList.length > 0) {
+            <div>
+              <kendo-grid [data]="DataSource" [height]="490"
+                [sort]="state.sort"
                       [sortable]="{
                     allowUnsort: false,
                     mode: 'single'
                     }"
-                      [pageSize]="state.take"
-                      [skip]="state.skip"
+                [pageSize]="state.take"
+                [skip]="state.skip"
                       [pageable]="{
                     info: true,
                     type: 'input',
                     pageSizes: true,
                     previousNext: true
                     }"
-                      filterable="menu"
-                      (dataStateChange)="dataStateChange($event)">
-            <ng-template kendoPagerTemplate let-totalPages="totalPages" let-currentPage="currentPage">
-              <kendo-pager-prev-buttons></kendo-pager-prev-buttons>
-              <kendo-pager-info></kendo-pager-info>
-              <kendo-pager-next-buttons></kendo-pager-next-buttons>
-              <kendo-pager-page-sizes [pageSizes]="[5, 10, 25, 50, 100]"></kendo-pager-page-sizes>
-            </ng-template>
-            <kendo-grid-column field="dateCreated" headerClass="small" class="small" [width]="2" title="Date">
-            </kendo-grid-column>
-            <kendo-grid-column field="context" headerClass="small" class="small" [width]="3" title="Context">
-            </kendo-grid-column>
-            <kendo-grid-column field="message" headerClass="small" class="small" [width]="14" title="Message">
-            </kendo-grid-column>
-            <kendo-grid-column field="contactName" headerClass="small" class="small" [width]="2" title="User">
-            </kendo-grid-column>
-            <kendo-grid-column field="contactEmail" headerClass="small" class="small" [width]="2" title="Email">
-              <ng-template kendoGridCellTemplate let-dataItem>
-                <a href="mailto:{{dataItem.contactEmail}}?BCC=EPPISupport@ucl.ac.uk&subject=EPPI-Reviewer Feedback&body=Your Feedback: {{dataItem.message}} "
-                   style="color:#007bff; text-decoration:underline;">{{dataItem.contactEmail}}</a>
-              </ng-template>
-            </kendo-grid-column>
-            <kendo-grid-column field="contactId" headerClass="small" [width]="2" title="Cont.ID">
-            </kendo-grid-column>
-            <kendo-grid-column field="reviewId" headerClass="small" [width]="2" title="Rev.ID">
-            </kendo-grid-column>
-            <kendo-grid-column field="isError" headerClass="small" [width]="2" title="IsError">
-            </kendo-grid-column>
-          </kendo-grid>
-        </div>
-        <div *ngIf="FeedbackMessageList.length == 0">
-          FeedbackMessageList is empty
-        </div>
-
-        <br />
-        Open Review:
-        <div class="col-12">
-          <div class="form-group border border-dark rounded row m-0 p-1">
-            <label class="control-label mt-2 mx-1">U:</label>
-            <div class="mr-2">
-              <input name="username" class="form-control" style="width:160px" [(ngModel)]="Uname">
+                filterable="menu"
+                (dataStateChange)="dataStateChange($event)">
+                <ng-template kendoPagerTemplate let-totalPages="totalPages" let-currentPage="currentPage">
+                  <kendo-pager-prev-buttons></kendo-pager-prev-buttons>
+                  <kendo-pager-info></kendo-pager-info>
+                  <kendo-pager-next-buttons></kendo-pager-next-buttons>
+                  <kendo-pager-page-sizes [pageSizes]="[5, 10, 25, 50, 100]"></kendo-pager-page-sizes>
+                </ng-template>
+                <kendo-grid-column field="dateCreated" headerClass="small" class="small" [width]="2" title="Date">
+                </kendo-grid-column>
+                <kendo-grid-column field="context" headerClass="small" class="small" [width]="3" title="Context">
+                </kendo-grid-column>
+                <kendo-grid-column field="message" headerClass="small" class="small" [width]="14" title="Message">
+                </kendo-grid-column>
+                <kendo-grid-column field="contactName" headerClass="small" class="small" [width]="2" title="User">
+                </kendo-grid-column>
+                <kendo-grid-column field="contactEmail" headerClass="small" class="small" [width]="2" title="Email">
+                  <ng-template kendoGridCellTemplate let-dataItem>
+                    <a href="mailto:{{dataItem.contactEmail}}?BCC=EPPISupport@ucl.ac.uk&subject=EPPI-Reviewer Feedback&body=Your Feedback: {{dataItem.message}} "
+                    style="color:#007bff; text-decoration:underline;">{{dataItem.contactEmail}}</a>
+                  </ng-template>
+                </kendo-grid-column>
+                <kendo-grid-column field="contactId" headerClass="small" [width]="2" title="Cont.ID">
+                </kendo-grid-column>
+                <kendo-grid-column field="reviewId" headerClass="small" [width]="2" title="Rev.ID">
+                </kendo-grid-column>
+                <kendo-grid-column field="isError" headerClass="small" [width]="2" title="IsError">
+                </kendo-grid-column>
+              </kendo-grid>
             </div>
-            <label class="control-label mt-2 mr-1">P:</label>
-            <div class="mr-2">
-              <input type="password" class="form-control" style="width:160px" name="password" [(ngModel)]="Pw">
+          }
+          @if (FeedbackMessageList.length == 0) {
+            <div>
+              FeedbackMessageList is empty
             </div>
-            <label class=" control-label mt-2 mr-1">R:</label>
-            <div class="mr-2">
-              <input name="rid" class="form-control" style="width:80px" [(ngModel)]="revId">
+          }
+          <br />
+          Open Review:
+          <div class="col-12">
+            <div class="form-group border border-dark rounded row m-0 p-1">
+              <label class="control-label mt-2 mx-1">U:</label>
+              <div class="mr-2">
+                <input name="username" class="form-control" style="width:160px" [(ngModel)]="Uname">
+              </div>
+              <label class="control-label mt-2 mr-1">P:</label>
+              <div class="mr-2">
+                <input type="password" class="form-control" style="width:160px" name="password" [(ngModel)]="Pw">
+              </div>
+              <label class=" control-label mt-2 mr-1">R:</label>
+              <div class="mr-2">
+                <input name="rid" class="form-control" style="width:80px" [(ngModel)]="revId">
+              </div>
+              <button class="btn btn-sm btn-outline-danger m-1 p-0 px-1 " [disabled]="!CanOpenRev" (click)="OpenRev()">Open...</button>
+              <!--<div *ngIf="LoggedStatus != ''">{{LoggedStatus}}</div>-->
             </div>
-            <button class="btn btn-sm btn-outline-danger m-1 p-0 px-1 " [disabled]="!CanOpenRev" (click)="OpenRev()">Open...</button>
-            <!--<div *ngIf="LoggedStatus != ''">{{LoggedStatus}}</div>-->
           </div>
-
-        </div>
-
-
-
-      </ng-template>
-    </kendo-tabstrip-tab>
-
-    <kendo-tabstrip-tab [selected]="false" [title]="'Help'" >
-      <ng-template kendoTabContent>
-
-        <div>
-          <table>
-            <tr>
+        </ng-template>
+      </kendo-tabstrip-tab>
+      <kendo-tabstrip-tab [selected]="false" [title]="'Help'" >
+        <ng-template kendoTabContent>
+          <div>
+            <table>
+              <tr>
+                <td style="vertical-align:top">
+                  <select class="btn btn-outline-primary mt-3" style="text-align:left;" id="dropdownBasicHelpPages"
+                    [(ngModel)]="selected" (change)="RetrieveHelpNew($event)">
+                    <option [value]="0" [selected]=true>Select a context</option>
+                    @for (item of HelpPages; track item) {
+                      <option [ngValue]="item">
+                        {{DisplayFriendlyHelpPageNames(item)}}
+                      </option>
+                    }
+                  </select>
+                </td>
+                <td style="vertical-align:top;padding-top:15px;padding-left:10px">
+                  <p>
+                    Select the help page from the dropdown then click <b>Edit</b>. Text can be edited in the WYSIWYG editor.
+                    The editor does not recognise most bootstrap classes but they can be edited manually under <b>Source</b>.
+                    New images must be manually uploaded to a location you can link to. There is a page on the ER gateway
+                    (https://eppi.ioe.ac.uk/cms/portals/35/) that I have been using.
+                  </p>
+                </td>
+              </tr>
+              <!--<tr>
               <td style="vertical-align:top">
-                <select class="btn btn-outline-primary mt-3" style="text-align:left;" id="dropdownBasicHelpPages"
-                        [(ngModel)]="selected" (change)="RetrieveHelpNew($event)">
-                  <option [value]="0" [selected]=true>Select a context</option>
-                  <option [ngValue]="item" *ngFor="let item of HelpPages">
-                    {{DisplayFriendlyHelpPageNames(item)}}
-                  </option>
-                </select>
+                User friendly name<br />
+                <div class="bg-white border border-dark">{{EditingSectionName}}</div>
               </td>
-              <td style="vertical-align:top;padding-top:15px;padding-left:10px">
+              <td style="vertical-align: top;padding-left: 10px">
                 <p>
-                  Select the help page from the dropdown then click <b>Edit</b>. Text can be edited in the WYSIWYG editor.
-                  The editor does not recognise most bootstrap classes but they can be edited manually under <b>Source</b>.
-                  New images must be manually uploaded to a location you can link to. There is a page on the ER gateway
-                  (https://eppi.ioe.ac.uk/cms/portals/35/) that I have been using.
+                  You can edit the user-friendly name that will appear in the help dropdown.
+                  It will be saved when you save the help content.
                 </p>
               </td>
-            </tr>
-
-            <!--<tr>
-        <td style="vertical-align:top">
-          User friendly name<br />
-          <div class="bg-white border border-dark">{{EditingSectionName}}</div>
-        </td>
-        <td style="vertical-align: top;padding-left: 10px">
-          <p>
-            You can edit the user-friendly name that will appear in the help dropdown.
-            It will be saved when you save the help content.
-          </p>
-        </td>
-      </tr>-->
+            </tr>-->
             <tr>
               <td colspan="2">
                 <div class="row px-0 mx-1 my-1">
                   <button class="btn btn-outline-primary btn-sm ml-1 mb-1" (click)="ShowCreateHelp(false)">Add Regular/root help page</button>
                 </div>
-                <div *ngIf="canShowAddExtension" class="row px-0 mx-1">
-                  <div *ngIf="!ShowCreateHelpPanel">
-                    <button class="btn btn-dark btn-sm text-white" (click)="ShowCreateHelp(true)">
-                      Context extensions<span class="k-icon k-i-arrow-chevron-down"></span>
+                @if (canShowAddExtension) {
+                  <div class="row px-0 mx-1">
+                    @if (!ShowCreateHelpPanel) {
+                      <div>
+                        <button class="btn btn-dark btn-sm text-white" (click)="ShowCreateHelp(true)">
+                          Context extensions<span class="k-icon k-i-arrow-chevron-down"></span>
+                        </button>
+                      </div>
+                    }
+                    @if (ShowCreateHelpPanel) {
+                      <div>
+                        <button class="btn btn-dark btn-sm text-white" (click)="HideCreateHelp()">
+                          Hide <span class="k-icon k-i-arrow-chevron-up"></span>
+                        </button>
+                      </div>
+                    }
+                    <div class="my-auto ml-1">Please select a root help page (has an * prefix) to add an extension to it. After creating it you'll be able to add content for it</div>
+                  </div>
+                }
+                @if (ShowCreateHelpPanel) {
+                  <div class="">
+                    @if (EditingHelp.IsExtension) {
+                      <div class="card card-footer">
+                        <p>
+                          Select a 'parent' context (has an * prefix) from the dropdown above to add a context extension to it. You can add an extension
+                          to any ''parent' context. (ex. if the parent context is 'main\reviewhome' then the extension could be
+                          'main\reviewhome\codingprogress'.) The 'user-friendly name' is what will appear in the help dropdown.
+                        </p>
+                        <table>
+                          <tr>
+                            <td>
+                              Parent context name<br />
+                              <div class="border border-dark alert-dark">{{EditingHelp.parentContext}}</div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              Context extension name (just the additional part!): <br />
+                              <input class="mb-1 px-1 col" type="text" id="sectionName" name="SectionName"
+                                [(ngModel)]="EditingHelp.leafContext" />
+                              </td>
+                              <td>
+                                User-friendly name:<br />
+                                <input class="mb-1 px-1 col" type="text" id="sectionName" name="SectionName"
+                                  [(ngModel)]="EditingHelp.sectionName" />
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>
+                                  <button [disabled]="disableCreateNew"  class="btn btn-outline-primary btn-sm ml-1 my-auto" (click)="AddHelp()">Add extension</button>
+                                  <button class="btn btn-outline-dark btn-sm ml-1 my-auto" (click)="HideCreateHelp()">Cancel</button>
+                                </td>
+                              </tr>
+                            </table>
+                          </div>
+                        }
+                        @if (!EditingHelp.IsExtension) {
+                          <div class="row mx-1 px-1 mb-1">
+                            <div class="row mx-1 px-1">
+                              <div class="my-auto">Context:</div>
+                              <input class="mb-1 px-1 my-auto" type="text" id="contextbox" name="contextbox"
+                                [(ngModel)]="EditingHelp.context" />
+                              </div>
+                              <div class="row mx-1 px-1">
+                                <button [disabled]="disableCreateNew" class="btn btn-outline-primary btn-sm ml-1 my-auto" (click)="AddHelp()">Add Help</button>
+                                <button class="btn btn-outline-dark btn-sm ml-1 my-auto" (click)="HideCreateHelp()">Cancel</button>
+                              </div>
+                              <div class="my-auto mx-1 px-1">
+                                You can create a help page with placeholder content, and then edit the content afterwards.<br />
+                                Root page context names are hard-coded in the program so adding a new root will require a publish to be viewable.
+                              </div>
+                            </div>
+                          }
+                        </div>
+                      }
+                    </td>
+                  </tr>
+                </table>
+              </div>
+              <div class="card card-body alert alert-info border border-info p-0 mb-0 " style="max-height:400px;overflow-y:auto;overflow-x:hidden; max-width:98%; width:98%; margin-right:auto;margin-left:auto;font-size:16px">
+                @if (IsServiceBusy) {
+                  <div>Loading help...</div>
+                }
+                @if (CurrentContextHelp.length == 0) {
+                  <div
+                    class="m-0 p-1">
+                    Apologies, there currently is no help for this page/activity.<br />
+                    Please check this help page later: we are adding new Help content regularly.
+                  </div>
+                }
+                <div class="m-0 p-1" [innerHTML]=GetText()></div>
+              </div>
+              <div class="row mx-0 p-1">
+                @if (CurrentContextHelp.length > 0) {
+                  <button class="btn btn-outline-primary btn-sm mx-1" (click)="Edit()"><span>{{ShowEdit ? 'Cancel' : 'Edit'}}</span></button>
+                }
+                @if (ShowEdit) {
+                  <div>
+                    <button [disabled]="disableSave" class="btn btn-outline-danger btn-sm mx-1" (click)="Save()">Save</button>
+                    <button class="btn btn-outline-danger btn-sm my-auto mx-1" (click)="removeWarning() ">
+                      Delete Help Page
                     </button>
                   </div>
-                  <div *ngIf="ShowCreateHelpPanel">
-                    <button class="btn btn-dark btn-sm text-white" (click)="HideCreateHelp()">
-                      Hide <span class="k-icon k-i-arrow-chevron-up"></span>
-                    </button>
-                  </div>
-                  <div class="my-auto ml-1">Please select a root help page (has an * prefix) to add an extension to it. After creating it you'll be able to add content for it</div>
-                </div>
-                <div *ngIf="ShowCreateHelpPanel" class="">
-                  <div *ngIf="EditingHelp.IsExtension" class="card card-footer">
-                    <p>
-                      Select a 'parent' context (has an * prefix) from the dropdown above to add a context extension to it. You can add an extension
-                      to any ''parent' context. (ex. if the parent context is 'main\reviewhome' then the extension could be
-                      'main\reviewhome\codingprogress'.) The 'user-friendly name' is what will appear in the help dropdown.
-                    </p>
-                    <table>
-                      <tr>
-                        <td>
-                          Parent context name<br />
-                          <div class="border border-dark alert-dark">{{EditingHelp.parentContext}}</div>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          Context extension name (just the additional part!): <br />
-                          <input class="mb-1 px-1 col" type="text" id="sectionName" name="SectionName"
-                                 [(ngModel)]="EditingHelp.leafContext" />
-                        </td>
-                        <td>
-                          User-friendly name:<br />
-                          <input class="mb-1 px-1 col" type="text" id="sectionName" name="SectionName"
-                                 [(ngModel)]="EditingHelp.sectionName" />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <button [disabled]="disableCreateNew"  class="btn btn-outline-primary btn-sm ml-1 my-auto" (click)="AddHelp()">Add extension</button>
-                          <button class="btn btn-outline-dark btn-sm ml-1 my-auto" (click)="HideCreateHelp()">Cancel</button>
-                        </td>
-                      </tr>
-                    </table>
-
-                  </div>
-                  <div *ngIf="!EditingHelp.IsExtension" class="row mx-1 px-1 mb-1">
-                    <div class="row mx-1 px-1">
-                      <div class="my-auto">Context:</div>
-                      <input class="mb-1 px-1 my-auto" type="text" id="contextbox" name="contextbox"
-                             [(ngModel)]="EditingHelp.context" />
+                }
+              </div>
+              @if (ShowEdit) {
+                <div class="rounded border border-primary col w-100">
+                  @if (CurrentHelp.IsExtension) {
+                    <div class="row px-0 mx-1">
+                      <div class="mx-1 px-1 col-auto border-right">
+                        <div>Parent context name:</div>
+                        <div class="alert-dark p-1 border border-dark">{{EditingHelp.parentContext}}</div>
+                      </div>
+                      <div class="mx-1 px-1 col-auto border-right">
+                        <div>Full path/context:</div>
+                        <div class="alert-dark p-1 border border-dark">{{EditingHelp.context}}</div>
+                      </div>
+                      <div class="mx-1 px-1 col-auto border-right">
+                        <div>Context extension name:</div>
+                        <div class="alert-dark p-1 border border-dark">{{EditingHelp.leafContext}}</div>
+                      </div>
+                      <div class="mx-1 px-1 col-auto border-right">
+                        <div>User-friendly name:</div>
+                        <input class="mb-1 px-1 col" type="text" id="sectionName" name="SectionName"
+                          [(ngModel)]="EditingHelp.sectionName" />
+                        </div>
+                        <!--<button class="btn btn-outline-danger btn-sm my-auto"
+                        (click)="removeWarning() ">
+                        Delete Help Page
+                      </button>-->
                     </div>
-                    <div class="row mx-1 px-1">
-                      <button [disabled]="disableCreateNew" class="btn btn-outline-primary btn-sm ml-1 my-auto" (click)="AddHelp()">Add Help</button>
-                      <button class="btn btn-outline-dark btn-sm ml-1 my-auto" (click)="HideCreateHelp()">Cancel</button>
+                  }
+                  @if (!CurrentHelp.IsExtension) {
+                    <div class="row px-0 mx-1">
+                      <div class="mx-1 px-1 col-auto border-right">
+                        <div>User-friendly name:</div>
+                        <input class="mb-1 px-1 col" type="text" id="sectionName" name="SectionName"
+                          [(ngModel)]="EditingHelp.sectionName" />
+                        </div>
+                      </div>
+                    }
+                    <kendo-editor [(ngModel)]="EditingHelp.helpHTML" [iframe]="false" style="max-height:65vh;" [pasteCleanupSettings]="pasteCleanupSettings">
+                      <kendo-toolbar>
+                        <kendo-toolbar-buttongroup>
+                          <kendo-toolbar-button kendoEditorBoldButton></kendo-toolbar-button>
+                          <kendo-toolbar-button kendoEditorItalicButton></kendo-toolbar-button>
+                          <kendo-toolbar-button kendoEditorUnderlineButton></kendo-toolbar-button>
+                          <kendo-toolbar-button kendoEditorStrikethroughButton></kendo-toolbar-button>
+                        </kendo-toolbar-buttongroup>
+                        <kendo-toolbar-buttongroup>
+                          <kendo-toolbar-button kendoEditorSubscriptButton></kendo-toolbar-button>
+                          <kendo-toolbar-button kendoEditorSuperscriptButton></kendo-toolbar-button>
+                        </kendo-toolbar-buttongroup>
+                        <!--<kendo-toolbar-buttongroup>
+                        <kendo-toolbar-button kendoEditorAlignLeftButton></kendo-toolbar-button>
+                        <kendo-toolbar-button kendoEditorAlignCenterButton></kendo-toolbar-button>
+                        <kendo-toolbar-button kendoEditorAlignRightButton></kendo-toolbar-button>
+                        <kendo-toolbar-button kendoEditorAlignJustifyButton></kendo-toolbar-button>
+                      </kendo-toolbar-buttongroup>-->
+                      <kendo-toolbar-dropdownlist kendoEditorFormat></kendo-toolbar-dropdownlist>
+                      <!--<kendo-toolbar-dropdownlist kendoEditorFontSize></kendo-toolbar-dropdownlist>-->
+                      <!--<kendo-toolbar-dropdownlist kendoEditorFontFamily></kendo-toolbar-dropdownlist>-->
+                      <kendo-toolbar-buttongroup>
+                        <kendo-toolbar-button kendoEditorInsertUnorderedListButton></kendo-toolbar-button>
+                        <kendo-toolbar-button kendoEditorInsertOrderedListButton></kendo-toolbar-button>
+                        <kendo-toolbar-button kendoEditorIndentButton></kendo-toolbar-button>
+                        <kendo-toolbar-button kendoEditorOutdentButton></kendo-toolbar-button>
+                        <!--<kendo-toolbar-button kendoEditorBlockquoteButton></kendo-toolbar-button>-->
+                      </kendo-toolbar-buttongroup>
+                      <kendo-toolbar-buttongroup>
+                        <kendo-toolbar-button kendoEditorUndoButton></kendo-toolbar-button>
+                        <kendo-toolbar-button kendoEditorRedoButton></kendo-toolbar-button>
+                        <kendo-toolbar-button kendoEditorViewSourceButton></kendo-toolbar-button>
+                      </kendo-toolbar-buttongroup>
+                      <kendo-toolbar-buttongroup>
+                        <kendo-toolbar-button kendoEditorCreateLinkButton></kendo-toolbar-button>
+                        <kendo-toolbar-button kendoEditorUnlinkButton></kendo-toolbar-button>
+                      </kendo-toolbar-buttongroup>
+                      <kendo-toolbar-buttongroup>
+                        <kendo-toolbar-button kendoEditorInsertImageButton></kendo-toolbar-button>
+                        <kendo-toolbar-button kendoEditorCleanFormattingButton></kendo-toolbar-button>
+                      </kendo-toolbar-buttongroup>
+                      <kendo-editor-insert-table-button></kendo-editor-insert-table-button>
+                      <kendo-toolbar-buttongroup>
+                        <kendo-toolbar-button kendoEditorAddColumnBeforeButton></kendo-toolbar-button>
+                        <kendo-toolbar-button kendoEditorAddColumnAfterButton></kendo-toolbar-button>
+                        <kendo-toolbar-button kendoEditorAddRowBeforeButton></kendo-toolbar-button>
+                        <kendo-toolbar-button kendoEditorAddRowAfterButton></kendo-toolbar-button>
+                      </kendo-toolbar-buttongroup>
+                      <kendo-toolbar-buttongroup>
+                        <kendo-toolbar-button kendoEditorDeleteColumnButton></kendo-toolbar-button>
+                        <kendo-toolbar-button kendoEditorDeleteRowButton></kendo-toolbar-button>
+                        <kendo-toolbar-button kendoEditorDeleteTableButton></kendo-toolbar-button>
+                        <kendo-toolbar-button kendoEditorMergeCellsButton></kendo-toolbar-button>
+                        <kendo-toolbar-button kendoEditorSplitCellButton></kendo-toolbar-button>
+                      </kendo-toolbar-buttongroup>
+                    </kendo-toolbar>
+                  </kendo-editor>
+                  <!--<ckeditor [(ngModel)]="model.editorData" editorUrl="https://cdn.ckeditor.com/4.15.1/standard/ckeditor.js"
+                  [config]="{extraAllowedContent:'div(*);p(*)'}" (change)="onDataChange($event)">
+                </ckeditor>-->
+              </div>
+            }
+            <!--<HeaderComponent [Context]="2" PageTitle=""></HeaderComponent>-->
+          </ng-template>
+        </kendo-tabstrip-tab>
+        <kendo-tabstrip-tab [title]="'Import JSON-Report'">
+          <ng-template kendoTabContent>
+            <div>
+              <div class="border-bottom border-primary mb-1">
+                Here you can import JSON reports as new data into the current review.<br />
+                Data imported will include Coding tools, Items, and coding thereof. <br />
+                Types (for items, coding tools and codes) will be imported if the report was created with ER V.6.15.6.0 (or higher). Otherwise, the import will have to make very crude guesses about types.
+              </div>
+              @if (!canImport) {
+                <div>
+                  <input type="file" #file style="display: none" (change)="onFilesAdded()"
+                    accept=".json" />
+                    <button type="button" class="btn btn-primary m-1" (click)="addFile()">Select File</button>
+                  </div>
+                }
+                @if (canImport) {
+                  <div>
+                    <div class="row mx-0 px-0">
+                      <div class="col-12 d-flex font-weight-bold justify-content-center">
+                        <div class="mx-auto rounded border border-info px-3 py-1 m-1">Current Review: <span class="alert-dark rounded px-2 py-1">{{CurrentReviewName}}</span></div>
+                      </div>
+                      <div class="col-auto d-inline-block">
+                        Filename Selected: <span class="alert-dark rounded px-2 py-1">{{importCommand.fileName}}</span>
+                      </div>
+                      <div class="col-auto border border-info rounded row mx-1 px-1">
+                        <div class="col-auto">Coding tools to import (names):</div>
+                        <div class="col-auto">
+                          @for (tool of CodingTools4Import; track tool) {
+                            <div class="m-1 alert-info px-1">{{tool}}</div>
+                          }
+                        </div>
+                      </div>
+                      <div class="col-auto d-inline-block">
+                        Items count to import: <span class="alert-dark rounded px-2 py-1">{{ItemsCount4Import}}</span>
+                      </div>
                     </div>
-                    <div class="my-auto mx-1 px-1">
-                      You can create a help page with placeholder content, and then edit the content afterwards.<br />
-                      Root page context names are hard-coded in the program so adding a new root will require a publish to be viewable.
+                    <div class="row mx-0">
+                      <button type="button" class="btn btn-danger m-1" (click)="ImportJson()" [disabled]="busyImporting">
+                        Import!
+                        @if (busyImporting) {
+                          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        }
+                      </button>
+                      <button type="button" class="btn btn-outline-success m-1" (click)="ClearJSONCache()">Clear</button>
                     </div>
                   </div>
-                </div>
-              </td>
-            </tr>
-          </table>
-        </div>
-
-
-
-
-        <div class="card card-body alert alert-info border border-info p-0 mb-0 " style="max-height:400px;overflow-y:auto;overflow-x:hidden; max-width:98%; width:98%; margin-right:auto;margin-left:auto;font-size:16px">
-          <div *ngIf="IsServiceBusy">Loading help...</div>
-          <div *ngIf="CurrentContextHelp.length == 0"
-               class="m-0 p-1">
-            Apologies, there currently is no help for this page/activity.<br />
-            Please check this help page later: we are adding new Help content regularly.
-          </div>
-
-          <div class="m-0 p-1" [innerHTML]=GetText()></div>
-        </div>
-
-        <div class="row mx-0 p-1">
-          <button *ngIf="CurrentContextHelp.length > 0" class="btn btn-outline-primary btn-sm mx-1" (click)="Edit()"><span>{{ShowEdit ? 'Cancel' : 'Edit'}}</span></button>
-          <div *ngIf="ShowEdit">
-            <button [disabled]="disableSave" class="btn btn-outline-danger btn-sm mx-1" (click)="Save()">Save</button>
-            <button class="btn btn-outline-danger btn-sm my-auto mx-1" (click)="removeWarning() ">
-              Delete Help Page
-            </button>
-          </div>
-        </div>
-
-        <div *ngIf="ShowEdit" class="rounded border border-primary col w-100">
-          <div *ngIf="CurrentHelp.IsExtension" class="row px-0 mx-1">
-            <div class="mx-1 px-1 col-auto border-right">
-              <div>Parent context name:</div>
-              <div class="alert-dark p-1 border border-dark">{{EditingHelp.parentContext}}</div>
-            </div>
-            <div class="mx-1 px-1 col-auto border-right">
-              <div>Full path/context:</div>
-              <div class="alert-dark p-1 border border-dark">{{EditingHelp.context}}</div>
-            </div>
-            <div class="mx-1 px-1 col-auto border-right">
-              <div>Context extension name:</div>
-              <div class="alert-dark p-1 border border-dark">{{EditingHelp.leafContext}}</div>
-            </div>
-            <div class="mx-1 px-1 col-auto border-right">
-              <div>User-friendly name:</div>
-              <input class="mb-1 px-1 col" type="text" id="sectionName" name="SectionName"
-                     [(ngModel)]="EditingHelp.sectionName" />
-            </div>
-            <!--<button class="btn btn-outline-danger btn-sm my-auto"
-                    (click)="removeWarning() ">
-              Delete Help Page
-            </button>-->
-          </div>
-          <div *ngIf="!CurrentHelp.IsExtension" class="row px-0 mx-1">
-            <div class="mx-1 px-1 col-auto border-right">
-              <div>User-friendly name:</div>
-              <input class="mb-1 px-1 col" type="text" id="sectionName" name="SectionName"
-                     [(ngModel)]="EditingHelp.sectionName" />
-            </div>
-          </div>
-
-          <kendo-editor [(ngModel)]="EditingHelp.helpHTML" [iframe]="false" style="max-height:65vh;" [pasteCleanupSettings]="pasteCleanupSettings">
-            <kendo-toolbar>
-              <kendo-toolbar-buttongroup>
-                <kendo-toolbar-button kendoEditorBoldButton></kendo-toolbar-button>
-                <kendo-toolbar-button kendoEditorItalicButton></kendo-toolbar-button>
-                <kendo-toolbar-button kendoEditorUnderlineButton></kendo-toolbar-button>
-                <kendo-toolbar-button kendoEditorStrikethroughButton></kendo-toolbar-button>
-              </kendo-toolbar-buttongroup>
-              <kendo-toolbar-buttongroup>
-                <kendo-toolbar-button kendoEditorSubscriptButton></kendo-toolbar-button>
-                <kendo-toolbar-button kendoEditorSuperscriptButton></kendo-toolbar-button>
-              </kendo-toolbar-buttongroup>
-              <!--<kendo-toolbar-buttongroup>
-          <kendo-toolbar-button kendoEditorAlignLeftButton></kendo-toolbar-button>
-          <kendo-toolbar-button kendoEditorAlignCenterButton></kendo-toolbar-button>
-          <kendo-toolbar-button kendoEditorAlignRightButton></kendo-toolbar-button>
-          <kendo-toolbar-button kendoEditorAlignJustifyButton></kendo-toolbar-button>
-        </kendo-toolbar-buttongroup>-->
-              <kendo-toolbar-dropdownlist kendoEditorFormat></kendo-toolbar-dropdownlist>
-              <!--<kendo-toolbar-dropdownlist kendoEditorFontSize></kendo-toolbar-dropdownlist>-->
-              <!--<kendo-toolbar-dropdownlist kendoEditorFontFamily></kendo-toolbar-dropdownlist>-->
-              <kendo-toolbar-buttongroup>
-                <kendo-toolbar-button kendoEditorInsertUnorderedListButton></kendo-toolbar-button>
-                <kendo-toolbar-button kendoEditorInsertOrderedListButton></kendo-toolbar-button>
-                <kendo-toolbar-button kendoEditorIndentButton></kendo-toolbar-button>
-                <kendo-toolbar-button kendoEditorOutdentButton></kendo-toolbar-button>
-                <!--<kendo-toolbar-button kendoEditorBlockquoteButton></kendo-toolbar-button>-->
-              </kendo-toolbar-buttongroup>
-              <kendo-toolbar-buttongroup>
-                <kendo-toolbar-button kendoEditorUndoButton></kendo-toolbar-button>
-                <kendo-toolbar-button kendoEditorRedoButton></kendo-toolbar-button>
-                <kendo-toolbar-button kendoEditorViewSourceButton></kendo-toolbar-button>
-              </kendo-toolbar-buttongroup>
-              <kendo-toolbar-buttongroup>
-                <kendo-toolbar-button kendoEditorCreateLinkButton></kendo-toolbar-button>
-                <kendo-toolbar-button kendoEditorUnlinkButton></kendo-toolbar-button>
-              </kendo-toolbar-buttongroup>
-              <kendo-toolbar-buttongroup>
-                <kendo-toolbar-button kendoEditorInsertImageButton></kendo-toolbar-button>
-                <kendo-toolbar-button kendoEditorCleanFormattingButton></kendo-toolbar-button>
-              </kendo-toolbar-buttongroup>
-              <kendo-editor-insert-table-button></kendo-editor-insert-table-button>
-              <kendo-toolbar-buttongroup>
-                <kendo-toolbar-button kendoEditorAddColumnBeforeButton></kendo-toolbar-button>
-                <kendo-toolbar-button kendoEditorAddColumnAfterButton></kendo-toolbar-button>
-                <kendo-toolbar-button kendoEditorAddRowBeforeButton></kendo-toolbar-button>
-                <kendo-toolbar-button kendoEditorAddRowAfterButton></kendo-toolbar-button>
-              </kendo-toolbar-buttongroup>
-              <kendo-toolbar-buttongroup>
-                <kendo-toolbar-button kendoEditorDeleteColumnButton></kendo-toolbar-button>
-                <kendo-toolbar-button kendoEditorDeleteRowButton></kendo-toolbar-button>
-                <kendo-toolbar-button kendoEditorDeleteTableButton></kendo-toolbar-button>
-                <kendo-toolbar-button kendoEditorMergeCellsButton></kendo-toolbar-button>
-                <kendo-toolbar-button kendoEditorSplitCellButton></kendo-toolbar-button>
-              </kendo-toolbar-buttongroup>
-            </kendo-toolbar>
-          </kendo-editor>
-          <!--<ckeditor [(ngModel)]="model.editorData" editorUrl="https://cdn.ckeditor.com/4.15.1/standard/ckeditor.js"
-              [config]="{extraAllowedContent:'div(*);p(*)'}" (change)="onDataChange($event)">
-    </ckeditor>-->
-
-        </div>
-
-        <!--<HeaderComponent [Context]="2" PageTitle=""></HeaderComponent>-->
-
-      </ng-template>
-    </kendo-tabstrip-tab>
-
-    <kendo-tabstrip-tab [title]="'Import JSON-Report'">
-      <ng-template kendoTabContent>
-        <div>
-          <div class="border-bottom border-primary mb-1">
-            Here you can import JSON reports as new data into the current review.<br />
-            Data imported will include Coding tools, Items, and coding thereof. <br />
-            Types (for items, coding tools and codes) will be imported if the report was created with ER V.6.15.6.0 (or higher). Otherwise, the import will have to make very crude guesses about types.
-          </div>
-          <div *ngIf="!canImport">
-            <input type="file" #file style="display: none" (change)="onFilesAdded()"
-                   accept=".json" />
-            <button type="button" class="btn btn-primary m-1" (click)="addFile()">Select File</button>
-          </div>
-          <div *ngIf="canImport">
-            <div class="row mx-0 px-0">
-              <div class="col-12 d-flex font-weight-bold justify-content-center">
-                <div class="mx-auto rounded border border-info px-3 py-1 m-1">Current Review: <span class="alert-dark rounded px-2 py-1">{{CurrentReviewName}}</span></div>
+                }
               </div>
-              <div class="col-auto d-inline-block">
-                Filename Selected: <span class="alert-dark rounded px-2 py-1">{{importCommand.fileName}}</span>
-              </div>
-
-              <div class="col-auto border border-info rounded row mx-1 px-1">
-                <div class="col-auto">Coding tools to import (names):</div>
-                <div class="col-auto">
-                  <div *ngFor="let tool of CodingTools4Import" class="m-1 alert-info px-1">{{tool}}</div>
-                </div>
-              </div>
-              <div class="col-auto d-inline-block">
-                Items count to import: <span class="alert-dark rounded px-2 py-1">{{ItemsCount4Import}}</span>
-              </div>
-            </div>
-            <div class="row mx-0">
-              <button type="button" class="btn btn-danger m-1" (click)="ImportJson()" [disabled]="busyImporting">
-                Import!
-                <span *ngIf="busyImporting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-              </button>
-              <button type="button" class="btn btn-outline-success m-1" (click)="ClearJSONCache()">Clear</button>
-            </div>
-          </div>
-        </div>
-      </ng-template>
-    </kendo-tabstrip-tab>
-  </kendo-tabstrip>
-    
-    
-</div>
+            </ng-template>
+          </kendo-tabstrip-tab>
+        </kendo-tabstrip>
+      </div>
+    }
 
 

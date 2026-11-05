@@ -8,83 +8,91 @@
       <div class="text-center h5 font-weight-bold my-auto">{{PageTitle}}</div>
     </div>
     <div class="col-5 col-sm-4 col-md-auto row flex-wrap-reverse mx-0 pl-1 pr-0">
-      <div *ngIf="Context" class="d-inline-flex m-0 px-0 py-1">
-        <button class="btn btn-outline-info btn-sm my-auto ml-1 py-0 px-1" (click)="ShowHideFeedback()" style="zoom:0.8;">
-          Feedback
-        </button>
-
-        <button class="btn btn-outline-primary btn-sm my-auto ml-1 py-0 px-1" (click)="ShowHideHelp()"
-                type="button" id="dropdownBasicHelpPages" style="zoom:0.8;">
-          Help
-        </button>
-
-        <select *ngIf="ShowHelpDropDown && ShowDropDown && ActivePanel=='Help'" class="btn btn-outline-primary bt-sm my-auto ml-1 py-0 px-1"
-                id="dropdownBasicHelpPages" style="text-align:left; font-size:small"
-                (change)="RetrieveHelpNew($event)">
-          <option [value]=DisplayFriendlyIndex0Name() [selected]=true>{{DisplayFriendlyIndex0Name()}}</option>
-          <option [ngValue]="item" *ngFor="let item of HelpPages" style="font-size:small">
-            --> {{DisplayFriendlyHelpPageNames(item)}}
-          </option>
-        </select>
-
-
-        <a class="btn btn-outline-info btn-sm my-auto ml-1 py-0 px-1" [href]="EmailString" target="_top" title="Contact support via email..." style="zoom:0.8;">
-          Support...
-        </a>
-      </div>
+      @if (Context) {
+        <div class="d-inline-flex m-0 px-0 py-1">
+          <button class="btn btn-outline-info btn-sm my-auto ml-1 py-0 px-1" (click)="ShowHideFeedback()" style="zoom:0.8;">
+            Feedback
+          </button>
+          <button class="btn btn-outline-primary btn-sm my-auto ml-1 py-0 px-1" (click)="ShowHideHelp()"
+            type="button" id="dropdownBasicHelpPages" style="zoom:0.8;">
+            Help
+          </button>
+          @if (ShowHelpDropDown && ShowDropDown && ActivePanel=='Help') {
+            <select class="btn btn-outline-primary bt-sm my-auto ml-1 py-0 px-1"
+              id="dropdownBasicHelpPages" style="text-align:left; font-size:small"
+              (change)="RetrieveHelpNew($event)">
+              <option [value]=DisplayFriendlyIndex0Name() [selected]=true>{{DisplayFriendlyIndex0Name()}}</option>
+              @for (item of HelpPages; track item) {
+                <option [ngValue]="item" style="font-size:small">
+                  --> {{DisplayFriendlyHelpPageNames(item)}}
+                </option>
+              }
+            </select>
+          }
+          <a class="btn btn-outline-info btn-sm my-auto ml-1 py-0 px-1" [href]="EmailString" target="_top" title="Contact support via email..." style="zoom:0.8;">
+            Support...
+          </a>
+        </div>
+      }
 
 
       <div class=" d-flex m-0 px-1">
         <div class="float-right px-0 mx-0 my-auto d-flex">
           <div class="my-auto mx-1">{{NameOfUser}}</div>
-          <div *ngIf="IsReadOnly" class="small" title="Level of access is 'Read-Only'.">
-            <div class="font-weight-bold small border border-dark rounded alert-danger ml-1 mt-1 py-0 px-1 ">RO</div>
-          </div>
+          @if (IsReadOnly) {
+            <div class="small" title="Level of access is 'Read-Only'.">
+              <div class="font-weight-bold small border border-dark rounded alert-danger ml-1 mt-1 py-0 px-1 ">RO</div>
+            </div>
+          }
           <button class="page-link mx-1 px-2 float-right my-auto" (click)="Logout()">
             Logout
           </button>
         </div>
       </div>
     </div>
-    
-    
+
+
   </div>
 </div>
 <div [@PanelFeedbackAppear]="ActivePanel=='Feedback' ? 'expand' : 'collapse'"
-     class="card-body alert alert-success border border-dark p-0 mb-0 " style="max-height:430px;overflow-y:auto;overflow-x:hidden; max-width:98%; width:98%; margin-right:auto;margin-left:auto;">
-    <button class="btn btn-success btn-sm ml-1 p-0 mr-0" (click)="ShowHideFeedback()" style="position:absolute; width:46px;zoom:0.8;right:0%;z-index:20">
-        close
-    </button>
-    <div class=" col-12">Let us know what you think! All suggestions are welcome.</div>
-    <div class="small py-0 my-1 px-2 mx-3 alert-info rounded border border-info">
+  class="card-body alert alert-success border border-dark p-0 mb-0 " style="max-height:430px;overflow-y:auto;overflow-x:hidden; max-width:98%; width:98%; margin-right:auto;margin-left:auto;">
+  <button class="btn btn-success btn-sm ml-1 p-0 mr-0" (click)="ShowHideFeedback()" style="position:absolute; width:46px;zoom:0.8;right:0%;z-index:20">
+    close
+  </button>
+  <div class=" col-12">Let us know what you think! All suggestions are welcome.</div>
+  <div class="small py-0 my-1 px-2 mx-3 alert-info rounded border border-info">
     Please note that we read your suggestions eagerly, but this functionality is not intended to ask for support. Please contact EPPISupport, if you want to ask us questions.
-    </div>
-    <div class="col-12">
-        <textarea class="form-control my-3" id="newSetDescription"
-                  [(ngModel)]="UserFeedback" maxlength="4000" rows="3"></textarea>
-    </div>
-    <div class=" col-12 mb-2">
-        <button type="submit" (click)="SendFeedback()" class="btn btn-success ml-2 mr-2" [disabled]="UserFeedback.length < 10">
-            Send feedback
-        </button>
-        <button type="submit" (click)="ShowHideFeedback()" class="btn btn-outline-info ml-2 mr-2 px-2">
-            Cancel
-        </button>
-    </div>
+  </div>
+  <div class="col-12">
+    <textarea class="form-control my-3" id="newSetDescription"
+    [(ngModel)]="UserFeedback" maxlength="4000" rows="3"></textarea>
+  </div>
+  <div class=" col-12 mb-2">
+    <button type="submit" (click)="SendFeedback()" class="btn btn-success ml-2 mr-2" [disabled]="UserFeedback.length < 10">
+      Send feedback
+    </button>
+    <button type="submit" (click)="ShowHideFeedback()" class="btn btn-outline-info ml-2 mr-2 px-2">
+      Cancel
+    </button>
+  </div>
 </div>
 <div [@PanelAppear]="ActivePanel=='Help' ? 'visible' : 'hidden'"
-     class="card card-body alert alert-info border border-dark p-0 mb-0 " style="max-height:400px;overflow-y:auto;overflow-x:hidden; max-width:98%; width:98%; margin-right:auto;margin-left:auto;">
-    <button class="btn btn-success btn-sm ml-1 p-0 mr-0" (click)="ShowHideHelp()" style="position:absolute; width:46px;zoom:0.8;right:0%;z-index:20">
-        close
-    </button>
-    <div *ngIf="ActivePanel=='Help'&& IsServiceBusy">Loading help...</div>
-    <div *ngIf="ActivePanel=='Help' && CurrentContextHelp.length == 0 "
-         class="m-0 p-1">
-        Apologies, there currently is no help for this page/activity.<br />
-        Please check this help page later: we are adding new Help content regularly.
+  class="card card-body alert alert-info border border-dark p-0 mb-0 " style="max-height:400px;overflow-y:auto;overflow-x:hidden; max-width:98%; width:98%; margin-right:auto;margin-left:auto;">
+  <button class="btn btn-success btn-sm ml-1 p-0 mr-0" (click)="ShowHideHelp()" style="position:absolute; width:46px;zoom:0.8;right:0%;z-index:20">
+    close
+  </button>
+  @if (ActivePanel=='Help'&& IsServiceBusy) {
+    <div>Loading help...</div>
+  }
+  @if (ActivePanel=='Help' && CurrentContextHelp.length == 0 ) {
+    <div
+      class="m-0 p-1">
+      Apologies, there currently is no help for this page/activity.<br />
+      Please check this help page later: we are adding new Help content regularly.
     </div>
-    <div [@HelpAppear]="ActivePanel=='Help' && !IsServiceBusy && CurrentContextHelp.length > 0 ? 'visible' : 'hidden'"
-         class="m-0 p-1"
-         [innerHTML]='CurrentContextHelp'></div>
+  }
+  <div [@HelpAppear]="ActivePanel=='Help' && !IsServiceBusy && CurrentContextHelp.length > 0 ? 'visible' : 'hidden'"
+    class="m-0 p-1"
+  [innerHTML]='CurrentContextHelp'></div>
 </div>
 

@@ -1,4 +1,6 @@
-<div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
+@if (IsServiceBusy) {
+  <div class="k-loading-image" style="position: fixed; top: 2%;"></div>
+}
 <div class="border border-dark rounded mt-0 mx-0 mb-1 px-1 bg-light">
 
   <div class="row mx-0 mb-1">
@@ -21,14 +23,16 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let item of MagCurrentInfoList">
-                <td>{{item.magFolder}}</td>
-                <td>{{item.whenLive}}</td>
-                <td>{{item.makesDeploymentStatus}}</td>
-                <td><button (click)="MakeLive(item)" class="btn btn-link btn-sm font-weight-bold px-0">Make live</button></td>
-                <td><button (click)="MakePending(item)" class="btn btn-link btn-sm font-weight-bold px-0">Make pending</button></td>
-                <td><button (click)="DeleteCurrentInfo(item)" class="btn btn-link btn-sm font-weight-bold px-0">Delete</button></td>
-              </tr>
+              @for (item of MagCurrentInfoList; track item) {
+                <tr>
+                  <td>{{item.magFolder}}</td>
+                  <td>{{item.whenLive}}</td>
+                  <td>{{item.makesDeploymentStatus}}</td>
+                  <td><button (click)="MakeLive(item)" class="btn btn-link btn-sm font-weight-bold px-0">Make live</button></td>
+                  <td><button (click)="MakePending(item)" class="btn btn-link btn-sm font-weight-bold px-0">Make pending</button></td>
+                  <td><button (click)="DeleteCurrentInfo(item)" class="btn btn-link btn-sm font-weight-bold px-0">Delete</button></td>
+                </tr>
+              }
             </tbody>
           </table>
         </div>
@@ -49,36 +53,36 @@
 
         <h6 class="mt-1 mb-1">Score threshold</h6>
         <kendo-numerictextbox [(ngModel)]="ScoreThreshold"
-                              [min]="0"
-                              [step]="stepScore"
-                              [max]="1"
-                              [autoCorrect]="true"
-                              class="border border-dark rounded"
-                              style="width: 110px;"></kendo-numerictextbox>
+          [min]="0"
+          [step]="stepScore"
+          [max]="1"
+          [autoCorrect]="true"
+          class="border border-dark rounded"
+        style="width: 110px;"></kendo-numerictextbox>
 
         <h6 class="mt-1 mb-1">FoS threshold</h6>
         <kendo-numerictextbox [(ngModel)]="FoSThreshold"
-                              [min]="0"
-                              [step]="stepFoS"
-                              [max]="1"
-                              [autoCorrect]="true"
-                              class="border border-dark rounded"
-                              style="width: 110px;"></kendo-numerictextbox>
+          [min]="0"
+          [step]="stepFoS"
+          [max]="1"
+          [autoCorrect]="true"
+          class="border border-dark rounded"
+        style="width: 110px;"></kendo-numerictextbox>
 
         <h6 class="mt-1 mb-1">Sample size</h6>
         <kendo-numerictextbox [(ngModel)]="SampleSize"
-                              [min]="0"
-                              [step]="stepSampleSize"
-                              [max]="100"
-                              [autoCorrect]="true"
-                              class="border border-dark rounded"
-                              style="width: 110px;"></kendo-numerictextbox>
+          [min]="0"
+          [step]="stepSampleSize"
+          [max]="100"
+          [autoCorrect]="true"
+          class="border border-dark rounded"
+        style="width: 110px;"></kendo-numerictextbox>
 
         <div class="mt-1">
           <button type="button"
-                  class="btn btn-primary btn-sm text-white"
-                  (click)="CheckContReviewPipeLine()"
-                  [disabled]="!isValidDate(this.newMagVersion)">
+            class="btn btn-primary btn-sm text-white"
+            (click)="CheckContReviewPipeLine()"
+            [disabled]="!isValidDate(this.newMagVersion)">
             Run Pipeline
           </button>
         </div>
@@ -104,29 +108,31 @@
           </tr>
         </table>
 
-          <div class="table-responsive" style="max-height:450px; overflow:auto;">
-            <table class="table table-sm text-small table-striped w-100 mb-0">
-              <thead>
+        <div class="table-responsive" style="max-height:450px; overflow:auto;">
+          <table class="table table-sm text-small table-striped w-100 mb-0">
+            <thead>
+              <tr>
+                <th>Delete</th>
+                <th>ReviewID</th>
+                <th>ReviewName</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of MagReviewList; track item) {
                 <tr>
-                  <th>Delete</th>
-                  <th>ReviewID</th>
-                  <th>ReviewName</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let item of MagReviewList">
                   <td>
                     <button class="btn alert-danger btn-sm"
-                            (click)="DeleteReview(item)">
+                      (click)="DeleteReview(item)">
                       Delete
                     </button>
                   </td>
                   <td>{{item.reviewId}}</td>
                   <td>{{item.name}}</td>
                 </tr>
-              </tbody>
-            </table>
-          </div>
+              }
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -149,15 +155,17 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let item of MagLogList">
-                <td>{{item.jobType}}</td>
-                <td>{{item.contactName}}</td>
-                <td>{{item.jobStatus}}</td>
-                <td>{{item.timeSubmitted}}</td>
-                <td>{{item.timeUpdated}}</td>
-                <td>{{item.jobMessage}}</td>
-                <td><button (click)="DownloadResults(item)" class="btn btn-link btn-sm font-weight-bold px-0" [disabled]="(item.jobStatus || '').toLowerCase() !== 'failed'">Download</button></td>
-              </tr>
+              @for (item of MagLogList; track item) {
+                <tr>
+                  <td>{{item.jobType}}</td>
+                  <td>{{item.contactName}}</td>
+                  <td>{{item.jobStatus}}</td>
+                  <td>{{item.timeSubmitted}}</td>
+                  <td>{{item.timeUpdated}}</td>
+                  <td>{{item.jobMessage}}</td>
+                  <td><button (click)="DownloadResults(item)" class="btn btn-link btn-sm font-weight-bold px-0" [disabled]="(item.jobStatus || '').toLowerCase() !== 'failed'">Download</button></td>
+                </tr>
+              }
             </tbody>
           </table>
         </div>
@@ -166,4 +174,6 @@
   </div>
 </div>
 
-  <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
+@if (IsServiceBusy) {
+  <div class="k-loading-image" style="position: fixed; top: 2%;"></div>
+}

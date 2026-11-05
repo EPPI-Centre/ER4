@@ -1,7 +1,7 @@
 <!--<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="MAGMatching"></HeaderComponent>
 <button class="page-link rounded pt-1 pb-1 mb-1 float-right"
-        style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
-    Close/back
+  style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
+  Close/back
 </button>
 <MAGHeaderBar Context="MAGMatching"></MAGHeaderBar>-->
 
@@ -16,18 +16,22 @@
             <h2 class="font-weight-light">Match records in your review to OpenAlex</h2>
           </td>
           <td style="padding-left:10px">
-            <div *ngIf="!basicPanel">
-              <a class="btn btn-dark btn-sm text-white" data-toggle="collapse" (click)="basicPanel = !basicPanel"
-                 href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
-                More details <kendo-icon name="chevron-down"></kendo-icon>
-              </a>
-            </div>
-            <div *ngIf="basicPanel">
-              <a class="btn btn-dark btn-sm text-white" data-toggle="collapse" (click)="basicPanel = !basicPanel"
-                 href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
-                Hide details <kendo-icon name="chevron-up"></kendo-icon>
-              </a>
-            </div>
+            @if (!basicPanel) {
+              <div>
+                <a class="btn btn-dark btn-sm text-white" data-toggle="collapse" (click)="basicPanel = !basicPanel"
+                  href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
+                  More details <kendo-icon name="chevron-down"></kendo-icon>
+                </a>
+              </div>
+            }
+            @if (basicPanel) {
+              <div>
+                <a class="btn btn-dark btn-sm text-white" data-toggle="collapse" (click)="basicPanel = !basicPanel"
+                  href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
+                  Hide details <kendo-icon name="chevron-up"></kendo-icon>
+                </a>
+              </div>
+            }
           </td>
         </tr>
       </table>
@@ -62,32 +66,38 @@
     <div class="col-12 my-auto">
       <h2 class="font-weight-light"></h2>
       <button (click)="RunMatchingAlgo(0)" [disabled]="_magAdvancedService.AdvancedReviewInfo.matchingTaskIsRunning"
-              class="btn btn-primary btn-sm text-white mx-1">
+        class="btn btn-primary btn-sm text-white mx-1">
         Run matching algorithm
-        <fa-icon *ngIf="_magAdvancedService.AdvancedReviewInfo.matchingTaskIsRunning" [icon]="faSpinner" [spin]="true" class="mt-1 "></fa-icon>
+        @if (_magAdvancedService.AdvancedReviewInfo.matchingTaskIsRunning) {
+          <fa-icon [icon]="faSpinner" [spin]="true" class="mt-1 "></fa-icon>
+        }
       </button>
       <button (click)="ClearAllMatching()"
-              class="btn btn-danger btn-sm text-white mx-1">
+        class="btn btn-danger btn-sm text-white mx-1">
         Clear all matches in review
       </button>
       <button (click)="ClearAllNonManualMatching()"
-              class="btn btn-danger btn-sm text-white mx-1">
+        class="btn btn-danger btn-sm text-white mx-1">
         Clear all non-manual matches in review
       </button>
       <button class="btn btn-sm btn-outline-success mx-1" (click)="GetMagReviewMagInfoCommand()">
         <kendo-icon name="arrows-clockwise" class="font-weight-bold"></kendo-icon>
       </button>
-      <button *ngIf="_magAdvancedService.AdvancedReviewInfo.matchingTaskIsRunning && !AutoRefreshIsRunning" class="btn btn-sm btn-outline-success mx-1" (click)="GetMagReviewMagInfoCommand(); AutoRefreshOnTimer();">
-        Restart auto-refresh <kendo-icon name="arrows-clockwise" class="font-weight-bold"></kendo-icon>
-      </button>
+      @if (_magAdvancedService.AdvancedReviewInfo.matchingTaskIsRunning && !AutoRefreshIsRunning) {
+        <button class="btn btn-sm btn-outline-success mx-1" (click)="GetMagReviewMagInfoCommand(); AutoRefreshOnTimer();">
+          Restart auto-refresh <kendo-icon name="arrows-clockwise" class="font-weight-bold"></kendo-icon>
+        </button>
+      }
     </div>
   </div>
-  <div *ngIf="AutoRefreshIsRunning" class="row">
-    <div class="col-auto mx-auto row py-1">
-      <div class="col-auto mx-auto small rounded alert-info m-1">Auto-refresh will update the values every 30 seconds.</div>
-      <button class="btn btn-outline-info btn-sm ml-1" (click)="CancelAutoRefresh()">Cancel auto-refresh</button>   
+  @if (AutoRefreshIsRunning) {
+    <div class="row">
+      <div class="col-auto mx-auto row py-1">
+        <div class="col-auto mx-auto small rounded alert-info m-1">Auto-refresh will update the values every 30 seconds.</div>
+        <button class="btn btn-outline-info btn-sm ml-1" (click)="CancelAutoRefresh()">Cancel auto-refresh</button>
+      </div>
     </div>
-  </div>
+  }
 
   <div class="row">
     <div class="col-lg-12">
@@ -156,7 +166,9 @@
   </div>
 
 
-  <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
+  @if (IsServiceBusy) {
+    <div class="k-loading-image" style="position: fixed; top: 2%;"></div>
+  }
   <div class="card">
     <div class="card-footer">
 
@@ -168,15 +180,15 @@
           <div class="col-sm-12 col-lg-4" style="vertical-align:middle;padding-bottom:10px">
             <div ngbDropdown class="" style="min-width:150px;">
               <button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle w-100"
-                      style="min-width: 250px; white-space:normal" [attr.aria-expanded]="!isCollapsed2"
-                      id="dropdownBasic2" [disabled]="!HasWriteRights"
-                      (click)="isCollapsed2 = !isCollapsed2; dropdownBasic2 = false">
+                style="min-width: 250px; white-space:normal" [attr.aria-expanded]="!isCollapsed2"
+                id="dropdownBasic2" [disabled]="!HasWriteRights"
+                (click)="isCollapsed2 = !isCollapsed2; dropdownBasic2 = false">
                 {{CurrentDropdownSelectedCode2?.name}}
               </button>
               <div class="dropdown-menu" aria-labelledby="dropdownBasic2" [ngbCollapse]="!isCollapsed2">
                 <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'"
-                                 [MaxHeight]="500" #WithOrWithoutCodeSelector2
-                                 (selectedNodeInTree)="CloseCodeDropDown2()" [rootsOnly]="false">
+                  [MaxHeight]="500" #WithOrWithoutCodeSelector2
+                  (selectedNodeInTree)="CloseCodeDropDown2()" [rootsOnly]="false">
                 </codesetSelector>
               </div>
             </div>
@@ -184,49 +196,53 @@
 
           <div class="col-sm-12 col-lg-8 row mx-0 px-0">
             <button class="btn btn-primary btn-sm text-white my-auto mx-1"
-                    [disabled]="!CanGetCodeMatches() || MustMatchItems "
-                    (click)="MAGBrowser('MatchedWithThisCode')">
+              [disabled]="!CanGetCodeMatches() || MustMatchItems "
+              (click)="MAGBrowser('MatchedWithThisCode')">
               List (matched) items
             </button>
             <button class="btn btn-primary btn-sm text-white my-auto mx-1"
-                    [disabled]="!CanGetCodeMatches()"
-                    (click)="RunMatchingAlgo(1)">
+              [disabled]="!CanGetCodeMatches()"
+              (click)="RunMatchingAlgo(1)">
               Auto-match items
             </button>
             <button class="btn btn-danger btn-sm text-white my-auto mx-1"
-                    [disabled]="!CanGetCodeMatches() || MustMatchItems"
-                    (click)="ClearMatches()">
+              [disabled]="!CanGetCodeMatches() || MustMatchItems"
+              (click)="ClearMatches()">
               Clear matches
             </button>
             <button class="btn btn-danger btn-sm text-white my-auto mx-1"
-                    [disabled]="!CanGetCodeMatches() || MustMatchItems"
-                    (click)="ClearNonManualMatches()">
+              [disabled]="!CanGetCodeMatches() || MustMatchItems"
+              (click)="ClearNonManualMatches()">
               Clear non-manual matches
             </button>
 
-            <div *ngIf="OAoriginReport == null" class="border border-info bg-light rounded my-auto">
-              <button class="btn btn-outline-info btn-sm m-1"
-                      [disabled]="!CanGetCodeMatches() || MustMatchItems"
-                      (click)="GetReport()">
-                Origin Report
-              </button>
-            </div>
-            <div *ngIf="OAoriginReport != null" class="border border-info bg-light rounded my-auto">
-              <button class="btn btn-outline-info btn-sm m-1"
-                      [disabled]="!CanGetCodeMatches() || MustMatchItems"
-                      (click)="GetReport()">
-                Origin Report
-              </button>
-              <button class="btn btn-outline-primary btn-sm m-1"
-                      (click)="SaveReport()">
-                <span class="k-icon k-i-save"></span> HTML
-              </button>
-              <button class="btn btn-outline-primary btn-sm m-1"
-                      [disabled]="!CanGetCodeMatches() || MustMatchItems"
-                      (click)="SaveReportToExcel()">
-                <span class="k-icon k-i-save"></span> Excel
-              </button>
-            </div>
+            @if (OAoriginReport == null) {
+              <div class="border border-info bg-light rounded my-auto">
+                <button class="btn btn-outline-info btn-sm m-1"
+                  [disabled]="!CanGetCodeMatches() || MustMatchItems"
+                  (click)="GetReport()">
+                  Origin Report
+                </button>
+              </div>
+            }
+            @if (OAoriginReport != null) {
+              <div class="border border-info bg-light rounded my-auto">
+                <button class="btn btn-outline-info btn-sm m-1"
+                  [disabled]="!CanGetCodeMatches() || MustMatchItems"
+                  (click)="GetReport()">
+                  Origin Report
+                </button>
+                <button class="btn btn-outline-primary btn-sm m-1"
+                  (click)="SaveReport()">
+                  <span class="k-icon k-i-save"></span> HTML
+                </button>
+                <button class="btn btn-outline-primary btn-sm m-1"
+                  [disabled]="!CanGetCodeMatches() || MustMatchItems"
+                  (click)="SaveReportToExcel()">
+                  <span class="k-icon k-i-save"></span> Excel
+                </button>
+              </div>
+            }
           </div>
 
         </div>
@@ -246,83 +262,94 @@
             <div class="row">
               <div class="col-7">
                 <input required minlength="4" type="number" id="magPaperId" name="magPaperId" #magPaper="ngModel"
-                       class="form-control text-center col-12"
-                       [(ngModel)]="magPaperId" />
+                  class="form-control text-center col-12"
+                  [(ngModel)]="magPaperId" />
+                </div>
+                <div class="col-5"
+                  style="padding-left: 10px;">
+                  <button [disabled]="!CanGetMagPaper()" (click)="GetMagPaper()"
+                    class="btn btn-primary btn-sm text-white">
+                    Go to paper
+                  </button>
+                </div>
               </div>
-              <div class="col-5"
-                   style="padding-left: 10px;">
-                <button [disabled]="!CanGetMagPaper()" (click)="GetMagPaper()"
-                        class="btn btn-primary btn-sm text-white">
-                  Go to paper
-                </button>
-              </div>
-            </div>
 
-            <div>
-              <div colspan="2">
-                <div *ngIf="magPaper.invalid && (magPaper.dirty || magPaper.touched) && magPaper.errors"
-                     class="alert alert-danger">
-
-                  <div *ngIf="magPaper.errors.required">
-                    Paper ID is required.
-                  </div>
-                  <div *ngIf="magPaper.errors.minlength">
-                    Paper ID must be at least 4 numbers long.
-                  </div>
+              <div>
+                <div colspan="2">
+                  @if (magPaper.invalid && (magPaper.dirty || magPaper.touched) && magPaper.errors) {
+                    <div
+                      class="alert alert-danger">
+                      @if (magPaper.errors.required) {
+                        <div>
+                          Paper ID is required.
+                        </div>
+                      }
+                      @if (magPaper.errors.minlength) {
+                        <div>
+                          Paper ID must be at least 4 numbers long.
+                        </div>
+                      }
+                    </div>
+                  }
                 </div>
               </div>
             </div>
+
           </div>
 
-        </div>
+          <div class="col-sm-12 col-lg-6 mb-5">
+            <h4 class="font-weight-light">Search OpenAlex by topic</h4>
+            <table class="col-sm-12">
+              <tr class="col-12">
+                <td class="col-12">
+                  <input class="form-control col-12 border border-dark" type="text" id="SearchTextTopic" [(ngModel)]="SearchTextTopic"
+                    placeholder="Search for topics here. 2 letters minimum. No wild cards." />
 
-        <div class="col-sm-12 col-lg-6 mb-5">
-          <h4 class="font-weight-light">Search OpenAlex by topic</h4>
-          <table class="col-sm-12">
-            <tr class="col-12">
-              <td class="col-12">
-                <input class="form-control col-12 border border-dark" type="text" id="SearchTextTopic" [(ngModel)]="SearchTextTopic"
-                       placeholder="Search for topics here. 2 letters minimum. No wild cards." />
+                  </td>
+                  <td>
+                    <button [disabled]="!CanGetTopics()"
+                      (click)="UpdateTopicResults('new')" class="btn btn-primary btn-sm text-white">
+                      <span class="k-icon k-i-search"></span>
+                    </button>
+                  </td>
+                </tr>
+              </table>
 
-              </td>
-              <td>
-                <button [disabled]="!CanGetTopics()"
-                        (click)="UpdateTopicResults('new')" class="btn btn-primary btn-sm text-white">
-                  <span class="k-icon k-i-search"></span>
-                </button>
-              </td>
-            </tr>
-          </table>
-
-          <div *ngIf="SearchTextTopicResultsLength > 0">
-            &nbsp;{{SearchTextTopicResultsLength}} topics found&nbsp;&nbsp;&nbsp;
-            Page {{SearchTextTopicResultsPageNumber}} of {{SearchTextTopicResultsTotalPages}}&nbsp;
-            <button [disabled]="SearchTextTopicResultsPageNumber == 1"
+              @if (SearchTextTopicResultsLength > 0) {
+                <div>
+                  &nbsp;{{SearchTextTopicResultsLength}} topics found&nbsp;&nbsp;&nbsp;
+                  Page {{SearchTextTopicResultsPageNumber}} of {{SearchTextTopicResultsTotalPages}}&nbsp;
+                  <button [disabled]="SearchTextTopicResultsPageNumber == 1"
                     (click)="UpdateTopicResultsPrevious('step')" class="btn btn-primary btn-sm text-white">
-              <span class="k-icon k-i-chevron-left"></span>
-            </button>
-            &nbsp;
-            <button [disabled]="SearchTextTopicResultsPageNumber == SearchTextTopicResultsTotalPages"
+                    <span class="k-icon k-i-chevron-left"></span>
+                  </button>
+                  &nbsp;
+                  <button [disabled]="SearchTextTopicResultsPageNumber == SearchTextTopicResultsTotalPages"
                     (click)="UpdateTopicResultsNext('step')" class="btn btn-primary btn-sm text-white">
-              <span class="k-icon k-i-chevron-right"></span>
-            </button>
-          </div>
+                    <span class="k-icon k-i-chevron-right"></span>
+                  </button>
+                </div>
+              }
 
-          <div class="card" style="max-width: 1450px; overflow: auto; text-align: left; max-height: 500px; overflow-y: scroll;">
-            <div *ngFor="let item of SearchTextTopicsResults" class="list-group">
-              <div (click)="FOSMAGBrowserNavigate(item.displayName, item.fieldOfStudyId)" class="btn border border-0"
-                   [ngStyle]="{'background-color': 'light-blue', 'color': 'black', 'text-align':'left'}">
-                {{item.displayName}}
+              <div class="card" style="max-width: 1450px; overflow: auto; text-align: left; max-height: 500px; overflow-y: scroll;">
+                @for (item of SearchTextTopicsResults; track item) {
+                  <div class="list-group">
+                    <div (click)="FOSMAGBrowserNavigate(item.displayName, item.fieldOfStudyId)" class="btn border border-0"
+                      [ngStyle]="{'background-color': 'light-blue', 'color': 'black', 'text-align':'left'}">
+                      {{item.displayName}}
+                    </div>
+                  </div>
+                }
               </div>
+              @if (SearchTextTopicResultsLength < 0) {
+                <div>
+                  no results
+                </div>
+              }
+
             </div>
-          </div>
-          <div *ngIf="SearchTextTopicResultsLength < 0">
-            no results
-          </div>
 
+          </div>
         </div>
-
       </div>
     </div>
-  </div>
-</div>

@@ -2,213 +2,249 @@
     <!--<HeaderComponent style="vertical-align:top;
     margin-bottom:2px; margin-left:12px; margin-right:12px; margin-top:-12px; padding:0px;
      width:99.6%;"></HeaderComponent>-->
-    <HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Item Details" [Context]="HelpAndFeebackContext"></HeaderComponent>
-    <div class="h-100 mh-100 pr-0 ">
-        <div *ngIf="IsServiceBusy()" class="k-loading-image" style="height:100vh;position: fixed; top: 0%;"></div>
+<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Item Details" [Context]="HelpAndFeebackContext"></HeaderComponent>
+<div class="h-100 mh-100 pr-0 ">
+  @if (IsServiceBusy()) {
+    <div class="k-loading-image" style="height:100vh;position: fixed; top: 0%;"></div>
+  }
 
-        <div class="row d-flex flex-wrap-reverse ml-1 mr-1 ">
-          <div class="col-sm-12 pl-1 pr-1 align-self-end "
+  <div class="row d-flex flex-wrap-reverse ml-1 mr-1 ">
+    <div class="col-sm-12 pl-1 pr-1 align-self-end "
                [ngClass]="{'col-md-5 col-lg-3' : !ShowOutComes
                  , 'col-md-6 col-lg-5' : ShowOutComes}">
-            <div *ngIf="leftPanel ==''" class="containsAtoolbar mb-1 small h-100 rounded" style="background-color: #f5f6fa;">
-
-              <button kendoButton [svgIcon]="plusIcn" class="small my-1 ml-1 mr-1" title="Add child code..."
-                      [disabled]="!HasWriteRights  || !CanCreateNewCode()" (click)="SetCreateNewCode()">
-              </button>
-              <button kendoButton [svgIcon]="arrowdoubleUpIcn" class="small my-1 ml-1" title="Move To Top..."
-                      [disabled]="!HasWriteRights  || !CanMoveNodeUp()" (click)="MoveUpNodeFull()">
-              </button>
-              <button kendoButton [svgIcon]="arrowUpIcn" class="small my-1 ml-1" title="Move up Code/Tool..."
-                      [disabled]="!HasWriteRights  || !CanMoveNodeUp()" (click)="MoveUpNode()">
-              </button>
-              <button kendoButton [svgIcon]="arrowDownIcn" class="small my-1 ml-1" title="Move Down Code/Tool..."
-                      [disabled]="!HasWriteRights  || !CanMoveNodeDown()" (click)="MoveDownNode()"></button>
-              <button kendoButton [svgIcon]="arrowdoubleDownIcn" class="small my-1 ml-1 mr-1" title="Move To Bottom..."
-                      [disabled]="!HasWriteRights  || !CanMoveNodeDown()" (click)="MoveDownNodeFull()"></button>
-              <button kendoButton [svgIcon]="pencilIcn" class="small my-1 mr-1 ml-1" title="Edit Code..."
-                      [disabled]="!HasWriteRights  || !CanEditCode()" (click)="EditCode()"></button>
-
-              <button kendoButton [svgIcon]="customFormatIcn" class="small my-1 ml-1" [selected]="HotKeysOn == true"
-                      title="Hot keys. Toggle to turn on/off. Press Alt + the code number to code."
-                      [disabled]="!HasWriteRights" (click)="HotKeysOn=!HotKeysOn"></button>
-              <kendo-splitbutton *ngIf="CanRunOpenAIrobot" class="ml-1" [svgIcon]="gearsIcn" (buttonClick)="RunRobotOpenAICommand()"
-                                         [data]="RobotDDData" [disabled]="!HasWriteRights"
-                                         title="Auto-coding with LLM(s) - requires dedicated Coding Tool"
-                                         style="border-color: #04070b;background-color: #e1e4eb;"></kendo-splitbutton>
-            </div>
-            <div *ngIf="ShowRobotOptions" class="p-1 bg-light rounded">
-              <div class="row mx-1"><RobotSettings Context="Coding"></RobotSettings></div>
-              <div class="row mx-1 border-top">
-                <button type="button" class="btn btn-outline-dark btn-sm px-1 py-0 mt-1" (click)="ShowRobotOptions = false">Close</button>
-              </div>
-            </div>
-            <div class="col-12 bg-light" *ngIf="EditCodesPanel =='CreateNewCode'">
-              <div class="col-12 small row px-0 py-1 m-0">
-                Add child to:
-                <div class="mx-1 border border-dark font-weight-bold "
-                     [ngClass]="{'alert-danger' : !CanCreateNewCode(), 'alert-primary' : CanCreateNewCode()}">&nbsp;{{CurrentNode?.name}}&nbsp;</div>
-              </div>
-              <div *ngIf="!CanCreateNewCode()" class="col-12 small row px-0 py-1 m-0 alert-danger"><b>Note:&nbsp;</b> form is disabled - this code can't have children.</div>
-              <CreateNewCodeComp [IsSmall]="true" (closeCreateNew)="SetCreateNewCode()"></CreateNewCodeComp>
-            </div>
-            <div class="col-12 bg-light" *ngIf="EditCodesPanel =='EditCode'">
-              <div class="col-12 small row px-0 py-1 m-0">
-                Current Code Name:
-                <div class="mx-1 border border-dark font-weight-bold "
-                     [ngClass]="{'alert-danger' : !CanEditCode(), 'alert-primary' : CanEditCode()}">&nbsp;{{CurrentNode?.name}}&nbsp;</div>
-              </div>
-              <div *ngIf="!CanEditCode()" class="col-12 small row px-0 py-1 m-0 alert-danger"><b>Note:&nbsp;</b> form is disabled - you can't edit this.</div>
-              <EditCodeComp [IsSmall]="true" [UpdatingCode]="CurrentNodeAsSetAttribute" (emitterCancel)="CancelActivity($event)"></EditCodeComp>
-            </div>
-
-            <ArmsComp #ArmsCmp [hidden]="leftPanel !==''" [CurrentItem]="item" class="card-text"></ArmsComp>
-            <div [hidden]="leftPanel !==''">
-              <codesetTreeCoding #codesetTreeCoding class="bg-light"
-								 (PleaseOpenOutcomesPanel)="ShowOutComes = true"
-                                 [InitiateFetchPDFCoding]="ShouldFetchPDFCoding"
-                                 [ngClass]="{disableThisAndChildren:!CanChangeSelectedCode}"
-                                 [HotKeysOn]="HotKeysOn">
-              </codesetTreeCoding>
-            </div>
-            <div *ngIf="leftPanel =='Highlights'">
-              <ReviewTermsListComp [item]="item" class="bg-light">
-              </ReviewTermsListComp>
-            </div>
-            <div *ngIf="leftPanel =='OutComes'"
-                 class="my-1 ml-0 pl-1 pr-0 container">
-              <OutcomesComp #OutcomesCmp [item]="item" (PleaseCloseMe)="ShowOutComes = false"></OutcomesComp>
-            </div>
+      @if (leftPanel =='') {
+        <div class="containsAtoolbar mb-1 small h-100 rounded" style="background-color: #f5f6fa;">
+          <button kendoButton [svgIcon]="plusIcn" class="small my-1 ml-1 mr-1" title="Add child code..."
+            [disabled]="!HasWriteRights  || !CanCreateNewCode()" (click)="SetCreateNewCode()">
+          </button>
+          <button kendoButton [svgIcon]="arrowdoubleUpIcn" class="small my-1 ml-1" title="Move To Top..."
+            [disabled]="!HasWriteRights  || !CanMoveNodeUp()" (click)="MoveUpNodeFull()">
+          </button>
+          <button kendoButton [svgIcon]="arrowUpIcn" class="small my-1 ml-1" title="Move up Code/Tool..."
+            [disabled]="!HasWriteRights  || !CanMoveNodeUp()" (click)="MoveUpNode()">
+          </button>
+          <button kendoButton [svgIcon]="arrowDownIcn" class="small my-1 ml-1" title="Move Down Code/Tool..."
+          [disabled]="!HasWriteRights  || !CanMoveNodeDown()" (click)="MoveDownNode()"></button>
+          <button kendoButton [svgIcon]="arrowdoubleDownIcn" class="small my-1 ml-1 mr-1" title="Move To Bottom..."
+          [disabled]="!HasWriteRights  || !CanMoveNodeDown()" (click)="MoveDownNodeFull()"></button>
+          <button kendoButton [svgIcon]="pencilIcn" class="small my-1 mr-1 ml-1" title="Edit Code..."
+          [disabled]="!HasWriteRights  || !CanEditCode()" (click)="EditCode()"></button>
+          <button kendoButton [svgIcon]="customFormatIcn" class="small my-1 ml-1" [selected]="HotKeysOn == true"
+            title="Hot keys. Toggle to turn on/off. Press Alt + the code number to code."
+          [disabled]="!HasWriteRights" (click)="HotKeysOn=!HotKeysOn"></button>
+          @if (CanRunOpenAIrobot) {
+            <kendo-splitbutton class="ml-1" [svgIcon]="gearsIcn" (buttonClick)="RunRobotOpenAICommand()"
+              [data]="RobotDDData" [disabled]="!HasWriteRights"
+              title="Auto-coding with LLM(s) - requires dedicated Coding Tool"
+            style="border-color: #04070b;background-color: #e1e4eb;"></kendo-splitbutton>
+          }
+        </div>
+      }
+      @if (ShowRobotOptions) {
+        <div class="p-1 bg-light rounded">
+          <div class="row mx-1"><RobotSettings Context="Coding"></RobotSettings></div>
+          <div class="row mx-1 border-top">
+            <button type="button" class="btn btn-outline-dark btn-sm px-1 py-0 mt-1" (click)="ShowRobotOptions = false">Close</button>
           </div>
-            <div class="col-sm-12 m-0 pr-0 pl-0"
+        </div>
+      }
+      @if (EditCodesPanel =='CreateNewCode') {
+        <div class="col-12 bg-light">
+          <div class="col-12 small row px-0 py-1 m-0">
+            Add child to:
+            <div class="mx-1 border border-dark font-weight-bold "
+            [ngClass]="{'alert-danger' : !CanCreateNewCode(), 'alert-primary' : CanCreateNewCode()}">&nbsp;{{CurrentNode?.name}}&nbsp;</div>
+          </div>
+          @if (!CanCreateNewCode()) {
+            <div class="col-12 small row px-0 py-1 m-0 alert-danger"><b>Note:&nbsp;</b> form is disabled - this code can't have children.</div>
+          }
+          <CreateNewCodeComp [IsSmall]="true" (closeCreateNew)="SetCreateNewCode()"></CreateNewCodeComp>
+        </div>
+      }
+      @if (EditCodesPanel =='EditCode') {
+        <div class="col-12 bg-light">
+          <div class="col-12 small row px-0 py-1 m-0">
+            Current Code Name:
+            <div class="mx-1 border border-dark font-weight-bold "
+            [ngClass]="{'alert-danger' : !CanEditCode(), 'alert-primary' : CanEditCode()}">&nbsp;{{CurrentNode?.name}}&nbsp;</div>
+          </div>
+          @if (!CanEditCode()) {
+            <div class="col-12 small row px-0 py-1 m-0 alert-danger"><b>Note:&nbsp;</b> form is disabled - you can't edit this.</div>
+          }
+          <EditCodeComp [IsSmall]="true" [UpdatingCode]="CurrentNodeAsSetAttribute" (emitterCancel)="CancelActivity($event)"></EditCodeComp>
+        </div>
+      }
+
+      <ArmsComp #ArmsCmp [hidden]="leftPanel !==''" [CurrentItem]="item" class="card-text"></ArmsComp>
+      <div [hidden]="leftPanel !==''">
+        <codesetTreeCoding #codesetTreeCoding class="bg-light"
+          (PleaseOpenOutcomesPanel)="ShowOutComes = true"
+          [InitiateFetchPDFCoding]="ShouldFetchPDFCoding"
+          [ngClass]="{disableThisAndChildren:!CanChangeSelectedCode}"
+          [HotKeysOn]="HotKeysOn">
+        </codesetTreeCoding>
+      </div>
+      @if (leftPanel =='Highlights') {
+        <div>
+          <ReviewTermsListComp [item]="item" class="bg-light">
+        </ReviewTermsListComp>
+      </div>
+    }
+    @if (leftPanel =='OutComes') {
+      <div
+        class="my-1 ml-0 pl-1 pr-0 container">
+        <OutcomesComp #OutcomesCmp [item]="item" (PleaseCloseMe)="ShowOutComes = false"></OutcomesComp>
+      </div>
+    }
+  </div>
+  <div class="col-sm-12 m-0 pr-0 pl-0"
                  [ngClass]="{'col-md-7 col-lg-9' : !ShowOutComes
                  , 'col-md-6 col-lg-7' : ShowOutComes}">
-                <div class="ml-1 mt-0 mr-1 pl-0 pr-0 w-100 row">
-                    <itemDetailsPaginator [item]="item" Context="FullUI" [IsScreening]="IsScreening" (ItemChanged)="ItemChanged()" (GoToNextScreeningItemClicked)="GetItem()"
-                                          [HasOutcomeUnsavedChanges]="HasOutcomeUnsavedChanges" class="col-12 col-sm  pr-0 pl-0 ml-1 mr-1"></itemDetailsPaginator>
-                    <div class="pr-0 pl-0 col-12 col-sm pr-0">
-                      <button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()">
-                        Close/back
-                      </button>
+    <div class="ml-1 mt-0 mr-1 pl-0 pr-0 w-100 row">
+      <itemDetailsPaginator [item]="item" Context="FullUI" [IsScreening]="IsScreening" (ItemChanged)="ItemChanged()" (GoToNextScreeningItemClicked)="GetItem()"
+      [HasOutcomeUnsavedChanges]="HasOutcomeUnsavedChanges" class="col-12 col-sm  pr-0 pl-0 ml-1 mr-1"></itemDetailsPaginator>
+      <div class="pr-0 pl-0 col-12 col-sm pr-0">
+        <button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()">
+          Close/back
+        </button>
 
-                      <div class="row float-right my-1 pb-1 mx-1">
-                        <button title="Refresh Terms" style="min-height:26px;"
-                                class="btn btn-sm btn-outline-success mx-0 my-0 py-0 px-2"
-                                (click)="RefreshTerms()">
-                          <fa-icon *ngIf="!IsServiceBusyTerms()" [icon]="faArrowsRotate" class="my-0"></fa-icon>
-                          <fa-icon *ngIf="IsServiceBusyTerms()" [icon]="faSpinner" [spin]="true" class="text-success mt-1 "></fa-icon>
-                        </button>
-                      </div>
-                      <div class="ml-1 mr-0 float-right d-inline-flex row rounded bg-light border border-info px-1 mt-1">
-                        <div>Show terms</div>
-                        <input type="checkbox" class="mx-1 my-1" [(ngModel)]="ShowHighlights" (click)="ShowHighlightsClicked()">
-                      </div>
-                      <div class="ml-1 mr-0 float-right d-inline-flex row rounded bg-light border border-info px-1 mt-1">
-                        <div>Auto Advance</div>
-                        <input type="checkbox" class="mx-1 my-1" [(ngModel)]="CheckBoxAutoAdvanceVal" #CheckBoxAutoAdvance>
-                      </div>
-                    </div>
-                </div>
-                <div *ngIf="ShowLiveComparison" class="my-1 ml-0 pl-1 pr-0 container">
-                    <LiveComparisonComp [item]="item"></LiveComparisonComp>
-                </div>
+        <div class="row float-right my-1 pb-1 mx-1">
+          <button title="Refresh Terms" style="min-height:26px;"
+            class="btn btn-sm btn-outline-success mx-0 my-0 py-0 px-2"
+            (click)="RefreshTerms()">
+            @if (!IsServiceBusyTerms()) {
+              <fa-icon [icon]="faArrowsRotate" class="my-0"></fa-icon>
+            }
+            @if (IsServiceBusyTerms()) {
+              <fa-icon [icon]="faSpinner" [spin]="true" class="text-success mt-1 "></fa-icon>
+            }
+          </button>
+        </div>
+        <div class="ml-1 mr-0 float-right d-inline-flex row rounded bg-light border border-info px-1 mt-1">
+          <div>Show terms</div>
+          <input type="checkbox" class="mx-1 my-1" [(ngModel)]="ShowHighlights" (click)="ShowHighlightsClicked()">
+        </div>
+        <div class="ml-1 mr-0 float-right d-inline-flex row rounded bg-light border border-info px-1 mt-1">
+          <div>Auto Advance</div>
+          <input type="checkbox" class="mx-1 my-1" [(ngModel)]="CheckBoxAutoAdvanceVal" #CheckBoxAutoAdvance>
+        </div>
+      </div>
+    </div>
+    @if (ShowLiveComparison) {
+      <div class="my-1 ml-0 pl-1 pr-0 container">
+        <LiveComparisonComp [item]="item"></LiveComparisonComp>
+      </div>
+    }
 
-                <kendo-tabstrip #tabstripCoding (tabSelect)="onTabSelect($event)" class="specialHideSystem" [keepTabContent]="true">
-                    <kendo-tabstrip-tab [selected]="true" [title]="'Item Details'">
-                        <ng-template kendoTabContent>
-                            <itemDetailsComp #ItemDetailsCmp Context="CodingFull" (PleaseGoToOpenAlexTab)="GoToOpenAlexTab()"
-                                             [item]="item" [CanEdit]="HasWriteRights" [IsScreening]="IsScreening" [ShowHighlights]="ShowHighlights" [ShowDocViewButton]="true"></itemDetailsComp>
-                        </ng-template>
-                    </kendo-tabstrip-tab>
+    <kendo-tabstrip #tabstripCoding (tabSelect)="onTabSelect($event)" class="specialHideSystem" [keepTabContent]="true">
+      <kendo-tabstrip-tab [selected]="true" [title]="'Item Details'">
+        <ng-template kendoTabContent>
+          <itemDetailsComp #ItemDetailsCmp Context="CodingFull" (PleaseGoToOpenAlexTab)="GoToOpenAlexTab()"
+          [item]="item" [CanEdit]="HasWriteRights" [IsScreening]="IsScreening" [ShowHighlights]="ShowHighlights" [ShowDocViewButton]="true"></itemDetailsComp>
+        </ng-template>
+      </kendo-tabstrip-tab>
 
-                    <kendo-tabstrip-tab [title]="'Links Arms Timepoints'">
-                        <ng-template kendoTabContent>
-                            <div *ngIf="item">
-                                <ItemLinksComp [item]="item"></ItemLinksComp>
-                                <armDetailsComp #ArmDetailsComp [item]="item"></armDetailsComp>
-                                <timePointsComp #TimePointsComp [item]="item"></timePointsComp>
-                            </div>
-                        </ng-template>
-                    </kendo-tabstrip-tab>
-                    <kendo-tabstrip-tab [title]="'PDF'" [disabled]="!HasDocForView">
-                        <ng-template kendoTabContent>
-                            <div *ngIf="item" style="min-height:600px;">
-                                <div *ngIf="IsServiceBusy4PDF()" class="k-loading-image"></div>
-                                <pdftroncontainer #pdftroncontainer [ItemID]="itemID"></pdftroncontainer>
-                            </div>
-                        </ng-template>
-                    </kendo-tabstrip-tab>
-                    <kendo-tabstrip-tab [title]="'Coding Record'">
-                        <ng-template kendoTabContent>
-                            <codingRecordComp [item]="item"></codingRecordComp>
-                        </ng-template>
-                    </kendo-tabstrip-tab>
-                    <kendo-tabstrip-tab *ngIf="ShowMagTab" [title]="'OpenAlex'">
-                        <ng-template kendoTabContent>
-                            <microsoftAcademicComp [item]="item"></microsoftAcademicComp>
-                        </ng-template>
-                    </kendo-tabstrip-tab>
-                    <!--<kendo-tabstrip-tab [title]="'Study timepoints'">
-                    <ng-template kendoTabContent>
-                        <div *ngIf="item" style="min-height:600px;">
-                            <timePointsComp #timepointscontainer [item]="item"></timePointsComp>
-                        </div>
-                    </ng-template>
-                </kendo-tabstrip-tab>-->
-                </kendo-tabstrip>
+      <kendo-tabstrip-tab [title]="'Links Arms Timepoints'">
+        <ng-template kendoTabContent>
+          @if (item) {
+            <div>
+              <ItemLinksComp [item]="item"></ItemLinksComp>
+              <armDetailsComp #ArmDetailsComp [item]="item"></armDetailsComp>
+              <timePointsComp #TimePointsComp [item]="item"></timePointsComp>
             </div>
-
-
+          }
+        </ng-template>
+      </kendo-tabstrip-tab>
+      <kendo-tabstrip-tab [title]="'PDF'" [disabled]="!HasDocForView">
+        <ng-template kendoTabContent>
+          @if (item) {
+            <div style="min-height:600px;">
+              @if (IsServiceBusy4PDF()) {
+                <div class="k-loading-image"></div>
+              }
+              <pdftroncontainer #pdftroncontainer [ItemID]="itemID"></pdftroncontainer>
+            </div>
+          }
+        </ng-template>
+      </kendo-tabstrip-tab>
+      <kendo-tabstrip-tab [title]="'Coding Record'">
+        <ng-template kendoTabContent>
+          <codingRecordComp [item]="item"></codingRecordComp>
+        </ng-template>
+      </kendo-tabstrip-tab>
+      @if (ShowMagTab) {
+        <kendo-tabstrip-tab [title]="'OpenAlex'">
+          <ng-template kendoTabContent>
+            <microsoftAcademicComp [item]="item"></microsoftAcademicComp>
+          </ng-template>
+        </kendo-tabstrip-tab>
+      }
+      <!--<kendo-tabstrip-tab [title]="'Study timepoints'">
+      <ng-template kendoTabContent>
+        <div *ngIf="item" style="min-height:600px;">
+          <timePointsComp #timepointscontainer [item]="item"></timePointsComp>
         </div>
-        <statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>
-    </div>
+      </ng-template>
+    </kendo-tabstrip-tab>-->
+  </kendo-tabstrip>
 </div>
 
 
-<div *ngIf="showManualModalUncompleteWarning">
-  <div class="modal-backdrop fade show" style="position:fixed;top:0px;left:0px;z-index:999;" (click)="CloseManualModal()"></div>
-  <div role="dialog" tabindex="-1" class="modal fade show d-block" style="z-index:1000" aria-labelledby="modal-basic-title">
-    <div role="document" class="modal-dialog p-2" style="z-index:1001; background-color: white; pointer-events: auto;">
-      <div class="modal-header alert-danger">
-        <H4 class="modal-title">Warning</H4>
-      </div>
-      <div class="modal-body">
-        <div class="row d-inline-block alert-info rounded p-1">
-          You are asking the Robot to code an item which already has <strong>Completed Coding</strong>, saved under <strong>someone else's name</strong>.<br />
-          By default, when this happens, the Robot-Coding will be added in the robot's name and added as "Uncompleted".<br />
-          As a consequence, the coding created will be visible in the Coding Record and in comparisons, but would be <strong>otherwise hidden</strong>.<br />
-          You can change this and ask the robot to <strong>add its coding</strong> to the <strong>pre-existing coding</strong> instead
-          by un-ticking the "<span class="text-monospace">Always add coding in the Robot's name</span>" option, below.<br />
+</div>
+<statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>
+</div>
+</div>
+
+
+@if (showManualModalUncompleteWarning) {
+  <div>
+    <div class="modal-backdrop fade show" style="position:fixed;top:0px;left:0px;z-index:999;" (click)="CloseManualModal()"></div>
+    <div role="dialog" tabindex="-1" class="modal fade show d-block" style="z-index:1000" aria-labelledby="modal-basic-title">
+      <div role="document" class="modal-dialog p-2" style="z-index:1001; background-color: white; pointer-events: auto;">
+        <div class="modal-header alert-danger">
+          <H4 class="modal-title">Warning</H4>
         </div>
-        <div class="row mt-1 border-bottom border-top"><RobotSettings Context="Modal"></RobotSettings></div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-dark" (click)="CloseManualModal()">&nbsp;&nbsp;Cancel&nbsp;&nbsp;</button>
-        <button type="button" class="btn btn-outline-success" (click)="AcceptOptionsAndRunRobot()" [disabled]="RobotSetting.robotName == ''">&nbsp;OK&nbsp;</button>
+        <div class="modal-body">
+          <div class="row d-inline-block alert-info rounded p-1">
+            You are asking the Robot to code an item which already has <strong>Completed Coding</strong>, saved under <strong>someone else's name</strong>.<br />
+            By default, when this happens, the Robot-Coding will be added in the robot's name and added as "Uncompleted".<br />
+            As a consequence, the coding created will be visible in the Coding Record and in comparisons, but would be <strong>otherwise hidden</strong>.<br />
+            You can change this and ask the robot to <strong>add its coding</strong> to the <strong>pre-existing coding</strong> instead
+            by un-ticking the "<span class="text-monospace">Always add coding in the Robot's name</span>" option, below.<br />
+          </div>
+          <div class="row mt-1 border-bottom border-top"><RobotSettings Context="Modal"></RobotSettings></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-dark" (click)="CloseManualModal()">&nbsp;&nbsp;Cancel&nbsp;&nbsp;</button>
+          <button type="button" class="btn btn-outline-success" (click)="AcceptOptionsAndRunRobot()" [disabled]="RobotSetting.robotName == ''">&nbsp;OK&nbsp;</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
+}
 
-<div *ngIf="showManualModalRobotOptions">
-  <div class="modal-backdrop fade show" style="position:fixed;top:0px;left:0px;z-index:999;" (click)="CloseManualModal()"></div>
-  <div role="dialog" tabindex="-1" class="modal fade show d-block" style="z-index:1000" aria-labelledby="modal-basic-title">
-    <div role="document" class="modal-dialog p-2" style="z-index:1001; background-color: white; pointer-events: auto;">
-      <div class="modal-header alert-info">
-        <H4 class="modal-title">Robot Coding Settings</H4>
-      </div>
-      <div class="modal-body">
-        <div class="row d-inline-block alert-primary rounded p-1">
-          You are asking the Robot to auto-code the present item.<br />
-          <strong>Please review the Settings</strong> before continuing.<br />
-          Ticking the <span class="text-monospace bg-light px-1">Don't ask again, for this session</span>
-          option will prevent this dialog from appearing again during this session.
+@if (showManualModalRobotOptions) {
+  <div>
+    <div class="modal-backdrop fade show" style="position:fixed;top:0px;left:0px;z-index:999;" (click)="CloseManualModal()"></div>
+    <div role="dialog" tabindex="-1" class="modal fade show d-block" style="z-index:1000" aria-labelledby="modal-basic-title">
+      <div role="document" class="modal-dialog p-2" style="z-index:1001; background-color: white; pointer-events: auto;">
+        <div class="modal-header alert-info">
+          <H4 class="modal-title">Robot Coding Settings</H4>
         </div>
-        <div class="row mt-1 border-bottom border-top"><RobotSettings Context="Modal"></RobotSettings></div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-dark" (click)="CloseManualModal()">&nbsp;&nbsp;Cancel&nbsp;&nbsp;</button>
-        <button type="button" class="btn btn-outline-success" (click)="AcceptOptionsAndRunRobot()" [disabled]="RobotSetting.robotName == ''">&nbsp;OK&nbsp;</button>
+        <div class="modal-body">
+          <div class="row d-inline-block alert-primary rounded p-1">
+            You are asking the Robot to auto-code the present item.<br />
+            <strong>Please review the Settings</strong> before continuing.<br />
+            Ticking the <span class="text-monospace bg-light px-1">Don't ask again, for this session</span>
+            option will prevent this dialog from appearing again during this session.
+          </div>
+          <div class="row mt-1 border-bottom border-top"><RobotSettings Context="Modal"></RobotSettings></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-dark" (click)="CloseManualModal()">&nbsp;&nbsp;Cancel&nbsp;&nbsp;</button>
+          <button type="button" class="btn btn-outline-success" (click)="AcceptOptionsAndRunRobot()" [disabled]="RobotSetting.robotName == ''">&nbsp;OK&nbsp;</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
+}

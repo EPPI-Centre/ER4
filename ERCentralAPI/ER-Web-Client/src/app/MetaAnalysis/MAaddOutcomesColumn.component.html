@@ -1,73 +1,90 @@
-<div *ngIf="CurrentMA" class="rounded mx-1 p-2 bg-light">
-  
-  <div class="mx-1 mb-1">
-    <div class="row mx-1"><div class="h4 mx-auto text-success">Add Column</div></div>
-    <div class="row mx-1">
-      <div class="row m-auto rounded py-1 px-2 border border-info bg-white">
-        <div class="col my-auto">Column type:</div>
-        <div class="col-auto">
-          <div class="row ml-1 mr-auto col-12">
-            <input class="m-1 p-1" type="radio" value="Answer" name="QorARadio" [disabled]="HasMaxAnswerCols" (click)="DelayedCheckSelectionState()"
-                   [(ngModel)]="ColumnMode">Answer (Item level)
-
-            <input class="ml-2 my-1 mr-1 p-1" type="radio" value="Question" name="QorARadio" [disabled]="HasMaxQuestionCols" (click)="DelayedCheckSelectionState()"
-                   [(ngModel)]="ColumnMode">Question (Item level)
-          </div>
-          <div class="row ml-1 mr-auto border-top border-primary">
-            <input class="m-1 p-1" type="radio" value="AnswerOutcome" name="QorARadio" [disabled]="HasMaxAnswerOutcomeCols" (click)="DelayedCheckSelectionState()"
-                   [(ngModel)]="ColumnMode">Answer (Outcome level)
-
-            <input class="ml-2 my-1 mr-1 p-1" type="radio" value="QuestionOutcome" name="QorARadio" [disabled]="HasMaxQuestionOutcomeCols" (click)="DelayedCheckSelectionState()"
-                   [(ngModel)]="ColumnMode">Question (Outcome level)
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="row mx-0 mt-1">
-      <div *ngIf="(ColumnMode == 'Answer' || ColumnMode == 'AnswerOutcome') && !HasMaxAnswerCols" class="row mx-1">
-        <div class="my-auto">Select (answer) code: </div>
-        <div ngbDropdown>
-          <button ngbDropdownAnchor class="btn btn-primary dropdown-toggle p-1 m-1" id="dropdownTree"
-                  (click)="ToggleDropDown('Question')" style="min-width: 100px;">
-            {{ColumnCode?.name}}
-          </button>
-          <div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!ShowingCodes">
-            <codesetSelector #ColCodeSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="360"
-                             (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="false"></codesetSelector>
-          </div>
-        </div>
-      </div>
-      <div *ngIf="(ColumnMode == 'Question' || ColumnMode =='QuestionOutcome') && !HasMaxQuestionCols" class="row mx-1">
-        <div class="my-auto">Select (question) code: </div>
-        <div ngbDropdown>
-          <button ngbDropdownAnchor class="btn btn-primary dropdown-toggle p-1 m-1" id="dropdownTree"
-                  (click)="ToggleDropDown('Question')" style="min-width: 100px;">
-            {{ColumnCode?.name}}
-          </button>
-          <div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!ShowingCodes">
-            <codesetSelector #ColCodeSelector [IsMultiSelect]="false" [WhatIsSelectable]="'CodeWithChildren'" [MaxHeight]="360"
-                             (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="false"></codesetSelector>
-          </div>
-        </div>
-      </div>
-      <div *ngIf="ColumnMode == 'Answer' && HasMaxAnswerCols" class="rounded alert-warning py-1 px-2 my-auto">You already have the maximum number of Answer columns</div>
-      <div *ngIf="ColumnMode == 'Question' && HasMaxQuestionCols" class="rounded alert-warning py-1 px-2 my-auto">You already have the maximum number of Question columns</div>
-      <div *ngIf="SelectionState != 0" class="row mx-1">
-        <ng-container [ngSwitch]="SelectionState">
-          <div *ngSwitchCase="1" class="rounded alert-success py-1 px-2 my-auto">Selected code is <strong>valid</strong></div>
-          <div *ngSwitchCase="2" class="rounded alert-warning py-1 px-2 my-auto">Error: you already have added that column</div>
-          <div *ngSwitchDefault class="rounded alert-warning py-1 px-2 my-auto">Error: can't add a question column for this code, as it has no child codes</div>
-        </ng-container>
-      </div>
-    </div>
+@if (CurrentMA) {
+  <div class="rounded mx-1 p-2 bg-light">
+    <div class="mx-1 mb-1">
+      <div class="row mx-1"><div class="h4 mx-auto text-success">Add Column</div></div>
       <div class="row mx-1">
-        <button class="btn btn-outline-dark ml-1" (click)="CloseMe()">Close</button>
-        <div *ngIf="SelectionState == 1" class="row mx-1">
-          <button class="btn btn-outline-danger " (click)="Add()" [disabled]="!HasWriteRights">Add</button>
-          <div class="rounded alert-info small py-1 px-2 ml-2 my-auto">Adding the column will <strong>save</strong> the current MA</div>
-        </div>
-      </div>
-    </div>
-  </div>
+        <div class="row m-auto rounded py-1 px-2 border border-info bg-white">
+          <div class="col my-auto">Column type:</div>
+          <div class="col-auto">
+            <div class="row ml-1 mr-auto col-12">
+              <input class="m-1 p-1" type="radio" value="Answer" name="QorARadio" [disabled]="HasMaxAnswerCols" (click)="DelayedCheckSelectionState()"
+                [(ngModel)]="ColumnMode">Answer (Item level)
+                <input class="ml-2 my-1 mr-1 p-1" type="radio" value="Question" name="QorARadio" [disabled]="HasMaxQuestionCols" (click)="DelayedCheckSelectionState()"
+                  [(ngModel)]="ColumnMode">Question (Item level)
+                </div>
+                <div class="row ml-1 mr-auto border-top border-primary">
+                  <input class="m-1 p-1" type="radio" value="AnswerOutcome" name="QorARadio" [disabled]="HasMaxAnswerOutcomeCols" (click)="DelayedCheckSelectionState()"
+                    [(ngModel)]="ColumnMode">Answer (Outcome level)
+                    <input class="ml-2 my-1 mr-1 p-1" type="radio" value="QuestionOutcome" name="QorARadio" [disabled]="HasMaxQuestionOutcomeCols" (click)="DelayedCheckSelectionState()"
+                      [(ngModel)]="ColumnMode">Question (Outcome level)
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row mx-0 mt-1">
+                @if ((ColumnMode == 'Answer' || ColumnMode == 'AnswerOutcome') && !HasMaxAnswerCols) {
+                  <div class="row mx-1">
+                    <div class="my-auto">Select (answer) code: </div>
+                    <div ngbDropdown>
+                      <button ngbDropdownAnchor class="btn btn-primary dropdown-toggle p-1 m-1" id="dropdownTree"
+                        (click)="ToggleDropDown('Question')" style="min-width: 100px;">
+                        {{ColumnCode?.name}}
+                      </button>
+                      <div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!ShowingCodes">
+                        <codesetSelector #ColCodeSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="360"
+                        (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="false"></codesetSelector>
+                      </div>
+                    </div>
+                  </div>
+                }
+                @if ((ColumnMode == 'Question' || ColumnMode =='QuestionOutcome') && !HasMaxQuestionCols) {
+                  <div class="row mx-1">
+                    <div class="my-auto">Select (question) code: </div>
+                    <div ngbDropdown>
+                      <button ngbDropdownAnchor class="btn btn-primary dropdown-toggle p-1 m-1" id="dropdownTree"
+                        (click)="ToggleDropDown('Question')" style="min-width: 100px;">
+                        {{ColumnCode?.name}}
+                      </button>
+                      <div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!ShowingCodes">
+                        <codesetSelector #ColCodeSelector [IsMultiSelect]="false" [WhatIsSelectable]="'CodeWithChildren'" [MaxHeight]="360"
+                        (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="false"></codesetSelector>
+                      </div>
+                    </div>
+                  </div>
+                }
+                @if (ColumnMode == 'Answer' && HasMaxAnswerCols) {
+                  <div class="rounded alert-warning py-1 px-2 my-auto">You already have the maximum number of Answer columns</div>
+                }
+                @if (ColumnMode == 'Question' && HasMaxQuestionCols) {
+                  <div class="rounded alert-warning py-1 px-2 my-auto">You already have the maximum number of Question columns</div>
+                }
+                @if (SelectionState != 0) {
+                  <div class="row mx-1">
+                    @switch (SelectionState) {
+                      @case (1) {
+                        <div class="rounded alert-success py-1 px-2 my-auto">Selected code is <strong>valid</strong></div>
+                      }
+                      @case (2) {
+                        <div class="rounded alert-warning py-1 px-2 my-auto">Error: you already have added that column</div>
+                      }
+                      @default {
+                        <div class="rounded alert-warning py-1 px-2 my-auto">Error: can't add a question column for this code, as it has no child codes</div>
+                      }
+                    }
+                  </div>
+                }
+              </div>
+              <div class="row mx-1">
+                <button class="btn btn-outline-dark ml-1" (click)="CloseMe()">Close</button>
+                @if (SelectionState == 1) {
+                  <div class="row mx-1">
+                    <button class="btn btn-outline-danger " (click)="Add()" [disabled]="!HasWriteRights">Add</button>
+                    <div class="rounded alert-info small py-1 px-2 ml-2 my-auto">Adding the column will <strong>save</strong> the current MA</div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
 
 

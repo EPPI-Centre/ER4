@@ -1,106 +1,143 @@
-<div #ManualModal *ngIf="showManualModal">
-  <div class="modal-backdrop fade show" style="position:fixed;top:0px;left:0px;z-index:999;" (click)="DeleteCodingCancelled()"></div>
-  <div role="dialog" tabindex="-1" class="modal fade show d-block" style="z-index:1000" aria-labelledby="modal-basic-title">
-    <div role="document" class="modal-dialog" style="z-index:1001; background-color: white; pointer-events: auto;">
-      <div class="modal-header">
-        <h4 class="modal-title" id="modal-basic-title">Delete Coding?</h4>
-        <button type="button" class="close" aria-label="Close" (click)="DeleteCodingCancelled()">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <form>
-          <div class="">
-            <b>Are you sure you want to unselect this code? </b><br />
-            You will also delete any additional text you've entered, as well as any full-text coding and outcome data associated with this code (if any).
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-dark" (click)="DeleteCodingCancelled()">&nbsp;&nbsp;Cancel&nbsp;&nbsp;</button>
-        <button type="button" class="btn btn-outline-success" (click)="DeleteCodingConfirmed()">&nbsp;OK&nbsp;</button>
+@if (showManualModal) {
+  <div #ManualModal>
+    <div class="modal-backdrop fade show" style="position:fixed;top:0px;left:0px;z-index:999;" (click)="DeleteCodingCancelled()"></div>
+    <div role="dialog" tabindex="-1" class="modal fade show d-block" style="z-index:1000" aria-labelledby="modal-basic-title">
+      <div role="document" class="modal-dialog" style="z-index:1001; background-color: white; pointer-events: auto;">
+        <div class="modal-header">
+          <h4 class="modal-title" id="modal-basic-title">Delete Coding?</h4>
+          <button type="button" class="close" aria-label="Close" (click)="DeleteCodingCancelled()">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="">
+              <b>Are you sure you want to unselect this code? </b><br />
+              You will also delete any additional text you've entered, as well as any full-text coding and outcome data associated with this code (if any).
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-dark" (click)="DeleteCodingCancelled()">&nbsp;&nbsp;Cancel&nbsp;&nbsp;</button>
+          <button type="button" class="btn btn-outline-success" (click)="DeleteCodingConfirmed()">&nbsp;OK&nbsp;</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
-<div *ngIf="IsServiceBusy" class="k-loading-image" style="height: 100vh; position: absolute; top: 0%;"></div>
-<p *ngIf="!IsReviewSetsServiceBusy && (!nodes || nodes.length == 0)"><em>No codesets currently loaded.</em></p>
-<p *ngIf="IsReviewSetsServiceBusy && (!nodes || nodes.length == 0) "><em>Loading...</em></p>
+}
+@if (IsServiceBusy) {
+  <div class="k-loading-image" style="height: 100vh; position: absolute; top: 0%;"></div>
+}
+@if (!IsReviewSetsServiceBusy && (!nodes || nodes.length == 0)) {
+  <p><em>No codesets currently loaded.</em></p>
+}
+@if (IsReviewSetsServiceBusy && (!nodes || nodes.length == 0) ) {
+  <p><em>Loading...</em></p>
+}
 <div style="max-height: 810px; overflow-y:auto;">
-  <div *ngIf="nodes && nodes.length > 0">
-    <kendo-treeview #tree
-                    [nodes]="nodes"
-                    class="text-wrap text-break BlueTreeViewSelectable"
-                    textField="name"
-                    (selectionChange)="NodeSelected($event)"
-                    kendoTreeViewHierarchyBinding
-                    childrenField="attributes"
-                    kendoTreeViewSelectable
-                    [selectedKeys]="selectedKeys"
-                    selectBy="id"
-                    expandBy="id"
-                    [isExpanded]="isExpanded"
-                    (collapse)="handleCollapse($event)"
-                    (expand)="handleExpand($event)">
-      <ng-template kendoTreeViewNodeTemplate let-data>
-        <span *ngIf="data.nodeType == 'ReviewSet'" class="ml-0 mr-1">
-          <img *ngIf="data.codingIsFinal" title="Normal Mode: single data entry for all users" src="assets/person.png" class="mr-1" />
-          <img *ngIf="!data.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="assets/team.png" class="mr-1" />
-          <img *ngIf="data.codingComplete" title="Coding complete: these codes can appear in reports and be found in searches" src="assets/CodingComplete.png"
-               (click)="CompleteUncompleteShowPanel(data)" class="mr-1" />
-          <img *ngIf="!data.codingComplete" title="Coding not complete: these codes will not appear in reports or be found in searches" src="assets/CodingNotComplete.png"
-               (click)="CompleteUncompleteShowPanel(data)" class="mr-1" />
-          <img *ngIf="data.itemSetIsLocked" title="Coding locked: you can't change the codes already entered"
-               (click)="CompleteUncompleteShowPanel(data)" src="assets/CodingLocked.png" class="mr-1" />
-          <img *ngIf="data.allowEditingCodeset" title="You can edit this Coding Tool (e.g. add new codes - NOT IMPLEMENTED!)" src="assets/CodeSetEditable.png" class="mr-1" />
-          <img *ngIf="!data.allowEditingCodeset" title="You can't edit this Coding Tool" src="assets/CodeSetLocked.png" class="mr-1" />
-        </span>
-
-        <input [ngClass]="data.isSelected ? 'my-1 mr-1 checkbox-round-selected' : 'my-1 mr-1 checkbox-round'" type="checkbox" id="attributeID-{{data.id}}" [(ngModel)]="data.isSelected"
-               [disabled]="!CanWriteCoding(data)"
-               *ngIf="data.showCheckBox && data.isExclusive" (change)="CheckBoxClicked($event, data)" />
-
-        <input class="my-1 mr-1" type="checkbox" id="attributeID-{{data.id}}" [(ngModel)]="data.isSelected"
-               [disabled]="!CanWriteCoding(data)"
-               *ngIf="data.showCheckBox  && !data.isExclusive" (change)="CheckBoxClicked($event, data)" />
-
-
-
+  @if (nodes && nodes.length > 0) {
+    <div>
+      <kendo-treeview #tree
+        [nodes]="nodes"
+        class="text-wrap text-break BlueTreeViewSelectable"
+        textField="name"
+        (selectionChange)="NodeSelected($event)"
+        kendoTreeViewHierarchyBinding
+        childrenField="attributes"
+        kendoTreeViewSelectable
+        [selectedKeys]="selectedKeys"
+        selectBy="id"
+        expandBy="id"
+        [isExpanded]="isExpanded"
+        (collapse)="handleCollapse($event)"
+        (expand)="handleExpand($event)">
+        <ng-template kendoTreeViewNodeTemplate let-data>
+          @if (data.nodeType == 'ReviewSet') {
+            <span class="ml-0 mr-1">
+              @if (data.codingIsFinal) {
+                <img title="Normal Mode: single data entry for all users" src="assets/person.png" class="mr-1" />
+              }
+              @if (!data.codingIsFinal) {
+                <img title="Comparison Mode: independent multi-user entry" src="assets/team.png" class="mr-1" />
+              }
+              @if (data.codingComplete) {
+                <img title="Coding complete: these codes can appear in reports and be found in searches" src="assets/CodingComplete.png"
+                  (click)="CompleteUncompleteShowPanel(data)" class="mr-1" />
+              }
+              @if (!data.codingComplete) {
+                <img title="Coding not complete: these codes will not appear in reports or be found in searches" src="assets/CodingNotComplete.png"
+                  (click)="CompleteUncompleteShowPanel(data)" class="mr-1" />
+              }
+              @if (data.itemSetIsLocked) {
+                <img title="Coding locked: you can't change the codes already entered"
+                  (click)="CompleteUncompleteShowPanel(data)" src="assets/CodingLocked.png" class="mr-1" />
+              }
+              @if (data.allowEditingCodeset) {
+                <img title="You can edit this Coding Tool (e.g. add new codes - NOT IMPLEMENTED!)" src="assets/CodeSetEditable.png" class="mr-1" />
+              }
+              @if (!data.allowEditingCodeset) {
+                <img title="You can't edit this Coding Tool" src="assets/CodeSetLocked.png" class="mr-1" />
+              }
+            </span>
+          }
+          @if (data.showCheckBox && data.isExclusive) {
+            <input [ngClass]="data.isSelected ? 'my-1 mr-1 checkbox-round-selected' : 'my-1 mr-1 checkbox-round'" type="checkbox" id="attributeID-{{data.id}}" [(ngModel)]="data.isSelected"
+              [disabled]="!CanWriteCoding(data)"
+              (change)="CheckBoxClicked($event, data)" />
+          }
+          @if (data.showCheckBox  && !data.isExclusive) {
+            <input class="my-1 mr-1" type="checkbox" id="attributeID-{{data.id}}" [(ngModel)]="data.isSelected"
+              [disabled]="!CanWriteCoding(data)"
+              (change)="CheckBoxClicked($event, data)" />
+          }
         <span [ngClass]="{'ScreeningSet' : data.subTypeName == 'Screening',
                               'AdminSet' : data.subTypeName == 'Administration',
                               'ExcludeCode' : data.subTypeName == 'Exclude' }">
-          <span *ngIf="HotKeysOn"
-                [ngClass]="{'disabled-Hotkey' : data.showCheckBox == false, 'font-weight-bold text-primary' : data.showCheckBox == true}">{{HotKeysText(data)}}</span>
-          {{data.name}}
-        </span>
-        <button *ngIf="data.showCheckBox" class="btn btn-outline-primary bt-infoBox ml-2" (click)="openInfoBox(data)">Info</button>
-
-        <button *ngIf="checkOutComes(data)" class="btn btn-outline-dark bt-infoBox ml-2"
-                (click)="openOutcomePanel(data)">
-          Outcomes
-        </button>
-        <div *ngIf="data.nodeType == 'ReviewSet' && data.set_id == ShowCompleteUncompletePanelForSetId" class="bg-light border p-1 border-success">
-          Coding is Complete: <input class="m-1" type="checkbox" [(ngModel)]="this.ItemSetProxy.IsCompleted"
-                                     [disabled]="IsCodingOnly || !CanWriteCoding(data) || !ItemSetProxy.CanChangeCompletion" /><br />
-          Coding is Locked: <input class="m-1" type="checkbox" [(ngModel)]="this.ItemSetProxy.IsLocked"
-                                   [disabled]="IsCodingOnly || !CanWriteCoding(data)" /><br />
-          <span class="small">Coded by: <b>{{this.ItemSetProxy.CodedBy}}</b></span><br />
-          <button class="btn btn-outline-info bt-infoBox ml-1" (click)="CancelCompleteUncomplete()">Cancel</button>
-          <button class="btn btn-outline-danger bt-infoBox ml-2" [disabled]="!CanSaveItemSet" (click)="ApplyCompleteUncomplete(data)">Apply</button>
-        </div>
-        <span *ngIf="selectedKeys[0] && selectedKeys[0] == data.id && data.attributes && data.attributes.length > 0" style="cursor: pointer">
-          <span *ngIf="IsCollapsed(data); else collapseAll" class="k-icon k-i-arrows-top-bottom text-primary" (click)="ExpandAllFromHere(data)" title="Expand this and all children"></span>
-          <ng-template #collapseAll>
-            <span class="k-icon k-i-arrow-down-left text-primaryy " (click)="CollapseAllFromHere(data)" title="Collapse this and all children"></span>
-          </ng-template>
-        </span>
-      </ng-template>
-    </kendo-treeview>
-  </div>
+            @if (HotKeysOn) {
+              <span
+              [ngClass]="{'disabled-Hotkey' : data.showCheckBox == false, 'font-weight-bold text-primary' : data.showCheckBox == true}">{{HotKeysText(data)}}</span>
+            }
+            {{data.name}}
+          </span>
+          @if (data.showCheckBox) {
+            <button class="btn btn-outline-primary bt-infoBox ml-2" (click)="openInfoBox(data)">Info</button>
+          }
+          @if (checkOutComes(data)) {
+            <button class="btn btn-outline-dark bt-infoBox ml-2"
+              (click)="openOutcomePanel(data)">
+              Outcomes
+            </button>
+          }
+          @if (data.nodeType == 'ReviewSet' && data.set_id == ShowCompleteUncompletePanelForSetId) {
+            <div class="bg-light border p-1 border-success">
+              Coding is Complete: <input class="m-1" type="checkbox" [(ngModel)]="this.ItemSetProxy.IsCompleted"
+              [disabled]="IsCodingOnly || !CanWriteCoding(data) || !ItemSetProxy.CanChangeCompletion" /><br />
+              Coding is Locked: <input class="m-1" type="checkbox" [(ngModel)]="this.ItemSetProxy.IsLocked"
+              [disabled]="IsCodingOnly || !CanWriteCoding(data)" /><br />
+              <span class="small">Coded by: <b>{{this.ItemSetProxy.CodedBy}}</b></span><br />
+              <button class="btn btn-outline-info bt-infoBox ml-1" (click)="CancelCompleteUncomplete()">Cancel</button>
+              <button class="btn btn-outline-danger bt-infoBox ml-2" [disabled]="!CanSaveItemSet" (click)="ApplyCompleteUncomplete(data)">Apply</button>
+            </div>
+          }
+          @if (selectedKeys[0] && selectedKeys[0] == data.id && data.attributes && data.attributes.length > 0) {
+            <span style="cursor: pointer">
+              @if (IsCollapsed(data)) {
+                <span class="k-icon k-i-arrows-top-bottom text-primary" (click)="ExpandAllFromHere(data)" title="Expand this and all children"></span>
+              } @else {
+                <span class="k-icon k-i-arrow-down-left text-primaryy " (click)="CollapseAllFromHere(data)" title="Collapse this and all children"></span>
+              }
+            </span>
+          }
+        </ng-template>
+      </kendo-treeview>
+    </div>
+  }
 </div>
-<div class="mt-2" *ngIf="SelectedCodeDescription != ''">
-  <div class="card card-title mb-0 font-weight-bold">Code description:</div>
-  <div class="card card-body mt-0 p-1 bg-white" style="max-height:150px; overflow-y:scroll; white-space:pre-line;">
-    {{SelectedCodeDescription}}
+@if (SelectedCodeDescription != '') {
+  <div class="mt-2">
+    <div class="card card-title mb-0 font-weight-bold">Code description:</div>
+    <div class="card card-body mt-0 p-1 bg-white" style="max-height:150px; overflow-y:scroll; white-space:pre-line;">
+      {{SelectedCodeDescription}}
+    </div>
   </div>
-</div>
+}

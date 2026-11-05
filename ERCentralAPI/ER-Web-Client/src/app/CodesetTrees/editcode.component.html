@@ -1,43 +1,75 @@
 
-<div *ngIf="!IsSmall" class="card container-fluid mt-1 bg-light  m-1 p-1 form-group">
+@if (!IsSmall) {
+  <div class="card container-fluid mt-1 bg-light  m-1 p-1 form-group">
     <div  class="container card card-body bg-light">
-        <div *ngIf="ShowPanel == 'DeleteCode'" class="alert alert-danger">
-          <div *ngIf="AllocationsAffected < 1 && appliedCodes != -1">
-            <div>Are you sure you want to delete '{{UpdatingCode?.attribute_name}}' and all its children?</div>
-            <div *ngIf="appliedCodes == 1">This will affect <strong>one item</strong> that has been assigned to this code (this coding will be deleted)!</div>
-            <div *ngIf="appliedCodes > 1">This will affect codes assigned to <strong>{{appliedCodes}} items</strong>. All this coding will be deleted!</div>
-            <div *ngIf="OutcomesAffected == 1">This will affect <strong>one outcome</strong> that has been assigned to this code (this coding will be deleted)!</div>
-            <div *ngIf="OutcomesAffected > 1">This will affect codes assigned to <strong>{{OutcomesAffected}} outcomes</strong>. All this coding will be deleted!</div>
-            <div>Also all codes assigned to '<strong>{{UpdatingCode?.attribute_name}}</strong>' children (if any) <strong>will be lost</strong>.</div>
-            <div *ngIf="NumVisMapsAffected == 3"><strong>This code has a descendant that is part of a pre-configured map in a visualisation. You will need to edit this map before the code can be deleted.</strong></div>
-            <div *ngIf="NumVisMapsAffected == 2"><strong>This code is part of a pre-configured map in a visualisation. You will need to edit this map before the code can be deleted.</strong></div>
-            <div *ngIf="NumVisMapsAffected == 1"><strong>Please be aware </strong> this code is part of a coding tool that is used in a visualisation. Its deletion could break the visualisation depending on if, and how, the code is being used.</div>
+      @if (ShowPanel == 'DeleteCode') {
+        <div class="alert alert-danger">
+          @if (AllocationsAffected < 1 && appliedCodes != -1) {
             <div>
-              <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">No</button>
-              <button class="btn btn-danger ml-1" (click)="DoDeleteCode()"
-                      [disabled]="!CanWrite() || NumVisMapsAffected >= 2"
-                      style="width:80px;">
-                Yes
-              </button>
+              <div>Are you sure you want to delete '{{UpdatingCode?.attribute_name}}' and all its children?</div>
+              @if (appliedCodes == 1) {
+                <div>This will affect <strong>one item</strong> that has been assigned to this code (this coding will be deleted)!</div>
+              }
+              @if (appliedCodes > 1) {
+                <div>This will affect codes assigned to <strong>{{appliedCodes}} items</strong>. All this coding will be deleted!</div>
+              }
+              @if (OutcomesAffected == 1) {
+                <div>This will affect <strong>one outcome</strong> that has been assigned to this code (this coding will be deleted)!</div>
+              }
+              @if (OutcomesAffected > 1) {
+                <div>This will affect codes assigned to <strong>{{OutcomesAffected}} outcomes</strong>. All this coding will be deleted!</div>
+              }
+              <div>Also all codes assigned to '<strong>{{UpdatingCode?.attribute_name}}</strong>' children (if any) <strong>will be lost</strong>.</div>
+              @if (NumVisMapsAffected == 3) {
+                <div><strong>This code has a descendant that is part of a pre-configured map in a visualisation. You will need to edit this map before the code can be deleted.</strong></div>
+              }
+              @if (NumVisMapsAffected == 2) {
+                <div><strong>This code is part of a pre-configured map in a visualisation. You will need to edit this map before the code can be deleted.</strong></div>
+              }
+              @if (NumVisMapsAffected == 1) {
+                <div><strong>Please be aware </strong> this code is part of a coding tool that is used in a visualisation. Its deletion could break the visualisation depending on if, and how, the code is being used.</div>
+              }
+              <div>
+                <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">No</button>
+                <button class="btn btn-danger ml-1" (click)="DoDeleteCode()"
+                  [disabled]="!CanWrite() || NumVisMapsAffected >= 2"
+                  style="width:80px;">
+                  Yes
+                </button>
+              </div>
             </div>
-          </div>
-            <div *ngIf="AllocationsAffected > 0">
-                <div class="font-weight-bold">Sorry, you cannot delete '{{UpdatingCode?.attribute_name}}' and all its children.</div>
-                <div *ngIf="AllocationsAffected == 1">This is because this code is used to drive <strong>one</strong> coding assignment. You need to delete this coding assignment first.</div>
-                <div *ngIf="AllocationsAffected > 1">This is because this code is used to drive <strong>{{AllocationsAffected}}</strong> coding assignments. You need to delete these coding assignments first.</div>
-                <div>
-                    <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">Cancel</button>
-                </div>
+          }
+          @if (AllocationsAffected > 0) {
+            <div>
+              <div class="font-weight-bold">Sorry, you cannot delete '{{UpdatingCode?.attribute_name}}' and all its children.</div>
+              @if (AllocationsAffected == 1) {
+                <div>This is because this code is used to drive <strong>one</strong> coding assignment. You need to delete this coding assignment first.</div>
+              }
+              @if (AllocationsAffected > 1) {
+                <div>This is because this code is used to drive <strong>{{AllocationsAffected}}</strong> coding assignments. You need to delete these coding assignments first.</div>
+              }
+              <div>
+                <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">Cancel</button>
+              </div>
             </div>
-            <div *ngIf="appliedCodes == -1">
-                <div *ngIf="IsServiceBusy()">Loading...</div>
-                <div *ngIf="!IsServiceBusy()">This check failed, cannot delete code. Please cancel.</div>
-                <div>
-                    <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">Cancel</button>
-                </div>
+          }
+          @if (appliedCodes == -1) {
+            <div>
+              @if (IsServiceBusy()) {
+                <div>Loading...</div>
+              }
+              @if (!IsServiceBusy()) {
+                <div>This check failed, cannot delete code. Please cancel.</div>
+              }
+              <div>
+                <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">Cancel</button>
+              </div>
             </div>
+          }
         </div>
-        <div *ngIf="ShowPanel == 'MoveCode' && ErrorMessage4CodeMove == ''" class="">
+      }
+      @if (ShowPanel == 'MoveCode' && ErrorMessage4CodeMove == '') {
+        <div class="">
           <div class="p-1">Please select the <b>Destination Code</b> from the area below.</div>
           <div class="py-1 px-2 alert-info border border-info rounded ">
             You can move this code into <i class="k-icon k-i-import text-primary"></i> another part of its coding tool, with all its child codes (if any), without affecting coding data.<br />
@@ -46,186 +78,236 @@
           </div>
           <div class="border border-primary rounded p-1 m-1">
             <codesetTree4Move #codesetTree4Move [MaxHeight]="300" [SelectedCodeset]="ReviewSetOfUpdatingCode"
-                              [SelectedNode]="UpdatingCode"></codesetTree4Move>
+            [SelectedNode]="UpdatingCode"></codesetTree4Move>
           </div>
-
           <div class="p-1 mb-2">
             <button class="btn btn-outline-primary ml-1"
-                    (click)="DoMoveBranch(codesetTree4Move.DestinationBranch)"
-                    [disabled]="!codesetTree4Move.CanMoveBranchHere">
+              (click)="DoMoveBranch(codesetTree4Move.DestinationBranch)"
+              [disabled]="!codesetTree4Move.CanMoveBranchHere">
               Move&nbsp; <i class="k-icon k-i-import"></i>&nbsp;
             </button>
             &nbsp;&nbsp; <b class="rounded border border-dark background bg-white p-1">{{UpdatingCode?.name}}</b>&nbsp;&nbsp;&nbsp;
             into
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b class="rounded border border-dark p-1"
-                                             [ngClass]="{'alert-danger' : !codesetTree4Move.CanMoveBranchHere, 'alert-success' : codesetTree4Move.CanMoveBranchHere}">{{codesetTree4Move.DestinationBranchName(true)}}</b>
-          </div>
-          <div class="p-1 mb-2">
-            <button class="btn btn-outline-primary ml-1"
-                    (click)="DoMoveBranchBelow(codesetTree4Move.DestinationBranch)"
-                    [disabled]="!codesetTree4Move.CanMoveBranchBelowHere">
-              Place <i class="k-icon k-i-arrow-drill" style="font-size: 24px;"></i>
-            </button>
-            &nbsp;&nbsp; <b class="rounded border border-dark background bg-white p-1">{{UpdatingCode?.name}}</b>&nbsp;&nbsp;
-            below
-            &nbsp;&nbsp;<b class="rounded border border-dark p-1"
-                           [ngClass]="{'alert-danger' : !codesetTree4Move.CanMoveBranchBelowHere, 'alert-success' : codesetTree4Move.CanMoveBranchBelowHere}">{{codesetTree4Move.DestinationBranchName(false)}}</b>
-          </div>
-
-          <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">Cancel</button>
-
+          [ngClass]="{'alert-danger' : !codesetTree4Move.CanMoveBranchHere, 'alert-success' : codesetTree4Move.CanMoveBranchHere}">{{codesetTree4Move.DestinationBranchName(true)}}</b>
         </div>
-        <div *ngIf="ShowPanel == 'MoveCode' && ErrorMessage4CodeMove != ''" class="alert alert-danger">
-            <div class="p-1 alert alert-danger">{{ErrorMessage4CodeMove}}</div>
-            <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">Back</button>
-        </div>
-        <form *ngIf="ShowPanel !== 'MoveCode' && UpdatingCode" class="row" #EditCodeFrom="ngForm" (ngSubmit)="onSubmit()">
-            <div class="col-12">
-              <div class="form-group">
-                <label for="Codeset_Type">Code Type*</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <div *ngIf="ShowIsExclusiveCheckbox">
-                  <input type="checkbox" [(ngModel)]="UpdatingCode.isExclusive" name="radioButtonCB">&nbsp;
-                  <label for="Codeset_TypeCollaborate">Radio-button code   (untick for non-radio code)</label>
-                </div>
-                <select #EditCodeTypeSelect class="col-md-6 form-control"
-                        (change)="AttributeTypeChanged($event)" name="Code_Type"
-                        [(ngModel)]="UpdatingCode.attribute_type_id">
-                  <option *ngFor="let type of AllowedChildTypes" [value]="type.key" [selected]="UpdatingCode && type.key == UpdatingCode.attribute_type_id">
-                    {{type.value}}
-                  </option>
-                </select>
-              </div>
-            </div>
-            <div class="form-group col-12">
-                <label for="source_Name">Code Name*</label>
-                <input type="text" class="form-control" id="AttName"
-                       [(ngModel)]="UpdatingCode.attribute_name" name="attribute_name"
-                       #name="ngModel">
-                <span [hidden]="IsNewCodeNameValid()"
-                      class="alert alert-danger small p-1">
-                    Name is required
-                </span>
-            </div>
-            <div class="form-group col-12">
-                <label for="newSetDescription">Description (optional)</label>
-                <textarea class="form-control" id="newSetDescription"
-                          [(ngModel)]="UpdatingCode.attribute_set_desc" name="newAttDescription" rows="3"></textarea>
-            </div>
-            <div class="col-12">
-                <button type="submit" (click)="UpdateCode()" class="btn btn-success ml-2 mr-2"
-                        [disabled]="!HasAnythingChanged() || !IsNewCodeNameValid() || !CanWrite()">
-                    Update
-                </button>
-                <button *ngIf="UpdatingCode.attribute_type != 'Exclude' && UpdatingCode.attribute_type != 'Include'" class="btn btn-outline-primary ml-1" type="button"
-                        (click)="ShowMoveCodeClicked()" [disabled]="!CanWrite()">
-                    Move...
-                </button>
-                <button class="btn btn-outline-danger ml-1" (click)="ShowDeleteCodesetClicked()" type="button"
-                        [disabled]="!CanWrite()">
-                    Delete Code...
-                </button>
-                <button class="btn btn-outline-secondary ml-2" type="button"
-                        (click)="CancelActivity(EditCodeFrom.dirty || HasAnythingChanged())" style="width:200px;">
-                    Cancel
-                </button>
-            </div>
-            <div class="col-12 small alert-info p-1 m-1" *ngIf="UpdatingCode.extURL != ''">
-                <div>URL: {{UpdatingCode.extURL}}</div>
-                <div>Type: {{UpdatingCode.extType}}</div>
-            </div>
-        </form>
-    </div>
-</div>
-
-
-<div *ngIf="IsSmall" class="row small mx-0">
-
-    <div *ngIf="ShowPanel == 'DeleteCode' && UpdatingCode" class="alert alert-danger">
-      <div *ngIf="AllocationsAffected < 1 && appliedCodes != -1">
-        <div>Are you sure you want to delete '{{UpdatingCode.attribute_name}}' and all its children?</div>
-        <div *ngIf="appliedCodes == 1">This will affect <strong>one</strong> item that has been assigned to this code (this coding will be deleted)!</div>
-        <div *ngIf="appliedCodes > 1">This will affect codes assigned to <strong>{{appliedCodes}}</strong> items. All this coding will be deleted!</div>
-        <div *ngIf="OutcomesAffected == 1">This will affect <strong>one outcome</strong> that has been assigned to this code (this coding will be deleted)!</div>
-        <div *ngIf="OutcomesAffected > 1">This will affect codes assigned to <strong>{{OutcomesAffected}} outcomes</strong>. All this coding will be deleted!</div>
-        <div>Also all codes assigned to '<strong>{{UpdatingCode.attribute_name}}</strong>' children (if any) <strong>will be lost</strong>.</div>
-        <div *ngIf="NumVisMapsAffected == 3"><strong>This code has a descendant that is part of a pre-configured map in a visualisation. You will need to edit this map before the code can be deleted.</strong></div>
-        <div *ngIf="NumVisMapsAffected == 2"><strong>This code is part of a pre-configured map in a visualisation. You will need to edit this map before the code can be deleted.</strong></div>
-        <div *ngIf="NumVisMapsAffected == 1"><strong>Please be aware </strong> this code is part of a coding tool that is used in a visualisation. Its deletion could break the visualisation depending on if, and how, the code is being used.</div>
-        <div>
-          <button class="btn btn-sm btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:80px;">No</button>
-          <button class="btn btn-sm btn-danger ml-1" (click)="DoDeleteCode()"
-                  [disabled]="!CanWrite() || NumVisMapsAffected >= 2"
-                  style="width:40px;">
-            Yes
+        <div class="p-1 mb-2">
+          <button class="btn btn-outline-primary ml-1"
+            (click)="DoMoveBranchBelow(codesetTree4Move.DestinationBranch)"
+            [disabled]="!codesetTree4Move.CanMoveBranchBelowHere">
+            Place <i class="k-icon k-i-arrow-drill" style="font-size: 24px;"></i>
           </button>
+          &nbsp;&nbsp; <b class="rounded border border-dark background bg-white p-1">{{UpdatingCode?.name}}</b>&nbsp;&nbsp;
+          below
+          &nbsp;&nbsp;<b class="rounded border border-dark p-1"
+        [ngClass]="{'alert-danger' : !codesetTree4Move.CanMoveBranchBelowHere, 'alert-success' : codesetTree4Move.CanMoveBranchBelowHere}">{{codesetTree4Move.DestinationBranchName(false)}}</b>
+      </div>
+      <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">Cancel</button>
+    </div>
+  }
+  @if (ShowPanel == 'MoveCode' && ErrorMessage4CodeMove != '') {
+    <div class="alert alert-danger">
+      <div class="p-1 alert alert-danger">{{ErrorMessage4CodeMove}}</div>
+      <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">Back</button>
+    </div>
+  }
+  @if (ShowPanel !== 'MoveCode' && UpdatingCode) {
+    <form class="row" #EditCodeFrom="ngForm" (ngSubmit)="onSubmit()">
+      <div class="col-12">
+        <div class="form-group">
+          <label for="Codeset_Type">Code Type*</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          @if (ShowIsExclusiveCheckbox) {
+            <div>
+              <input type="checkbox" [(ngModel)]="UpdatingCode.isExclusive" name="radioButtonCB">&nbsp;
+              <label for="Codeset_TypeCollaborate">Radio-button code   (untick for non-radio code)</label>
+            </div>
+          }
+          <select #EditCodeTypeSelect class="col-md-6 form-control"
+            (change)="AttributeTypeChanged($event)" name="Code_Type"
+            [(ngModel)]="UpdatingCode.attribute_type_id">
+            @for (type of AllowedChildTypes; track type) {
+              <option [value]="type.key" [selected]="UpdatingCode && type.key == UpdatingCode.attribute_type_id">
+                {{type.value}}
+              </option>
+            }
+          </select>
         </div>
       </div>
-        <div *ngIf="AllocationsAffected > 0">
+      <div class="form-group col-12">
+        <label for="source_Name">Code Name*</label>
+        <input type="text" class="form-control" id="AttName"
+          [(ngModel)]="UpdatingCode.attribute_name" name="attribute_name"
+          #name="ngModel">
+          <span [hidden]="IsNewCodeNameValid()"
+            class="alert alert-danger small p-1">
+            Name is required
+          </span>
+        </div>
+        <div class="form-group col-12">
+          <label for="newSetDescription">Description (optional)</label>
+          <textarea class="form-control" id="newSetDescription"
+          [(ngModel)]="UpdatingCode.attribute_set_desc" name="newAttDescription" rows="3"></textarea>
+        </div>
+        <div class="col-12">
+          <button type="submit" (click)="UpdateCode()" class="btn btn-success ml-2 mr-2"
+            [disabled]="!HasAnythingChanged() || !IsNewCodeNameValid() || !CanWrite()">
+            Update
+          </button>
+          @if (UpdatingCode.attribute_type != 'Exclude' && UpdatingCode.attribute_type != 'Include') {
+            <button class="btn btn-outline-primary ml-1" type="button"
+              (click)="ShowMoveCodeClicked()" [disabled]="!CanWrite()">
+              Move...
+            </button>
+          }
+          <button class="btn btn-outline-danger ml-1" (click)="ShowDeleteCodesetClicked()" type="button"
+            [disabled]="!CanWrite()">
+            Delete Code...
+          </button>
+          <button class="btn btn-outline-secondary ml-2" type="button"
+            (click)="CancelActivity(EditCodeFrom.dirty || HasAnythingChanged())" style="width:200px;">
+            Cancel
+          </button>
+        </div>
+        @if (UpdatingCode.extURL != '') {
+          <div class="col-12 small alert-info p-1 m-1">
+            <div>URL: {{UpdatingCode.extURL}}</div>
+            <div>Type: {{UpdatingCode.extType}}</div>
+          </div>
+        }
+      </form>
+    }
+  </div>
+</div>
+}
+
+
+@if (IsSmall) {
+  <div class="row small mx-0">
+    @if (ShowPanel == 'DeleteCode' && UpdatingCode) {
+      <div class="alert alert-danger">
+        @if (AllocationsAffected < 1 && appliedCodes != -1) {
+          <div>
+            <div>Are you sure you want to delete '{{UpdatingCode.attribute_name}}' and all its children?</div>
+            @if (appliedCodes == 1) {
+              <div>This will affect <strong>one</strong> item that has been assigned to this code (this coding will be deleted)!</div>
+            }
+            @if (appliedCodes > 1) {
+              <div>This will affect codes assigned to <strong>{{appliedCodes}}</strong> items. All this coding will be deleted!</div>
+            }
+            @if (OutcomesAffected == 1) {
+              <div>This will affect <strong>one outcome</strong> that has been assigned to this code (this coding will be deleted)!</div>
+            }
+            @if (OutcomesAffected > 1) {
+              <div>This will affect codes assigned to <strong>{{OutcomesAffected}} outcomes</strong>. All this coding will be deleted!</div>
+            }
+            <div>Also all codes assigned to '<strong>{{UpdatingCode.attribute_name}}</strong>' children (if any) <strong>will be lost</strong>.</div>
+            @if (NumVisMapsAffected == 3) {
+              <div><strong>This code has a descendant that is part of a pre-configured map in a visualisation. You will need to edit this map before the code can be deleted.</strong></div>
+            }
+            @if (NumVisMapsAffected == 2) {
+              <div><strong>This code is part of a pre-configured map in a visualisation. You will need to edit this map before the code can be deleted.</strong></div>
+            }
+            @if (NumVisMapsAffected == 1) {
+              <div><strong>Please be aware </strong> this code is part of a coding tool that is used in a visualisation. Its deletion could break the visualisation depending on if, and how, the code is being used.</div>
+            }
+            <div>
+              <button class="btn btn-sm btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:80px;">No</button>
+              <button class="btn btn-sm btn-danger ml-1" (click)="DoDeleteCode()"
+                [disabled]="!CanWrite() || NumVisMapsAffected >= 2"
+                style="width:40px;">
+                Yes
+              </button>
+            </div>
+          </div>
+        }
+        @if (AllocationsAffected > 0) {
+          <div>
             <div class="font-weight-bold">Sorry, you cannot delete '{{UpdatingCode.attribute_name}}' and all its children.</div>
-            <div *ngIf="AllocationsAffected == 1">This is because this code is used to drive <strong>one</strong> coding assignment. You need to delete this coding assignment first.</div>
-            <div *ngIf="AllocationsAffected > 1">This is because this code is used to drive <strong>{{AllocationsAffected}}</strong> coding assignments. You need to delete these coding assignments first.</div>
+            @if (AllocationsAffected == 1) {
+              <div>This is because this code is used to drive <strong>one</strong> coding assignment. You need to delete this coding assignment first.</div>
+            }
+            @if (AllocationsAffected > 1) {
+              <div>This is because this code is used to drive <strong>{{AllocationsAffected}}</strong> coding assignments. You need to delete these coding assignments first.</div>
+            }
             <div>
-                <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">Cancel</button>
+              <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">Cancel</button>
             </div>
-        </div>
-        <div *ngIf="appliedCodes == -1">
-            <div *ngIf="IsServiceBusy()">Loading...</div>
-            <div *ngIf="!IsServiceBusy()">This check failed, cannot delete code. Please cancel.</div>
+          </div>
+        }
+        @if (appliedCodes == -1) {
+          <div>
+            @if (IsServiceBusy()) {
+              <div>Loading...</div>
+            }
+            @if (!IsServiceBusy()) {
+              <div>This check failed, cannot delete code. Please cancel.</div>
+            }
             <div>
-                <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">Cancel</button>
+              <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">Cancel</button>
             </div>
-        </div>
-    </div>
-        <form *ngIf="UpdatingCode" class="row" #EditCodeFrom="ngForm" (ngSubmit)="onSubmit()">
-            <div class="col-12">
-              <div class="form-group">
-                <div for="Codeset_Type">Code Type*</div>
-                <select #EditCodeTypeSelect class="p-1"
-                        (change)="AttributeTypeChanged($event)" name="Code_Type"
-                        [(ngModel)]="UpdatingCode.attribute_type_id">
-                  <option *ngFor="let type of AllowedChildTypes" [value]="type.key" [selected]="UpdatingCode && type.key == UpdatingCode.attribute_type_id">
-                    {{type.value}}
-                  </option>
-                </select>
-                <div *ngIf="ShowIsExclusiveCheckbox">
-                  <label for="Codeset_TypeCollaborate">&nbsp;&nbsp;&nbsp;</label>
-                  <input type="checkbox" [(ngModel)]="UpdatingCode.isExclusive" name="radioButtonCB">&nbsp;
-                  <label for="Codeset_TypeCollaborate">Radio-button</label>
-                  <label for="Codeset_TypeCollaborate">&nbsp;(untick for non-radio code)</label>
-                </div>
+          </div>
+        }
+      </div>
+    }
+    @if (UpdatingCode) {
+      <form class="row" #EditCodeFrom="ngForm" (ngSubmit)="onSubmit()">
+        <div class="col-12">
+          <div class="form-group">
+            <div for="Codeset_Type">Code Type*</div>
+            <select #EditCodeTypeSelect class="p-1"
+              (change)="AttributeTypeChanged($event)" name="Code_Type"
+              [(ngModel)]="UpdatingCode.attribute_type_id">
+              @for (type of AllowedChildTypes; track type) {
+                <option [value]="type.key" [selected]="UpdatingCode && type.key == UpdatingCode.attribute_type_id">
+                  {{type.value}}
+                </option>
+              }
+            </select>
+            @if (ShowIsExclusiveCheckbox) {
+              <div>
+                <label for="Codeset_TypeCollaborate">&nbsp;&nbsp;&nbsp;</label>
+                <input type="checkbox" [(ngModel)]="UpdatingCode.isExclusive" name="radioButtonCB">&nbsp;
+                <label for="Codeset_TypeCollaborate">Radio-button</label>
+                <label for="Codeset_TypeCollaborate">&nbsp;(untick for non-radio code)</label>
               </div>
-            </div>
-            <div class="form-group col-12">
-                <div for="source_Name">Code Name*</div>
-                <input type="text" class="form-control" id="AttName"
-                       [(ngModel)]="UpdatingCode.attribute_name" name="attribute_name"
-                       #name="ngModel">
-                <span [hidden]="IsNewCodeNameValid()"
-                      class="alert alert-danger small p-1">
-                    Name is required
-                </span>
-            </div>
-            <div class="form-group col-12">
-                <div for="newSetDescription">Description (optional)</div>
-                <textarea class="form-control" id="newSetDescription"
-                          [(ngModel)]="UpdatingCode.attribute_set_desc" name="newAttDescription" rows="3"></textarea>
-            </div>
+            }
+          </div>
+        </div>
+        <div class="form-group col-12">
+          <div for="source_Name">Code Name*</div>
+          <input type="text" class="form-control" id="AttName"
+            [(ngModel)]="UpdatingCode.attribute_name" name="attribute_name"
+            #name="ngModel">
+            <span [hidden]="IsNewCodeNameValid()"
+              class="alert alert-danger small p-1">
+              Name is required
+            </span>
+          </div>
+          <div class="form-group col-12">
+            <div for="newSetDescription">Description (optional)</div>
+            <textarea class="form-control" id="newSetDescription"
+            [(ngModel)]="UpdatingCode.attribute_set_desc" name="newAttDescription" rows="3"></textarea>
+          </div>
+          <div class="col-12 mb-1">
+            <button type="submit" (click)="UpdateCode()" class="btn btn-sm btn-success ml-2 mr-2" [disabled]="!HasAnythingChanged() || !IsNewCodeNameValid() || !CanWrite()">
+              Update
+            </button>
+            <button class="btn btn-sm btn-outline-secondary ml-1" type="button"
+              (click)="CancelActivity(EditCodeFrom.dirty)" style="width:60px;">
+              Cancel
+            </button>
+            <button class="btn btn-sm btn-outline-danger ml-3" (click)="ShowDeleteCodesetClicked()" type="button"
+              [disabled]="!CanWrite() || !IsNewCodeNameValid()">
+              Delete Code...
+            </button>
+          </div>
+          @if (UpdatingCode.extURL != '') {
             <div class="col-12 mb-1">
-                <button type="submit" (click)="UpdateCode()" class="btn btn-sm btn-success ml-2 mr-2" [disabled]="!HasAnythingChanged() || !IsNewCodeNameValid() || !CanWrite()">
-                    Update
-                </button>
-                <button class="btn btn-sm btn-outline-secondary ml-1" type="button"
-                        (click)="CancelActivity(EditCodeFrom.dirty)" style="width:60px;">
-                    Cancel
-                </button>
-                <button class="btn btn-sm btn-outline-danger ml-3" (click)="ShowDeleteCodesetClicked()" type="button"
-                        [disabled]="!CanWrite() || !IsNewCodeNameValid()">
-                    Delete Code...
-                </button>
+              <div>URL: {{UpdatingCode.extURL}}</div>
+              <div>Type: {{UpdatingCode.extType}}</div>
             </div>
-            <div class="col-12 mb-1" *ngIf="UpdatingCode.extURL != ''">
-                <div>URL: {{UpdatingCode.extURL}}</div>
-                <div>Type: {{UpdatingCode.extType}}</div>
-            </div>
+          }
         </form>
+      }
     </div>
+  }

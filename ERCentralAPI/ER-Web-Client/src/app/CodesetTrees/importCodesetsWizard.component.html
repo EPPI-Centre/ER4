@@ -1,142 +1,164 @@
 <div class="p-1">
-    <HeaderComponent *ngIf="IsStandalone" PageTitle="Import Coding Tools" Context="importcodesets" class="mb-1"></HeaderComponent>
-    <div *ngIf="IsServiceBusy()" class="k-loading-image" style="position: fixed; top: 0%;"></div>
-    
-    <div class="m-0 mt-1 p-0 bg-light">
-        <button *ngIf="IsStandalone" class="page-link rounded pt-1 pb-1 mr-1 mb-1 float-right" style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
-            Close/back
-        </button>
-        <div *ngIf="WizStep == 1" class="row m-0">
-            <p class="font-weight-bold col-12">This wizard will help you set up the Coding Tools in your review in just a few clicks.</p>
-            <p class="col-12">
-                You can pick your Coding Tools from a list of templates or manually copy individual codesets into your review.<br />
-                In EPPI-Reviewer Coding Tool (or Codesets) are used to store most of the reviewing data so configuring your codesets correctly is an important step in setting up your review.<br />
-                Coding Tools can be designed for all stages of the review process. They are used as create screening (inclusion/exclusion) tools,
-                data extraction tools, quality assessment tools, risk of bias tools and virtually any other coding needed. <br />
-                Coding Tools can are also be used to organise the review workflow and can be used to group together references according to organisational needs.<br />
-                Coding Tools come in three types: Screening, Administrative and Normal, the latter being used for data-extraction and similar tasks.<br />
-                Below you will find a list of Review Templates along with a description. Each template consists of a number of Coding Tools.
-            </p>
+  @if (IsStandalone) {
+    <HeaderComponent PageTitle="Import Coding Tools" Context="importcodesets" class="mb-1"></HeaderComponent>
+  }
+  @if (IsServiceBusy()) {
+    <div class="k-loading-image" style="position: fixed; top: 0%;"></div>
+  }
 
-            <div class="row m-0">
-                <div class="col-6">
-                    <div class="font-weight-bold">Please pick One Option:</div>
-                    <div>
-                        <div class="btn-group-vertical">
-                            <button *ngFor="let template of TemplateReviews" role="group" type="button" class="btn"
+  <div class="m-0 mt-1 p-0 bg-light">
+    @if (IsStandalone) {
+      <button class="page-link rounded pt-1 pb-1 mr-1 mb-1 float-right" style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
+        Close/back
+      </button>
+    }
+    @if (WizStep == 1) {
+      <div class="row m-0">
+        <p class="font-weight-bold col-12">This wizard will help you set up the Coding Tools in your review in just a few clicks.</p>
+        <p class="col-12">
+          You can pick your Coding Tools from a list of templates or manually copy individual codesets into your review.<br />
+          In EPPI-Reviewer Coding Tool (or Codesets) are used to store most of the reviewing data so configuring your codesets correctly is an important step in setting up your review.<br />
+          Coding Tools can be designed for all stages of the review process. They are used as create screening (inclusion/exclusion) tools,
+          data extraction tools, quality assessment tools, risk of bias tools and virtually any other coding needed. <br />
+          Coding Tools can are also be used to organise the review workflow and can be used to group together references according to organisational needs.<br />
+          Coding Tools come in three types: Screening, Administrative and Normal, the latter being used for data-extraction and similar tasks.<br />
+          Below you will find a list of Review Templates along with a description. Each template consists of a number of Coding Tools.
+        </p>
+        <div class="row m-0">
+          <div class="col-6">
+            <div class="font-weight-bold">Please pick One Option:</div>
+            <div>
+              <div class="btn-group-vertical">
+                @for (template of TemplateReviews; track template) {
+                  <button role="group" type="button" class="btn"
                                     [ngClass]="{'font-weight-bold btn-info' : (SelectedTemplate && SelectedTemplate.templateId && SelectedTemplate.templateId == template.templateId)
                                     ,'btn-outline-info' :(!SelectedTemplate || !SelectedTemplate.templateId || SelectedTemplate.templateId != template.templateId)}"
-                                    (click)="SelectTemplate(template.templateId)">
-                                {{template.templateName}}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="font-weight-bold">Description:</div>
-                    <div class="border border-info bg-white p-1">
-                        <div *ngIf="SelectedTemplate">
-                            {{SelectedTemplate.templateDescription}}
-                        </div>
-                        <div *ngIf="SelectedTemplate && SelectedTemplate.templateId && SelectedTemplate.templateId < 999" class="small mt-1">
-                            Contains {{SelectedTemplate.reviewSetIds.length}} Coding Tools...
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row align-bottom justify-content-center mt-2 col-12">
-                <button class="btn btn-outline-secondary ml-1"
-                        (click)="CancelActivity()" style="width:200px;">
-                    Cancel
-                </button>
-                <button type="submit" (click)="ProceedClicked()" class="btn btn-success ml-2 mr-2"
-                        [ngClass]="{disableThisAndChildren:!CanWrite()}"
-                        [disabled]="!CanWrite()">
-                    Proceed <span class="k-icon k-i-arrow-right"></span>
-                </button>
-            </div>
-        </div>
-        <div *ngIf="WizStep > 2">
-          <div class="row m-0">
-            <div class="col-12 m-0 p-0">
-              <div class="row p-1 m-2 bg-white border border-dark rounded">
-                This screen allows you to select individual Coding Tool(s) to import into your review.<br />
-                You can select a Coding Tool from the list below and see it displayed in the centre column. The Coding Tools that are already in your review are displayed in the third column.<br />
+                    (click)="SelectTemplate(template.templateId)">
+                    {{template.templateName}}
+                  </button>
+                }
               </div>
             </div>
+          </div>
+          <div class="col-6">
+            <div class="font-weight-bold">Description:</div>
+            <div class="border border-info bg-white p-1">
+              @if (SelectedTemplate) {
+                <div>
+                  {{SelectedTemplate.templateDescription}}
+                </div>
+              }
+              @if (SelectedTemplate && SelectedTemplate.templateId && SelectedTemplate.templateId < 999) {
+                <div class="small mt-1">
+                  Contains {{SelectedTemplate.reviewSetIds.length}} Coding Tools...
+                </div>
+              }
             </div>
-              <div class="row m-0">
-                <div class="col-sm-12 col-md-4 m-0 p-0">
-                  <div *ngIf="WizStep == 2.1" class="col-12">
-                    Available Coding Tools (public)
-                  </div>
-                  <div *ngIf="WizStep == 2.2" class="col-12">
-                    Available Coding Tools (personal)
-                  </div>
-                  <div class="col-auto mr-auto my-auto">
-                    <div class="rounded row ml-0 p-1 border border-info">
-                      <div class="d-block mx-1 px-1 border border-dark rounded">
-                        <input type="radio" value="All" name="codingToolType" [(ngModel)]="codingTools">&nbsp;All
-                      </div>
-                      <div class="d-block mx-1 px-1 border border-success text-success rounded">
-                        <input type="radio" value="Screening" name="codingToolType" [(ngModel)]="codingTools">&nbsp;Screening
-                      </div>
-                      <div class="d-block mx-1 px-1 border border-dark rounded">
-                        <input type="radio" value="Standard" name="codingToolType" [(ngModel)]="codingTools">&nbsp;Standard
-                      </div>
-                      <div class="d-block mx-1 px-1 border border-primary text-primary rounded">
-                        <input type="radio" value="Administration" name="codingToolType" [(ngModel)]="codingTools">&nbsp;Administration
-                      </div>                     
-                    </div>
-                  </div>
-                  <div class="col-auto mr-auto my-auto">
-                    <table width="100%">
-                      <tr>
-                        <td>
-                          Filter by:
-                        </td>
-                        <td>
-                          <input #titleModel="ngModel" name="n1" required minlength="1" pattern="^(?!\s*$).+" class="form-control"
-                                 type="text" [(ngModel)]="FilterByName" />
-                        </td>
-                      </tr>
-                    </table>
-                  </div>
-
-                  <div class="col-12" [ngStyle]="{'max-height.px': codingtoolsMaxHeight}" style="overflow-y:auto;">
-                    <button *ngFor="let set of getRelevantTools()" role="group" type="button" class="btn col-12" style="text-align:left"
-                            [ngClass]="{'font-weight-bold btn-info' : (SelectedSet4Copy && SelectedSet4Copy.set_id && SelectedSet4Copy.set_id == set.set_id)
-                                  ,'btn-outline-info' :(!SelectedSet4Copy || !SelectedSet4Copy.set_id || SelectedSet4Copy.set_id != set.set_id)}"
-                            (click)="SelectSet4Copy(set)">
-                      {{set.set_name}}
-                    </button>
-                  </div>
-                </div>
-                    <div class="col-12 col-sm-6 col-md-4 mt-0 mb-0 d-flex flex-column align-self-stretch">
-                      <div class="align-self-start w-100">Coding Tool Preview:</div>
-                      <div class="align-self-stretch h-100">
-                        <div class="p-1 bg-white border border-dark rounded h-100">
-                          <codesetTree4Copy [SelectedCodeset]="SelectedSet4Copy" [MaxHeight]="codingtoolsMaxHeight"></codesetTree4Copy>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-12 col-sm-6 col-md-4 ">
-                      <div class="border-bottom border-dark">Current tools:</div>
-                      <codesetTreeMain [MaxHeight]="codingtoolsMaxHeight"></codesetTreeMain>
-                    </div>
-                  </div>
-                  <div class="row align-bottom justify-content-center mt-2 col-12">
-                    <button class="btn btn-outline-secondary ml-1"
-                            (click)="CancelActivity()" style="width:200px;">
-                      Cancel
-                    </button>
-                    <button type="submit" (click)="ImportSelectedSet()" class="btn btn-success ml-2 mr-2"
-                            [ngClass]="{disableThisAndChildren:!CanWrite()}"
-                            [disabled]="!SelectedSet4Copy">
-                      Import Selected
-                    </button>
-                  </div>
-                </div>
           </div>
         </div>
-<statusbar *ngIf="IsStandalone" class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>
+        <div class="row align-bottom justify-content-center mt-2 col-12">
+          <button class="btn btn-outline-secondary ml-1"
+            (click)="CancelActivity()" style="width:200px;">
+            Cancel
+          </button>
+          <button type="submit" (click)="ProceedClicked()" class="btn btn-success ml-2 mr-2"
+            [ngClass]="{disableThisAndChildren:!CanWrite()}"
+            [disabled]="!CanWrite()">
+            Proceed <span class="k-icon k-i-arrow-right"></span>
+          </button>
+        </div>
+      </div>
+    }
+    @if (WizStep > 2) {
+      <div>
+        <div class="row m-0">
+          <div class="col-12 m-0 p-0">
+            <div class="row p-1 m-2 bg-white border border-dark rounded">
+              This screen allows you to select individual Coding Tool(s) to import into your review.<br />
+              You can select a Coding Tool from the list below and see it displayed in the centre column. The Coding Tools that are already in your review are displayed in the third column.<br />
+            </div>
+          </div>
+        </div>
+        <div class="row m-0">
+          <div class="col-sm-12 col-md-4 m-0 p-0">
+            @if (WizStep == 2.1) {
+              <div class="col-12">
+                Available Coding Tools (public)
+              </div>
+            }
+            @if (WizStep == 2.2) {
+              <div class="col-12">
+                Available Coding Tools (personal)
+              </div>
+            }
+            <div class="col-auto mr-auto my-auto">
+              <div class="rounded row ml-0 p-1 border border-info">
+                <div class="d-block mx-1 px-1 border border-dark rounded">
+                  <input type="radio" value="All" name="codingToolType" [(ngModel)]="codingTools">&nbsp;All
+                </div>
+                <div class="d-block mx-1 px-1 border border-success text-success rounded">
+                  <input type="radio" value="Screening" name="codingToolType" [(ngModel)]="codingTools">&nbsp;Screening
+                </div>
+                <div class="d-block mx-1 px-1 border border-dark rounded">
+                  <input type="radio" value="Standard" name="codingToolType" [(ngModel)]="codingTools">&nbsp;Standard
+                </div>
+                <div class="d-block mx-1 px-1 border border-primary text-primary rounded">
+                  <input type="radio" value="Administration" name="codingToolType" [(ngModel)]="codingTools">&nbsp;Administration
+                </div>
+              </div>
+            </div>
+            <div class="col-auto mr-auto my-auto">
+              <table width="100%">
+                <tr>
+                  <td>
+                    Filter by:
+                  </td>
+                  <td>
+                    <input #titleModel="ngModel" name="n1" required minlength="1" pattern="^(?!\s*$).+" class="form-control"
+                      type="text" [(ngModel)]="FilterByName" />
+                    </td>
+                  </tr>
+                </table>
+              </div>
+              <div class="col-12" [ngStyle]="{'max-height.px': codingtoolsMaxHeight}" style="overflow-y:auto;">
+                @for (set of getRelevantTools(); track set) {
+                  <button role="group" type="button" class="btn col-12" style="text-align:left"
+                            [ngClass]="{'font-weight-bold btn-info' : (SelectedSet4Copy && SelectedSet4Copy.set_id && SelectedSet4Copy.set_id == set.set_id)
+                                  ,'btn-outline-info' :(!SelectedSet4Copy || !SelectedSet4Copy.set_id || SelectedSet4Copy.set_id != set.set_id)}"
+                    (click)="SelectSet4Copy(set)">
+                    {{set.set_name}}
+                  </button>
+                }
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 mt-0 mb-0 d-flex flex-column align-self-stretch">
+              <div class="align-self-start w-100">Coding Tool Preview:</div>
+              <div class="align-self-stretch h-100">
+                <div class="p-1 bg-white border border-dark rounded h-100">
+                  <codesetTree4Copy [SelectedCodeset]="SelectedSet4Copy" [MaxHeight]="codingtoolsMaxHeight"></codesetTree4Copy>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 ">
+              <div class="border-bottom border-dark">Current tools:</div>
+              <codesetTreeMain [MaxHeight]="codingtoolsMaxHeight"></codesetTreeMain>
+            </div>
+          </div>
+          <div class="row align-bottom justify-content-center mt-2 col-12">
+            <button class="btn btn-outline-secondary ml-1"
+              (click)="CancelActivity()" style="width:200px;">
+              Cancel
+            </button>
+            <button type="submit" (click)="ImportSelectedSet()" class="btn btn-success ml-2 mr-2"
+              [ngClass]="{disableThisAndChildren:!CanWrite()}"
+              [disabled]="!SelectedSet4Copy">
+              Import Selected
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+  @if (IsStandalone) {
+    <statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>
+  }
