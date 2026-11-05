@@ -3,7 +3,6 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { ReviewerIdentityService, ReviewerIdentity, iCreateER4ContactViaArchieCommandJSON } from '../services/revieweridentity.service';
 import { Helpers } from '../helpers/HelperMethods';
 import { NotificationService } from '@progress/kendo-angular-notification';
-import { isString } from '@ng-bootstrap/ng-bootstrap/util/util';
 
 @Component({
     selector: 'ArchieCallBack',

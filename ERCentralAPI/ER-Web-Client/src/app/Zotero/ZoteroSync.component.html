@@ -159,7 +159,8 @@
               <div class="ml-1 px-1">Filtered list has {{FilteredList1.length}} of {{ZoteroERWebReviewItemList.length}} items</div>
             }
           </div>
-          <div class="row mx-1 px-1 ">Show:
+          <div class="row mx-1 px-1 ">
+            Show:
             <div class="px-1 mx-1 mb-1 border-icon border rounded bg-white">Short Title <input type="checkbox" [(ngModel)]="showItemShortTitles" /></div>
             <div class="px-1 mx-1 mb-1 border-icon border rounded bg-white">Zotero ID <input type="checkbox" [(ngModel)]="showItemKeys" /></div>
             <div class="px-1 mx-1 mb-1 border-icon border rounded bg-white">Title <input type="checkbox" [(ngModel)]="showItemTitles" /></div>
@@ -176,7 +177,7 @@
                   ItemId<span [innerHTML]="SortingSymbol1('itemID')"></span>
                 </th>
                 @if (showItemShortTitles) {
-                  <th  (click)="SortBy1('shortTitle')" style="cursor:pointer">
+                  <th (click)="SortBy1('shortTitle')" style="cursor:pointer">
                     Short Title<span [innerHTML]="SortingSymbol1('shortTitle')"></span>
                   </th>
                 }
@@ -421,8 +422,8 @@
                   }
                 </tr>
               </thead>
-              @for (object of PagedList2; track object) {
-                <tbody>
+              <tbody>
+                @for (object of PagedList2; track object) {
                   <tr [ngClass]="{'text-black-50': object.syncState != 3}">
                     <td class="border-right">
                       @if (object.syncState == 3 || object.HasAttachmentsToPull) {
@@ -488,70 +489,7 @@
                   </td>-->
                 </tr>
               }
-              <tr [ngClass]="{'text-black-50': object.syncState != 3}">
-                <td class="border-right">
-                  @if (object.syncState == 3 || object.HasAttachmentsToPull) {
-                    <div>
-                      <input type="checkbox" [(ngModel)]="object.ClientSelected" />
-                    </div>
-                  }
-                </td>
-                <td>
-                  @switch (object.syncState) {
-                    @case (0) {
-                      <div class="">N/A</div>
-                    }
-                    @case (1) {
-                      <div class="k-icon k-i-success k-color-success mb-1" title="Reference is Up to Date"></div>
-                    }
-                    @case (2) {
-                      <div class="k-icon k-i-arrow-right k-color-info" title="Reference can be pushed"></div>
-                    }
-                    @case (3) {
-                      <div class="k-icon k-i-arrow-left k-color-info" title="Reference can be pulled"></div>
-                    }
-                  }
-                </td>
-                <td>
-                  @if (!object.HasAttachments) {
-                    <div class="bg-warning">
-                      No Docs
-                    </div>
-                  }
-                  @if (object.HasAttachments) {
-                    <div class="bg-success">
-                      @switch (object.HasAttachmentsToPull) {
-                        @case (true) {
-                          <div class="k-icon k-i-arrow-left k-color-info ml-1" title="Contains documents that can be pulled"></div>
-                        }
-                        @case (false) {
-                          <div class="k-icon k-i-success k-color-info mb-1 ml-1" title="Documents are Up to Date"></div>
-                        }
-                        @default {
-                          <div>?</div>
-                        }
-                      }
-                      Doc(s)
-                    </div>
-                  }
-                </td>
-                <td>
-                  {{object.key}}
-                </td>
-                @if (showZoteroTitles) {
-                  <td>
-                    {{object.title}}
-                  </td>
-                }
-                @if (showZoteroShortTitles) {
-                  <td>
-                    {{object.shortTitle}}
-                  </td>
-                }
-                <!--<td>
-                {{object.itemType}}
-              </td>-->
-            </tr>
+            </tbody>
           </table>
         </div>
       }
