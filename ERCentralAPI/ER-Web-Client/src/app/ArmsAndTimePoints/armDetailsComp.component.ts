@@ -8,103 +8,103 @@ import { NgForm } from '@angular/forms';
 import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
-	selector: 'armDetailsComp',
-	templateUrl: './armDetails.component.html'
+  selector: 'armDetailsComp',
+  templateUrl: './armDetails.component.html'
 })
 export class armDetailsComp implements OnInit {
 
-	constructor(
-		private _armsService: ArmTimepointLinkListService,
-		private _renderer: Renderer2,
-		private confirmationDialogService: ConfirmationDialogService,
-        private eventsService: EventEmitterService,
-        private ReviewerIdentityServ: ReviewerIdentityService
-	) {
-		
-	}
+  constructor(
+    private _armsService: ArmTimepointLinkListService,
+    private _renderer: Renderer2,
+    private confirmationDialogService: ConfirmationDialogService,
+    private eventsService: EventEmitterService,
+    private ReviewerIdentityServ: ReviewerIdentityService
+  ) {
 
-    public get armsList(): iArm[] {
+  }
 
-		if (!this.item || !this.item.arms) return [];
-		else return this.item.arms;
-	}
+  public get armsList(): iArm[] {
 
-	public title: string = '';
-	public ShowArms: boolean = true;
+    if (!this.item || !this.item.arms) return [];
+    else return this.item.arms;
+  }
 
-	public get ShowArmsBtnText(): string {
-		if (this.ShowArms) return "Collapse";
-		else return "Expand";
-	}
+  public title: string = '';
+  public ShowArms: boolean = true;
 
-	
+  public get ShowArmsBtnText(): string {
+    if (this.ShowArms) return "Collapse";
+    else return "Expand";
+  }
 
-	@Input() item!: Item | undefined;
-	@ViewChild('ArmsForm') ArmsForm!: NgForm;
-	//@ViewChild("editTitle", { read: ElementRef }) tref!: ElementRef;
 
-	ngOnInit() {
 
-		//this.confirmationDialogService.
-		//	.subscribe((user) => {
-		//		this.user = user
-		//	})
-	}
+  @Input() item!: Item | undefined;
+  @ViewChild('ArmsForm') ArmsForm!: NgForm;
+  //@ViewChild("editTitle", { read: ElementRef }) tref!: ElementRef;
 
-	swap: boolean = false;
-    public currentArm!: iArm;
-	public currentTitle!: string;
-	public currentKey: number = 0;
-	public editTitle: boolean = false;
-	public titleModel: string = '';
-    public get HasWriteRights(): boolean {
-        return this.ReviewerIdentityServ.HasWriteRights;
-    }
-    setArm(arm: iArm, key: number) {
+  ngOnInit() {
 
-		this.editTitle = true;
-		this.currentKey = key;
-		this.title = arm.title;
-		this.currentArm = arm;
-	}
+    //this.confirmationDialogService.
+    //	.subscribe((user) => {
+    //		this.user = user
+    //	})
+  }
 
-	editField!: string;
-	
-    updateList(arm: iArm) {
+  swap: boolean = false;
+  public currentArm!: iArm;
+  public currentTitle!: string;
+  public currentKey: number = 0;
+  public editTitle: boolean = false;
+  public titleModel: string = '';
+  public get HasWriteRights(): boolean {
+    return this.ReviewerIdentityServ.HasWriteRights;
+  }
+  setArm(arm: iArm, key: number) {
 
-		this.editTitle = false;
-		this.armsList[this.currentKey].title = this.title;
-		this.item!.arms[this.currentKey].title = this.title;
-		this._armsService.UpdateArm(this.item!.arms[this.currentKey]);
-		this.Clear();
-	}
+    this.editTitle = true;
+    this.currentKey = key;
+    this.title = arm.title;
+    this.currentArm = arm;
+  }
 
-	Clear() {
-		//console.log("Clear in ArmDetails");
-		this.editTitle = false;
-		//this.titleModel = '';
-		this.title = '';
-		if (this.ArmsForm) this.ArmsForm.resetForm({n1: this.title});
-	}
+  editField!: string;
 
-	
-	public openConfirmationDialogDeleteArms(key: number) {
-		this.confirmationDialogService.confirm('Please confirm', 'Deleting an Arm is a permanent operation.' +
-			'<br />This Arm is <strong>not applied</strong> to any Code or Outcome, so it\'s safe to delete it.', false, '')
-			.then(
-				(confirmed: any) => {
-					console.log('User confirmed:');
-					if (confirmed ) {
+  updateList(arm: iArm) {
 
-						this.ActuallyRemove(key);
+    this.editTitle = false;
+    this.armsList[this.currentKey].title = this.title;
+    this.item!.arms[this.currentKey].title = this.title;
+    this._armsService.UpdateArm(this.item!.arms[this.currentKey]);
+    this.Clear();
+  }
 
-					} else {
-						//alert('did not confirm');
-					}
-				}
-			)
-			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
-	}
+  Clear() {
+    //console.log("Clear in ArmDetails");
+    this.editTitle = false;
+    //this.titleModel = '';
+    this.title = '';
+    if (this.ArmsForm) this.ArmsForm.resetForm({ n1: this.title });
+  }
+
+
+  public openConfirmationDialogDeleteArms(key: number) {
+    this.confirmationDialogService.confirm('Please confirm', 'Deleting an Arm is a permanent operation.' +
+      '<br />This Arm is <strong>not applied</strong> to any Code or Outcome, so it\'s safe to delete it.', false, '')
+      .then(
+        (confirmed: any) => {
+          console.log('User confirmed:');
+          if (confirmed) {
+
+            this.ActuallyRemove(key);
+
+          } else {
+            //alert('did not confirm');
+          }
+        }
+      )
+      .catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
+  }
 
   public openConfirmationDialogDeleteArmsWithText(key: number, numCodings: number, numOutcomes: number) {
     let contents: string = "Deleting an Arm is a permanent operation and will delete all coding associated with the Arm.";
@@ -129,28 +129,28 @@ export class armDetailsComp implements OnInit {
           }
         }
       )
-      .catch(() => { 
+      .catch(() => {
         //console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)')
       });
   }
 
-	removeWarning(key: number) {
-		// first call the dialog then call this part
-		this._armsService.DeleteWarningArm(this.armsList[key]).then(
+  removeWarning(key: number) {
+    // first call the dialog then call this part
+    this._armsService.DeleteWarningArm(this.armsList[key]).then(
 
       (res: ItemArmDeleteWarningCommandJSON) => {
-				if (res.numCodings == 0 && res.numOutcomes == 0) {
-					this.openConfirmationDialogDeleteArms(key);
-				} else if (res.numCodings == -1) {
-					return;
-				}
-				else {
-					this.openConfirmationDialogDeleteArmsWithText(key, res.numCodings, res.numOutcomes);
-				} 
-			}
-		);
-		this.editTitle = false;
-	}
+        if (res.numCodings == 0 && res.numOutcomes == 0) {
+          this.openConfirmationDialogDeleteArms(key);
+        } else if (res.numCodings == -1) {
+          return;
+        }
+        else {
+          this.openConfirmationDialogDeleteArmsWithText(key, res.numCodings, res.numOutcomes);
+        }
+      }
+    );
+    this.editTitle = false;
+  }
 
   async ActuallyRemove(key: number) {
     let ToRemove = this.armsList[key];
@@ -164,19 +164,19 @@ export class armDetailsComp implements OnInit {
       toKeep.splice(key, 1);
       this.item.arms = toKeep;
       if (SelectedId == ToRemove.itemArmId) this._armsService.SetSelectedArm(0);
-      
+
     }
   }
-  
 
-	add(title: string) {
-		//console.log("Add arm:", title);
-		if (title != '') {
-			if (this.item != undefined) {
-				let newArm: Arm = new Arm();
-				newArm.title = title;
-				newArm.itemId = this.item.itemId;
-				this._armsService.CreateArm(newArm).then(
+
+  add(title: string) {
+    //console.log("Add arm:", title);
+    if (title != '') {
+      if (this.item != undefined) {
+        let newArm: Arm = new Arm();
+        newArm.title = title;
+        newArm.itemId = this.item.itemId;
+        this._armsService.CreateArm(newArm).then(
           (res: Arm) => {
             let key = this.armsList.length;
             let ires: iArm = {
@@ -196,5 +196,3 @@ export class armDetailsComp implements OnInit {
   }
 
 }
-
-

@@ -40,6 +40,7 @@ import { ArmTimepointLinkListService } from '../services/ArmTimepointLinkList.se
 import { RobotInvestigate } from '../Robots/robotInvestigate.component';
 import {  RobotsService } from '../services/Robots.service';
 import { ReviewService } from '../services/review.service';
+import { SVGIcon, chartBarClusteredIcon, arrowRotateCwIcon, printIcon, gearsIcon, trashIcon } from '@progress/kendo-svg-icons';
 
 
 @Component({
@@ -115,6 +116,14 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
   @ViewChild('EditReviewComp') EditReviewComp!: EditReviewComponent;
   @ViewChild('RobotInvestigate') RobotInvestigate!: RobotInvestigate;
   //@ViewChild('AdvancedMAG') AdvancedMAG!: AdvancedMAGFeaturesComponent;
+
+  //svg icons
+  public chartBarClustered: SVGIcon = chartBarClusteredIcon;
+  public arrowsRotate: SVGIcon = arrowRotateCwIcon;
+  public printIcn: SVGIcon = printIcon;
+  public gearsIcn: SVGIcon = gearsIcon;
+  public deleteIcn: SVGIcon = trashIcon; 
+  //end of svg icons
 
   public DropdownSelectedCodeAllocate: singleNode | null = null;
   public stats: ReviewStatisticsCountsCommand | null = null;

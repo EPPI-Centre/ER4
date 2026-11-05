@@ -20,13 +20,13 @@
                         <div *ngIf="!basicPanel">
                             <a class="btn btn-dark btn-sm text-white" data-toggle="collapse" (click)="basicPanel = !basicPanel"
                                href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
-                                more details <span class="k-icon k-i-arrow-chevron-down"></span>
+                                More details <kendo-icon name="chevron-down"></kendo-icon>
                             </a>
                         </div>
                         <div *ngIf="basicPanel">
                             <a class="btn btn-dark btn-sm text-white" data-toggle="collapse" (click)="basicPanel = !basicPanel"
                                href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
-                                more details <span class="k-icon k-i-arrow-chevron-up"></span>
+                                Hide details <kendo-icon name="chevron-up"></kendo-icon>
                             </a>
                         </div>
                     </td>
@@ -62,13 +62,13 @@
     <div *ngIf="!basicSearchPanel">
         <a (click)="ShowSearchPanel()" class="btn btn-info btn-sm text-white  p-2 m-2" data-toggle="collapse"
            href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-            Add new search for related papers <span class="k-icon k-i-arrow-chevron-down"></span>
+            Add new search for related papers <kendo-icon name="chevron-down"></kendo-icon>
         </a>
     </div>
     <div *ngIf="basicSearchPanel">
         <a (click)="ShowSearchPanel()" class="btn btn-info btn-sm text-white  p-2 m-2" data-toggle="collapse"
            href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-            Add new search for related papers <span class="k-icon k-i-arrow-chevron-up"></span>
+            Add new search for related papers <kendo-icon name="chevron-up"></kendo-icon>
         </a>
     </div>
 
@@ -214,7 +214,7 @@
             <div class="row mx-1">
               <div class="card-title h4 mb-0">Related Paper Searches</div>
               <button class="btn btn-sm btn-outline-success mx-1 my-0 pb-1 px-1 " (click)="Refresh()">
-                <span class="k-icon k-i-refresh-sm" style="font-weight:bold"></span>
+                <kendo-icon name="arrows-clockwise" class="font-weight-bold"></kendo-icon>
               </button>
               <button class="btn btn-sm btn-outline-secondary mx-1 my-0 pb-1 px-1 small" (click)="ShowHideFilters()">
                 {{ShowFilterTxt}}

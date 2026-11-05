@@ -102,7 +102,7 @@
                                                [data]="QuickReportsDDData"
                                                [buttonClass]="ReportSplitButtonStyle('ShowHideQuickReport')"
                                                style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-splitbutton>
-                    <kendo-toolbar-button [icon]="'delete'" [disabled]="!HasSelectedItems || !HasWriteRights"
+                    <kendo-toolbar-button [svgIcon]="deleteIcn" [disabled]="!HasSelectedItems || !HasWriteRights"
                                           (click)="DeleteRelevantItems()">
                     </kendo-toolbar-button>
                     <kendo-toolbar-button [text]="'In/Exclude'" [selected]="RefsTabActivePanel == 'IncludeExclude'"
@@ -273,14 +273,14 @@
                              [data]="AddRemoveSearchesDDData"
                              class="my-1 ml-1 mr-0"
                              style="border-color: #04070b;background-color: #e1e4eb;"></kendo-splitbutton>
-          <button kendoButton [icon]="'chart-bar-stacked'" class="my-1 ml-1 mr-0" title="Get Frequencies (for children of currently selected code)" (click)="GetFrequencies()" [disabled]="!CanGetFrequencies">
+          <button kendoButton [svgIcon]="chartBarClustered" class="my-1 ml-1 mr-0" title="Get Frequencies (for children of currently selected code)" (click)="GetFrequencies()" [disabled]="!CanGetFrequencies">
           </button>
-          <button kendoButton [icon]="'refresh'" class="my-1 ml-1 mr-0" *ngIf="!IsServiceBusy" title="Refresh Coding Tools" (click)="RefreshCodingTools()">
+          <button kendoButton [svgIcon]="arrowsRotate" class="my-1 ml-1 mr-0" *ngIf="!IsServiceBusy" title="Refresh Coding Tools" (click)="RefreshCodingTools()">
           </button>
-          <button kendoButton [icon]="'print'" class="my-1 ml-1 mr-0 " title="Print coding tool" (click)="ShowPrintCodeset = !ShowPrintCodeset">
+          <button kendoButton [svgIcon]="printIcn" class="my-1 ml-1 mr-0 " title="Print coding tool" (click)="ShowPrintCodeset = !ShowPrintCodeset">
             <!--<kendo-icon name="print"></kendo-icon>-->
           </button>
-          <button *ngIf="CanRunOpenAIrobot" kendoButton [icon]="'gears'" class="small my-1 ml-1"
+          <button *ngIf="CanRunOpenAIrobot" kendoButton [svgIcon]="gearsIcn" class="small my-1 ml-1"
                   title="Auto-coding with LLM(s) - requires dedicated Coding Tool"
                   [disabled]="!HasWriteRights" (click)="ShowRobotBatchJobs = !ShowRobotBatchJobs"></button>
         </div>

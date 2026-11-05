@@ -22,6 +22,7 @@ import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import 'hammerjs';
 import { SearchFromOpenAlexImport } from './SearchFromOpenAlexImport.component';
 import { RobotsService } from '../services/Robots.service';
+import { SVGIcon, arrowRotateCwIcon, trashIcon } from '@progress/kendo-svg-icons';
 
 @Component({
   selector: 'SearchComp',
@@ -51,6 +52,10 @@ export class SearchComp implements OnInit, OnDestroy {
 
   faArrowsRotate = faArrowsRotate;
   faSpinner = faSpinner;
+  //svg icons
+  public refresh: SVGIcon = arrowRotateCwIcon;
+  public deleteIcn: SVGIcon = trashIcon;
+  //end of svg icons
 
   ngOnInit() {
 

@@ -63,8 +63,8 @@
         <button class="btn btn-outline-success btn-sm ml-1 mb-1 mt-1" (click)="Edit(CurrentDB)" [disabled]="CurrentDB==null || EditingSomething">
           Edit!
         </button>
-        <button class="btn btn-outline-danger btn-sm ml-1 mb-1 mt-1" (click)="DeleteDB(CurrentDB)" [disabled]="CurrentDB==null || EditingSomething">
-          <span class="k-icon k-i-delete "></span>
+        <button class="btn btn-outline-danger btn-sm ml-1 mb-1 mt-1" title="Delete Visualisation" (click)="DeleteDB(CurrentDB)" [disabled]="CurrentDB==null || EditingSomething">
+          <kendo-icon name="trash"></kendo-icon>
         </button>
         <button class="btn btn-outline-primary btn-sm ml-1 mb-1 mt-1" (click)="ShowLogs = !ShowLogs">
           <span>{{ShowLogs ? 'Close log' : 'Show log'}}</span>
@@ -264,8 +264,8 @@
                 <img *ngIf="CurrentDB.encodedImage3 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage3}}"
                      alt="logo" class=" col-auto p-1 m-1 border border-dark "
                      style=" object-fit: cover; max-width:200px;" />
-                <button *ngIf="CurrentDB.encodedImage3 != ''" class="btn btn-outline-danger btn-sm pt-0 pb-1 px-0" (click)="DeleteImage(3)" [disabled]="!CanWrite">
-                  <span class="k-icon k-i-delete "></span>
+                <button *ngIf="CurrentDB.encodedImage3 != ''" class="btn btn-outline-danger btn-sm pt-0 pb-1 px-0" title="Delete Logo" (click)="DeleteImage(3)" [disabled]="!CanWrite">
+                  <kendo-icon name="trash"></kendo-icon>
                 </button>
               </div>
               <div class="col-12 mx-0">
@@ -273,8 +273,8 @@
                 <img *ngIf="CurrentDB.encodedImage1 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage1}}"
                      alt="image1" class=" col-auto p-1 m-1 border border-dark "
                      style=" object-fit: cover; max-width:200px;" />
-                <button *ngIf="CurrentDB.encodedImage1 != ''" class="btn btn-outline-danger btn-sm pt-0 pb-1 px-0" (click)="DeleteImage(1)" [disabled]="!CanWrite">
-                  <span class="k-icon k-i-delete "></span>
+                <button *ngIf="CurrentDB.encodedImage1 != ''" class="btn btn-outline-danger btn-sm pt-0 pb-1 px-0" title="Delete Image 1" (click)="DeleteImage(1)" [disabled]="!CanWrite">
+                  <kendo-icon name="trash"></kendo-icon>
                 </button>
               </div>
               <div class="col-12 mx-0">
@@ -282,8 +282,8 @@
                 <img *ngIf="CurrentDB.encodedImage2 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage2}}"
                      alt="image1" class=" col-auto p-1 m-1 border border-dark "
                      style=" object-fit: cover; max-width:200px;" />
-                <button *ngIf="CurrentDB.encodedImage2 != ''" class="btn btn-outline-danger btn-sm pt-0 pb-1 px-0" (click)="DeleteImage(2)" [disabled]="!CanWrite">
-                  <span class="k-icon k-i-delete "></span>
+                <button *ngIf="CurrentDB.encodedImage2 != ''" class="btn btn-outline-danger btn-sm pt-0 pb-1 px-0" title="Delete Image 1" (click)="DeleteImage(2)" [disabled]="!CanWrite">
+                  <kendo-icon name="trash"></kendo-icon>
                 </button>
               </div>
             </div>
@@ -666,8 +666,8 @@
                   <button *ngIf="CanWrite" class="btn btn-sm btn-outline-primary  px-1 m-1" (click)="EditTool(SelectedCodingTool)">
                     Edit
                   </button>
-                  <button *ngIf="CanWrite" class="btn btn-sm btn-outline-danger  px-1 pt-0 m-1" (click)="RemoveTool(SelectedCodingTool)">
-                    <span class="k-icon k-i-delete "></span>
+                  <button *ngIf="CanWrite" class="btn btn-sm btn-outline-danger  px-1 pt-0 m-1" title="Remove coding tool" (click)="RemoveTool(SelectedCodingTool)">
+                    <kendo-icon name="trash"></kendo-icon>
                   </button>
                 </div>
                 <ng-template #editingSetBlock>
@@ -714,8 +714,8 @@
                   <button *ngIf="CanWrite" class="btn btn-sm btn-outline-primary  px-1 py-0 m-1" (click)="EditAttribute(SelectedAttribute)" [disabled]="EditingSomething">
                     Edit
                   </button>
-                  <button *ngIf="CanWrite" class="btn btn-sm btn-outline-danger  px-1 pt-0 m-1" (click)="RemoveAttribute(SelectedAttribute)" [disabled]="EditingSomething">
-                    <span class="k-icon k-i-delete "></span>
+                  <button *ngIf="CanWrite" class="btn btn-sm btn-outline-danger  px-1 pt-0 m-1" title="Remove Code" (click)="RemoveAttribute(SelectedAttribute)" [disabled]="EditingSomething">
+                    <kendo-icon name="trash"></kendo-icon>
                   </button>
                 </div>
                 <ng-template #editingAttributeBlock>
@@ -762,7 +762,7 @@
                       </td>
                       <td style="text-align:right">
                         <span>
-                          <button class="btn btn-sm btn-outline-danger px-1 pt-0 my-auto ml-auto mr-1" [disabled]="EditingSomething" (click)="DeleteMap(map)"><span class="k-icon k-i-delete "></span></button>
+                          <button class="btn btn-sm btn-outline-danger px-1 pt-0 my-auto ml-auto mr-1" title="Delete Map" [disabled]="EditingSomething" (click)="DeleteMap(map)"><kendo-icon name="trash"></kendo-icon></button>
                           <button class="btn mr-1 my-auto py-1 px-3 btn-sm btn-outline-success" [disabled]="EditingSomething" (click)="EditMap(map)">Edit</button>
                           <button title="Move map up" class="btn btn-sm btn-outline-primary px-1 pt-0 my-auto ml-auto mr-1" [disabled]="EditingSomething || MapCanMoveUp(map) == false" (click)="MoveUp(map)"><span class="k-icon k-i-arrow-up "></span></button>
                           <button title="Move map down" class="btn btn-sm btn-outline-primary px-1 pt-0 my-auto ml-auto mr-1" [disabled]="EditingSomething || MapCanMoveDown(map) == false" (click)="MoveDown(map)"><span class="k-icon k-i-arrow-down "></span></button>

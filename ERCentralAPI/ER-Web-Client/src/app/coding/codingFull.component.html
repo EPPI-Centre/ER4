@@ -12,26 +12,26 @@
                  , 'col-md-6 col-lg-5' : ShowOutComes}">
             <div *ngIf="leftPanel ==''" class="containsAtoolbar mb-1 small h-100 rounded" style="background-color: #f5f6fa;">
 
-              <button kendoButton [icon]="'plus'" class="small my-1 ml-1 mr-1" title="Add child code..."
+              <button kendoButton [svgIcon]="plusIcn" class="small my-1 ml-1 mr-1" title="Add child code..."
                       [disabled]="!HasWriteRights  || !CanCreateNewCode()" (click)="SetCreateNewCode()">
               </button>
-              <button kendoButton [icon]="'arrow-double-60-up'" class="small my-1 ml-1" title="Move To Top..."
+              <button kendoButton [svgIcon]="arrowdoubleUpIcn" class="small my-1 ml-1" title="Move To Top..."
                       [disabled]="!HasWriteRights  || !CanMoveNodeUp()" (click)="MoveUpNodeFull()">
               </button>
-              <button kendoButton [icon]="'arrow-60-up'" class="small my-1 ml-1" title="Move up Code/Tool..."
+              <button kendoButton [svgIcon]="arrowUpIcn" class="small my-1 ml-1" title="Move up Code/Tool..."
                       [disabled]="!HasWriteRights  || !CanMoveNodeUp()" (click)="MoveUpNode()">
               </button>
-              <button kendoButton [icon]="'arrow-60-down'" class="small my-1 ml-1" title="Move Down Code/Tool..."
+              <button kendoButton [svgIcon]="arrowDownIcn" class="small my-1 ml-1" title="Move Down Code/Tool..."
                       [disabled]="!HasWriteRights  || !CanMoveNodeDown()" (click)="MoveDownNode()"></button>
-              <button kendoButton [icon]="'arrow-double-60-down'" class="small my-1 ml-1 mr-1" title="Move To Bottom..."
+              <button kendoButton [svgIcon]="arrowdoubleDownIcn" class="small my-1 ml-1 mr-1" title="Move To Bottom..."
                       [disabled]="!HasWriteRights  || !CanMoveNodeDown()" (click)="MoveDownNodeFull()"></button>
-              <button kendoButton [icon]="'edit'" class="small my-1 mr-1 ml-1" title="Edit Code..."
+              <button kendoButton [svgIcon]="pencilIcn" class="small my-1 mr-1 ml-1" title="Edit Code..."
                       [disabled]="!HasWriteRights  || !CanEditCode()" (click)="EditCode()"></button>
 
-              <button kendoButton [icon]="'custom-format'" class="small my-1 ml-1" [selected]="HotKeysOn == true"
+              <button kendoButton [svgIcon]="customFormatIcn" class="small my-1 ml-1" [selected]="HotKeysOn == true"
                       title="Hot keys. Toggle to turn on/off. Press Alt + the code number to code."
                       [disabled]="!HasWriteRights" (click)="HotKeysOn=!HotKeysOn"></button>
-              <kendo-splitbutton *ngIf="CanRunOpenAIrobot" class="ml-1" [icon]="'gears'" (buttonClick)="RunRobotOpenAICommand()"
+              <kendo-splitbutton *ngIf="CanRunOpenAIrobot" class="ml-1" [svgIcon]="gearsIcn" (buttonClick)="RunRobotOpenAICommand()"
                                          [data]="RobotDDData" [disabled]="!HasWriteRights"
                                          title="Auto-coding with LLM(s) - requires dedicated Coding Tool"
                                          style="border-color: #04070b;background-color: #e1e4eb;"></kendo-splitbutton>

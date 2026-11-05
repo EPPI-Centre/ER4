@@ -15,12 +15,16 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/er-web-client",
+            "outputPath": {
+              "base": "dist/er-web-client"
+            },
             "index": "src/index.html",
-            "main": "src/main.ts",
-            "polyfills": "src/polyfills.ts",
+            "polyfills": [
+              "src/polyfills.ts",
+              "@angular/localize/init"
+            ],
             "tsConfig": "tsconfig.app.json",
             "assets": [
               "src/assets/lib/ui/build/index.html",
@@ -31,6 +35,7 @@
             "styles": [
               "./node_modules/@progress/kendo-theme-default/dist/all.css",
               "./node_modules/bootstrap/dist/css/bootstrap.css",
+              { "input": "node_modules/@progress/kendo-font-icons/dist/index.css" },
               "src/assets/ERx.css",
               "src/styles.css"
             ],
@@ -38,7 +43,8 @@
               "node_modules/jquery/dist/jquery.min.js",
               "node_modules/popper.js/dist/umd/popper.min.js",
               "node_modules/bootstrap/dist/js/bootstrap.min.js"
-            ]
+            ],
+            "browser": "src/main.ts"
           },
           "configurations": {
             "production": {
@@ -63,9 +69,7 @@
               "outputHashing": "all"
             },
             "development": {
-              "buildOptimizer": false,
               "optimization": false,
-              "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true

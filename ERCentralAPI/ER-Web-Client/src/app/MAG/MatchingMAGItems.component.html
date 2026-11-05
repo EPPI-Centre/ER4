@@ -19,13 +19,13 @@
             <div *ngIf="!basicPanel">
               <a class="btn btn-dark btn-sm text-white" data-toggle="collapse" (click)="basicPanel = !basicPanel"
                  href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
-                more details <span class="k-icon k-i-arrow-chevron-down"></span>
+                More details <kendo-icon name="chevron-down"></kendo-icon>
               </a>
             </div>
             <div *ngIf="basicPanel">
               <a class="btn btn-dark btn-sm text-white" data-toggle="collapse" (click)="basicPanel = !basicPanel"
                  href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
-                more details <span class="k-icon k-i-arrow-chevron-up"></span>
+                Hide details <kendo-icon name="chevron-up"></kendo-icon>
               </a>
             </div>
           </td>
@@ -75,10 +75,10 @@
         Clear all non-manual matches in review
       </button>
       <button class="btn btn-sm btn-outline-success mx-1" (click)="GetMagReviewMagInfoCommand()">
-        <span class="k-icon k-i-refresh-sm" style="font-weight:bold"></span>
+        <kendo-icon name="arrows-clockwise" class="font-weight-bold"></kendo-icon>
       </button>
       <button *ngIf="_magAdvancedService.AdvancedReviewInfo.matchingTaskIsRunning && !AutoRefreshIsRunning" class="btn btn-sm btn-outline-success mx-1" (click)="GetMagReviewMagInfoCommand(); AutoRefreshOnTimer();">
-        Restart auto-refresh <span class="k-icon k-i-refresh-sm" style="font-weight:bold"></span>
+        Restart auto-refresh <kendo-icon name="arrows-clockwise" class="font-weight-bold"></kendo-icon>
       </button>
     </div>
   </div>

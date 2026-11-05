@@ -3,6 +3,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { MetaAnalysis, MetaAnalysisService } from '../services/MetaAnalysis.service';
 import { FilterOutcomesFormComp } from './FilterOutcomesForm.component';
 import { MetaAnalysisRunNetworkComp } from './MetaAnalysisRunNetwork.component';
+import { SVGIcon, filterIcon, plusIcon, saveIcon, playIcon, inheritedIcon } from '@progress/kendo-svg-icons';
 
 @Component({
   selector: 'MetaAnalysisDetailsComp',
@@ -19,7 +20,15 @@ export class MetaAnalysisDetailsComp implements OnInit, OnDestroy {
     private MetaAnalysisService: MetaAnalysisService
   ) { }
 
-  
+  //svg icons
+  public filterIcn: SVGIcon = filterIcon;
+  public plusIcn: SVGIcon = plusIcon;
+  public saveIcn: SVGIcon = saveIcon;
+  public playIcn: SVGIcon = playIcon;
+  public decisionIcn: SVGIcon = inheritedIcon;
+  //end of svg icons
+
+
   @ViewChild('FilterOutcomesFormComp') FilterOutcomesFormComp!: FilterOutcomesFormComp;
   @ViewChild('MetaAnalysisRunNetworkComp') MetaAnalysisRunNetworkComp!: MetaAnalysisRunNetworkComp;
   ngOnInit() { }

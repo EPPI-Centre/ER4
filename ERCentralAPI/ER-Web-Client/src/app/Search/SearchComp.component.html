@@ -35,10 +35,10 @@
 <div class="pane-content">
   <div class="containsAtoolbar">
     <kendo-toolbar>
-      <kendo-toolbar-button *ngIf="SearchList.length < autoRefreshThreshold" [title]="'Refresh List'" (click)="refreshSearches()" [disabled]="!HasWriteRights" icon="refresh"></kendo-toolbar-button>
-      <kendo-toolbar-button *ngIf="SearchList.length >= autoRefreshThreshold" [title]="'Refresh List (auto refresh is disabled)'" (click)="refreshSearches()" [disabled]="!HasWriteRights" icon="refresh" iconClass="k-icon k-i-refresh text-primary"></kendo-toolbar-button>
+      <kendo-toolbar-button *ngIf="SearchList.length < autoRefreshThreshold" [title]="'Refresh List'" (click)="refreshSearches()" [disabled]="!HasWriteRights" [svgIcon]="refresh"></kendo-toolbar-button>
+      <kendo-toolbar-button *ngIf="SearchList.length >= autoRefreshThreshold" [title]="'Refresh List (auto refresh is disabled)'" (click)="refreshSearches()" [disabled]="!HasWriteRights" [svgIcon]="refresh" iconClass="k-icon k-i-refresh text-primary"></kendo-toolbar-button>
       <kendo-toolbar-button [text]="'New Search'" (click)="NewSearch()" [disabled]="!HasWriteRights" aria-controls="collapseExample" [selected]="NewSearchSection"></kendo-toolbar-button>
-      <kendo-toolbar-button [title]="'Delete Selected'" (click)="openConfirmationDialogDeleteSearches()" [disabled]="!HasWriteRights || HasSelectedSearches == 0" icon="delete"></kendo-toolbar-button>
+      <kendo-toolbar-button [title]="'Delete Selected'" (click)="openConfirmationDialogDeleteSearches()" [disabled]="!HasWriteRights || HasSelectedSearches == 0" [svgIcon]="deleteIcn"></kendo-toolbar-button>
       <kendo-toolbar-splitbutton [text]="'Combine'" [disabled]="!HasWriteRights || HasSelectedSearches == 0" [data]="data"></kendo-toolbar-splitbutton>
       <kendo-toolbar-button [text]="'Build Model'" (click)="BuildModel()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
       <kendo-toolbar-button [text]="'Classify'" (click)="Classify()" [disabled]="!HasWriteRights" [selected]="ModelSection"></kendo-toolbar-button>
@@ -590,7 +590,7 @@
       <kendo-grid-column field="title" title="Name" [width]="360" class="px-1 py-0 m-1" headerClass="py-0 font-weight-bold">
         <ng-template kendoGridCellTemplate let-dataItem>
           <div (click)="SearchNameEdit(dataItem.searchId, dataItem.searchNo, dataItem.title)" class="btn btn-sm btn-light">
-            <span class="k-icon k-i-edit"></span>
+            <kendo-icon name="pencil"></kendo-icon>
           </div>
           {{dataItem.title}}
         </ng-template>

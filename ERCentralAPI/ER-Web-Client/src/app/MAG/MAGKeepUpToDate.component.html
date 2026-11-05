@@ -22,13 +22,13 @@
             <div *ngIf="!basicPanel">
               <a class="btn btn-dark btn-sm text-white" data-toggle="collapse" (click)="basicPanel = !basicPanel"
                  href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
-                more details <span class="k-icon k-i-arrow-chevron-down"></span>
+                More details <kendo-icon name="chevron-down"></kendo-icon>
               </a>
             </div>
             <div *ngIf="basicPanel">
               <a class="btn btn-dark btn-sm text-white" data-toggle="collapse" (click)="basicPanel = !basicPanel"
                  href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
-                more details <span class="k-icon k-i-arrow-chevron-up"></span>
+                Hide details <kendo-icon name="chevron-up"></kendo-icon>
               </a>
             </div>
           </td>
@@ -69,13 +69,13 @@
     <div *ngIf="!basicSearchPanel">
       <a [ngStyle]="{'pointer-events': ReviewIsMagEnabled ? 'auto' : 'none'}" (click)="ToggleSearchPanel()" class="btn btn-info btn-sm text-white  p-2 m-2" data-toggle="collapse"
          href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-        Create new auto-update subscription <span class="k-icon k-i-arrow-chevron-down"></span>
+        Create new auto-update subscription <kendo-icon name="chevron-down"></kendo-icon>
       </a>
     </div>
     <div *ngIf="basicSearchPanel">
       <a (click)="ToggleSearchPanel()" class="btn btn-info btn-sm text-white  p-2 m-2" data-toggle="collapse"
          href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-        Adding "New auto-update subscription" (click to close) <span class="k-icon k-i-arrow-chevron-up"></span>
+        Adding "New auto-update subscription" (click to close) <kendo-icon name="chevron-up"></kendo-icon>
       </a>
     </div>
   </div>
@@ -159,7 +159,7 @@
           <div class="card-title h4 mb-0">
             Auto update tasks (they run when new data arrive)
             <button class="btn btn-sm btn-outline-success mx-1 mt-auto mb-1 py-0 px-1 " (click)="Refresh()">
-              <span class="k-icon k-i-refresh-sm" style="font-weight:bold"></span>
+              <kendo-icon name="arrows-clockwise" class="font-weight-bold"></kendo-icon>
             </button>
           </div>
           <div *ngIf="AutoRefreshIsOn" class="small alert-danger rounded border border-danger my-auto pb-1 px-1 ">

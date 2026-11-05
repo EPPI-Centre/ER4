@@ -21,11 +21,13 @@ import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service'
 import { OutcomesService } from '../services/outcomes.service';
 import { OutcomesComponent } from '../Outcomes/outcomes.component';
 import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
-import { forEach } from 'lodash';
 import { iRobotOpenAICommand, RobotsService } from '../services/Robots.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
-
+import {
+  SVGIcon, plusIcon, caretDoubleAltUpIcon, caretAltUpIcon, caretAltDownIcon, caretDoubleAltDownIcon
+  , pencilIcon, customFormatIcon, gearsIcon
+} from '@progress/kendo-svg-icons';
 
 @Component({
 
@@ -58,6 +60,17 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     private confirmationDialogService: ConfirmationDialogService,
     public _magAdvancedService: MAGAdvancedService,
   ) { }
+
+  //svg icons
+  public plusIcn: SVGIcon = plusIcon;
+  public arrowdoubleUpIcn: SVGIcon = caretDoubleAltUpIcon;
+  public arrowUpIcn: SVGIcon = caretAltUpIcon;
+  public arrowDownIcn: SVGIcon = caretAltDownIcon;
+  public pencilIcn: SVGIcon = pencilIcon;
+  public customFormatIcn: SVGIcon = customFormatIcon;
+  public arrowdoubleDownIcn: SVGIcon = caretDoubleAltDownIcon;
+  public gearsIcn: SVGIcon = gearsIcon; 
+  //end of svg icons
 
   ngOnInit() {
     //console.log('init!');

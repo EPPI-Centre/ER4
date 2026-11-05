@@ -20,11 +20,11 @@
                       size="sm" class="btn btn-sm btn-outline-success my-auto py-0 px-1 ml-1">
                 <span class="k-icon k-i-edit"></span>&nbsp;Edit
               </button>
-              <button type="button" rounded="true"
+              <button type="button" rounded="true" title="Delete Outcome Measure"
                       size="sm" class="btn btn-sm btn-outline-danger my-auto py-0 px-1 ml-1"
                       [disabled]="!HasWriteRights"
                       (click)="removeWarning(outcome, key)">
-                <span class="k-icon k-i-delete"></span>
+                <kendo-icon name="trash"></kendo-icon>
               </button>
               <button type="button" rounded="true" title="Create a copy and open it"
                       size="sm" class="btn btn-sm btn-outline-secondary my-auto py-0 px-1 ml-1"
