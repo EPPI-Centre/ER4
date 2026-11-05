@@ -10,13 +10,14 @@ import { Subscription } from 'rxjs';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 @Component({
-  selector: 'ReviewSetsEditor',
-  templateUrl: './reviewSetsEditor.component.html',
-  providers: [],
-  styles: [`.k-switch-label-off {    
+    selector: 'ReviewSetsEditor',
+    templateUrl: './reviewSetsEditor.component.html',
+    providers: [],
+    styles: [`.k-switch-label-off {    
                     color:black;
                 }
         `],
+    standalone: false
 })
 
 export class ReviewSetsEditorComponent implements OnInit, OnDestroy {

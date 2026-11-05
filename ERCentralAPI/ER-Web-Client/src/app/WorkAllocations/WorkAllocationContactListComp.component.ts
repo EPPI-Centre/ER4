@@ -8,10 +8,11 @@ import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
 
 @Component({
-  selector: 'WorkAllocationContactListComp',
-  templateUrl: './WorkAllocationContactListComp.component.html',
-  styles: ['.UsedWorkAllocation { font-weight: bold; background-color: lightblue;}'],
-  providers: []
+    selector: 'WorkAllocationContactListComp',
+    templateUrl: './WorkAllocationContactListComp.component.html',
+    styles: ['.UsedWorkAllocation { font-weight: bold; background-color: lightblue;}'],
+    providers: [],
+    standalone: false
 })
 
 export class WorkAllocationContactListComp implements OnInit, AfterContentInit, OnDestroy {

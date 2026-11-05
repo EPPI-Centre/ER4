@@ -15,7 +15,8 @@ import { MAGTopicsService } from '../services/MAGTopics.service';
 @Component({
     selector: 'MAGHeaderBar2',
     templateUrl: './MAGHeaderBar2.component.html',
-    providers: []
+    providers: [],
+    standalone: false
 })
 export class MAGHeaderBar2Comp implements OnInit {
 

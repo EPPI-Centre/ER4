@@ -14,7 +14,8 @@ import { PriorityScreeningService } from '../services/PriorityScreening.service'
     selector: 'editItemDetails',
     templateUrl: './editItemDetails.component.html',
     providers: [],
-    styles: []
+    styles: [],
+    standalone: false
 })
 export class editItemDetailsComp implements OnInit, OnDestroy {
 

@@ -10,9 +10,10 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 import { FileRestrictions, UploadEvent, SelectEvent } from '@progress/kendo-angular-upload';
 
 @Component({
-	selector: 'WebDBsComp',
-	templateUrl: './WebDBs.component.html',
-	providers: []
+    selector: 'WebDBsComp',
+    templateUrl: './WebDBs.component.html',
+    providers: [],
+    standalone: false
 })
 
 export class WebDBsComponent implements OnInit, OnDestroy {

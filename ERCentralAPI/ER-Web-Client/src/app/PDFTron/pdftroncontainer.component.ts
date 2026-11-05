@@ -17,7 +17,8 @@ declare let licenseKey: string;
 
 @Component({
     selector: 'pdftroncontainer',
-    templateUrl: './pdftroncontainer.component.html'
+    templateUrl: './pdftroncontainer.component.html',
+    standalone: false
 })
 export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
     constructor(private ReviewerIdentityServ: ReviewerIdentityService,

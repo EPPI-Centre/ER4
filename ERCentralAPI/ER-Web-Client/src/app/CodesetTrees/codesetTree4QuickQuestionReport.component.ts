@@ -5,9 +5,10 @@ import { ReviewSetsService, singleNode } from '../services/ReviewSets.service';
 
 
 @Component({
-  selector: 'codesetTree4QuickQuestionReport',
-  styles: [],
-  templateUrl: './codesetTree4QuickQuestionReport.component.html'
+    selector: 'codesetTree4QuickQuestionReport',
+    styles: [],
+    templateUrl: './codesetTree4QuickQuestionReport.component.html',
+    standalone: false
 })
 
 export class CodesetTree4QuickQuestionReportComponent implements OnInit, OnDestroy {

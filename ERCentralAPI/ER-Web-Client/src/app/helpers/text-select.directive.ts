@@ -23,8 +23,9 @@ interface SelectionRectangle {
 }
 
 @Directive({
-	selector: "[textSelect]",
-	outputs: ["textSelectEvent: textSelect"]
+    selector: "[textSelect]",
+    outputs: ["textSelectEvent: textSelect"],
+    standalone: false
 })
 export class TextSelectDirective implements OnInit, OnDestroy {
 

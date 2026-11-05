@@ -9,7 +9,8 @@ import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreview
 @Component({
     selector: 'intropage',
     templateUrl: './intropage.component.html',
-    providers: []
+    providers: [],
+    standalone: false
 })
 export class intropageComponent implements OnInit, AfterViewInit  {
 

@@ -22,12 +22,11 @@ import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 
 @Component({
-
-  selector: 'itemcoding',
-  templateUrl: './coding.component.html',
-  //providers: [ReviewerIdentityService]
-  providers: [],
-  styles: [`
+    selector: 'itemcoding',
+    templateUrl: './coding.component.html',
+    //providers: [ReviewerIdentityService]
+    providers: [],
+    styles: [`
                 button.disabled {
                     color:black; 
                     }
@@ -84,8 +83,8 @@ import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
                     font-size:18px;
                 }
                
-            `]
-
+            `],
+    standalone: false
 })
 export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
 

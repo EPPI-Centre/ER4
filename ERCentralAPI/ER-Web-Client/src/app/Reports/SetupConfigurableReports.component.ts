@@ -11,8 +11,9 @@ import { Helpers } from '../helpers/HelperMethods';
 import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
-	selector: 'SetupConfigurableReports',
-	templateUrl: './SetupConfigurableReports.component.html',
+    selector: 'SetupConfigurableReports',
+    templateUrl: './SetupConfigurableReports.component.html',
+    standalone: false
 })
 export class SetupConfigurableReports implements OnInit, OnDestroy {
 

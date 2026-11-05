@@ -10,11 +10,10 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 import 'hammerjs';
 
 @Component({
-   
     selector: 'frequenciesResults',
     templateUrl: './frequenciesResults.component.html',
     providers: [],
-
+    standalone: false
 })
 export class frequenciesResultsComp implements OnInit, OnDestroy, AfterViewInit {
 

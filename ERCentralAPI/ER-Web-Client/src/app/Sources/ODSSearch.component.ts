@@ -13,7 +13,8 @@ import { Helpers } from '../helpers/HelperMethods';
 @Component({
     selector: 'ODSSearchComp',
     templateUrl: './ODSSearch.component.html',
-    providers: []
+    providers: [],
+    standalone: false
 })
 
 export class ODSSearchComponent implements OnInit, OnDestroy {

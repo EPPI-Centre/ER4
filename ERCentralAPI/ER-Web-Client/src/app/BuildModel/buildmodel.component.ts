@@ -14,9 +14,10 @@ import { ReviewInfoService } from '../services/ReviewInfo.service';
 
 
 @Component({
-  selector: 'BuildModelComp',
-  templateUrl: './buildmodel.component.html',
-  providers: []
+    selector: 'BuildModelComp',
+    templateUrl: './buildmodel.component.html',
+    providers: [],
+    standalone: false
 })
 
 export class BuildModelComponent implements OnInit, OnDestroy {

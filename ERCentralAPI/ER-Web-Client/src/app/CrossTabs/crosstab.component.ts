@@ -8,11 +8,10 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 
 
 @Component({
-   
     selector: 'crosstab',
-	templateUrl: './crosstab.component.html',
+    templateUrl: './crosstab.component.html',
     providers: [],
-
+    standalone: false
 })
 export class CrossTabsComp implements OnInit, OnDestroy, AfterViewInit {
 

@@ -14,69 +14,70 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 
 
 @Component({
-  selector: 'HeaderComponent',
-  templateUrl: './header.component.html',
-  providers: [],
-  animations: [
-    trigger('HelpAppear', [
-      state('hidden', style({
-        transform: 'scaleY(0)',
-        'height': '0px',
-        transformOrigin: 'top',
-        'overflow': 'hidden',
-        opacity: 0
-      })),
-      state('visible', style({
-        transform: 'scaleY(1)',
-        'height': '*',
-        transformOrigin: 'top',
-        'overflow': 'auto',
-        opacity: 1
-      })),
-      transition('hidden => visible', [
-        animate('0.5s')
-      ]),
-      transition('visible => hidden', [
-        animate('0.2s')
-      ]),
-    ]),
-    trigger('PanelAppear', [
-      state('hidden', style({
-        'height': '0px',
-        'overflow': 'hidden',
-        opacity: 0
-      })),
-      state('visible', style({
-        'height': '*',
-        'overflow': 'auto',
-        opacity: 1
-      })),
-      transition('hidden => visible', [
-        animate('0.5s')
-      ]),
-      transition('visible => hidden', [
-        animate('0.2s')
-      ]),
-    ]),
-    trigger('PanelFeedbackAppear', [
-      state('collapse', style({
-        'height': '0px',
-        'overflow': 'hidden',
-        opacity: 0
-      })),
-      state('expand', style({
-        'height': '*',
-        'overflow': 'auto',
-        opacity: 1
-      })),
-      transition('collapse => expand', [
-        animate('0.5s')
-      ]),
-      transition('expand => collapse', [
-        animate('0.2s')
-      ]),
-    ]),
-  ],
+    selector: 'HeaderComponent',
+    templateUrl: './header.component.html',
+    providers: [],
+    animations: [
+        trigger('HelpAppear', [
+            state('hidden', style({
+                transform: 'scaleY(0)',
+                'height': '0px',
+                transformOrigin: 'top',
+                'overflow': 'hidden',
+                opacity: 0
+            })),
+            state('visible', style({
+                transform: 'scaleY(1)',
+                'height': '*',
+                transformOrigin: 'top',
+                'overflow': 'auto',
+                opacity: 1
+            })),
+            transition('hidden => visible', [
+                animate('0.5s')
+            ]),
+            transition('visible => hidden', [
+                animate('0.2s')
+            ]),
+        ]),
+        trigger('PanelAppear', [
+            state('hidden', style({
+                'height': '0px',
+                'overflow': 'hidden',
+                opacity: 0
+            })),
+            state('visible', style({
+                'height': '*',
+                'overflow': 'auto',
+                opacity: 1
+            })),
+            transition('hidden => visible', [
+                animate('0.5s')
+            ]),
+            transition('visible => hidden', [
+                animate('0.2s')
+            ]),
+        ]),
+        trigger('PanelFeedbackAppear', [
+            state('collapse', style({
+                'height': '0px',
+                'overflow': 'hidden',
+                opacity: 0
+            })),
+            state('expand', style({
+                'height': '*',
+                'overflow': 'auto',
+                opacity: 1
+            })),
+            transition('collapse => expand', [
+                animate('0.5s')
+            ]),
+            transition('expand => collapse', [
+                animate('0.2s')
+            ]),
+        ]),
+    ],
+    standalone: false
 })
 
 export class HeaderComponent implements OnInit {

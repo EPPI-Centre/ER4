@@ -12,10 +12,11 @@ import { ReviewSetsService } from '../services/ReviewSets.service';
 import { indexOf } from 'lodash';
 
 @Component({
-  selector: 'RobotJobsLog',
-  templateUrl: './RobotJobsLog.component.html',
-  styles: [],
-  providers: []
+    selector: 'RobotJobsLog',
+    templateUrl: './RobotJobsLog.component.html',
+    styles: [],
+    providers: [],
+    standalone: false
 })
 
 export class RobotJobsLog implements OnInit, OnDestroy {

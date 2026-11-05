@@ -10,10 +10,11 @@ import { GridDataResult, RowClassArgs } from '@progress/kendo-angular-grid';
 import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
-  selector: 'EditTrainingListComp',
-  templateUrl: './EditTrainingList.component.html',
-  styles: ['.UsedWorkAllocation { font-weight: bold; background-color: lightblue;}'],
-  providers: []
+    selector: 'EditTrainingListComp',
+    templateUrl: './EditTrainingList.component.html',
+    styles: ['.UsedWorkAllocation { font-weight: bold; background-color: lightblue;}'],
+    providers: [],
+    standalone: false
 })
 
 export class EditTrainingListComp implements OnInit, OnDestroy {

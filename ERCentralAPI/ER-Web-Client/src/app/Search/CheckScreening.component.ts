@@ -11,9 +11,10 @@ import { SetAttribute, singleNode } from '../services/ReviewSets.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 @Component({
-  selector: 'CheckScreening',
-  templateUrl: './CheckScreening.component.html',
-  providers: []
+    selector: 'CheckScreening',
+    templateUrl: './CheckScreening.component.html',
+    providers: [],
+    standalone: false
 })
 
 export class CheckScreening implements OnInit, OnDestroy {

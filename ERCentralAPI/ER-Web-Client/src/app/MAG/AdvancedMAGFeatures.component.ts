@@ -19,7 +19,8 @@ import { ClassifierModel, ClassifierService } from '../services/classifier.servi
 @Component({
     selector: 'AdvancedMAGFeatures',
     templateUrl: './AdvancedMAGFeatures.component.html',
-    providers: []
+    providers: [],
+    standalone: false
 })
 
 export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {

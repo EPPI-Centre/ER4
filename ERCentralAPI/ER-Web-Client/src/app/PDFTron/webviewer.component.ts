@@ -9,8 +9,8 @@ declare const PDFNet: any;
 
 @Component({
     selector: 'app-webviewer',
-    templateUrl: './webviewer.component.html'
-    
+    templateUrl: './webviewer.component.html',
+    standalone: false
 })
 
 //template: `<div style="">

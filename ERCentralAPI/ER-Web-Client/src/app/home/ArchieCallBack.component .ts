@@ -6,8 +6,9 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 import { isString } from '@ng-bootstrap/ng-bootstrap/util/util';
 
 @Component({
-  selector: 'ArchieCallBack',
-  templateUrl: './ArchieCallBack.component.html'
+    selector: 'ArchieCallBack',
+    templateUrl: './ArchieCallBack.component.html',
+    standalone: false
 })
 export class ArchieCallBackComponent implements OnInit {
   constructor(private router: Router,

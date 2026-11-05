@@ -6,9 +6,10 @@ import { ModalService } from '../services/modal.service';
 import { readonlyreviewsService } from '../services/readonlyreviews.service';
 
 @Component({
-	selector: 'NewReviewComp',
-	templateUrl: './newreview.component.html',
-	providers: []
+    selector: 'NewReviewComp',
+    templateUrl: './newreview.component.html',
+    providers: [],
+    standalone: false
 })
 
 export class NewReviewComponent implements OnInit, OnDestroy {

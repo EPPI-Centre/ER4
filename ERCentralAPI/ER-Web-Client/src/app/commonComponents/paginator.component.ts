@@ -7,7 +7,8 @@ import { ItemListService, Criteria, Item, ItemList } from '../services/ItemList.
     selector: 'paginatorComp',
     templateUrl: './paginator.component.html',
     providers: [],
-    styles: ["button.disabled {color:black; }"]
+    styles: ["button.disabled {color:black; }"],
+    standalone: false
 })
 export class paginatorComp implements OnInit {
 

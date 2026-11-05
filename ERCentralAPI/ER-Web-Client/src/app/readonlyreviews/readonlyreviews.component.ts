@@ -11,9 +11,9 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 @Component({
     selector: 'readonlyreviews',
     templateUrl: './readonlyreviews.component.html',
-	providers: [],
-	encapsulation: ViewEncapsulation.None
-    
+    providers: [],
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy{
 	dataSource: any | undefined;

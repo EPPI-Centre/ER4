@@ -12,9 +12,10 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
-  selector: 'RobotBatchJobs',
-  templateUrl: './robotBatchJobs.component.html',
-  providers: []
+    selector: 'RobotBatchJobs',
+    templateUrl: './robotBatchJobs.component.html',
+    providers: [],
+    standalone: false
 })
 
 export class RobotBatchJobs implements OnInit, OnDestroy {

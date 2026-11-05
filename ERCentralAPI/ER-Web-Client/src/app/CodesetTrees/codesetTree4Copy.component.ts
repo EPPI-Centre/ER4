@@ -9,7 +9,8 @@ import { TreeItem } from '@progress/kendo-angular-treeview';
 @Component({
     selector: 'codesetTree4Copy',
     styles: [],
-    templateUrl: './codesetTree4Copy.component.html'
+    templateUrl: './codesetTree4Copy.component.html',
+    standalone: false
 })
 
 export class codesetTree4CopyComponent implements OnInit, OnDestroy {

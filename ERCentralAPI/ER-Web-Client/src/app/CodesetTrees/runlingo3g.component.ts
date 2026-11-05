@@ -9,7 +9,8 @@ import { ReviewSetsEditingService, PerformClusterCommand } from '../services/Rev
 @Component({
     selector: 'RunLingo3G',
     templateUrl: './runlingo3g.component.html',
-    providers: []
+    providers: [],
+    standalone: false
 })
 
 export class RunLingo3G implements OnInit {

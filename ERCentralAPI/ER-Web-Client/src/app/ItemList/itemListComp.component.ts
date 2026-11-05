@@ -11,9 +11,10 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'ItemListComp',
-  templateUrl: './ItemListComp.component.html',
-  providers: []
+    selector: 'ItemListComp',
+    templateUrl: './ItemListComp.component.html',
+    providers: [],
+    standalone: false
 })
 export class ItemListComp implements OnInit, OnDestroy {
 

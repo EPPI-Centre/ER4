@@ -7,8 +7,9 @@ import { ItemCodingService } from "../services/ItemCoding.service";
 import { ConfirmationDialogService } from "../services/confirmation-dialog.service";
 
 @Component({
-	selector: 'ReviewTermsListComp',
-	templateUrl: './ReviewTermsListComp.component.html',
+    selector: 'ReviewTermsListComp',
+    templateUrl: './ReviewTermsListComp.component.html',
+    standalone: false
 })
 
 export class ReviewTermsListComp implements OnInit, OnDestroy {

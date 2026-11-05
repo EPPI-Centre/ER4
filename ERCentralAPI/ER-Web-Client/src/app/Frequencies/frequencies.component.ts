@@ -7,11 +7,10 @@ import { EventEmitterService } from "../services/EventEmitter.service";
 import { frequenciesService } from "../services/frequencies.service";
 
 @Component({
-
     selector: 'frequencies',
     templateUrl: './frequencies.component.html',
     providers: [],
-
+    standalone: false
 })
 export class frequenciesComp implements OnInit {
 

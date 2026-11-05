@@ -10,10 +10,11 @@ import { ZoteroService } from '../services/Zotero.service';
 import { SyncState, ZoteroItem, ZoteroERWebReviewItem} from '../services/ZoteroClasses.service';
 
 @Component({
-  selector: 'ZoteroSync',
-  templateUrl: './ZoteroSync.component.html',
-  providers: [],
-  styles: []
+    selector: 'ZoteroSync',
+    templateUrl: './ZoteroSync.component.html',
+    providers: [],
+    styles: [],
+    standalone: false
 })
 
 export class ZoteroSyncComponent implements OnInit, OnDestroy {

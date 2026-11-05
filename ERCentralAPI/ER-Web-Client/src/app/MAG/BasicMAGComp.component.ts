@@ -15,9 +15,10 @@ import { Helpers } from '../helpers/HelperMethods';
 import { ModalService } from '../services/modal.service';
 
 @Component({
-  selector: 'BasicMAGComp',
-  templateUrl: './BasicMAGComp.component.html',
-  providers: []
+    selector: 'BasicMAGComp',
+    templateUrl: './BasicMAGComp.component.html',
+    providers: [],
+    standalone: false
 })
 
 export class BasicMAGComp implements OnInit {

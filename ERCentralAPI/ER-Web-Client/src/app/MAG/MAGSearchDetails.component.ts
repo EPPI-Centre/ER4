@@ -14,7 +14,8 @@ import { MAGTopicsService } from '../services/MAGTopics.service';
 @Component({
     selector: 'MAGSearchDetailsComponent',
     templateUrl: './MAGSearchDetails.component.html',
-    providers: []
+    providers: [],
+    standalone: false
 })
 
 export class MAGSearchDetailsComponent implements OnInit {

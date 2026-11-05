@@ -12,10 +12,9 @@ import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service'
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 
 @Component({
-   
-	selector: 'microsoftAcademicComp',
-	templateUrl: './microsoftAcademic.component.html'  
-
+    selector: 'microsoftAcademicComp',
+    templateUrl: './microsoftAcademic.component.html',
+    standalone: false
 })
 
 export class microsoftAcademicComp implements OnInit, OnDestroy {

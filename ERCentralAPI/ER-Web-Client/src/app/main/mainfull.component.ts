@@ -44,9 +44,9 @@ import { SVGIcon, chartBarClusteredIcon, arrowRotateCwIcon, printIcon, gearsIcon
 
 
 @Component({
-  selector: 'mainComp',
-  templateUrl: './mainfull.component.html'
-  , styles: [`
+    selector: 'mainComp',
+    templateUrl: './mainfull.component.html',
+    styles: [`
                 .pane-content { padding: 0em 1em; margin: 1;}
                 .ReviewsBg {
                     background-color:#f1f1f8 !important; 
@@ -67,9 +67,9 @@ import { SVGIcon, chartBarClusteredIcon, arrowRotateCwIcon, printIcon, gearsIcon
                     font-size:18px;
                 }
 
-        `]
-  , providers: []
-
+        `],
+    providers: [],
+    standalone: false
 })
 export class MainFullReviewComponent implements OnInit, OnDestroy {
 

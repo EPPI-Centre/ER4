@@ -3,8 +3,9 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { EventEmitterService } from '../services/EventEmitter.service';
 
 @Component({
-	selector: 'app-confirmation-dialog',
-	templateUrl: './confirmation-dialog.component.html',
+    selector: 'app-confirmation-dialog',
+    templateUrl: './confirmation-dialog.component.html',
+    standalone: false
 })
 export class ConfirmationDialogComponent implements OnInit {
 

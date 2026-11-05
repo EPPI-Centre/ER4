@@ -5,9 +5,10 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 
 
 @Component({
-	selector: 'EditAccountComp',
-	templateUrl: './editAccount.component.html',
-	providers: []
+    selector: 'EditAccountComp',
+    templateUrl: './editAccount.component.html',
+    providers: [],
+    standalone: false
 })
 
 export class EditAccountComponent implements OnInit {

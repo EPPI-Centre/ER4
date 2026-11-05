@@ -15,8 +15,8 @@ import { Subscription } from 'rxjs';
 import { TreeItem } from '@progress/kendo-angular-treeview';
 
 @Component({
-  selector: 'codesetTreeCoding',
-  styles: [`.bt-infoBox {    
+    selector: 'codesetTreeCoding',
+    styles: [`.bt-infoBox {    
                     padding: .08rem .12rem .12rem .12rem;
                     margin-bottom: .12rem;
                     font-size: .875rem;
@@ -32,7 +32,8 @@ import { TreeItem } from '@progress/kendo-angular-treeview';
               font-style: italic;
             }
         `],
-  templateUrl: './codesetTreeCoding.component.html'
+    templateUrl: './codesetTreeCoding.component.html',
+    standalone: false
 })
 export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
   constructor(private router: Router,
@@ -479,8 +480,9 @@ export class CheckBoxClickedEventData {
 
 //EVEN more: small separate component for the infobox modal.
 @Component({
-  selector: 'ngbd-InfoBoxModal-content',
-  templateUrl: './InfoBoxModal.component.html'
+    selector: 'ngbd-InfoBoxModal-content',
+    templateUrl: './InfoBoxModal.component.html',
+    standalone: false
 })
 export class InfoBoxModalContent {
   @ViewChild('InfoBoxText')

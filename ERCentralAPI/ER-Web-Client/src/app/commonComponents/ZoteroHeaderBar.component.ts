@@ -9,7 +9,8 @@ import { ZoteroService } from '../services/Zotero.service';
 @Component({
     selector: 'ZoteroHeaderBar',
     templateUrl: './ZoteroHeaderBar.component.html',
-    providers: []
+    providers: [],
+    standalone: false
 })
 export class ZoteroHeaderBarComp implements OnInit {
 

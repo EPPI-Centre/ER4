@@ -15,9 +15,10 @@ import { ReadOnlySource, Source, SourcesService } from '../services/sources.serv
 import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
-  selector: 'SearchFromOpenAlexImport',
-  templateUrl: './SearchFromOpenAlexImport.component.html',
-  providers: []
+    selector: 'SearchFromOpenAlexImport',
+    templateUrl: './SearchFromOpenAlexImport.component.html',
+    providers: [],
+    standalone: false
 })
 
 export class SearchFromOpenAlexImport implements OnInit, OnDestroy {

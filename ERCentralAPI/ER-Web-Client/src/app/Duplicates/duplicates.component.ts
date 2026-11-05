@@ -33,8 +33,8 @@ import { CustomSorting, LocalSort } from '../helpers/CustomSorting';
                     border-collapse:separate; border-spacing:0px;
                 }
                     
-            `]
-
+            `],
+    standalone: false
 })
 
 export class DuplicatesComponent implements OnInit, OnDestroy {

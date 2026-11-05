@@ -12,9 +12,10 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
-  selector: 'robotJobsQueue',
-  templateUrl: './robotJobsQueue.component.html',
-  providers: []
+    selector: 'robotJobsQueue',
+    templateUrl: './robotJobsQueue.component.html',
+    providers: [],
+    standalone: false
 })
 
 export class robotJobsQueue implements OnInit, OnDestroy {

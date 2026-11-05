@@ -9,10 +9,11 @@ import { ExtendedOutcome, Outcome } from '../services/outcomes.service';
 import { last, single } from 'rxjs';
 
 @Component({
-  selector: 'MetaAnalysisRunNetworkComp',
-  templateUrl: './MetaAnalysisRunNetwork.component.html',
-  providers: [],
-  styles: []
+    selector: 'MetaAnalysisRunNetworkComp',
+    templateUrl: './MetaAnalysisRunNetwork.component.html',
+    providers: [],
+    styles: [],
+    standalone: false
 })
 export class MetaAnalysisRunNetworkComp implements OnInit, OnDestroy {
 

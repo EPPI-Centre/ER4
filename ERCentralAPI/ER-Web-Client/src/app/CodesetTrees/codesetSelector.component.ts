@@ -7,9 +7,10 @@ import { TreeItem } from '@progress/kendo-angular-treeview';
 
 
 @Component({
-  selector: 'codesetSelector',
-  styles: [],
-  templateUrl: './codesetSelector.component.html'
+    selector: 'codesetSelector',
+    styles: [],
+    templateUrl: './codesetSelector.component.html',
+    standalone: false
 })
 
 export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewInit {

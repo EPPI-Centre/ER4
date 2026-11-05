@@ -7,8 +7,9 @@ import { WebDBService } from '../services/WebDB.service';
 import { TreeItem } from '@progress/kendo-angular-treeview';
 
 @Component({
-  selector: 'WebDbCcodesetTree',
-  templateUrl: './WebDbCcodesetTree.component.html'
+    selector: 'WebDbCcodesetTree',
+    templateUrl: './WebDbCcodesetTree.component.html',
+    standalone: false
 })
 
 export class WebDbCcodesetTreeComponent implements OnInit, OnDestroy {

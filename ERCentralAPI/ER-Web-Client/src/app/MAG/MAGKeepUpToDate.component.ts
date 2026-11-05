@@ -22,7 +22,8 @@ import 'hammerjs';
 @Component({
     selector: 'MAGKeepUpToDate',
     templateUrl: './MAGKeepUpToDate.component.html',
-    providers: []
+    providers: [],
+    standalone: false
 })
 
 export class MAGKeepUpToDate implements OnInit {

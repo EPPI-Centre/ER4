@@ -16,9 +16,10 @@ import { ModalService } from '../services/modal.service';
 import { formatDate } from '@angular/common';
 
 @Component({
-  selector: 'MAGSearch',
-  templateUrl: './MAGSearch.component.html',
-  providers: []
+    selector: 'MAGSearch',
+    templateUrl: './MAGSearch.component.html',
+    providers: [],
+    standalone: false
 })
 
 export class MAGSearchComponent implements OnInit {

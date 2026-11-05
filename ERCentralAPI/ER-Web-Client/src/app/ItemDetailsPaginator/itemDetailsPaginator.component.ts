@@ -12,14 +12,15 @@ import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { ReviewSetsService } from '../services/ReviewSets.service';
 
 @Component({
-  selector: 'itemDetailsPaginator',
-  templateUrl: './itemDetailsPaginator.component.html',
-  providers: [],
-  styles: [`
+    selector: 'itemDetailsPaginator',
+    templateUrl: './itemDetailsPaginator.component.html',
+    providers: [],
+    styles: [`
                 button.disabled {
                     color:black; 
                     }
-            `]
+            `],
+    standalone: false
 })
 
 export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewInit {

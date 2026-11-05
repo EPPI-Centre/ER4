@@ -6,12 +6,13 @@ import { MetaAnalysisRunNetworkComp } from './MetaAnalysisRunNetwork.component';
 import { SVGIcon, filterIcon, plusIcon, saveIcon, playIcon, inheritedIcon } from '@progress/kendo-svg-icons';
 
 @Component({
-  selector: 'MetaAnalysisDetailsComp',
-  templateUrl: './MetaAnalysisDetails.component.html',
+    selector: 'MetaAnalysisDetailsComp',
+    templateUrl: './MetaAnalysisDetails.component.html',
     providers: [],
-  styles: [`
+    styles: [`
 option:disabled {color: rgb(199, 199, 199);}
-`]
+`],
+    standalone: false
 })
 export class MetaAnalysisDetailsComp implements OnInit, OnDestroy {
 

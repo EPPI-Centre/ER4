@@ -17,10 +17,11 @@ import { faBook, faCopy } from '@fortawesome/free-solid-svg-icons';
 // https://www.bennadel.com/blog/3439-creating-a-medium-inspired-text-selection-directive-in-angular-5-2-10.htm
 
 @Component({
-  selector: 'itemDetailsComp',
-  templateUrl: './itemDetails.component.html',
-  providers: [],
-  styles: []
+    selector: 'itemDetailsComp',
+    templateUrl: './itemDetails.component.html',
+    providers: [],
+    styles: [],
+    standalone: false
 })
 export class itemDetailsComp implements OnInit, OnDestroy {
 

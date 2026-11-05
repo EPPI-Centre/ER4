@@ -12,7 +12,8 @@ import { Router } from '@angular/router';
 @Component({
     selector: 'MAGAdmin',
     templateUrl: './MAGAdmin.component.html',
-    providers: []
+    providers: [],
+    standalone: false
 })
 
 export class MAGAdminComp implements OnInit {

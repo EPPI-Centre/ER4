@@ -9,10 +9,9 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 
 
 @Component({
-
-  selector: 'LiveComparisonComp',
-  templateUrl: './LiveComparison.component.html'
-
+    selector: 'LiveComparisonComp',
+    templateUrl: './LiveComparison.component.html',
+    standalone: false
 })
 
 export class LiveComparisonComp implements OnInit, OnDestroy {

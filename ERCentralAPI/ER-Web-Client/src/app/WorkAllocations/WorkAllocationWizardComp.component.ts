@@ -14,7 +14,8 @@ import { ModalService } from '../services/modal.service';
     selector: 'WorkAllocationWizardComp',
     templateUrl: './WorkAllocationWizardComp.component.html',
     styles: ['.DisabledStep { font-weight: light; opacity: 50%;}'],
-    providers: []
+    providers: [],
+    standalone: false
 })
 
 export class WorkAllocationWizardComp implements OnInit, OnDestroy {

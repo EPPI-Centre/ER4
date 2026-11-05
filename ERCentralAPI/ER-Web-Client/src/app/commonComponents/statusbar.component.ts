@@ -8,9 +8,10 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { ConfigService, versionInfo } from '../services/config.service';
 
 @Component({
-  selector: 'statusbar',
-  templateUrl: './statusbar.component.html',
-  providers: []
+    selector: 'statusbar',
+    templateUrl: './statusbar.component.html',
+    providers: [],
+    standalone: false
 })
 
 export class StatusBarComponent implements OnInit {

@@ -10,9 +10,10 @@ import { ConfigService } from '../services/config.service';
 
 
 @Component({
-  selector: 'ItemDocListComp',
-  templateUrl: './ItemDocListComp.component.html',
-  providers: []
+    selector: 'ItemDocListComp',
+    templateUrl: './ItemDocListComp.component.html',
+    providers: [],
+    standalone: false
 })
 export class ItemDocListComp implements OnInit, OnDestroy {
 

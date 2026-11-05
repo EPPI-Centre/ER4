@@ -20,10 +20,11 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 import { TabStripComponent } from '@progress/kendo-angular-layout';
 
 @Component({
-  selector: 'ScreeningSetupComp',
-  templateUrl: './ScreeningSetup.component.html',
-  styles: ['.DisabledStep { font-weight: light; opacity: 50%;}'],
-  providers: []
+    selector: 'ScreeningSetupComp',
+    templateUrl: './ScreeningSetup.component.html',
+    styles: ['.DisabledStep { font-weight: light; opacity: 50%;}'],
+    providers: [],
+    standalone: false
 })
 
 export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {

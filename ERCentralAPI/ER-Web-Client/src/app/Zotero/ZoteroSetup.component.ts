@@ -11,7 +11,8 @@ import {Group, GroupData } from '../services/ZoteroClasses.service';
 @Component({
     selector: 'ZoteroSetup',
     templateUrl: './ZoteroSetup.component.html',
-    providers: []
+    providers: [],
+    standalone: false
 })
 
 export class ZoteroSetupComponent implements OnInit {

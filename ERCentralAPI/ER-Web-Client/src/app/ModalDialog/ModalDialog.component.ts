@@ -22,7 +22,8 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
   </div>
 </div>
 `,
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class ModalDialogComponent {
 

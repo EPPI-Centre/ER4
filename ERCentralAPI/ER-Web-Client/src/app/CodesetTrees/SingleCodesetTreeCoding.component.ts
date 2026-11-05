@@ -7,9 +7,10 @@ import { TreeItem } from '@progress/kendo-angular-treeview';
 
 
 @Component({
-  selector: 'SingleCodesetTreeCoding',
-  styles: [],
-  templateUrl: './SingleCodesetTreeCoding.component.html'
+    selector: 'SingleCodesetTreeCoding',
+    styles: [],
+    templateUrl: './SingleCodesetTreeCoding.component.html',
+    standalone: false
 })
 
 export class SingleCodesetTreeCodingComponent implements OnInit, OnDestroy {

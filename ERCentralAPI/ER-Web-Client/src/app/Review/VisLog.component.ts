@@ -10,8 +10,9 @@ import { ExcelService } from '../services/excel.service';
 
 @Component({
     selector: 'VisLogComp',
-    templateUrl: './VisLog.component.html', 
-    providers: []
+    templateUrl: './VisLog.component.html',
+    providers: [],
+    standalone: false
 })
 
 

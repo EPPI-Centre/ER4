@@ -20,7 +20,8 @@ import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
 @Component({
     selector: 'MAG',
     templateUrl: './MAG.component.html',
-    providers: []
+    providers: [],
+    standalone: false
 })
 export class MAGComp implements OnInit, OnDestroy {
 

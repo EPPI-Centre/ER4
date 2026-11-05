@@ -15,9 +15,10 @@ import { Helpers } from '../helpers/HelperMethods';
 
 
 @Component({
-  selector: 'RobotInvestigate',
-  templateUrl: './robotInvestigate.component.html',
-  providers: []
+    selector: 'RobotInvestigate',
+    templateUrl: './robotInvestigate.component.html',
+    providers: [],
+    standalone: false
 })
 
 

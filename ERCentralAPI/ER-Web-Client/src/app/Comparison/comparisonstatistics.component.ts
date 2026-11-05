@@ -12,9 +12,10 @@ import { Subscription } from 'rxjs';
 
 
 @Component({
-	selector: 'ComparisonStatsComp',
+    selector: 'ComparisonStatsComp',
     templateUrl: './comparisonstatistics.component.html',
-    providers: []
+    providers: [],
+    standalone: false
 })
 
 export class ComparisonStatsComp implements OnInit {

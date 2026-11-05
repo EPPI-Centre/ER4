@@ -6,15 +6,16 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 import { ReviewSetsService, SetAttribute } from '../services/ReviewSets.service';
 
 @Component({
-  selector: 'MAaddOutcomesColumnComp',
-  templateUrl: './MAaddOutcomesColumn.component.html',
-  providers: [],
-  styles: [
-`
+    selector: 'MAaddOutcomesColumnComp',
+    templateUrl: './MAaddOutcomesColumn.component.html',
+    providers: [],
+    styles: [
+        `
 .ModeratorsTableContainer {border-top: 1px solid DarkBlue; border-bottom: 1px solid DarkBlue; max-height: 40vh; overflow:auto; max-width:90vw;}
 .ModeratorsTable thead th {background-color: #dff0df; box-shadow: inset 0px -0.8px #222222, 0 0 #000; }
 `
-  ]
+    ],
+    standalone: false
 })
 export class MAaddOutcomesColumnComp implements OnInit, OnDestroy {
 

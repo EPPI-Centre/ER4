@@ -8,8 +8,9 @@ import { NgForm } from '@angular/forms';
 import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
-  selector: 'armDetailsComp',
-  templateUrl: './armDetails.component.html'
+    selector: 'armDetailsComp',
+    templateUrl: './armDetails.component.html',
+    standalone: false
 })
 export class armDetailsComp implements OnInit {
 

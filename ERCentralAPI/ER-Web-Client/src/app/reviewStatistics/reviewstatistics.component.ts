@@ -25,9 +25,10 @@ import { iItemAttributeWithThisCodeCountCommand, ItemCodingService } from '../se
 
 
 @Component({
-  selector: 'reviewStatisticsComp',
-  templateUrl: './reviewstatistics.component.html',
-  providers: []
+    selector: 'reviewStatisticsComp',
+    templateUrl: './reviewstatistics.component.html',
+    providers: [],
+    standalone: false
 })
 
 export class ReviewStatisticsComp implements OnInit, OnDestroy {

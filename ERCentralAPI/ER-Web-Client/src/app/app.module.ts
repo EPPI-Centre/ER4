@@ -1,10 +1,11 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { APP_INITIALIZER, NgModule } from '@angular/core';
+import { NgModule, inject, provideAppInitializer } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient, HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { RouterModule, RouteReuseStrategy } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import 'zone.js';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 //import { DataTablesModule } from 'angular-datatables';
@@ -310,7 +311,8 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
         EditTrainingListComp,
         SearchFromOpenAlexImport
     ],
-    bootstrap: [AppComponent], imports: [BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
+  bootstrap: [AppComponent], imports: [
+    
         //HttpClientModule,
         FormsModule,
         //AngularFontAwesomeModule,
@@ -382,15 +384,10 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
         FontAwesomeModule,
         IconsModule,
         EditorModule], providers: [
-        {
-            provide: APP_INITIALIZER,
-            useFactory: load,
-            deps: [
-                HttpClient,
-                ConfigService
-            ],
-            multi: true
-        },
+        provideAppInitializer(() => {
+        const initializerFn = (load)(inject(HttpClient), inject(ConfigService));
+        return initializerFn();
+      }),
         DatePipe,
         EventEmitterService,
         {

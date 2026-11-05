@@ -13,7 +13,8 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 @Component({
     selector: 'MAGBrowserHistory',
     templateUrl: './MAGBrowserHistory.component.html',
-    providers: []
+    providers: [],
+    standalone: false
 })
 
 export class MAGBrowserHistory implements OnInit {

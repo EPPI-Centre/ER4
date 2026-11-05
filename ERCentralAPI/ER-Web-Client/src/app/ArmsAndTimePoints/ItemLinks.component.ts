@@ -7,9 +7,10 @@ import { ArmTimepointLinkListService, iItemLink } from '../services/ArmTimepoint
 import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
-	selector: 'ItemLinksComp',
-	templateUrl: './ItemLinks.component.html',
-    providers: []
+    selector: 'ItemLinksComp',
+    templateUrl: './ItemLinks.component.html',
+    providers: [],
+    standalone: false
 })
 
 export class ItemLinksComp  implements OnInit {

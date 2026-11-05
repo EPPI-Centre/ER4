@@ -9,7 +9,8 @@ import { ZoteroService } from '../services/Zotero.service';
 @Component({
     selector: 'ZoteroManager',
     templateUrl: './ZoteroManager.component.html',
-    providers: []
+    providers: [],
+    standalone: false
 })
 
 export class ZoteroManagerComponent implements OnInit, AfterViewInit, OnDestroy {

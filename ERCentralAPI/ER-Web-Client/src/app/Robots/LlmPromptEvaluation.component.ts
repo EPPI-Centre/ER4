@@ -28,9 +28,10 @@ import { iItemAttributeWithThisCodeCountCommand, ItemCodingService } from '../se
 
 
 @Component({
-  selector: 'LlmPromptEvaluation',
-  templateUrl: './LlmPromptEvaluation.component.html',
-  providers: []
+    selector: 'LlmPromptEvaluation',
+    templateUrl: './LlmPromptEvaluation.component.html',
+    providers: [],
+    standalone: false
 })
 
 export class LlmPromptEvaluation implements OnInit, OnDestroy {

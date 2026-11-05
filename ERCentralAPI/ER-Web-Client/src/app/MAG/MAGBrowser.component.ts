@@ -17,7 +17,8 @@ import { Helpers } from '../helpers/HelperMethods';
 @Component({
     selector: 'MAGBrowser',
     templateUrl: './MAGBrowser.component.html',
-    providers: []
+    providers: [],
+    standalone: false
 })
 
 export class MAGBrowser implements OnInit, OnDestroy {

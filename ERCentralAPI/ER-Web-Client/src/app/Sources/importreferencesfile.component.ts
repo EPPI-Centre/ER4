@@ -14,7 +14,8 @@ import { ModalService } from '../services/modal.service';
 @Component({
     selector: 'ImportReferencesFile',
     templateUrl: './importreferencesfile.component.html',
-    providers: []
+    providers: [],
+    standalone: false
 })
 
 export class ImportReferencesFileComponent implements OnInit, OnDestroy {

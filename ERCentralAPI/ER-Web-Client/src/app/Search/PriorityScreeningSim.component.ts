@@ -53,9 +53,10 @@ interface simulationStats {
 }
 
 @Component({
-  selector: 'PriorityScreeningSim',
-  templateUrl: './PriorityScreeningSim.component.html',
-  providers: []
+    selector: 'PriorityScreeningSim',
+    templateUrl: './PriorityScreeningSim.component.html',
+    providers: [],
+    standalone: false
 })
 
 export class PriorityScreeningSim implements OnInit, OnDestroy {

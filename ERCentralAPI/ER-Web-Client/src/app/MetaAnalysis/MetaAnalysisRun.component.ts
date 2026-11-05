@@ -7,10 +7,11 @@ import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
 import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
-  selector: 'MetaAnalysisRunComp',
-  templateUrl: './MetaAnalysisRun.component.html',
-  providers: [],
-  styles: []
+    selector: 'MetaAnalysisRunComp',
+    templateUrl: './MetaAnalysisRun.component.html',
+    providers: [],
+    styles: [],
+    standalone: false
 })
 export class MetaAnalysisRunComp implements OnInit, OnDestroy {
 

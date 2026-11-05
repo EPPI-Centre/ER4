@@ -5,9 +5,10 @@ import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
 
 @Component({
-  selector: 'JobsContainer',
-  templateUrl: './JobsContainer.component.html',
-  providers: []
+    selector: 'JobsContainer',
+    templateUrl: './JobsContainer.component.html',
+    providers: [],
+    standalone: false
 })
 export class JobsContainer implements OnInit, OnDestroy {
 

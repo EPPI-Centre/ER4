@@ -9,9 +9,10 @@ import { OutcomesService } from '../services/outcomes.service';
 
 
 @Component({
-  selector: 'CreateNewCodeComp',
-  templateUrl: './createnewcode.component.html',
-  providers: []
+    selector: 'CreateNewCodeComp',
+    templateUrl: './createnewcode.component.html',
+    providers: [],
+    standalone: false
 })
 
 export class CreateNewCodeComp implements OnInit, OnDestroy {

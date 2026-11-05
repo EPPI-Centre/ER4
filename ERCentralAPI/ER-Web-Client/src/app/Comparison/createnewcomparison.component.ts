@@ -10,7 +10,8 @@ import { ComparisonsService, Comparison } from '../services/comparisons.service'
 @Component({
     selector: 'CreateNewComparisonComp',
     templateUrl: './createnewcomparison.component.html',
-    providers: []
+    providers: [],
+    standalone: false
 })
 
 export class ComparisonComp implements OnInit {

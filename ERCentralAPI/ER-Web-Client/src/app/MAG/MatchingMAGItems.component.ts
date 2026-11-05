@@ -20,9 +20,10 @@ import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
 import { Workbook, WorkbookSheet, WorkbookSheetColumn, WorkbookSheetRow, WorkbookSheetRowCell, WorkbookSheetRowCellBorderBottom, WorkbookSheetRowCellBorderLeft, WorkbookSheetRowCellBorderRight, WorkbookSheetRowCellBorderTop } from '@progress/kendo-angular-excel-export';
 
 @Component({
-  selector: 'MatchingMAGItems',
-  templateUrl: './MatchingMAGItems.component.html',
-  providers: []
+    selector: 'MatchingMAGItems',
+    templateUrl: './MatchingMAGItems.component.html',
+    providers: [],
+    standalone: false
 })
 
 export class MatchingMAGItemsComponent implements OnInit, OnDestroy {

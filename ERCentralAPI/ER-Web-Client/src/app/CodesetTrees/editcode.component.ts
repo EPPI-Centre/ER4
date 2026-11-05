@@ -9,9 +9,10 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 
 
 @Component({
-  selector: 'EditCodeComp',
-  templateUrl: './editcode.component.html',
-  providers: []
+    selector: 'EditCodeComp',
+    templateUrl: './editcode.component.html',
+    providers: [],
+    standalone: false
 })
 
 export class EditCodeComp implements OnInit, OnDestroy {

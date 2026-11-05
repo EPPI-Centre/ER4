@@ -7,9 +7,10 @@ import { iRobotCoderReadOnly, iRobotSettings, RobotsService } from '../services/
 import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
-  selector: 'RobotSettings',
-  templateUrl: './robotSettings.component.html',
-  providers: []
+    selector: 'RobotSettings',
+    templateUrl: './robotSettings.component.html',
+    providers: [],
+    standalone: false
 })
 
 export class RobotSettings implements OnInit, OnDestroy {

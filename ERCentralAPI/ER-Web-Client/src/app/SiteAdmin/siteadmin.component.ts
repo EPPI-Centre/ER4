@@ -19,7 +19,8 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 @Component({
     selector: 'siteadmin',
     templateUrl: './siteadmin.component.html',
-    providers: []
+    providers: [],
+    standalone: false
 })
 
 export class SiteAdminComponent implements OnInit, OnDestroy  {

@@ -13,6 +13,7 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 @Component({
     selector: 'quickcodingreport',
     templateUrl: './quickcodingreport.component.html',
+    standalone: false
 })
 export class QuickCodingReportComponent implements OnInit, OnDestroy {
 

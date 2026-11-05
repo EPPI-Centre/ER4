@@ -19,10 +19,11 @@ import { SortDescriptor, orderBy, State } from '@progress/kendo-data-query';
 import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
-  selector: 'WorkAllocationComp',
-  templateUrl: './WorkAllocationComp.component.html',
-  styles: ['.UsedWorkAllocation { font-weight: bold; background-color: lightblue;}'],
-  providers: []
+    selector: 'WorkAllocationComp',
+    templateUrl: './WorkAllocationComp.component.html',
+    styles: ['.UsedWorkAllocation { font-weight: bold; background-color: lightblue;}'],
+    providers: [],
+    standalone: false
 })
 
 export class WorkAllocationComp implements OnInit {

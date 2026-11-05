@@ -14,16 +14,17 @@ import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
 
 
 @Component({
-  selector: 'SourcesComp',
-  templateUrl: './sources.component.html',
-  providers: [],
-  styles: [
-    `@keyframes oscillate {
+    selector: 'SourcesComp',
+    templateUrl: './sources.component.html',
+    providers: [],
+    styles: [
+        `@keyframes oscillate {
           0%   {transform:rotate(35deg);}
           50% {transform:rotate(-35deg);}
           100% {transform:rotate(35deg);}
         }`
-  ]
+    ],
+    standalone: false
 })
 
 export class SourcesComponent implements OnInit, OnDestroy {

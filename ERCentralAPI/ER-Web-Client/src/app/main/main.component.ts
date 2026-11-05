@@ -19,16 +19,16 @@ import { SortDescriptor } from '@progress/kendo-data-query';
 import { ComparisonStatsComp } from '../Comparison/comparisonstatistics.component';
 
 @Component({
-  selector: 'mainCodingOnly',
-  templateUrl: './main.component.html'
-  , styles: [`
+    selector: 'mainCodingOnly',
+    templateUrl: './main.component.html',
+    styles: [`
                 
                .ReviewsBg {
                     background-color:#f1f1f8 !important; 
                 }
-        `]
-  , providers: []
-
+        `],
+    providers: [],
+    standalone: false
 })
 export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
   constructor(private router: Router,

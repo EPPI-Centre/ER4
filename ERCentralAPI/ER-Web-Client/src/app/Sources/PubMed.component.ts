@@ -13,7 +13,8 @@ import { Helpers } from '../helpers/HelperMethods';
 @Component({
     selector: 'PubMedComp',
     templateUrl: './PubMed.component.html',
-    providers: []
+    providers: [],
+    standalone: false
 })
 
 export class PubMedComponent implements OnInit, OnDestroy {

@@ -12,7 +12,8 @@ import { Helpers } from '../helpers/HelperMethods';
 @Component({
     selector: 'siteadminEntry',
     templateUrl: './siteadminEntry.component.html',
-    providers: []
+    providers: [],
+    standalone: false
 })
 
 export class SiteAdminEntryComponent implements OnInit {

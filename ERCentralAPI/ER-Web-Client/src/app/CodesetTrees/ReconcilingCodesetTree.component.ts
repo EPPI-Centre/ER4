@@ -12,8 +12,8 @@ import { TreeItem, TreeViewComponent } from '@progress/kendo-angular-treeview';
 import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
 
 @Component({
-  selector: 'ReconcilingCodesetTree',
-  styles: [`.bt-infoBox {    
+    selector: 'ReconcilingCodesetTree',
+    styles: [`.bt-infoBox {    
                     padding: .08rem .12rem .12rem .12rem;
                     margin-bottom: .12rem;
                     font-size: .875rem;
@@ -28,7 +28,8 @@ import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
                     background-color: #C2F3C0;
                 }
         `],
-  templateUrl: './ReconcilingCodesetTree.component.html'
+    templateUrl: './ReconcilingCodesetTree.component.html',
+    standalone: false
 })
 
 export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {

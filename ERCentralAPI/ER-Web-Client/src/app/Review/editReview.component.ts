@@ -8,9 +8,10 @@ import { ReviewInfo, ReviewInfoService } from '../services/ReviewInfo.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 
 @Component({
-  selector: 'EditReviewComp',
-  templateUrl: './editReview.component.html',
-  providers: []
+    selector: 'EditReviewComp',
+    templateUrl: './editReview.component.html',
+    providers: [],
+    standalone: false
 })
 
 export class EditReviewComponent implements OnInit, OnDestroy {

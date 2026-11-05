@@ -5,7 +5,8 @@ import { MAGBrowserService } from '../services/MAGBrowser.service';
     selector: 'MAGpaginatorComp',
     templateUrl: './MAGpaginator.component.html',
     providers: [],
-    styles: ["button.disabled {color:black; }"]
+    styles: ["button.disabled {color:black; }"],
+    standalone: false
 })
 export class MAGpaginatorComp implements OnInit {
 

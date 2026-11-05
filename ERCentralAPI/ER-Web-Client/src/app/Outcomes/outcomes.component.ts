@@ -11,9 +11,10 @@ import { Helpers } from '../helpers/HelperMethods';
 
 
 @Component({
-  selector: 'OutcomesComp',
-  templateUrl: './outcomes.component.html',
-  providers: []
+    selector: 'OutcomesComp',
+    templateUrl: './outcomes.component.html',
+    providers: [],
+    standalone: false
 })
 
 export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {

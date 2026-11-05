@@ -20,7 +20,8 @@ import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
           50% {transform:rotate(-35deg);}
           100% {transform:rotate(35deg);}
         }`
-    ]
+    ],
+    standalone: false
 })
 
 export class ROSourcesListComponent implements OnInit {

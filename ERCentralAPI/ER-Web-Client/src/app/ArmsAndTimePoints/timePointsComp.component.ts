@@ -8,9 +8,10 @@ import { NgModel, NgForm } from '@angular/forms';
 import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
-	selector: 'timePointsComp',
-	templateUrl: './timePoints.component.html',
-    providers: []
+    selector: 'timePointsComp',
+    templateUrl: './timePoints.component.html',
+    providers: [],
+    standalone: false
 })
 
 export class timePointsComp  implements OnInit {

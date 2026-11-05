@@ -5,7 +5,8 @@ import { ArmTimepointLinkListService } from '../services/ArmTimepointLinkList.se
 @Component({
     selector: 'ArmsComp',
     templateUrl: './arms.component.html',
-    providers: []
+    providers: [],
+    standalone: false
 })
 
 export class armsComp implements OnInit{

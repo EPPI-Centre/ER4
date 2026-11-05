@@ -30,17 +30,16 @@ import {
 } from '@progress/kendo-svg-icons';
 
 @Component({
-
-  selector: 'itemcodingFull',
-  templateUrl: './codingFull.component.html',
-  //providers: [ReviewerIdentityService]
-  providers: [],
-  styles: [`
+    selector: 'itemcodingFull',
+    templateUrl: './codingFull.component.html',
+    //providers: [ReviewerIdentityService]
+    providers: [],
+    styles: [`
                 button.disabled {
                     color:black; 
                     }
-            `]
-
+            `],
+    standalone: false
 })
 export class ItemCodingFullComp implements OnInit, OnDestroy {
 

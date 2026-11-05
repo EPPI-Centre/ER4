@@ -11,10 +11,11 @@ import { iReviewJob, ReviewInfoService, ReviewJob } from '../services/ReviewInfo
 import { ExcelService } from '../services/excel.service';
 
 @Component({
-  selector: 'ReviewJobs',
-  templateUrl: './ReviewJobs.component.html',
-  styles: [],
-  providers: []
+    selector: 'ReviewJobs',
+    templateUrl: './ReviewJobs.component.html',
+    styles: [],
+    providers: [],
+    standalone: false
 })
 
 export class ReviewJobs implements OnInit, OnDestroy {

@@ -8,8 +8,9 @@ import { encodeBase64, saveAs } from '@progress/kendo-file-saver';
 import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
-	selector: 'configurablereport',
-	templateUrl: './configurablereport.component.html',
+    selector: 'configurablereport',
+    templateUrl: './configurablereport.component.html',
+    standalone: false
 })
 export class configurablereportComp implements OnInit, OnDestroy {
 

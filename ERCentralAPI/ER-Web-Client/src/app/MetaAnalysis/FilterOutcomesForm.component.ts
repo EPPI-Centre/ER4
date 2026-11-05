@@ -5,10 +5,11 @@ import { ExtendedOutcome } from '../services/outcomes.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 
 @Component({
-  selector: 'FilterOutcomesFormComp',
-  templateUrl: './FilterOutcomesForm.component.html',
-  providers: [],
-  styles: []
+    selector: 'FilterOutcomesFormComp',
+    templateUrl: './FilterOutcomesForm.component.html',
+    providers: [],
+    styles: [],
+    standalone: false
 })
 export class FilterOutcomesFormComp implements OnInit, OnDestroy {
 

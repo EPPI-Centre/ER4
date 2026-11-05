@@ -25,8 +25,9 @@ import { RobotsService } from '../services/Robots.service';
 import { SVGIcon, arrowRotateCwIcon, trashIcon } from '@progress/kendo-svg-icons';
 
 @Component({
-  selector: 'SearchComp',
-  templateUrl: './SearchComp.component.html'
+    selector: 'SearchComp',
+    templateUrl: './SearchComp.component.html',
+    standalone: false
 })
 
 export class SearchComp implements OnInit, OnDestroy {

@@ -16,9 +16,10 @@ import { RobotsService } from '../services/Robots.service';
 
 
 @Component({
-  selector: 'reviewerList',
-  templateUrl: './reviewerList.component.html',
-  providers: []
+    selector: 'reviewerList',
+    templateUrl: './reviewerList.component.html',
+    providers: [],
+    standalone: false
 })
 
 export class ReviewerListComponent implements OnInit {

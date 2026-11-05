@@ -7,8 +7,8 @@ import { singleNode4move, ReviewSet4Move } from '../services/ReviewSetsEditing.s
 import { TreeItem, TreeViewComponent } from '@progress/kendo-angular-treeview';
 
 @Component({
-  selector: 'codesetTree4Move',
-  styles: [`
+    selector: 'codesetTree4Move',
+    styles: [`
 			.no-select{    
 				-webkit-user-select: none;
 				cursor:not-allowed; /*makes it even more obvious*/
@@ -16,7 +16,8 @@ import { TreeItem, TreeViewComponent } from '@progress/kendo-angular-treeview';
                 text-decoration: line-through;
 				}
         `],
-  templateUrl: './codesetTree4Move.component.html'
+    templateUrl: './codesetTree4Move.component.html',
+    standalone: false
 })
 
 export class codesetTree4Move implements OnInit, AfterViewInit, OnDestroy {

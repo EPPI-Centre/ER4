@@ -8,11 +8,10 @@ import { ExcelService } from '../services/excel.service';
 
 
 @Component({
-   
     selector: 'FreqXtabMaps',
     templateUrl: './FreqXtabMaps.component.html',
     providers: [],
-
+    standalone: false
 })
 export class FreqXtabMapsComp implements OnInit, OnDestroy, AfterViewInit {
 

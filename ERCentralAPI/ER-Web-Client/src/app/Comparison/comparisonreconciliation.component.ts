@@ -18,9 +18,9 @@ import { Helpers } from '../helpers/HelperMethods';
 
 
 @Component({
-  selector: 'ComparisonReconciliationComp',
-  templateUrl: './comparisonReconciliation.component.html',
-  styles: [`
+    selector: 'ComparisonReconciliationComp',
+    templateUrl: './comparisonReconciliation.component.html',
+    styles: [`
                .bg-comp {    
                     background-color: #C2F3C0;
                 }
@@ -38,7 +38,8 @@ import { Helpers } from '../helpers/HelperMethods';
                 } 
 				button.disabled {color:black; }
             `],
-  providers: []
+    providers: [],
+    standalone: false
 })
 
 export class ComparisonReconciliationComp extends BusyAwareService implements OnInit, OnDestroy {

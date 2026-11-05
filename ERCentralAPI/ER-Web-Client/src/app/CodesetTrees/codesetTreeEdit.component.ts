@@ -8,9 +8,10 @@ import { faCircle, faCircleDot, faCircleCheck, faCaretDown, faCaretUp, faAngleDo
 import { EditCodeComp } from '../CodesetTrees/editcode.component';
 
 @Component({
-  selector: 'codesetTreeEdit',
-  templateUrl: './codesetTreeEdit.component.html',
-  providers: []
+    selector: 'codesetTreeEdit',
+    templateUrl: './codesetTreeEdit.component.html',
+    providers: [],
+    standalone: false
 })
 
 export class CodesetTreeEditComponent implements OnInit, OnDestroy, AfterViewInit {

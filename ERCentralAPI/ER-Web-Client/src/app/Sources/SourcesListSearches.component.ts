@@ -10,7 +10,8 @@ import { searchService } from '../services/search.service';
 @Component({
     selector: 'SourcesListSearches',
     templateUrl: './SourcesListSearches.html',
-    providers: []
+    providers: [],
+    standalone: false
 })
 
 export class SourcesListSearchesComponent implements OnInit {

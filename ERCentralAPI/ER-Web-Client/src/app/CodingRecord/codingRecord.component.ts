@@ -14,10 +14,9 @@ import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { Outcome } from '../services/outcomes.service';
 
 @Component({
-
-  selector: 'codingRecordComp',
-  templateUrl: './codingRecord.component.html'
-
+    selector: 'codingRecordComp',
+    templateUrl: './codingRecord.component.html',
+    standalone: false
 })
 
 export class codingRecordComp implements OnInit, OnDestroy {
