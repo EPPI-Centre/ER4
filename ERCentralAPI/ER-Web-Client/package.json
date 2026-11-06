@@ -76,7 +76,6 @@
     "karma-sourcemap-loader": "^0.3.8",
     "ng2-charts": "^3.0.11",
     "npm-check-updates": "^23.0.0",
-    "oidc-client": "^1.11.5",
     "orderedmap": "1.1.5",
     "popper.js": "^1.16.1",
     "run-script-os": "^1.1.6",
