@@ -107,7 +107,7 @@
         <kendo-tabstrip-tab [title]="'References'">
           <ng-template kendoTabContent>
             <div class="containsAtoolbar">
-              <kendo-toolbar class="small" style="background-color: #f5f6fa;">
+              <kendo-toolbar class="" style="background-color: #f5f6fa;">
                 <kendo-toolbar-splitbutton [text]="'Import Items'" (buttonClick)="GoToSources()"
                   [data]="ImportOrNewDDData"
                 style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-splitbutton>
@@ -260,11 +260,6 @@
               class="bg-light"></WorkAllocationComp>
             </ng-template>
           </kendo-tabstrip-tab>
-          <!--<kendo-tabstrip-tab [title]="'Investigate'" [disabled]="DisableRobotInvestigate">
-          <ng-template kendoTabContent>
-            <RobotInvestigate #RobotInvestigate class="bg-light"></RobotInvestigate>
-          </ng-template>
-        </kendo-tabstrip-tab>-->
       </kendo-tabstrip>
       @if (!CodesAreCollapsed) {
         <button class="btn btn-success p-1 CodesBtn" style="min-width: 28px;" (click)="ShowHideCodes()">
