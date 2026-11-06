@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, AfterViewInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -11,6 +11,7 @@ import { ConfigService, versionInfo } from '../services/config.service';
     selector: 'statusbar',
     templateUrl: './statusbar.component.html',
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

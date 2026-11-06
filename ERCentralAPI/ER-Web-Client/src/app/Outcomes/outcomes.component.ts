@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input, AfterViewInit, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, AfterViewInit, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
 import { ReviewSetsService } from '../services/ReviewSets.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -14,6 +14,7 @@ import { Helpers } from '../helpers/HelperMethods';
     selector: 'OutcomesComp',
     templateUrl: './outcomes.component.html',
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

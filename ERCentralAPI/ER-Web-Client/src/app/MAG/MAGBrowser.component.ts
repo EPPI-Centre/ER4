@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { searchService } from '../services/search.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router, NavigationEnd } from '@angular/router';
@@ -18,6 +18,7 @@ import { Helpers } from '../helpers/HelperMethods';
     selector: 'MAGBrowser',
     templateUrl: './MAGBrowser.component.html',
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

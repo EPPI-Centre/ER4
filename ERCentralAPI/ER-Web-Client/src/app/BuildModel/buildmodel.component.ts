@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ClassifierService } from '../services/classifier.service';
 import { ReviewSetsService, singleNode, SetAttribute } from '../services/ReviewSets.service';
@@ -17,6 +17,7 @@ import { ReviewInfoService } from '../services/ReviewInfo.service';
     selector: 'BuildModelComp',
     templateUrl: './buildmodel.component.html',
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

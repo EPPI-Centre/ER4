@@ -1,4 +1,4 @@
-import { Component,  OnInit, ViewChild, EventEmitter, Input, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, EventEmitter, Input, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -21,6 +21,7 @@ import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
     selector: 'MAG',
     templateUrl: './MAG.component.html',
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class MAGComp implements OnInit, OnDestroy {

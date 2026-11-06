@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Input, OnDestroy, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, Input, OnDestroy, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewSetsService, iSetType, ReviewSet, singleNode, kvAllowedAttributeType, SetAttribute } from '../services/ReviewSets.service';
@@ -17,6 +17,7 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
                     color:black;
                 }
         `],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

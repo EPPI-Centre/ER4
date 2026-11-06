@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild, OnDestroy, } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { WorkAllocation, WorkAllocationListService } from '../services/WorkAllocationList.service'
@@ -69,6 +69,7 @@ import { SVGIcon, chartBarClusteredIcon, arrowRotateCwIcon, printIcon, gearsIcon
 
         `],
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class MainFullReviewComponent implements OnInit, OnDestroy {

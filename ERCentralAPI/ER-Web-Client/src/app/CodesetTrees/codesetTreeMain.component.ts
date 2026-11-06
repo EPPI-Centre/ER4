@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Output, Input, ViewChild, OnDestroy, ElementRef, AfterViewInit, ViewContainerRef } from '@angular/core';
+import { Component, Inject, OnInit, Output, Input, ViewChild, OnDestroy, ElementRef, AfterViewInit, ViewContainerRef, ChangeDetectionStrategy } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { ReviewSetsService, singleNode, ReviewSet, SetAttribute, iAttributeSet } from '../services/ReviewSets.service';
@@ -22,6 +22,7 @@ import { TreeItem, TreeViewComponent } from "@progress/kendo-angular-treeview";
 				}
         `],
     templateUrl: './codesetTreeMain.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

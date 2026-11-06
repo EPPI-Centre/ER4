@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import {  Item } from '../services/ItemList.service';
 import { ArmTimepointLinkListService } from '../services/ArmTimepointLinkList.service';
 
@@ -6,6 +6,7 @@ import { ArmTimepointLinkListService } from '../services/ArmTimepointLinkList.se
     selector: 'ArmsComp',
     templateUrl: './arms.component.html',
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

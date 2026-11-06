@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, AfterViewInit, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, AfterViewInit, HostListener, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -84,6 +84,7 @@ import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
                 }
                
             `],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {

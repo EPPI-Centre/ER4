@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Input, EventEmitter, Output } from '@angular/core';
+import { Component, Inject, OnInit, Input, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
 import { WebDBService, iWebDB, iWebDBLog } from '../services/WebDB.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { RowClassArgs, GridDataResult, SelectableSettings, SelectableMode, PageChangeEvent } from '@progress/kendo-angular-grid';
@@ -12,6 +12,7 @@ import { ExcelService } from '../services/excel.service';
     selector: 'VisLogComp',
     templateUrl: './VisLog.component.html',
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

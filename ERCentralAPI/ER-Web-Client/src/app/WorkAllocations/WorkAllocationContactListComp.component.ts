@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, EventEmitter, Output, AfterContentInit, OnDestroy, Input } from '@angular/core';
+import { Component, Inject, OnInit, EventEmitter, Output, AfterContentInit, OnDestroy, Input, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, Subscription, } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -12,6 +12,7 @@ import { PriorityScreeningService } from '../services/PriorityScreening.service'
     templateUrl: './WorkAllocationContactListComp.component.html',
     styles: ['.UsedWorkAllocation { font-weight: bold; background-color: lightblue;}'],
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

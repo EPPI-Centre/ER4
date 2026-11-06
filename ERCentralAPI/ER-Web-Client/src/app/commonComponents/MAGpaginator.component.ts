@@ -1,4 +1,4 @@
-import { Component,  OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 
 @Component({
@@ -6,6 +6,7 @@ import { MAGBrowserService } from '../services/MAGBrowser.service';
     templateUrl: './MAGpaginator.component.html',
     providers: [],
     styles: ["button.disabled {color:black; }"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class MAGpaginatorComp implements OnInit {

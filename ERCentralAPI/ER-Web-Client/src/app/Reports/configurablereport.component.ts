@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject, ViewChild, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, ViewChild, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
 import { ItemListService } from '../services/ItemList.service';
 import { ReviewSet, SetAttribute, singleNode } from '../services/ReviewSets.service';
 import { iConfigurableReport, ConfigurableReportService, ReportStandard, ReportOutcomes, ReportRiskOfBias, CommonReportFields } from '../services/configurablereport.service';
@@ -10,6 +10,7 @@ import { Helpers } from '../helpers/HelperMethods';
 @Component({
     selector: 'configurablereport',
     templateUrl: './configurablereport.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class configurablereportComp implements OnInit, OnDestroy {

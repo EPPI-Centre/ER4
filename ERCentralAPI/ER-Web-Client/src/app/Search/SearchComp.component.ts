@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnDestroy, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, ViewChild, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, Criteria } from '../services/ItemList.service';
@@ -27,6 +27,7 @@ import { SVGIcon, arrowRotateCwIcon, trashIcon } from '@progress/kendo-svg-icons
 @Component({
     selector: 'SearchComp',
     templateUrl: './SearchComp.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

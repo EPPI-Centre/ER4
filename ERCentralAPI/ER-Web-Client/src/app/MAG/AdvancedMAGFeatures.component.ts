@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Location } from '@angular/common';
 import { searchService } from '../services/search.service';
 import { singleNode, SetAttribute } from '../services/ReviewSets.service';
@@ -20,6 +20,7 @@ import { ClassifierModel, ClassifierService } from '../services/classifier.servi
     selector: 'AdvancedMAGFeatures',
     templateUrl: './AdvancedMAGFeatures.component.html',
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

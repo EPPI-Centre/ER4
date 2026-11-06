@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, OnDestroy, ElementRef, HostListener, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, OnDestroy, ElementRef, HostListener, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { ReviewSetsService, singleNode, ReviewSet, SetAttribute, ItemSetCompleteCommand } from '../services/ReviewSets.service';
@@ -33,6 +33,7 @@ import { TreeItem } from '@progress/kendo-angular-treeview';
             }
         `],
     templateUrl: './codesetTreeCoding.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
@@ -484,6 +485,7 @@ export class CheckBoxClickedEventData {
 @Component({
     selector: 'ngbd-InfoBoxModal-content',
     templateUrl: './InfoBoxModal.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class InfoBoxModalContent {

@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService,  Criteria } from '../services/ItemList.service';
 import { SourcesService, ReadOnlySource } from '../services/sources.service';
@@ -11,6 +11,7 @@ import { searchService } from '../services/search.service';
     selector: 'SourcesListSearches',
     templateUrl: './SourcesListSearches.html',
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

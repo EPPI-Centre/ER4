@@ -1,4 +1,4 @@
-import { Component,  OnInit,  OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
 import { ItemListService, Criteria } from '../services/ItemList.service';
 import { crosstabService, iWebDbItemAttributeCrosstabList, iWebDbItemAttributeCrosstabRow } from '../services/crosstab.service';
 import { singleNode, ReviewSetsService, SetAttribute } from '../services/ReviewSets.service';
@@ -11,6 +11,7 @@ import { ExcelService } from '../services/excel.service';
     selector: 'FreqXtabMaps',
     templateUrl: './FreqXtabMaps.component.html',
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class FreqXtabMapsComp implements OnInit, OnDestroy, AfterViewInit {

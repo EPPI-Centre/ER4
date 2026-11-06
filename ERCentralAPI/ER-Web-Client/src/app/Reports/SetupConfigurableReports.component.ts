@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ItemListService } from '../services/ItemList.service';
 import { ReviewSet, SetAttribute, singleNode, ReviewSetsService } from '../services/ReviewSets.service';
 import { iConfigurableReport, ConfigurableReportService, ReportStandard, ReportOutcomes, ReportRiskOfBias, CommonReportFields, iReportColumnCode, iReportColumn } from '../services/configurablereport.service';
@@ -13,6 +13,7 @@ import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
 @Component({
     selector: 'SetupConfigurableReports',
     templateUrl: './SetupConfigurableReports.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class SetupConfigurableReports implements OnInit, OnDestroy {

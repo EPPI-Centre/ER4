@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ElementRef, Renderer2 } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef, Renderer2, ChangeDetectionStrategy } from '@angular/core';
 import { ArmTimepointLinkListService, iArm, Arm, ItemArmDeleteWarningCommandJSON } from '../services/ArmTimepointLinkList.service';
 import { Item } from '../services/ItemList.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
@@ -10,6 +10,7 @@ import { Helpers } from '../helpers/HelperMethods';
 @Component({
     selector: 'armDetailsComp',
     templateUrl: './armDetails.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class armDetailsComp implements OnInit {

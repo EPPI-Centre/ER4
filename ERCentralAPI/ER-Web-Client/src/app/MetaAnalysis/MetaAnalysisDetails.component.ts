@@ -1,4 +1,4 @@
-import { Component, OnInit,Input, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { MetaAnalysis, MetaAnalysisService } from '../services/MetaAnalysis.service';
 import { FilterOutcomesFormComp } from './FilterOutcomesForm.component';
@@ -12,6 +12,7 @@ import { SVGIcon, filterIcon, plusIcon, saveIcon, playIcon, inheritedIcon } from
     styles: [`
 option:disabled {color: rgb(199, 199, 199);}
 `],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class MetaAnalysisDetailsComp implements OnInit, OnDestroy {

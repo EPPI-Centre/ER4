@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ModalService } from '../services/modal.service';
@@ -15,6 +15,7 @@ import { ExcelService } from '../services/excel.service';
     templateUrl: './ReviewJobs.component.html',
     styles: [],
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

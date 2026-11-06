@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Inject } from '@angular/core';
+import { Component, OnInit, Input, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import {  Item, ItemListService } from '../services/ItemList.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
@@ -10,6 +10,7 @@ import { Helpers } from '../helpers/HelperMethods';
     selector: 'ItemLinksComp',
     templateUrl: './ItemLinks.component.html',
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Input } from '@angular/core';
+import { Component, Inject, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewInfoService } from '../services/ReviewInfo.service'
@@ -77,6 +77,7 @@ import { NotificationService } from '@progress/kendo-angular-notification';
             ]),
         ]),
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

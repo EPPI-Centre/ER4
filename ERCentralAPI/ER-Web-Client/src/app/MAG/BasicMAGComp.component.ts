@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { searchService } from '../services/search.service';
 import { MAGRelatedRunsService } from '../services/MAGRelatedRuns.service';
 import { singleNode, SetAttribute } from '../services/ReviewSets.service';
@@ -18,6 +18,7 @@ import { ModalService } from '../services/modal.service';
     selector: 'BasicMAGComp',
     templateUrl: './BasicMAGComp.component.html',
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

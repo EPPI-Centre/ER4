@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewSetsService, kvAllowedAttributeType, SetAttribute, ReviewSet, singleNode } from '../services/ReviewSets.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
@@ -12,6 +12,7 @@ import { OutcomesService } from '../services/outcomes.service';
     selector: 'CreateNewCodeComp',
     templateUrl: './createnewcode.component.html',
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

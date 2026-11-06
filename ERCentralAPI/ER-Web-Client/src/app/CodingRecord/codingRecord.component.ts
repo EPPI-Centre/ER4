@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ItemListService, Item } from '../services/ItemList.service';
 import { ItemCodingService, ItemSet, ReadOnlyItemAttribute, ItemAttributeFullTextDetails } from '../services/ItemCoding.service';
@@ -16,6 +16,7 @@ import { Outcome } from '../services/outcomes.service';
 @Component({
     selector: 'codingRecordComp',
     templateUrl: './codingRecord.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

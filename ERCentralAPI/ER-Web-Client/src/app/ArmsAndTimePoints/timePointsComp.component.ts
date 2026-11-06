@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import {  Item } from '../services/ItemList.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
@@ -11,6 +11,7 @@ import { Helpers } from '../helpers/HelperMethods';
     selector: 'timePointsComp',
     templateUrl: './timePoints.component.html',
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

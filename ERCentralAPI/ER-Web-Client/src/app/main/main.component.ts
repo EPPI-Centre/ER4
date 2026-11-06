@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, AfterViewInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -28,6 +28,7 @@ import { ComparisonStatsComp } from '../Comparison/comparisonstatistics.componen
                 }
         `],
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class MainComponent implements OnInit, OnDestroy, AfterViewInit {

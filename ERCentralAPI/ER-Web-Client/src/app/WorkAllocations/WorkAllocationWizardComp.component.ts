@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, Attribute, ElementRef } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, Attribute, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { ReviewSetsService, kvAllowedAttributeType, SetAttribute, ReviewSet, singleNode } from '../services/ReviewSets.service';
 import { ReviewSetsEditingService, ChangeDataEntryMessage } from '../services/ReviewSetsEditing.service';
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
@@ -15,6 +15,7 @@ import { ModalService } from '../services/modal.service';
     templateUrl: './WorkAllocationWizardComp.component.html',
     styles: ['.DisabledStep { font-weight: light; opacity: 50%;}'],
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

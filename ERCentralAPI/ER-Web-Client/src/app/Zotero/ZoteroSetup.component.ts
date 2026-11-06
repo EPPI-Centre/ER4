@@ -1,4 +1,4 @@
-import { Component,  ElementRef,  EventEmitter, Inject, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Inject, OnInit, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { Helpers } from '../helpers/HelperMethods';
 import { ConfigurableReportService } from '../services/configurablereport.service';
@@ -12,6 +12,7 @@ import {Group, GroupData } from '../services/ZoteroClasses.service';
     selector: 'ZoteroSetup',
     templateUrl: './ZoteroSetup.component.html',
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

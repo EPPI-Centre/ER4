@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { Subscription, Subject } from 'rxjs';
@@ -39,6 +39,7 @@ import {
                     color:black; 
                     }
             `],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ItemCodingFullComp implements OnInit, OnDestroy {

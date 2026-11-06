@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Inject, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewService, Contact } from '../services/review.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
@@ -8,6 +8,7 @@ import { NotificationService } from '@progress/kendo-angular-notification';
     selector: 'EditAccountComp',
     templateUrl: './editAccount.component.html',
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

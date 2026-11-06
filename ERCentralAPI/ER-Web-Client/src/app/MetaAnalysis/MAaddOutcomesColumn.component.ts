@@ -1,4 +1,4 @@
-import { Component, OnInit,Input, ViewChild, OnDestroy, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, OnDestroy, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { iReference, MetaAnalysis, MetaAnalysisService, Moderator } from '../services/MetaAnalysis.service';
 import { FilterOutcomesFormComp } from './FilterOutcomesForm.component';
@@ -15,6 +15,7 @@ import { ReviewSetsService, SetAttribute } from '../services/ReviewSets.service'
 .ModeratorsTable thead th {background-color: #dff0df; box-shadow: inset 0px -0.8px #222222, 0 0 #000; }
 `
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class MAaddOutcomesColumnComp implements OnInit, OnDestroy {

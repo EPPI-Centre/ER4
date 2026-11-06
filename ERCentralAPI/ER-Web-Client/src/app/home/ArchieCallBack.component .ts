@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ReviewerIdentityService, ReviewerIdentity, iCreateER4ContactViaArchieCommandJSON } from '../services/revieweridentity.service';
 import { Helpers } from '../helpers/HelperMethods';
@@ -7,6 +7,7 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 @Component({
     selector: 'ArchieCallBack',
     templateUrl: './ArchieCallBack.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ArchieCallBackComponent implements OnInit {

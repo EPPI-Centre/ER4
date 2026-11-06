@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, Input, ViewChild, OnDestroy, AfterViewInit, EventEmitter, Inject } from '@angular/core';
+import { Component, OnInit, Output, Input, ViewChild, OnDestroy, AfterViewInit, EventEmitter, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewSetsService, singleNode } from '../services/ReviewSets.service';
 import { Outcome } from '../services/outcomes.service';
@@ -29,6 +29,7 @@ import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
                 }
         `],
     templateUrl: './ReconcilingCodesetTree.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

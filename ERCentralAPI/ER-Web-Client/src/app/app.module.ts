@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule, inject, provideAppInitializer } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClient, HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HttpClient, HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { RouterModule, RouteReuseStrategy } from '@angular/router';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import 'zone.js';
@@ -394,7 +394,7 @@ function load(http: HttpClient, config: ConfigService): (() => Promise<boolean>)
             provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy
         },
         { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
-      provideHttpClient(withInterceptorsFromDi()),
+      provideHttpClient(withXhr(), withInterceptorsFromDi()),
       
   ]
 })

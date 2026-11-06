@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ReviewSetsService, ReviewSet } from '../services/ReviewSets.service';
 import { ComparisonsService, Comparison, ComparisonStatistics } from '../services/comparisons.service';
 import { Router } from '@angular/router';
@@ -39,6 +39,7 @@ import { Helpers } from '../helpers/HelperMethods';
 				button.disabled {color:black; }
             `],
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

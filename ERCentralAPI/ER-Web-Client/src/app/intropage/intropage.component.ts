@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild, AfterViewInit, NgZone, } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, AfterViewInit, NgZone, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { Observable, } from 'rxjs';
@@ -10,6 +10,7 @@ import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreview
     selector: 'intropage',
     templateUrl: './intropage.component.html',
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class intropageComponent implements OnInit, AfterViewInit  {

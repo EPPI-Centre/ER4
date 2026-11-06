@@ -1,5 +1,5 @@
 <div class="row m-1 p-0 d-flex justify-content-between">
-  <button class="btn btn-primary" (click)="fetchFrequencies(chosenNode, chosenFilter?.attribute_id)" >Get Frequencies</button>
+  <button class="btn btn-primary" (click)="fetchFrequencies(chosenNode, $safeNavigationMigration(chosenFilter?.attribute_id))" >Get Frequencies</button>
   @if (selectedNode) {
     <div class="align-self-center small"> &nbsp; Current code: {{selectedNode.name}}</div>
   }

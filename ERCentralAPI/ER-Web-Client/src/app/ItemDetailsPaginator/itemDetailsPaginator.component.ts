@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, Output, OnDestroy, Input, AfterViewInit } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, OnDestroy, Input, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -20,6 +20,7 @@ import { ReviewSetsService } from '../services/ReviewSets.service';
                     color:black; 
                     }
             `],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

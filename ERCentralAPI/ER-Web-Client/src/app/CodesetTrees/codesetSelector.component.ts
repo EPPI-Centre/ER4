@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, Input, OnDestroy, AfterViewInit, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, Input, OnDestroy, AfterViewInit, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { ReviewSetsService, singleNode, ReviewSet, iSetType, SetAttribute } from '../services/ReviewSets.service';
@@ -10,6 +10,7 @@ import { TreeItem } from '@progress/kendo-angular-treeview';
     selector: 'codesetSelector',
     styles: [],
     templateUrl: './codesetSelector.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

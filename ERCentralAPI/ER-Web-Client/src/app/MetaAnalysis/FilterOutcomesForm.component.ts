@@ -1,4 +1,4 @@
-import { Component, OnInit,Input, ViewChild, OnDestroy, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, OnDestroy, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
 import { StringKeyValue } from '../services/ItemList.service';
 import { FilterSettings, MetaAnalysis, MetaAnalysisService } from '../services/MetaAnalysis.service';
 import { ExtendedOutcome } from '../services/outcomes.service';
@@ -9,6 +9,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
     templateUrl: './FilterOutcomesForm.component.html',
     providers: [],
     styles: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class FilterOutcomesFormComp implements OnInit, OnDestroy {

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnDestroy, } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { ReviewSetsService, singleNode } from '../services/ReviewSets.service';
@@ -8,6 +8,7 @@ import { ReviewSetsService, singleNode } from '../services/ReviewSets.service';
     selector: 'codesetTree4QuickQuestionReport',
     styles: [],
     templateUrl: './codesetTree4QuickQuestionReport.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

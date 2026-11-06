@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService, ReviewerIdentity } from '../services/revieweridentity.service';
 import { Helpers } from '../helpers/HelperMethods';
@@ -19,6 +19,7 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
     ]
     //providers: [ReviewerIdentityService]
     ,
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class HomeComponent implements OnInit {

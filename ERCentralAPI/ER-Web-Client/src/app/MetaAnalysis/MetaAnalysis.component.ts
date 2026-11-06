@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
@@ -59,6 +59,7 @@ padding:0.5rem;
 .selectedMA td {background-color: #cce5ff;}
 .selectedMA div {font-weight:bold;}
   `],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class MetaAnalysisComp implements OnInit, OnDestroy {

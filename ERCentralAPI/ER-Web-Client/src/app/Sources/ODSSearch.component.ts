@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, ItemList, Criteria } from '../services/ItemList.service';
@@ -14,6 +14,7 @@ import { Helpers } from '../helpers/HelperMethods';
     selector: 'ODSSearchComp',
     templateUrl: './ODSSearch.component.html',
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

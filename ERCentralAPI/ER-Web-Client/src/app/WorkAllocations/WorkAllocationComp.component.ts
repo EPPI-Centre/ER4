@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, EventEmitter, Output, ViewChild, Input } from '@angular/core';
+import { Component, Inject, OnInit, EventEmitter, Output, ViewChild, Input, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { WorkAllocationListService, WorkAllocation } from '../services/WorkAllocationList.service';
@@ -23,6 +23,7 @@ import { Helpers } from '../helpers/HelperMethods';
     templateUrl: './WorkAllocationComp.component.html',
     styles: ['.UsedWorkAllocation { font-weight: bold; background-color: lightblue;}'],
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

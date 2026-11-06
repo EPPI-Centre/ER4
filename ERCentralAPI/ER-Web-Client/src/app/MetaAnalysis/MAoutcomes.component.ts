@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, EventEmitter, Output, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, EventEmitter, Output, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Helpers } from '../helpers/HelperMethods';
@@ -38,6 +38,7 @@ import { encodeBase64, saveAs } from '@progress/kendo-file-saver';
 
 `
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
   //see https://stackoverflow.com/a/47923622 for how the "ticky" thing works for tableFixHead!!

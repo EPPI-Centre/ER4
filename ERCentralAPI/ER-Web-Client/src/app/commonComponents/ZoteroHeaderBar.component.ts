@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, EventEmitter, Input, Output } from '@angular/core';
+import { Component, OnInit, ViewChild, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
@@ -10,6 +10,7 @@ import { ZoteroService } from '../services/Zotero.service';
     selector: 'ZoteroHeaderBar',
     templateUrl: './ZoteroHeaderBar.component.html',
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ZoteroHeaderBarComp implements OnInit {

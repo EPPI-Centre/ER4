@@ -1,4 +1,4 @@
-import { Component,  OnInit,  Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { ReviewSetsService, SetAttribute, ReviewSet, singleNode } from '../services/ReviewSets.service';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
@@ -11,6 +11,7 @@ import { ComparisonsService, Comparison } from '../services/comparisons.service'
     selector: 'CreateNewComparisonComp',
     templateUrl: './createnewcomparison.component.html',
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

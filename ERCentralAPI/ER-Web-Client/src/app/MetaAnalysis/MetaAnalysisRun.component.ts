@@ -1,4 +1,4 @@
-import { Component, OnInit,Input, ViewChild, OnDestroy, EventEmitter, Output, Inject } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, OnDestroy, EventEmitter, Output, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { iMetaAnalysisRunInRCommand, iReference, MetaAnalysis, MetaAnalysisService, Moderator } from '../services/MetaAnalysis.service';
 import { FilterOutcomesFormComp } from './FilterOutcomesForm.component';
@@ -11,6 +11,7 @@ import { Helpers } from '../helpers/HelperMethods';
     templateUrl: './MetaAnalysisRun.component.html',
     providers: [],
     styles: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class MetaAnalysisRunComp implements OnInit, OnDestroy {

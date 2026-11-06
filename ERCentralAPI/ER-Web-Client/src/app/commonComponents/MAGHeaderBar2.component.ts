@@ -1,4 +1,4 @@
-import { Component,  OnInit, ViewChild, EventEmitter, Input, Output } from '@angular/core';
+import { Component, OnInit, ViewChild, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
@@ -16,6 +16,7 @@ import { MAGTopicsService } from '../services/MAGTopics.service';
     selector: 'MAGHeaderBar2',
     templateUrl: './MAGHeaderBar2.component.html',
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class MAGHeaderBar2Comp implements OnInit {

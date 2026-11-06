@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, EventEmitter, Output } from '@angular/core';
+import { Component, Inject, OnInit, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ItemListService, Criteria, Item, ItemList } from '../services/ItemList.service';
 
@@ -8,6 +8,7 @@ import { ItemListService, Criteria, Item, ItemList } from '../services/ItemList.
     templateUrl: './paginator.component.html',
     providers: [],
     styles: ["button.disabled {color:black; }"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class paginatorComp implements OnInit {

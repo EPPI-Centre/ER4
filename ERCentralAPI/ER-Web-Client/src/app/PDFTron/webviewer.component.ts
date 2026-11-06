@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, AfterViewInit, Input, Inject } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit, Input, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { ItemDocsService } from '../services/itemdocs.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Helpers } from '../helpers/HelperMethods';
@@ -10,6 +10,7 @@ declare const PDFNet: any;
 @Component({
     selector: 'app-webviewer',
     templateUrl: './webviewer.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

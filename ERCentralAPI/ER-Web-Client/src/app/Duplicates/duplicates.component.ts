@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
@@ -34,6 +34,7 @@ import { CustomSorting, LocalSort } from '../helpers/CustomSorting';
                 }
                     
             `],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { Subscription } from 'rxjs';
@@ -10,6 +10,7 @@ import { ZoteroService } from '../services/Zotero.service';
     selector: 'ZoteroManager',
     templateUrl: './ZoteroManager.component.html',
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject, Input} from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, Input, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MagPaper, MVCMagPaperListSelectionCriteria } from '../services/MAGClasses.service';
@@ -14,6 +14,7 @@ import { MAGBrowserService } from '../services/MAGBrowser.service';
 @Component({
     selector: 'microsoftAcademicComp',
     templateUrl: './microsoftAcademic.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy, Output, EventEmitter, Input, Inject } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, Output, EventEmitter, Input, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { searchService } from '../services/search.service';
 import { singleNode, SetAttribute, ReviewSetsService } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
@@ -23,6 +23,7 @@ import { Workbook, WorkbookSheet, WorkbookSheetColumn, WorkbookSheetRow, Workboo
     selector: 'MatchingMAGItems',
     templateUrl: './MatchingMAGItems.component.html',
     providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 
