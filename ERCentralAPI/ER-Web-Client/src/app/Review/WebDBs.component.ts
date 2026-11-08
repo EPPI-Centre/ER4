@@ -589,6 +589,8 @@ export class WebDBsComponent implements OnInit, OnDestroy {
       userCanEditURLs: rs.userCanEditURLs,
       originalSetId: rs.originalSetId,
       oldestKnownId: rs.oldestKnownId,
+      extURL: rs.extURL,
+      extType: rs.extType,
 			attributes: {
 				attributesList: []
 			}

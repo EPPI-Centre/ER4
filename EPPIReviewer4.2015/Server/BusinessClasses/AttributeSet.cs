@@ -218,6 +218,23 @@ namespace BusinessLibrary.BusinessClasses
             }
             return returnValue;
         }
+        public AttributeSet GetAttributeSetFromExtURL(string ExtURL)
+        {
+            AttributeSet returnValue = null;
+            foreach (AttributeSet a in this.Attributes)
+            {
+                if (a.ExtURL == ExtURL)
+                {
+                    return a;
+                }
+                returnValue = a.GetAttributeSetFromExtURL(ExtURL);
+                if (returnValue != null)
+                {
+                    return returnValue;
+                }
+            }
+            return returnValue;
+        }
 
         public AttributeSet GetAttributeSetFromAttributeName(string AttributeName)
         {

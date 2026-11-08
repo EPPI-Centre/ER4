@@ -145,6 +145,23 @@ namespace BusinessLibrary.BusinessClasses
             }
             return returnValue;
         }
+        public AttributeSet GetAttributeSetFromExtURL(string ExtURL)
+        {
+            AttributeSet returnValue = null;
+            foreach (AttributeSet a in this.Attributes)
+            {
+                if (a.ExtURL == ExtURL)
+                {
+                    return a;
+                }
+                returnValue = a.GetAttributeSetFromExtURL(ExtURL);
+                if (returnValue != null)
+                {
+                    return returnValue;
+                }
+            }
+            return returnValue;
+        }
 
         public AttributeSet GetAttributeSetFromAttributeName(string AttributeName)
         {
@@ -343,6 +360,33 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(SetDescriptionProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<string> ExtURLProperty = RegisterProperty<string>(new PropertyInfo<string>("ExtURL", "URI for external vocabulary", string.Empty));
+        [JsonProperty]
+        public string ExtURL
+        {
+            get
+            {
+                return GetProperty(ExtURLProperty);
+            }
+            set
+            {
+                SetProperty(ExtURLProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> ExtTypeProperty = RegisterProperty<string>(new PropertyInfo<string>("ExtType", "Set type for external resources", string.Empty));
+        [JsonProperty]
+        public string ExtType
+        {
+            get
+            {
+                return GetProperty(ExtTypeProperty);
+            }
+            set
+            {
+                SetProperty(ExtTypeProperty, value);
             }
         }
         public static readonly PropertyInfo<bool> AllowCodingEditsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("AllowCodingEdits", "Allow coding edits", false));
@@ -643,33 +687,6 @@ namespace BusinessLibrary.BusinessClasses
             this.BeginSave();
         }
 
-        //protected override void AddAuthorizationRules()
-        //{
-        //    //string[] canWrite = new string[] { "AdminUser", "RegularUser" };
-        //    //string[] canRead = new string[] { "AdminUser", "RegularUser", "ReadOnlyUser" };
-        //    //string[] admin = new string[] { "AdminUser", "RegularUser" };
-        //    string[] denyEditSave = new string[] { "ReadOnlyUser" };
-        //    //AuthorizationRules.AllowCreate(typeof(ReviewSet), admin);
-        //    //AuthorizationRules.AllowDelete(typeof(ReviewSet), admin);
-        //    //AuthorizationRules.AllowEdit(typeof(ReviewSet), canWrite);
-        //    //AuthorizationRules.AllowGet(typeof(ReviewSet), canRead);
-        //    AuthorizationRules.DenyEdit(typeof(ReviewSet), denyEditSave);
-
-        //    //AuthorizationRules.AllowRead(ReviewSetIdProperty, canRead);
-        //    //AuthorizationRules.AllowRead(ReviewIdProperty, canRead);
-        //    //AuthorizationRules.AllowRead(SetIdProperty, canRead);
-        //    //AuthorizationRules.AllowRead(AllowCodingEditsProperty, canRead);
-        //    //AuthorizationRules.AllowRead(SetTypeIdProperty, canRead);
-        //    //AuthorizationRules.AllowRead(SetNameProperty, canRead);
-        //    //AuthorizationRules.AllowRead(SetTypeProperty, canRead);
-        //    //AuthorizationRules.AllowRead(AttributeSetProperty, canRead);
-        //    //AuthorizationRules.AllowRead(CodingIsFinalProperty, canRead);
-
-        //    //AuthorizationRules.AllowWrite(AllowCodingEditsProperty, canWrite);
-        //    //AuthorizationRules.AllowWrite(SetNameProperty, canWrite);
-        //    //AuthorizationRules.AllowWrite(CodingIsFinalProperty, canWrite);
-        //}
-
         protected override void AddBusinessRules()
         {
             //BusinessRules.AddRule(new IsNotInRole(AuthorizationActions.EditObject, "ReadOnlyUser"));
@@ -697,6 +714,9 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@CODING_IS_FINAL", ReadProperty(CodingIsFinalProperty)));
                     command.Parameters.Add(new SqlParameter("@SET_ORDER", ReadProperty(SetOrderProperty)));
                     command.Parameters.Add(new SqlParameter("@SET_DESCRIPTION", ReadProperty(SetDescriptionProperty)));
+                    command.Parameters.Add(new SqlParameter("@Ext_URL", ReadProperty(ExtURLProperty)));
+                    command.Parameters.Add(new SqlParameter("@Ext_Type", ReadProperty(ExtTypeProperty)));
+
                     if (ReadProperty(OriginalSetIdProperty) != null && ReadProperty(OriginalSetIdProperty) != 0)
                     {
                         command.Parameters.Add(new SqlParameter("@ORIGINAL_SET_ID", ReadProperty(OriginalSetIdProperty)));
@@ -738,6 +758,8 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@CODING_IS_FINAL", ReadProperty(CodingIsFinalProperty)));
                     command.Parameters.Add(new SqlParameter("@SET_DESCRIPTION", ReadProperty(SetDescriptionProperty)));
                     command.Parameters.Add(new SqlParameter("@USER_CAN_EDIT_URLS", ReadProperty(UserCanEditURLsProperty)));
+                    command.Parameters.Add(new SqlParameter("@Ext_URL", ReadProperty(ExtURLProperty)));
+                    command.Parameters.Add(new SqlParameter("@Ext_Type", ReadProperty(ExtTypeProperty)));
 
                     command.Parameters.Add(new SqlParameter("@ITEM_SET_ID", ReadProperty(ItemSetIdProperty)));
                     command.Parameters.Add(new SqlParameter("@IS_COMPLETED", ReadProperty(ItemSetIsCompletedProperty)));
@@ -764,24 +786,48 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 connection.Close();
             }
+        }
 
-            /*
-            if (this.Attributes.Count == 0)
+        internal static ReviewSet GetReviewSetFromExtURLAndReviewId(string extURL)
+        {
+            ReviewSet returnValue = null;
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
-                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_ReviewSetFromExtURL", connection))
                 {
-                    connection.Open();
-                    using (SqlCommand command = new SqlCommand("st_ReviewSetDelete", connection))
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@Ext_URL", extURL));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
-                        command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@REVIEW_SET_ID", ReadProperty(ReviewSetIdProperty)));
-                        command.Parameters.Add(new SqlParameter("@SET_ID", ReadProperty(SetIdProperty)));
-                        command.ExecuteNonQuery();
+                        if (reader.Read())
+                        {
+                            returnValue = new ReviewSet();
+                            returnValue.Attributes = AttributeSetList.NewAttributeSetList();
+                            returnValue.LoadProperty<int>(ReviewSetIdProperty, reader.GetInt32("REVIEW_SET_ID"));
+                            returnValue.LoadProperty<int>(OriginalSetIdProperty, reader.GetInt32("ORIGINAL_SET_ID"));
+                            returnValue.LoadProperty<int>(OldestKnownIdProperty, reader.GetInt32("OLDEST_KNOWN_SET_ID"));
+                            returnValue.LoadProperty<int>(ReviewIdProperty, reader.GetInt32("REVIEW_ID"));
+                            returnValue.LoadProperty<int>(SetIdProperty, reader.GetInt32("SET_ID"));
+                            returnValue.LoadProperty<bool>(AllowCodingEditsProperty, reader.GetBoolean("ALLOW_CODING_EDITS"));
+                            returnValue.LoadProperty<bool>(UserCanEditProperty, (ApplicationContext.User.Identity as ReviewerIdentity).HasWriteRights());
+                            returnValue.LoadProperty<bool>(CodingIsFinalProperty, reader.GetBoolean("CODING_IS_FINAL"));
+                            returnValue.LoadProperty<int>(SetTypeIdProperty, reader.GetInt32("SET_TYPE_ID"));
+                            returnValue.LoadProperty<int>(SetOrderProperty, reader.GetInt32("SET_ORDER"));
+                            returnValue.LoadProperty<string>(SetNameProperty, reader.GetString("SET_NAME"));
+                            returnValue.LoadProperty<string>(SetDescriptionProperty, reader.GetString("SET_DESCRIPTION"));
+                            returnValue.LoadProperty<bool>(UserCanEditURLsProperty, reader.GetBoolean("USER_CAN_EDIT_URLS"));
+                            returnValue.LoadProperty<string>(ExtURLProperty, reader.GetString("Ext_URL"));
+                            returnValue.LoadProperty<string>(ExtTypeProperty, reader.GetString("Ext_Type"));
+                            ReviewSet.ReviewSetFromDBCommonPart(returnValue);
+                        }
                     }
-                    connection.Close();
                 }
+                connection.Close();
             }
-             */
+            return returnValue;
         }
 
         internal static ReviewSet GetReviewSet(SafeDataReader reader)
@@ -802,16 +848,16 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(SetNameProperty, reader.GetString("SET_NAME"));
             returnValue.LoadProperty<string>(SetDescriptionProperty, reader.GetString("SET_DESCRIPTION"));
             returnValue.LoadProperty<bool>(UserCanEditURLsProperty, reader.GetBoolean("USER_CAN_EDIT_URLS"));
+            returnValue.LoadProperty<string>(ExtURLProperty, reader.GetString("Ext_URL"));
+            returnValue.LoadProperty<string>(ExtTypeProperty, reader.GetString("Ext_Type"));
 
             //returnValue.LoadProperty<string>(SetTypeProperty, reader.GetString("SET_TYPE"));
             returnValue.TempMaxDepth = reader.GetInt32("MAX_DEPTH");
             returnValue.LoadProperty<bool>(ItemSetIsCompletedProperty, false);
-            
-           
             return returnValue;
         }
 
-        internal static ReviewSet GetReviewSet(int RevID, int setTypeID, bool allowCodingEdits, string name, bool codingIsFinal, int setOrder, string setDescription, int originalSetID, int oldestKnownId)
+        internal static ReviewSet GetReviewSet(int RevID, int setTypeID, bool allowCodingEdits, string name, bool codingIsFinal, int setOrder, string setDescription, int originalSetID, int oldestKnownId, string extURL, string extType)
         {//used on server side to copy codesets (destination)
             ReviewSet returnValue = new ReviewSet();
             returnValue.Attributes = AttributeSetList.NewAttributeSetList();
@@ -825,6 +871,8 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<int>(SetOrderProperty, setOrder);
             returnValue.LoadProperty<string>(SetNameProperty, name);
             returnValue.LoadProperty<string>(SetDescriptionProperty, setDescription);
+            returnValue.LoadProperty<string>(ExtURLProperty, extURL);
+            returnValue.LoadProperty<string>(ExtTypeProperty, extType);
             returnValue.LoadProperty<bool>(UserCanEditURLsProperty, false); // always false on copy
             returnValue.TempMaxDepth = 0;
             returnValue.LoadProperty<bool>(ItemSetIsCompletedProperty, false);
@@ -869,6 +917,8 @@ namespace BusinessLibrary.BusinessClasses
                             returnValue.LoadProperty<string>(SetNameProperty, reader.GetString("SET_NAME"));
                             returnValue.LoadProperty<bool>(UserCanEditURLsProperty, reader.GetBoolean("USER_CAN_EDIT_URLS"));
                             returnValue.LoadProperty<string>(SetDescriptionProperty, reader.GetString("SET_DESCRIPTION"));
+                            returnValue.LoadProperty<string>(ExtURLProperty, reader.GetString("Ext_URL"));
+                            returnValue.LoadProperty<string>(ExtTypeProperty, reader.GetString("Ext_Type"));
                             returnValue.TempMaxDepth = reader.GetInt32("MAX_DEPTH");
                             returnValue.LoadProperty<bool>(ItemSetIsCompletedProperty, false);
                             returnValue.MarkOld();

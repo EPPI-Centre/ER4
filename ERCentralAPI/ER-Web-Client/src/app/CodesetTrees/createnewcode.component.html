@@ -1,65 +1,77 @@
 
 <div *ngIf="!IsSmall" class="card container-fluid mt-1 bg-light  m-1 p-1 form-group">
-    <form class="row" #NewCodeFromCollaborate="ngForm" (ngSubmit)="onSubmit()">
-        <div class="col-12">
-          <div class="form-group">
-            <label for="Codeset_TypeCollaborate">Code Type*</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <div *ngIf="showRadioButtonEntry" class="d-inline">
-              <div class="d-inline-block">
-                <input type="checkbox" [(ngModel)]="radioButtonEntry" name="radioButtonCB">&nbsp;
-                <label for="Codeset_TypeCollaborate">Radio-button code</label>
-              </div>
-            </div>
-            <div *ngIf="radioButtonEntry" class="d-flex">
-              <div class="mb-1 p-1 rounded small alert-info ">
-                <strong>Radio-button codes are "mutually exclusive" codes: when they share the same parent, only one can be ticked.</strong><br />
-                Thus, ticking one radio-button code will automatically un-tick any other radio-button code located at the same level. <br />
-                Moreover, radio-button codes cannot be moved to a different parent, but can be converted to non-radio codes.<br />
-                Existing non-radio codes <strong>cannot</strong> be transformed into radio-button codes.
-              </div>
-            </div>
-            <select #CodeTypeSelectCollaborate class="form-control" name="NewCode_TypeCollaborate"
-                    [disabled]="!CurrentCodeCanHaveChildren" (change)="ChangeLastSelectedCodeType($event)">
-              <option *ngFor="let type of AllowedChildTypesOfSelectedNode" [value]="type.key" [selected]="type.key == LastSelectedCodeTypeId">
-                {{type.value}}
-              </option>
-            </select>
+  <form class="row" #NewCodeFromCollaborate="ngForm" (ngSubmit)="onSubmit()">
+    <div class="col-12">
+      <div class="form-group">
+        <label for="Codeset_TypeCollaborate">Code Type*</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <div *ngIf="showRadioButtonEntry" class="d-inline">
+          <div class="d-inline-block">
+            <input type="checkbox" [(ngModel)]="radioButtonEntry" name="radioButtonCB">&nbsp;
+            <label for="Codeset_TypeCollaborate">Radio-button code</label>
           </div>
         </div>
-        <div class="form-group col-12">
-          <label for="source_NameCollaborate">Code Name*</label>&nbsp;&nbsp;&nbsp;
-          <input type="checkbox" (click)="commaSeparatedEntryClicked($event)" [(ngModel)]="commaSeparatedEntry" name="multipleCodesCB">&nbsp;Enter multiple comma separated codes
-          <input *ngIf="!commaSeparatedEntry" type="text" class="form-control" id="AttName" [disabled]="!CurrentCodeCanHaveChildren"
-                 [(ngModel)]="NewCode.attribute_name" name="attribute_name" >
-          <input *ngIf="commaSeparatedEntry" type="text" class="form-control" id="AttNames" [disabled]="!CurrentCodeCanHaveChildren"
-                 [(ngModel)]="NewCode.attribute_name" name="attribute_names" placeholder="Enter comma separated code names" >
-          <span *ngIf="!IsNewCodeNameValid() && NewCodeFromCollaborate.dirty"
-                class="alert alert-danger small p-1">
-            Name is required
-          </span>
+        <div *ngIf="radioButtonEntry" class="d-flex">
+          <div class="mb-1 p-1 rounded small alert-info ">
+            <strong>Radio-button codes are "mutually exclusive" codes: when they share the same parent, only one can be ticked.</strong><br />
+            Thus, ticking one radio-button code will automatically un-tick any other radio-button code located at the same level. <br />
+            Moreover, radio-button codes cannot be moved to a different parent, but can be converted to non-radio codes.<br />
+            Existing non-radio codes <strong>cannot</strong> be transformed into radio-button codes.
+          </div>
         </div>
-        <div *ngIf="!commaSeparatedEntry" class="form-group col-12 mt-2">
-            <label for="newSetDescriptionCollaborate">Description (optional)</label>
-            <textarea class="form-control" id="newSetDescription" [disabled]="!CurrentCodeCanHaveChildren"
-                      [(ngModel)]="NewCode.attribute_set_desc" name="newAttDescription" rows="3"></textarea>
-        </div>
-        <div class="col-12">
-          <button *ngIf="!commaSeparatedEntry" type="submit" (click)="CreateNewCode()" name="CreateButton"
-                  class="btn btn-success ml-2 mr-2"
-                  [disabled]="!NewCodeFromCollaborate.dirty || !IsNewCodeNameValid() || !CurrentCodeCanHaveChildren">
-            <span>Create</span>
-          </button>
-          <button *ngIf="commaSeparatedEntry" type="submit" (click)="CreateNewCodes()" name="CreateCodesButton"
-                  class="btn btn-success ml-2 mr-2"
-                  [disabled]="!NewCodeFromCollaborate.dirty || !IsNewCodeNameValid() || !CurrentCodeCanHaveChildren">
-            <span>Create codes</span>
-          </button>
-          <button class="btn btn-outline-secondary ml-2 mr-2" type="button" name="CancelButton"
-                  (click)="CancelActivity()">
-            Cancel
-          </button>
-        </div>
-    </form>
+        <select #CodeTypeSelectCollaborate class="form-control" name="NewCode_TypeCollaborate"
+                [disabled]="!CurrentCodeCanHaveChildren" (change)="ChangeLastSelectedCodeType($event)">
+          <option *ngFor="let type of AllowedChildTypesOfSelectedNode" [value]="type.key" [selected]="type.key == LastSelectedCodeTypeId">
+            {{type.value}}
+          </option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group col-12">
+      <label for="source_NameCollaborate">Code Name*</label>&nbsp;&nbsp;&nbsp;
+      <input type="checkbox" (click)="commaSeparatedEntryClicked($event)" [(ngModel)]="commaSeparatedEntry" name="multipleCodesCB">&nbsp;Enter multiple comma separated codes
+      <input *ngIf="!commaSeparatedEntry" type="text" class="form-control" id="AttName" [disabled]="!CurrentCodeCanHaveChildren"
+             [(ngModel)]="NewCode.attribute_name" name="attribute_name">
+      <input *ngIf="commaSeparatedEntry" type="text" class="form-control" id="AttNames" [disabled]="!CurrentCodeCanHaveChildren"
+             [(ngModel)]="NewCode.attribute_name" name="attribute_names" placeholder="Enter comma separated code names">
+      <span *ngIf="!IsNewCodeNameValid() && NewCodeFromCollaborate.dirty"
+            class="alert alert-danger small p-1">
+        Name is required
+      </span>
+    </div>
+    <div *ngIf="!commaSeparatedEntry" class="form-group col-12 mt-2">
+      <label for="newSetDescriptionCollaborate">Description (optionalddfd)</label>
+      <textarea class="form-control" id="newSetDescription" [disabled]="!CurrentCodeCanHaveChildren"
+                [(ngModel)]="NewCode.attribute_set_desc" name="newAttDescription" rows="3"></textarea>
+    </div>
+    <div class="form-group col-12 mt-2">
+      External URL (optional)
+      <input class="form-control"
+             id="newSetExtURL"
+             [(ngModel)]="NewCode.extURL"
+             name="newSetExtURL">
+      External URL type (optional)
+      <input class="form-control"
+             id="newSetExtType"
+             [(ngModel)]="NewCode.extType"
+             name="newSetExtType">
+    </div>
+    <div class="col-12">
+      <button *ngIf="!commaSeparatedEntry" type="submit" (click)="CreateNewCode()" name="CreateButton"
+              class="btn btn-success ml-2 mr-2"
+              [disabled]="!NewCodeFromCollaborate.dirty || !IsNewCodeNameValid() || !CurrentCodeCanHaveChildren">
+        <span>Create</span>
+      </button>
+      <button *ngIf="commaSeparatedEntry" type="submit" (click)="CreateNewCodes()" name="CreateCodesButton"
+              class="btn btn-success ml-2 mr-2"
+              [disabled]="!NewCodeFromCollaborate.dirty || !IsNewCodeNameValid() || !CurrentCodeCanHaveChildren">
+        <span>Create codes</span>
+      </button>
+      <button class="btn btn-outline-secondary ml-2 mr-2" type="button" name="CancelButton"
+              (click)="CancelActivity()">
+        Cancel
+      </button>
+    </div>
+  </form>
 </div>
 
 

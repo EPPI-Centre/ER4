@@ -124,6 +124,21 @@
               <textarea class="form-control" id="newSetDescription"
                         [(ngModel)]="NewReviewSet.description" name="newSetDescription" rows="3"></textarea>
             </div>
+            <div class="form-group col-12 mt-2">
+              External URL (optional)
+              <input class="form-control"
+                     id="newSetExtURL"
+                     [(ngModel)]="NewReviewSet.extURL"
+                     [disabled]="!CanEditSelectedNode"
+                     name="newSetExtURL">
+              External URL type (optional)
+              <input class="form-control"
+                     id="newSetExtType"
+                     [(ngModel)]="NewReviewSet.extType"
+                     [disabled]="!CanEditSelectedNode"
+                     name="newSetExtType">
+            </div>
+
             <div class="col-12">
               <button type="submit" (click)="CreateNewCodeSet()" class="btn btn-success ml-2 mr-2" [disabled]="!NewCodesetFrom.dirty || !IsNewSetNameValid() || !CanWrite() ">
                 Create
@@ -203,6 +218,20 @@
               <textarea class="form-control" id="newSetDescription" [disabled]="!CanEditSelectedNode"
                         [(ngModel)]="CurrentNode.description" name="newSetDescription" rows="3"></textarea>
             </div>
+            <div class="form-group col-12 mt-2" *ngIf="CurrentReviewSetCanEditUrls">
+              External URL (optional)
+              <input class="form-control"
+                     id="newSetExtURL"
+                     [(ngModel)]="CurrentNode.extURL"
+                     [disabled]="!CanEditSelectedNode"
+                     name="newSetExtURL">
+              External URL type (optional)
+              <input class="form-control"
+                     id="newSetExtType"
+                     [(ngModel)]="CurrentNode.extType"
+                     [disabled]="!CanEditSelectedNode"
+                     name="newSetExtType">
+            </div>
             <div class="col-12">
               <button type="submit" (click)="UpdateCodeSet()" class="btn btn-success ml-2 mr-2"
                       [disabled]="!EditCodesetFrom.dirty || !IsEditingNodeNameValid()|| !CanWrite()">
@@ -222,6 +251,10 @@
             </div>
             <div class="col-12 small alert-info p-1 m-1" *ngIf="CurrentReviewSetCanEditUrls">
               This codeset is configured to allow linking codes to external ontologies/concepts. (Done by indicating their URL)
+            </div>
+            <div class="col-12 small alert-info p-1 m-1" *ngIf="CurrentNode.extURL != ''">
+              <div>URL: {{CurrentNode.extURL}}</div>
+              <div>Type: {{CurrentNode.extType}}</div>
             </div>
           </form>
         </div>

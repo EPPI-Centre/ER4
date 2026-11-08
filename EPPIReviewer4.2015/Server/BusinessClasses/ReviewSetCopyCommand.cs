@@ -60,7 +60,7 @@ namespace BusinessLibrary.BusinessClasses
             ReviewSet source = ReviewSet.GetReviewSet(_ReviewSetId);
             int OldestKnownId = source.SetId;
             if (source.OldestKnownId > 0) OldestKnownId = source.OldestKnownId;
-            Dest = ReviewSet.GetReviewSet(ri.ReviewId, source.SetTypeId, source.AllowCodingEdits, source.SetName, source.CodingIsFinal, _SetOrder, source.SetDescription, source.SetId, OldestKnownId);
+            Dest = ReviewSet.GetReviewSet(ri.ReviewId, source.SetTypeId, source.AllowCodingEdits, source.SetName, source.CodingIsFinal, _SetOrder, source.SetDescription, source.SetId, OldestKnownId, source.ExtURL, source.ExtType);
             Dest = Dest.Save();
             //Dest = Dest.Save(true);
             foreach (AttributeSet aSet in source.Attributes)

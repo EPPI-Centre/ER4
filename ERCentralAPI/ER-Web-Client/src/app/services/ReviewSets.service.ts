@@ -221,6 +221,8 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
       newSet.userCanEditURLs = iReviewSet.userCanEditURLs;
       newSet.originalSetId = iReviewSet.originalSetId;
       newSet.oldestKnownId = iReviewSet.oldestKnownId;
+      newSet.extURL = iReviewSet.extURL;
+      newSet.extType = iReviewSet.extType;
       newSet.attributes = ReviewSetsService.childrenFromJSONarray(iReviewSet.attributes.attributesList);
       result.push(newSet);
     }
@@ -247,6 +249,8 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
       newSet.userCanEditURLs = Itemset.userCanEditURLs;
       newSet.originalSetId = Itemset.originalSetId;
       newSet.oldestKnownId = Itemset.oldestKnownId;
+      newSet.extURL = Itemset.extURL;
+      newSet.extType = Itemset.extType;
       newSet.attributes = ReviewSetsService.childrenFromLocalJSONarray(Itemset.attributes);
       result.push(newSet);
     }
@@ -604,6 +608,9 @@ export interface singleNode {
   codingComplete: boolean;
   allowEditingCodeset: boolean;
   itemSetIsLocked: boolean;
+  //usersCanEditURLs: boolean;
+  extURL: string;
+  extType: string;
 }
 
 export class ReviewSet implements singleNode {
@@ -613,6 +620,8 @@ export class ReviewSet implements singleNode {
   public get name(): string { return this.set_name; }
   set_order: number = -1;
   reviewSetId: number = -1;
+  extURL: string = "";
+  extType: string = "";
   readonly typeCanBeExclusive: boolean = false;
   attributes: SetAttribute[] = [];
   showCheckBox: boolean = false;
@@ -870,6 +879,8 @@ export interface iReviewSet {
   attributes: iAttributesList;
   originalSetId: number;
   oldestKnownId: number;
+  extURL: string;
+  extType: string;
 }
 export interface iAttributesList {
   attributesList: iAttributeSet[];

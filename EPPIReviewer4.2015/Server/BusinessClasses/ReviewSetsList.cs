@@ -100,6 +100,19 @@ namespace BusinessLibrary.BusinessClasses
             }
             return returnValue;
         }
+        public AttributeSet GetAttributeSetFromExtURL(string ExtURL)
+        {
+            AttributeSet returnValue = null;
+            foreach (ReviewSet rs in this)
+            {
+                returnValue = rs.GetAttributeSetFromExtURL(ExtURL);
+                if (returnValue != null)
+                {
+                    return returnValue;
+                }
+            }
+            return returnValue;
+        }
 
         // JT commented out 07/06/2018 - doesn't look like this is ever called??
         //public void SetItemData(ItemSetList data)
