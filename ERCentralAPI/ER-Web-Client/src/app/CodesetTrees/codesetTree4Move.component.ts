@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, OnDestroy, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { singleNode, ReviewSet } from '../services/ReviewSets.service';
@@ -7,8 +7,8 @@ import { singleNode4move, ReviewSet4Move } from '../services/ReviewSetsEditing.s
 import { TreeItem, TreeViewComponent } from '@progress/kendo-angular-treeview';
 
 @Component({
-  selector: 'codesetTree4Move',
-  styles: [`
+    selector: 'codesetTree4Move',
+    styles: [`
 			.no-select{    
 				-webkit-user-select: none;
 				cursor:not-allowed; /*makes it even more obvious*/
@@ -16,7 +16,9 @@ import { TreeItem, TreeViewComponent } from '@progress/kendo-angular-treeview';
                 text-decoration: line-through;
 				}
         `],
-  templateUrl: './codesetTree4Move.component.html'
+    templateUrl: './codesetTree4Move.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class codesetTree4Move implements OnInit, AfterViewInit, OnDestroy {

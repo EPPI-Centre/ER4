@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, Output, OnDestroy, Input, AfterViewInit } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, OnDestroy, Input, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -12,14 +12,16 @@ import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { ReviewSetsService } from '../services/ReviewSets.service';
 
 @Component({
-  selector: 'itemDetailsPaginator',
-  templateUrl: './itemDetailsPaginator.component.html',
-  providers: [],
-  styles: [`
+    selector: 'itemDetailsPaginator',
+    templateUrl: './itemDetailsPaginator.component.html',
+    providers: [],
+    styles: [`
                 button.disabled {
                     color:black; 
                     }
-            `]
+            `],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewInit {

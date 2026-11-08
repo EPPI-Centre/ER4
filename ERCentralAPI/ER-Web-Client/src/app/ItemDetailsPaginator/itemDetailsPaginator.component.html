@@ -3,73 +3,79 @@
                                      order-md-last
                                      order-sm-last
                                      order-last">
-	<div *ngIf="ItemListService.ItemList && !IsScreening"
-		 class=" pagination justify-content-start">
-		<div>
-			<!--[ngClass]="{disabled:ItemListService.ItemList.pageindex + 1 === 1}"
-			[disabled]="ItemListService.ItemList.pageindex + 1 === 1"-->
-			<button [ngClass]="{disabled: !hasPrevious() || !CanChangeItem}"
-					[disabled]="!hasPrevious() || !CanChangeItem"
-					class="page-link" 
-					(click)="firstItem()">
-				First
-			</button>
-		</div>
-		<div>
-			<button [ngClass]="{disabled: !hasPrevious() || !CanChangeItem}"
-					[disabled]="!hasPrevious() || !CanChangeItem"
-					class="page-link" 
-					(click)="prevItem()">
-				Previous
-			</button>
+  @if (ItemListService.ItemList && !IsScreening) {
+    <div
+      class=" pagination justify-content-start">
+      <div>
+        <!--[ngClass]="{disabled:ItemListService.ItemList.pageindex + 1 === 1}"
+        [disabled]="ItemListService.ItemList.pageindex + 1 === 1"-->
+        <button [ngClass]="{disabled: !hasPrevious() || !CanChangeItem}"
+          [disabled]="!hasPrevious() || !CanChangeItem"
+          class="page-link"
+          (click)="firstItem()">
+          First
+        </button>
+      </div>
+      <div>
+        <button [ngClass]="{disabled: !hasPrevious() || !CanChangeItem}"
+          [disabled]="!hasPrevious() || !CanChangeItem"
+          class="page-link"
+          (click)="prevItem()">
+          Previous
+        </button>
+      </div>
+      <div>
+        <button [ngClass]="{disabled: !hasNext() || !CanChangeItem}"
+          [disabled]="!hasNext() || !CanChangeItem"
+          class="page-link"
+          (click)="nextItem()">
+          Next
+        </button>
+      </div>
+      <div>
+        <button [ngClass]="{disabled: !hasNext() || !CanChangeItem}"
+          [disabled]="!hasNext()"
+          class="page-link"
+          (click)="lastItem()">
+          Last
+        </button>
+      </div>
+      <div class="m-1 small align-content-end mt-2">Item {{MyHumanIndex}} of {{ItemListService.ItemList.items.length}}</div>
+    </div>
+  }
 
-		</div>
-		<div>
-			<button [ngClass]="{disabled: !hasNext() || !CanChangeItem}"
-					[disabled]="!hasNext() || !CanChangeItem" 
-					class="page-link" 
-					(click)="nextItem()">
-				Next
-			</button>
-		</div>
-		<div>
-			<button [ngClass]="{disabled: !hasNext() || !CanChangeItem}"
-					[disabled]="!hasNext()" 
-					class="page-link" 
-					(click)="lastItem()">
-				Last
-			</button>
-		</div>
-		<div class="m-1 small align-content-end mt-2">Item {{MyHumanIndex}} of {{ItemListService.ItemList.items.length}}</div>
-	</div>
-
-	<ul *ngIf="IsScreening" class="pagination justify-content-start">
-		<li>
-			<button [ngClass]="{disabled:!CanGoToPreviousScreening() || !CanChangeItem}"
-							[disabled]="!CanGoToPreviousScreening() || !CanChangeItem"
-							class="page-link" (click)="prevScreeningItem()">
-				Previously Screened
-			</button>
-
-		</li>
-		<li>
-			<button [ngClass]="{disabled:!CanMoveToNextInScreening() || !CanChangeItem}"
-							[disabled]="!CanMoveToNextInScreening() || !CanChangeItem"
-							class="page-link" (click)="GetScreeningItem()">
-				Next In screening
-			</button>
-		</li>
-		<li class="small my-auto ml-2 px-1 rounded bg-light border border-info"
-				title="Number of items screened in this session">
-			{{PreviouslyScreenedCount}}
-		</li>
-		<li *ngIf="IsListFromSearch" class="small my-auto ml-2 px-1 rounded alert-info border border-info"
-				title="You are using the 'From Search' screening list">
-			FS
-		</li>
-		<li *ngIf="!IsListFromSearch" class="small my-auto ml-2 px-1 rounded alert-primary border border-primary"
-				title="You are using the Priority Screening list">
-			PS
-		</li>
-	</ul>
+  @if (IsScreening) {
+    <ul class="pagination justify-content-start">
+      <li>
+        <button [ngClass]="{disabled:!CanGoToPreviousScreening() || !CanChangeItem}"
+          [disabled]="!CanGoToPreviousScreening() || !CanChangeItem"
+          class="page-link" (click)="prevScreeningItem()">
+          Previously Screened
+        </button>
+      </li>
+      <li>
+        <button [ngClass]="{disabled:!CanMoveToNextInScreening() || !CanChangeItem}"
+          [disabled]="!CanMoveToNextInScreening() || !CanChangeItem"
+          class="page-link" (click)="GetScreeningItem()">
+          Next In screening
+        </button>
+      </li>
+      <li class="small my-auto ml-2 px-1 rounded bg-light border border-info"
+        title="Number of items screened in this session">
+        {{PreviouslyScreenedCount}}
+      </li>
+      @if (IsListFromSearch) {
+        <li class="small my-auto ml-2 px-1 rounded alert-info border border-info"
+          title="You are using the 'From Search' screening list">
+          FS
+        </li>
+      }
+      @if (!IsListFromSearch) {
+        <li class="small my-auto ml-2 px-1 rounded alert-primary border border-primary"
+          title="You are using the Priority Screening list">
+          PS
+        </li>
+      }
+    </ul>
+  }
 </div>

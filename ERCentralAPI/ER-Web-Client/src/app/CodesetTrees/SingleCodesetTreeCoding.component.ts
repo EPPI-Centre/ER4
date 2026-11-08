@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { ReviewSetsService, singleNode, SetAttribute } from '../services/ReviewSets.service';
@@ -7,9 +7,11 @@ import { TreeItem } from '@progress/kendo-angular-treeview';
 
 
 @Component({
-  selector: 'SingleCodesetTreeCoding',
-  styles: [],
-  templateUrl: './SingleCodesetTreeCoding.component.html'
+    selector: 'SingleCodesetTreeCoding',
+    styles: [],
+    templateUrl: './SingleCodesetTreeCoding.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class SingleCodesetTreeCodingComponent implements OnInit, OnDestroy {

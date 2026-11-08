@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild, AfterViewInit, ElementRef } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, AfterViewInit, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { WebDBService, iWebDB, iWebDbReviewSet, WebDbReviewSet, MissingAttribute, iWebDBMap, iWebDBLog, FieldList } from '../services/WebDB.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -10,9 +10,11 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 import { FileRestrictions, UploadEvent, SelectEvent } from '@progress/kendo-angular-upload';
 
 @Component({
-	selector: 'WebDBsComp',
-	templateUrl: './WebDBs.component.html',
-	providers: []
+    selector: 'WebDBsComp',
+    templateUrl: './WebDBs.component.html',
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class WebDBsComponent implements OnInit, OnDestroy {

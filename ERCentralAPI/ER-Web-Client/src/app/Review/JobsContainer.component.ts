@@ -1,13 +1,15 @@
-import { Component, OnInit, ViewChild, EventEmitter, Input, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, EventEmitter, Input, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { SelectEvent, TabStripComponent } from '@progress/kendo-angular-layout';
 import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
 
 @Component({
-  selector: 'JobsContainer',
-  templateUrl: './JobsContainer.component.html',
-  providers: []
+    selector: 'JobsContainer',
+    templateUrl: './JobsContainer.component.html',
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class JobsContainer implements OnInit, OnDestroy {
 

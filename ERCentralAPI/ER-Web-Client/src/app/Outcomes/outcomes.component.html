@@ -1,108 +1,132 @@
 
 <div class="container col-md-12 form p-0">
-	<!--<p hidden>{{selectedNode?.name}}</p>-->
-	<div *ngIf="ShowOutcomesList" class="col-md-12 row card p-0 m-0">
-		<div class="card container-fluid px-0 bg-light border rounded">
-			<table class="table table-bordered table-responsive-md table-striped text-center">
-				<tr>
-					<th class="text-center">Outcome Title</th>
-					<th class="text-center">Intervention</th>
-					<th class="text-center">Actions</th>
-				</tr>
-				<tr *ngFor="let outcome of OutcomesBySet; let key = index">
-					<td class="p-1" >{{outcome.title}}</td>
-					<td class="p-1">{{outcome.interventionText}}</td>
-					<td class="p-0 m-0">
-            <div class="mt-1">
-              <button (click)="editOutcome(outcome)"
-                      [disabled]="!HasWriteRights"
-                      type="button" rounded="true"
-                      size="sm" class="btn btn-sm btn-outline-success my-auto py-0 px-1 ml-1">
-                <span class="k-icon k-i-edit"></span>&nbsp;Edit
-              </button>
-              <button type="button" rounded="true"
-                      size="sm" class="btn btn-sm btn-outline-danger my-auto py-0 px-1 ml-1"
-                      [disabled]="!HasWriteRights"
-                      (click)="removeWarning(outcome, key)">
-                <span class="k-icon k-i-delete"></span>
-              </button>
-              <button type="button" rounded="true" title="Create a copy and open it"
-                      size="sm" class="btn btn-sm btn-outline-secondary my-auto py-0 px-1 ml-1"
-                      [disabled]="!HasWriteRights"
-                      (click)="CopyOutcome(outcome)">
-                <span class="k-icon k-i-copy"></span>
-              </button>
+  <!--<p hidden>{{selectedNode?.name}}</p>-->
+  @if (ShowOutcomesList) {
+    <div class="col-md-12 row card p-0 m-0">
+      <div class="card container-fluid px-0 bg-light border rounded">
+        <table class="table table-bordered table-responsive-md table-striped text-center">
+          <tr>
+            <th class="text-center">Outcome Title</th>
+            <th class="text-center">Intervention</th>
+            <th class="text-center">Actions</th>
+          </tr>
+          @for (outcome of OutcomesBySet; track outcome; let key = $index) {
+            <tr>
+              <td class="p-1" >{{outcome.title}}</td>
+              <td class="p-1">{{outcome.interventionText}}</td>
+              <td class="p-0 m-0">
+                <div class="mt-1">
+                  <button (click)="editOutcome(outcome)"
+                    [disabled]="!HasWriteRights"
+                    type="button" rounded="true"
+                    size="sm" class="btn btn-sm btn-outline-success my-auto py-0 px-1 ml-1">
+                    <span class="k-icon k-i-edit"></span>&nbsp;Edit
+                  </button>
+                  <button type="button" rounded="true" title="Delete Outcome Measure"
+                    size="sm" class="btn btn-sm btn-outline-danger my-auto py-0 px-1 ml-1"
+                    [disabled]="!HasWriteRights"
+                    (click)="removeWarning(outcome, key)">
+                    <kendo-icon name="trash"></kendo-icon>
+                  </button>
+                  <button type="button" rounded="true" title="Create a copy and open it"
+                    size="sm" class="btn btn-sm btn-outline-secondary my-auto py-0 px-1 ml-1"
+                    [disabled]="!HasWriteRights"
+                    (click)="CopyOutcome(outcome)">
+                    <span class="k-icon k-i-copy"></span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </table>
+        <div class="col-md-12 row">
+          <button [disabled]="!HasWriteRights"
+            class="btn btn-primary p-2 m-2"
+            (click)="CreateNewOutcome()">
+            New Outcome
+          </button>
+          <button class="btn btn-danger  p-2 m-2"
+            (click)="ClearAndCancelEdit()">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+  @if (ShowOutcomesList == false  && item != undefined) {
+    <div class="col-md-12 row card p-0 m-0">
+      <div class="card container-fluid bg-light border rounded  p-0 m-0">
+        @if (OutcomeTitle.invalid && (OutcomeTitle.dirty || OutcomeTitle.touched)) {
+          <div
+            class="alert alert-danger">
+            @if (OutcomeTitle.errors && OutcomeTitle.errors.pattern) {
+              <div>
+                Title must not be empty
+              </div>
+            }
+            @if (OutcomeTitle.errors && OutcomeTitle.errors.required) {
+              <div>
+                Title text is required.
+              </div>
+            }
+            @if (OutcomeTitle.errors && OutcomeTitle.errors.minlength) {
+              <div>
+                Title text must be at least 3 characters long.
+              </div>
+            }
+          </div>
+        }
+        @if (outcomedata1.invalid && (outcomedata1.dirty || outcomedata1.touched)) {
+          <div
+            class="alert alert-danger">
+            @if (outcomedata1.errors && outcomedata1.errors.pattern) {
+              <div>
+                outcomedata1 must be numeric
+              </div>
+            }
+          </div>
+        }
+        @if (outcomedata2.invalid && (outcomedata2.dirty || outcomedata2.touched)) {
+          <div
+            class="alert alert-danger">
+            @if (outcomedata2.errors && outcomedata2.errors.pattern) {
+              <div>
+                outcomedata2 must be numeric
+              </div>
+            }
+          </div>
+        }
+        @if (ArmsCheckIsFailing) {
+          <div
+            class="alert alert-danger">
+            <div>
+              <strong>Outcome refers to a missing arm.</strong> <br />
+              To fix this, please click the "Remove Arm Selection" button (<span class="k-icon k-i-error"></span>)
+              where the missing arm was used and now shows no arm name selected in the drop-down.
             </div>
-					</td>
-				</tr>
-			</table>
-			<div class="col-md-12 row">
-				<button [disabled]="!HasWriteRights"
-						class="btn btn-primary p-2 m-2"
-						(click)="CreateNewOutcome()">
-					New Outcome
-				</button>
-				<button class="btn btn-danger  p-2 m-2"
-						(click)="ClearAndCancelEdit()">
-					Close
-				</button>
-			</div>
-		</div>
-	</div>
-	<div *ngIf="ShowOutcomesList == false  && item != undefined" class="col-md-12 row card p-0 m-0">
-		<div class="card container-fluid bg-light border rounded  p-0 m-0">
-			<div *ngIf="OutcomeTitle.invalid && (OutcomeTitle.dirty || OutcomeTitle.touched)"
-					 class="alert alert-danger">
-				<div *ngIf="OutcomeTitle.errors && OutcomeTitle.errors.pattern">
-					Title must not be empty
-				</div>
-				<div *ngIf="OutcomeTitle.errors && OutcomeTitle.errors.required">
-					Title text is required.
-				</div>
-				<div *ngIf="OutcomeTitle.errors && OutcomeTitle.errors.minlength">
-					Title text must be at least 3 characters long.
-				</div>
-			</div>
-			<div *ngIf="outcomedata1.invalid && (outcomedata1.dirty || outcomedata1.touched)"
-					 class="alert alert-danger">
-				<div *ngIf="outcomedata1.errors && outcomedata1.errors.pattern">
-					outcomedata1 must be numeric
-				</div>
-			</div>
-			<div *ngIf="outcomedata2.invalid && (outcomedata2.dirty || outcomedata2.touched)"
-					 class="alert alert-danger">
-				<div *ngIf="outcomedata2.errors && outcomedata2.errors.pattern">
-					outcomedata2 must be numeric
-				</div>
-			</div>
-			<div *ngIf="ArmsCheckIsFailing"
-					 class="alert alert-danger">
-				<div>
-					<strong>Outcome refers to a missing arm.</strong> <br />
-					To fix this, please click the "Remove Arm Selection" button (<span class="k-icon k-i-error"></span>)
-					where the missing arm was used and now shows no arm name selected in the drop-down.
-				</div>
-			</div>
-			<div *ngIf="TimepointsCheckIsFailing"
-					 class="alert alert-danger">
-				<div>
-					<strong>Outcome refers to a missing Timepoint.</strong> <br />
-					To fix this, please click the "Remove Timepoint Selection" button (<span class="k-icon k-i-error"></span>)
-					below.
-				</div>
-			</div>
-
-			<div class=" col-md-12 p-0 m-0">
-				<div class="row col-md-12 p-1 m-0">
-					<label class="col-md-4 mt-1">Title</label>
-					<div class="col-md-8 d-flex px-0">
-						<input placeholder="Title"
-									 name="OutcomeTitle" #OutcomeTitle="ngModel"
-									 [(ngModel)]="_OutcomesService.currentOutcome.title"
-									 required minlength="3" maxlength="255"
-									 value="_OutcomesService.currentOutcome.title"
-									 pattern="^.+$"
-									 type="text" class="form-control form-input" />
+          </div>
+        }
+        @if (TimepointsCheckIsFailing) {
+          <div
+            class="alert alert-danger">
+            <div>
+              <strong>Outcome refers to a missing Timepoint.</strong> <br />
+              To fix this, please click the "Remove Timepoint Selection" button (<span class="k-icon k-i-error"></span>)
+              below.
+            </div>
+          </div>
+        }
+        <div class=" col-md-12 p-0 m-0">
+          <div class="row col-md-12 p-1 m-0">
+            <label class="col-md-4 mt-1">Title</label>
+            <div class="col-md-8 d-flex px-0">
+              <input placeholder="Title"
+                name="OutcomeTitle" #OutcomeTitle="ngModel"
+                [(ngModel)]="_OutcomesService.currentOutcome.title"
+                required minlength="3" maxlength="255"
+                value="_OutcomesService.currentOutcome.title"
+                pattern="^.+$"
+                type="text" class="form-control form-input" />
 						<button [disabled]="!this.HasWriteRights
 								|| !currentOutcomeHasChanges
 								|| ArmsCheckIsFailing || TimepointsCheckIsFailing
@@ -115,361 +139,397 @@
 										)
 									  )
 									)"
-										class="btn btn-primary btn-sm py-0 mx-1 "
-										title="Save and Close" (click)="SaveOutcome()">
-							<span class="k-icon k-i-save"></span>
-						</button>
-					</div>
-				</div>
-				<div class="row col-md-12 p-1 m-0">
-					<label class="col-md-4 ">Timepoint</label>
-					<div class="d-flex col-md-8 p-0 m-0">
-						<select [(ngModel)]="_OutcomesService.currentOutcome.itemTimepointId"
-										class="form-control p-0 m-0">
-							<option [ngValue]="timepoint.itemTimepointId"
-											[selected]="timepoint.itemTimepointId == _OutcomesService.currentOutcome.itemTimepointId"
-											*ngFor="let timepoint of timePointsList">
-								{{timepoint.timepointValue}} &nbsp; {{timepoint.timepointMetric}}
-							</option>
-						</select>
-						<button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemTimepointId == 0"
-										title="Remove Timepoint Selection" (click)="_OutcomesService.currentOutcome.itemTimepointId = 0">
-							<span class="k-icon k-i-error"></span>
-						</button>
-					</div>
-				</div>
-
-				<div class="row col-md-12 py-1 pl-1 pr-2 m-0">
-					<label class="col-md-4 mt-1">Outcome Description</label>
-					<textarea value="_OutcomesService.currentOutcome.outcomeDescription" maxlength="4000"
-								 [(ngModel)]="_OutcomesService.currentOutcome.outcomeDescription" rows="2"
-								 type="text" class="form-control col-md-8 form-input" ></textarea>
-				</div>
-				<div class="row col-md-12  p-1 m-0">
-					<label class="col-md-4 mt-1">Outcome type</label>
-					<div class="d-flex col-12 col-md-8  p-1">
-						<select [(ngModel)]="_OutcomesService.currentOutcome.outcomeTypeId"
-										class="form-control">
-							<option [ngValue]="outcomeT.outcomeTypeId"
-											[selected]="outcomeT.outcomeTypeId == _OutcomesService.currentOutcome.outcomeTypeId"
-											*ngFor="let outcomeT of OutcomeTypeList">
-								{{outcomeT.outcomeTypeName}}
-							</option>
-						</select>
-					</div>
-
-
-					<label class="col-md-4 mt-1">Outcome</label>
-					<div class="d-flex col-12  col-md-8  p-1"
-							 placeholder="Outcomes">
-						<select [(ngModel)]="_OutcomesService.currentOutcome.itemAttributeIdOutcome"
-										class="form-control ">
-							<option [ngValue]="out.attributeId"
-											[selected]="out.attributeId == _OutcomesService.currentOutcome.itemAttributeIdOutcome"
-											*ngFor="let out of _OutcomesService.ReviewSetOutcomeList">
-								{{out.attributeName}}
-							</option>
-						</select>
-						<button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemAttributeIdOutcome == 0"
-										title="Remove Outcome Code Selection" (click)="_OutcomesService.currentOutcome.itemAttributeIdOutcome = 0">
-							<span class="k-icon k-i-error"></span>
-						</button>
-					</div>
-
-				</div>
-				<div class="row col-md-12  p-1 m-0">
-
-					<label class="col-md-4 mt-1">Intervention</label>
-					<div class="d-flex col-12 col-md-8  p-1">
-						<select (change)="UpdateInterventionName($event)"
-										[(ngModel)]="_OutcomesService.currentOutcome.itemAttributeIdIntervention"
-										class="form-control">
-							<option [value]="intervention.attributeId"
-											[selected]="intervention.attributeId == _OutcomesService.currentOutcome.itemAttributeIdIntervention"
-											*ngFor="let intervention of _OutcomesService.ReviewSetInterventionList">
-								{{intervention.attributeName}}
-							</option>
-						</select>
-						<button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemAttributeIdIntervention == 0"
-										title="Remove Intervention Code Selection" (click)="_OutcomesService.currentOutcome.itemAttributeIdIntervention = 0">
-							<span class="k-icon k-i-error"></span>
-						</button>
-					</div>
-
-
-					<label class="col-md-4 mt-1">Comparison</label>
-					<div class="d-flex col-12 col-md-8  p-1">
-						<select (change)="UpdateComparisonName($event)"
-										[(ngModel)]="_OutcomesService.currentOutcome.itemAttributeIdControl"
-										class="form-control">
-							<option [value]="control.attributeId"
-											[selected]="control.attributeId == _OutcomesService.currentOutcome.itemAttributeIdControl"
-											*ngFor="let control of _OutcomesService.ReviewSetControlList">
-								{{control.attributeName}}
-							</option>
-						</select>
-						<button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemAttributeIdControl == 0"
-										title="Remove Comparison Code Selection" (click)="_OutcomesService.currentOutcome.itemAttributeIdControl = 0">
-							<span class="k-icon k-i-error"></span>
-						</button>
-					</div>
-
-				</div>
-				<div class="row col-md-12 p-1 m-0">
-
-					<label class="col-md-4 mt-1">Group 1 arm</label>
-					<div class="d-flex col-12 col-md-8  p-1">
-						<select [(ngModel)]="_OutcomesService.currentOutcome.itemArmIdGrp1"
-										class="form-control">
-							<option *ngFor="let arm of item.arms" [ngValue]="arm.itemArmId"
-											[selected]="arm.itemArmId == _OutcomesService.currentOutcome.itemArmIdGrp1">
-								{{arm.title}}
-							</option>
-						</select>
-						<button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemArmIdGrp1 == 0"
-										title="Remove Arm1 Selection" (click)="_OutcomesService.currentOutcome.itemArmIdGrp1 = 0">
-							<span class="k-icon k-i-error"></span>
-						</button>
-					</div>
-
-
-					<label class="col-md-4 mt-1">Group 2 arm</label>
-					<div class="d-flex col-12 col-md-8 p-1">
-						<select [(ngModel)]="_OutcomesService.currentOutcome.itemArmIdGrp2"
-										class="form-control ">
-							<option *ngFor="let arm of item.arms" [ngValue]="arm.itemArmId"
-											[selected]="arm.itemArmId == _OutcomesService.currentOutcome.itemArmIdGrp2">
-								{{arm.title}}
-							</option>
-						</select>
-						<button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemArmIdGrp2 == 0"
-										title="Remove Arm2 Selection" (click)="_OutcomesService.currentOutcome.itemArmIdGrp2 = 0">
-							<span class="k-icon k-i-error"></span>
-						</button>
-					</div>
-
-				</div>
-
-				<!-- Need 8 sections here for the different outcomeTypes that can occur
-					/* Meta-analysis types:
-					*     0: Continuous: d (Hedges g)		outcomeTypeId==0
-					*     1: Continuous: r					outcomeTypeId==1	correlation coefficient r
-					*     2: Binary: odds ratio				outcomeTypeId==2
-					*     3: Binary: risk ratio				outcomeTypeId==3
-					*     4: Binary: risk difference		outcomeTypeId==4
-					*     5: Binary: diagnostic test OR		outcomeTypeId==5	diagnostic binary 2 x 2 table
-					*     6: Binary: Peto OR				outcomeTypeId==6
-					*     7: Continuous: mean difference	outcomeTypeId==7
-					*/
-
-						<div *ngFor="let code of _OutcomesService.currentOutcome.outcomeCodes.outcomeItemAttributesList">
-						{{code.attributeName}}
-					</div>
-
-					<button (click)="printstuff()"></button>
-		-->
-
-				<div class="row col-md-12 p-1 m-0">
-					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0">
-						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data1Desc}}</label>
-						<input class="form-control col-md-6" #outcomedata1="ngModel"
-									 [(ngModel)]="_OutcomesService.currentOutcome.data1"
-									 name="outcomedata1"
-									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
-									 value="_OutcomesService.currentOutcome.data1"
-									 type="number" />
-					</div>
-					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0">
-						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data2Desc}}</label>
-						<input class="form-control col-md-6"
-									 [(ngModel)]="_OutcomesService.currentOutcome.data2"
-									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
-									 name="outcomedata2" #outcomedata2="ngModel"
-									 value="_OutcomesService.currentOutcome.data2"
-									 type="number" />
-					</div>
-					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7">
-						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data3Desc}}</label>
-						<input [(ngModel)]="_OutcomesService.currentOutcome.data3"
-									 name="outcomedata3"
-									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
-									 value="_OutcomesService.currentOutcome.data3"
-									 type="number" class="form-control col-md-6" />
-					</div>
-
-					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 ">
-
-						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data4Desc}}</label>
-						<input [(ngModel)]="_OutcomesService.currentOutcome.data4"
-									 name="outcomedata4"
-									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
-									 value="_OutcomesService.currentOutcome.data4"
-									 type="number" class="form-control col-md-6" />
-					</div>
-
-					<div class="row col-6 col-md-6 col-lg-6  p-1 m-0"
-							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
-						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 2">
-
-						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data5Desc}}</label>
-						<input [(ngModel)]="_OutcomesService.currentOutcome.data5"
-									 name="outcomedata5"
-									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
-									 value="_OutcomesService.currentOutcome.data5"
-									 type="number" class="form-control col-md-6" />
-					</div>
-					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
-						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 2">
-
-						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data6Desc}}</label>
-						<input [(ngModel)]="_OutcomesService.currentOutcome.data6"
-									 name="outcomedata6"
-									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
-									 value="_OutcomesService.currentOutcome.data6"
-									 type="number" class="form-control col-md-6" />
-
-					</div>
-
-					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
-						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 3
-						 && _OutcomesService.currentOutcome.outcomeTypeId != 2 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
-
-						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data7Desc}}</label>
-						<input [(ngModel)]="_OutcomesService.currentOutcome.data7"
-									 name="outcomedata7"
-									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
-									 value="_OutcomesService.currentOutcome.data7"
-									 type="number" class="form-control col-md-6" />
-					</div>
-
-					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
-						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 3
-						 && _OutcomesService.currentOutcome.outcomeTypeId != 2 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
-
-						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data8Desc}}</label>
-						<input [(ngModel)]="_OutcomesService.currentOutcome.data8"
-									 name="outcomedata8"
-									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
-									 value="_OutcomesService.currentOutcome.data8"
-									 type="number" class="form-control col-md-6" />
-					</div>
-
-					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
-						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 4
-						 && _OutcomesService.currentOutcome.outcomeTypeId != 3 && _OutcomesService.currentOutcome.outcomeTypeId != 2
-						 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
-
-						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data11Desc}}</label>
-						<input [(ngModel)]="_OutcomesService.currentOutcome.data11"
-									 name="outcomedata11"
-									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
-									 value="_OutcomesService.currentOutcome.data11"
-									 type="number" class="form-control col-md-6 small" />
-					</div>
-
-					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
-						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 4
-						 && _OutcomesService.currentOutcome.outcomeTypeId != 3 && _OutcomesService.currentOutcome.outcomeTypeId != 2
-						 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
-
-						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data12Desc}}</label>
-						<input [(ngModel)]="_OutcomesService.currentOutcome.data12"
-									 name="outcomedata12"
-									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
-									 value="_OutcomesService.currentOutcome.data12"
-									 type="number" class="form-control col-md-6 small" />
-					</div>
-
-					<div class="row col-6 col-md-6 col-lg-6  p-1 m-0"
-							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
-						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 4
-						 && _OutcomesService.currentOutcome.outcomeTypeId != 3 && _OutcomesService.currentOutcome.outcomeTypeId != 2
-						 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
-
-						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data13Desc}}</label>
-						<input [(ngModel)]="_OutcomesService.currentOutcome.data13"
-									 name="outcomedata13"
-									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
-									 value="_OutcomesService.currentOutcome.data13"
-									 type="number" class="form-control col-md-6 small" />
-					</div>
-					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
-						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 4
-						 && _OutcomesService.currentOutcome.outcomeTypeId != 3 && _OutcomesService.currentOutcome.outcomeTypeId != 2
-						 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
-						<label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data14Desc}}</label>
-						<input [(ngModel)]="_OutcomesService.currentOutcome.data14"
-									 name="outcomedata14"
-									 pattern="^[-+]?[0-9]*\.?[0-9]+$"
-									 value="_OutcomesService.currentOutcome.data14"
-									 type="number" class="form-control col-md-6 small" />
-					</div>
-					<div class="row col-12 p-0 my-0 mx-1">
-						<div class="row p-1 m-2 border border-success rounded alert-info w-100">
-							<div class="col-12 m-0 p-0">
-								<label class="p-0 m-2 small font-weight-bold">{{ShowCFUOAEtext}}: </label> <button class="btn btn-sm btn-outline-success px-2 py-0" (click)="ShowCFUOAE()">Go</button>
-							</div>
-							<div *ngIf="ShowCFUOAEBoolCheck()"
-									 class="row col-12  p-1 m-2">
-								<div class="col-12 row p-1">
-									<label class="col-12 col-md-8 p-1 m-0">Mean cluster size</label>
-									<input [(ngModel)]="_OutcomesService.currentOutcome.data9"
-												 name="outcomedata9"
-												 pattern="^[-+]?[0-9]*\.?[0-9]+$"
-												 value="_OutcomesService.currentOutcome.data9"
-												 type="number" class="form-control col-12 col-md-4" />
-								</div>
-								<div class="col-12 row p-1">
-									<label class="col-12 col-md-8 p-1 m-0">ICC</label>
-									<input [(ngModel)]="_OutcomesService.currentOutcome.data10"
-												 name="outcomedata10"
-												 pattern="^[-+]?[0-9]*\.?[0-9]+$"
-												 value="_OutcomesService.currentOutcome.data10"
-												 type="number" class="form-control col-12 col-md-4" />
-								</div>
-							</div>
-						</div>
-						<div class="row col-md-12 p-0 m-0">
-							<div class="col-12 col-md-12 col-lg-12 row p-0 m-0">
-								<label class="col-md-5 bold">{{_OutcomesService.currentOutcome.esDesc}}</label>
-								<p *ngIf="_OutcomesService.currentOutcome.outcomeTypeId ==0" class="col-md-7 ">{{_OutcomesService.currentOutcome.es}}</p>
-								<p *ngIf="_OutcomesService.currentOutcome.outcomeTypeId ==1" class="col-md-7 ">{{SMD}}</p>
-								<p *ngIf="_OutcomesService.currentOutcome.outcomeTypeId ==2" class="col-md-7 ">{{_OutcomesService.currentOutcome.oddsRatio}}</p>
-								<p *ngIf="_OutcomesService.currentOutcome.outcomeTypeId ==3" class="col-md-7 ">{{SMD}}</p>
-								<p *ngIf="_OutcomesService.currentOutcome.outcomeTypeId ==4" class="col-md-7 ">{{SMD}}</p>
-								<p *ngIf="_OutcomesService.currentOutcome.outcomeTypeId ==5" class="col-md-7 ">{{SMD}}</p>
-								<p *ngIf="_OutcomesService.currentOutcome.outcomeTypeId ==6" class="col-md-7 ">{{_OutcomesService.currentOutcome.oddsRatio}}</p>
-								<p *ngIf="_OutcomesService.currentOutcome.outcomeTypeId ==7" class="col-md-7 ">{{_OutcomesService.currentOutcome.r}}</p>
-							</div>
-							<div class="col-md-12 row">
-								<label class="col-md-5 text-capitalize bold">{{_OutcomesService.currentOutcome.seDesc}}</label>
-								<p *ngIf="_OutcomesService.currentOutcome.outcomeTypeId ==0" class="col-md-7 ">{{_OutcomesService.currentOutcome.sees}}</p>
-								<p *ngIf="_OutcomesService.currentOutcome.outcomeTypeId ==1" class="col-md-7 ">{{_OutcomesService.currentOutcome.sesmd}}</p>
-								<p *ngIf="_OutcomesService.currentOutcome.outcomeTypeId ==2" class="col-md-7 ">{{_OutcomesService.currentOutcome.seOddsRatio}}</p>
-								<p *ngIf="_OutcomesService.currentOutcome.outcomeTypeId ==3" class="col-md-7 ">{{_OutcomesService.currentOutcome.sees}}</p>
-								<p *ngIf="_OutcomesService.currentOutcome.outcomeTypeId ==4" class="col-md-7 ">{{_OutcomesService.currentOutcome.sees}}</p>
-								<p *ngIf="_OutcomesService.currentOutcome.outcomeTypeId ==5" class="col-md-7 ">{{_OutcomesService.currentOutcome.sees}}</p>
-								<p *ngIf="_OutcomesService.currentOutcome.outcomeTypeId ==6" class="col-md-7 ">{{_OutcomesService.currentOutcome.seOddsRatio}}</p>
-								<p *ngIf="_OutcomesService.currentOutcome.outcomeTypeId ==7" class="col-md-7 ">{{_OutcomesService.currentOutcome.ser}}</p>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="p-2 m-2 col-12">
-					You can further characterise this outcome by associating it with any code in the current codeset:
-					<SingleCodesetTreeCoding [currentOutcome]="_OutcomesService.currentOutcome">
-					</SingleCodesetTreeCoding>
-				</div>
-				<div class="col-md-12">
-					<div class="row col-12">
+                  class="btn btn-primary btn-sm py-0 mx-1 "
+                  title="Save and Close" (click)="SaveOutcome()">
+                  <span class="k-icon k-i-save"></span>
+                </button>
+              </div>
+            </div>
+            <div class="row col-md-12 p-1 m-0">
+              <label class="col-md-4 ">Timepoint</label>
+              <div class="d-flex col-md-8 p-0 m-0">
+                <select [(ngModel)]="_OutcomesService.currentOutcome.itemTimepointId"
+                  class="form-control p-0 m-0">
+                  @for (timepoint of timePointsList; track timepoint) {
+                    <option [ngValue]="timepoint.itemTimepointId"
+                      [selected]="timepoint.itemTimepointId == _OutcomesService.currentOutcome.itemTimepointId"
+                      >
+                      {{timepoint.timepointValue}} &nbsp; {{timepoint.timepointMetric}}
+                    </option>
+                  }
+                </select>
+                <button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemTimepointId == 0"
+                  title="Remove Timepoint Selection" (click)="_OutcomesService.currentOutcome.itemTimepointId = 0">
+                  <span class="k-icon k-i-error"></span>
+                </button>
+              </div>
+            </div>
+            <div class="row col-md-12 py-1 pl-1 pr-2 m-0">
+              <label class="col-md-4 mt-1">Outcome Description</label>
+              <textarea value="_OutcomesService.currentOutcome.outcomeDescription" maxlength="4000"
+                [(ngModel)]="_OutcomesService.currentOutcome.outcomeDescription" rows="2"
+              type="text" class="form-control col-md-8 form-input" ></textarea>
+            </div>
+            <div class="row col-md-12  p-1 m-0">
+              <label class="col-md-4 mt-1">Outcome type</label>
+              <div class="d-flex col-12 col-md-8  p-1">
+                <select [(ngModel)]="_OutcomesService.currentOutcome.outcomeTypeId"
+                  class="form-control">
+                  @for (outcomeT of OutcomeTypeList; track outcomeT) {
+                    <option [ngValue]="outcomeT.outcomeTypeId"
+                      [selected]="outcomeT.outcomeTypeId == _OutcomesService.currentOutcome.outcomeTypeId"
+                      >
+                      {{outcomeT.outcomeTypeName}}
+                    </option>
+                  }
+                </select>
+              </div>
+              <label class="col-md-4 mt-1">Outcome</label>
+              <div class="d-flex col-12  col-md-8  p-1"
+                placeholder="Outcomes">
+                <select [(ngModel)]="_OutcomesService.currentOutcome.itemAttributeIdOutcome"
+                  class="form-control ">
+                  @for (out of _OutcomesService.ReviewSetOutcomeList; track out) {
+                    <option [ngValue]="out.attributeId"
+                      [selected]="out.attributeId == _OutcomesService.currentOutcome.itemAttributeIdOutcome"
+                      >
+                      {{out.attributeName}}
+                    </option>
+                  }
+                </select>
+                <button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemAttributeIdOutcome == 0"
+                  title="Remove Outcome Code Selection" (click)="_OutcomesService.currentOutcome.itemAttributeIdOutcome = 0">
+                  <span class="k-icon k-i-error"></span>
+                </button>
+              </div>
+            </div>
+            <div class="row col-md-12  p-1 m-0">
+              <label class="col-md-4 mt-1">Intervention</label>
+              <div class="d-flex col-12 col-md-8  p-1">
+                <select (change)="UpdateInterventionName($event)"
+                  [(ngModel)]="_OutcomesService.currentOutcome.itemAttributeIdIntervention"
+                  class="form-control">
+                  @for (intervention of _OutcomesService.ReviewSetInterventionList; track intervention) {
+                    <option [value]="intervention.attributeId"
+                      [selected]="intervention.attributeId == _OutcomesService.currentOutcome.itemAttributeIdIntervention"
+                      >
+                      {{intervention.attributeName}}
+                    </option>
+                  }
+                </select>
+                <button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemAttributeIdIntervention == 0"
+                  title="Remove Intervention Code Selection" (click)="_OutcomesService.currentOutcome.itemAttributeIdIntervention = 0">
+                  <span class="k-icon k-i-error"></span>
+                </button>
+              </div>
+              <label class="col-md-4 mt-1">Comparison</label>
+              <div class="d-flex col-12 col-md-8  p-1">
+                <select (change)="UpdateComparisonName($event)"
+                  [(ngModel)]="_OutcomesService.currentOutcome.itemAttributeIdControl"
+                  class="form-control">
+                  @for (control of _OutcomesService.ReviewSetControlList; track control) {
+                    <option [value]="control.attributeId"
+                      [selected]="control.attributeId == _OutcomesService.currentOutcome.itemAttributeIdControl"
+                      >
+                      {{control.attributeName}}
+                    </option>
+                  }
+                </select>
+                <button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemAttributeIdControl == 0"
+                  title="Remove Comparison Code Selection" (click)="_OutcomesService.currentOutcome.itemAttributeIdControl = 0">
+                  <span class="k-icon k-i-error"></span>
+                </button>
+              </div>
+            </div>
+            <div class="row col-md-12 p-1 m-0">
+              <label class="col-md-4 mt-1">Group 1 arm</label>
+              <div class="d-flex col-12 col-md-8  p-1">
+                <select [(ngModel)]="_OutcomesService.currentOutcome.itemArmIdGrp1"
+                  class="form-control">
+                  @for (arm of item.arms; track arm) {
+                    <option [ngValue]="arm.itemArmId"
+                      [selected]="arm.itemArmId == _OutcomesService.currentOutcome.itemArmIdGrp1">
+                      {{arm.title}}
+                    </option>
+                  }
+                </select>
+                <button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemArmIdGrp1 == 0"
+                  title="Remove Arm1 Selection" (click)="_OutcomesService.currentOutcome.itemArmIdGrp1 = 0">
+                  <span class="k-icon k-i-error"></span>
+                </button>
+              </div>
+              <label class="col-md-4 mt-1">Group 2 arm</label>
+              <div class="d-flex col-12 col-md-8 p-1">
+                <select [(ngModel)]="_OutcomesService.currentOutcome.itemArmIdGrp2"
+                  class="form-control ">
+                  @for (arm of item.arms; track arm) {
+                    <option [ngValue]="arm.itemArmId"
+                      [selected]="arm.itemArmId == _OutcomesService.currentOutcome.itemArmIdGrp2">
+                      {{arm.title}}
+                    </option>
+                  }
+                </select>
+                <button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemArmIdGrp2 == 0"
+                  title="Remove Arm2 Selection" (click)="_OutcomesService.currentOutcome.itemArmIdGrp2 = 0">
+                  <span class="k-icon k-i-error"></span>
+                </button>
+              </div>
+            </div>
+            <!-- Need 8 sections here for the different outcomeTypes that can occur
+            /* Meta-analysis types:
+            *     0: Continuous: d (Hedges g)		outcomeTypeId==0
+            *     1: Continuous: r					outcomeTypeId==1	correlation coefficient r
+            *     2: Binary: odds ratio				outcomeTypeId==2
+            *     3: Binary: risk ratio				outcomeTypeId==3
+            *     4: Binary: risk difference		outcomeTypeId==4
+            *     5: Binary: diagnostic test OR		outcomeTypeId==5	diagnostic binary 2 x 2 table
+            *     6: Binary: Peto OR				outcomeTypeId==6
+            *     7: Continuous: mean difference	outcomeTypeId==7
+            */
+            <div *ngFor="let code of _OutcomesService.currentOutcome.outcomeCodes.outcomeItemAttributesList">
+              {{code.attributeName}}
+            </div>
+            <button (click)="printstuff()"></button>
+            -->
+            <div class="row col-md-12 p-1 m-0">
+              <div class="row col-6 col-md-6 col-lg-6 p-1 m-0">
+                <label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data1Desc}}</label>
+                <input class="form-control col-md-6" #outcomedata1="ngModel"
+                  [(ngModel)]="_OutcomesService.currentOutcome.data1"
+                  name="outcomedata1"
+                  pattern="^[-+]?[0-9]*\.?[0-9]+$"
+                  value="_OutcomesService.currentOutcome.data1"
+                  type="number" />
+                </div>
+                <div class="row col-6 col-md-6 col-lg-6 p-1 m-0">
+                  <label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data2Desc}}</label>
+                  <input class="form-control col-md-6"
+                    [(ngModel)]="_OutcomesService.currentOutcome.data2"
+                    pattern="^[-+]?[0-9]*\.?[0-9]+$"
+                    name="outcomedata2" #outcomedata2="ngModel"
+                    value="_OutcomesService.currentOutcome.data2"
+                    type="number" />
+                  </div>
+                  @if (_OutcomesService.currentOutcome.outcomeTypeId != 7) {
+                    <div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
+                      >
+                      <label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data3Desc}}</label>
+                      <input [(ngModel)]="_OutcomesService.currentOutcome.data3"
+                        name="outcomedata3"
+                        pattern="^[-+]?[0-9]*\.?[0-9]+$"
+                        value="_OutcomesService.currentOutcome.data3"
+                        type="number" class="form-control col-md-6" />
+                      </div>
+                    }
+                    @if (_OutcomesService.currentOutcome.outcomeTypeId != 7 ) {
+                      <div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
+                        >
+                        <label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data4Desc}}</label>
+                        <input [(ngModel)]="_OutcomesService.currentOutcome.data4"
+                          name="outcomedata4"
+                          pattern="^[-+]?[0-9]*\.?[0-9]+$"
+                          value="_OutcomesService.currentOutcome.data4"
+                          type="number" class="form-control col-md-6" />
+                        </div>
+                      }
+                      @if (_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+                        && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 2) {
+                        <div class="row col-6 col-md-6 col-lg-6  p-1 m-0"
+                          >
+                          <label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data5Desc}}</label>
+                          <input [(ngModel)]="_OutcomesService.currentOutcome.data5"
+                            name="outcomedata5"
+                            pattern="^[-+]?[0-9]*\.?[0-9]+$"
+                            value="_OutcomesService.currentOutcome.data5"
+                            type="number" class="form-control col-md-6" />
+                          </div>
+                        }
+                        @if (_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+                          && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 2) {
+                          <div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
+                            >
+                            <label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data6Desc}}</label>
+                            <input [(ngModel)]="_OutcomesService.currentOutcome.data6"
+                              name="outcomedata6"
+                              pattern="^[-+]?[0-9]*\.?[0-9]+$"
+                              value="_OutcomesService.currentOutcome.data6"
+                              type="number" class="form-control col-md-6" />
+                            </div>
+                          }
+                          @if (_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+                            && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 3
+                            && _OutcomesService.currentOutcome.outcomeTypeId != 2 && _OutcomesService.currentOutcome.outcomeTypeId != 1) {
+                            <div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
+                              >
+                              <label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data7Desc}}</label>
+                              <input [(ngModel)]="_OutcomesService.currentOutcome.data7"
+                                name="outcomedata7"
+                                pattern="^[-+]?[0-9]*\.?[0-9]+$"
+                                value="_OutcomesService.currentOutcome.data7"
+                                type="number" class="form-control col-md-6" />
+                              </div>
+                            }
+                            @if (_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+                              && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 3
+                              && _OutcomesService.currentOutcome.outcomeTypeId != 2 && _OutcomesService.currentOutcome.outcomeTypeId != 1) {
+                              <div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
+                                >
+                                <label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data8Desc}}</label>
+                                <input [(ngModel)]="_OutcomesService.currentOutcome.data8"
+                                  name="outcomedata8"
+                                  pattern="^[-+]?[0-9]*\.?[0-9]+$"
+                                  value="_OutcomesService.currentOutcome.data8"
+                                  type="number" class="form-control col-md-6" />
+                                </div>
+                              }
+                              @if (_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+                                && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 4
+                                && _OutcomesService.currentOutcome.outcomeTypeId != 3 && _OutcomesService.currentOutcome.outcomeTypeId != 2
+                                && _OutcomesService.currentOutcome.outcomeTypeId != 1) {
+                                <div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
+                                  >
+                                  <label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data11Desc}}</label>
+                                  <input [(ngModel)]="_OutcomesService.currentOutcome.data11"
+                                    name="outcomedata11"
+                                    pattern="^[-+]?[0-9]*\.?[0-9]+$"
+                                    value="_OutcomesService.currentOutcome.data11"
+                                    type="number" class="form-control col-md-6 small" />
+                                  </div>
+                                }
+                                @if (_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+                                  && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 4
+                                  && _OutcomesService.currentOutcome.outcomeTypeId != 3 && _OutcomesService.currentOutcome.outcomeTypeId != 2
+                                  && _OutcomesService.currentOutcome.outcomeTypeId != 1) {
+                                  <div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
+                                    >
+                                    <label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data12Desc}}</label>
+                                    <input [(ngModel)]="_OutcomesService.currentOutcome.data12"
+                                      name="outcomedata12"
+                                      pattern="^[-+]?[0-9]*\.?[0-9]+$"
+                                      value="_OutcomesService.currentOutcome.data12"
+                                      type="number" class="form-control col-md-6 small" />
+                                    </div>
+                                  }
+                                  @if (_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+                                    && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 4
+                                    && _OutcomesService.currentOutcome.outcomeTypeId != 3 && _OutcomesService.currentOutcome.outcomeTypeId != 2
+                                    && _OutcomesService.currentOutcome.outcomeTypeId != 1) {
+                                    <div class="row col-6 col-md-6 col-lg-6  p-1 m-0"
+                                      >
+                                      <label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data13Desc}}</label>
+                                      <input [(ngModel)]="_OutcomesService.currentOutcome.data13"
+                                        name="outcomedata13"
+                                        pattern="^[-+]?[0-9]*\.?[0-9]+$"
+                                        value="_OutcomesService.currentOutcome.data13"
+                                        type="number" class="form-control col-md-6 small" />
+                                      </div>
+                                    }
+                                    @if (_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+                                      && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 4
+                                      && _OutcomesService.currentOutcome.outcomeTypeId != 3 && _OutcomesService.currentOutcome.outcomeTypeId != 2
+                                      && _OutcomesService.currentOutcome.outcomeTypeId != 1) {
+                                      <div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
+                                        >
+                                        <label class="col-md-6 mt-1">{{_OutcomesService.currentOutcome.data14Desc}}</label>
+                                        <input [(ngModel)]="_OutcomesService.currentOutcome.data14"
+                                          name="outcomedata14"
+                                          pattern="^[-+]?[0-9]*\.?[0-9]+$"
+                                          value="_OutcomesService.currentOutcome.data14"
+                                          type="number" class="form-control col-md-6 small" />
+                                        </div>
+                                      }
+                                      <div class="row col-12 p-0 my-0 mx-1">
+                                        <div class="row p-1 m-2 border border-success rounded alert-info w-100">
+                                          <div class="col-12 m-0 p-0">
+                                            <label class="p-0 m-2 small font-weight-bold">{{ShowCFUOAEtext}}: </label> <button class="btn btn-sm btn-outline-success px-2 py-0" (click)="ShowCFUOAE()">Go</button>
+                                          </div>
+                                          @if (ShowCFUOAEBoolCheck()) {
+                                            <div
+                                              class="row col-12  p-1 m-2">
+                                              <div class="col-12 row p-1">
+                                                <label class="col-12 col-md-8 p-1 m-0">Mean cluster size</label>
+                                                <input [(ngModel)]="_OutcomesService.currentOutcome.data9"
+                                                  name="outcomedata9"
+                                                  pattern="^[-+]?[0-9]*\.?[0-9]+$"
+                                                  value="_OutcomesService.currentOutcome.data9"
+                                                  type="number" class="form-control col-12 col-md-4" />
+                                                </div>
+                                                <div class="col-12 row p-1">
+                                                  <label class="col-12 col-md-8 p-1 m-0">ICC</label>
+                                                  <input [(ngModel)]="_OutcomesService.currentOutcome.data10"
+                                                    name="outcomedata10"
+                                                    pattern="^[-+]?[0-9]*\.?[0-9]+$"
+                                                    value="_OutcomesService.currentOutcome.data10"
+                                                    type="number" class="form-control col-12 col-md-4" />
+                                                  </div>
+                                                </div>
+                                              }
+                                            </div>
+                                            <div class="row col-md-12 p-0 m-0">
+                                              <div class="col-12 col-md-12 col-lg-12 row p-0 m-0">
+                                                <label class="col-md-5 bold">{{_OutcomesService.currentOutcome.esDesc}}</label>
+                                                @if (_OutcomesService.currentOutcome.outcomeTypeId ==0) {
+                                                  <p class="col-md-7 ">{{_OutcomesService.currentOutcome.es}}</p>
+                                                }
+                                                @if (_OutcomesService.currentOutcome.outcomeTypeId ==1) {
+                                                  <p class="col-md-7 ">{{SMD}}</p>
+                                                }
+                                                @if (_OutcomesService.currentOutcome.outcomeTypeId ==2) {
+                                                  <p class="col-md-7 ">{{_OutcomesService.currentOutcome.oddsRatio}}</p>
+                                                }
+                                                @if (_OutcomesService.currentOutcome.outcomeTypeId ==3) {
+                                                  <p class="col-md-7 ">{{SMD}}</p>
+                                                }
+                                                @if (_OutcomesService.currentOutcome.outcomeTypeId ==4) {
+                                                  <p class="col-md-7 ">{{SMD}}</p>
+                                                }
+                                                @if (_OutcomesService.currentOutcome.outcomeTypeId ==5) {
+                                                  <p class="col-md-7 ">{{SMD}}</p>
+                                                }
+                                                @if (_OutcomesService.currentOutcome.outcomeTypeId ==6) {
+                                                  <p class="col-md-7 ">{{_OutcomesService.currentOutcome.oddsRatio}}</p>
+                                                }
+                                                @if (_OutcomesService.currentOutcome.outcomeTypeId ==7) {
+                                                  <p class="col-md-7 ">{{_OutcomesService.currentOutcome.r}}</p>
+                                                }
+                                              </div>
+                                              <div class="col-md-12 row">
+                                                <label class="col-md-5 text-capitalize bold">{{_OutcomesService.currentOutcome.seDesc}}</label>
+                                                @if (_OutcomesService.currentOutcome.outcomeTypeId ==0) {
+                                                  <p class="col-md-7 ">{{_OutcomesService.currentOutcome.sees}}</p>
+                                                }
+                                                @if (_OutcomesService.currentOutcome.outcomeTypeId ==1) {
+                                                  <p class="col-md-7 ">{{_OutcomesService.currentOutcome.sesmd}}</p>
+                                                }
+                                                @if (_OutcomesService.currentOutcome.outcomeTypeId ==2) {
+                                                  <p class="col-md-7 ">{{_OutcomesService.currentOutcome.seOddsRatio}}</p>
+                                                }
+                                                @if (_OutcomesService.currentOutcome.outcomeTypeId ==3) {
+                                                  <p class="col-md-7 ">{{_OutcomesService.currentOutcome.sees}}</p>
+                                                }
+                                                @if (_OutcomesService.currentOutcome.outcomeTypeId ==4) {
+                                                  <p class="col-md-7 ">{{_OutcomesService.currentOutcome.sees}}</p>
+                                                }
+                                                @if (_OutcomesService.currentOutcome.outcomeTypeId ==5) {
+                                                  <p class="col-md-7 ">{{_OutcomesService.currentOutcome.sees}}</p>
+                                                }
+                                                @if (_OutcomesService.currentOutcome.outcomeTypeId ==6) {
+                                                  <p class="col-md-7 ">{{_OutcomesService.currentOutcome.seOddsRatio}}</p>
+                                                }
+                                                @if (_OutcomesService.currentOutcome.outcomeTypeId ==7) {
+                                                  <p class="col-md-7 ">{{_OutcomesService.currentOutcome.ser}}</p>
+                                                }
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div class="p-2 m-2 col-12">
+                                          You can further characterise this outcome by associating it with any code in the current codeset:
+                                          <SingleCodesetTreeCoding [currentOutcome]="_OutcomesService.currentOutcome">
+                                        </SingleCodesetTreeCoding>
+                                      </div>
+                                      <div class="col-md-12">
+                                        <div class="row col-12">
 						<button [disabled]="!this.HasWriteRights
 								|| !currentOutcomeHasChanges
 								|| ArmsCheckIsFailing || TimepointsCheckIsFailing
@@ -482,21 +542,20 @@
 										)
 									  )
 									)"
-										class="btn btn-primary mt-1 p-1 m-1 "
-										title="Save and Close" (click)="SaveOutcome()">
-							<span class="k-icon k-i-save"></span> Save
-						</button>
-
-						<button class="btn  btn-danger mt-1 p-1 m-1"
-										(click)="ClearAndCancelSave()">
-							Cancel
-						</button>
-
-					</div>
-				</div>
-			</div>
-		</div>
-		</div>
-</div>
+                                            class="btn btn-primary mt-1 p-1 m-1 "
+                                            title="Save and Close" (click)="SaveOutcome()">
+                                            <span class="k-icon k-i-save"></span> Save
+                                          </button>
+                                          <button class="btn  btn-danger mt-1 p-1 m-1"
+                                            (click)="ClearAndCancelSave()">
+                                            Cancel
+                                          </button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              }
+                            </div>
 
 

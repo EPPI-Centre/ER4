@@ -1,4 +1,4 @@
-import { Component, OnInit,Input, ViewChild, OnDestroy, EventEmitter, Output, Inject } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, OnDestroy, EventEmitter, Output, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { iMetaAnalysisRunInRCommand, iReference, MetaAnalysis, MetaAnalysisService, Moderator } from '../services/MetaAnalysis.service';
 import { FilterOutcomesFormComp } from './FilterOutcomesForm.component';
@@ -7,10 +7,12 @@ import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
 import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
-  selector: 'MetaAnalysisRunComp',
-  templateUrl: './MetaAnalysisRun.component.html',
-  providers: [],
-  styles: []
+    selector: 'MetaAnalysisRunComp',
+    templateUrl: './MetaAnalysisRun.component.html',
+    providers: [],
+    styles: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class MetaAnalysisRunComp implements OnInit, OnDestroy {
 
@@ -94,7 +96,7 @@ export class MetaAnalysisRunComp implements OnInit, OnDestroy {
   public SigLevLostFocus() {
     if (this.CurrentMA) {
       const check = parseInt(this.CurrentMA.significanceLevel.toString());
-      if (check == NaN) this.CurrentMA.significanceLevel = 95;
+      if (Number.isNaN(check)) this.CurrentMA.significanceLevel = 95;
       else if (check > this.SigLevMax) this.CurrentMA.significanceLevel = this.SigLevMax;
       else if (check < this.SigLevMin) this.CurrentMA.significanceLevel = this.SigLevMin;
       else if (check != this.CurrentMA.significanceLevel) this.CurrentMA.significanceLevel = check;
@@ -103,7 +105,7 @@ export class MetaAnalysisRunComp implements OnInit, OnDestroy {
   public DecPlacesLostFocus() {
     if (this.CurrentMA) {
       const check = parseInt(this.CurrentMA.decPlaces.toString());
-      if (check == NaN) this.CurrentMA.decPlaces = 4;
+      if (Number.isNaN(check)) this.CurrentMA.decPlaces = 4;
       else if (check > this.decPlacesMax) this.CurrentMA.decPlaces = this.decPlacesMax;
       else if (check < this.decPlacesMin) this.CurrentMA.decPlaces = this.decPlacesMin;
       else if (check != this.CurrentMA.decPlaces) this.CurrentMA.decPlaces = check;

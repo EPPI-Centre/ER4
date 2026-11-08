@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, Input, ViewChild, OnDestroy, AfterViewInit, EventEmitter, Inject } from '@angular/core';
+import { Component, OnInit, Output, Input, ViewChild, OnDestroy, AfterViewInit, EventEmitter, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewSetsService, singleNode } from '../services/ReviewSets.service';
 import { Outcome } from '../services/outcomes.service';
@@ -12,8 +12,8 @@ import { TreeItem, TreeViewComponent } from '@progress/kendo-angular-treeview';
 import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
 
 @Component({
-  selector: 'ReconcilingCodesetTree',
-  styles: [`.bt-infoBox {    
+    selector: 'ReconcilingCodesetTree',
+    styles: [`.bt-infoBox {    
                     padding: .08rem .12rem .12rem .12rem;
                     margin-bottom: .12rem;
                     font-size: .875rem;
@@ -28,7 +28,9 @@ import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
                     background-color: #C2F3C0;
                 }
         `],
-  templateUrl: './ReconcilingCodesetTree.component.html'
+    templateUrl: './ReconcilingCodesetTree.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, AfterViewInit {

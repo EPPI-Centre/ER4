@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewService } from '../services/review.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -12,10 +12,12 @@ import { ReviewSetsService } from '../services/ReviewSets.service';
 import { indexOf } from 'lodash';
 
 @Component({
-  selector: 'RobotJobsLog',
-  templateUrl: './RobotJobsLog.component.html',
-  styles: [],
-  providers: []
+    selector: 'RobotJobsLog',
+    templateUrl: './RobotJobsLog.component.html',
+    styles: [],
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class RobotJobsLog implements OnInit, OnDestroy {

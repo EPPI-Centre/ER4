@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, AfterViewInit, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, AfterViewInit, HostListener, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -22,12 +22,11 @@ import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 
 @Component({
-
-  selector: 'itemcoding',
-  templateUrl: './coding.component.html',
-  //providers: [ReviewerIdentityService]
-  providers: [],
-  styles: [`
+    selector: 'itemcoding',
+    templateUrl: './coding.component.html',
+    //providers: [ReviewerIdentityService]
+    providers: [],
+    styles: [`
                 button.disabled {
                     color:black; 
                     }
@@ -84,8 +83,9 @@ import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
                     font-size:18px;
                 }
                
-            `]
-
+            `],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
 

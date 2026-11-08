@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, ElementRef, ChangeDetectorRef } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, ElementRef, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewService } from '../services/review.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -28,9 +28,11 @@ import { iItemAttributeWithThisCodeCountCommand, ItemCodingService } from '../se
 
 
 @Component({
-  selector: 'LlmPromptEvaluation',
-  templateUrl: './LlmPromptEvaluation.component.html',
-  providers: []
+    selector: 'LlmPromptEvaluation',
+    templateUrl: './LlmPromptEvaluation.component.html',
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class LlmPromptEvaluation implements OnInit, OnDestroy {

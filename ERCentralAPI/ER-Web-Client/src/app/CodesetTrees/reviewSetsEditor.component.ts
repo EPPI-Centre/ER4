@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Input, OnDestroy, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, Input, OnDestroy, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewSetsService, iSetType, ReviewSet, singleNode, kvAllowedAttributeType, SetAttribute } from '../services/ReviewSets.service';
@@ -10,13 +10,15 @@ import { Subscription } from 'rxjs';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 @Component({
-  selector: 'ReviewSetsEditor',
-  templateUrl: './reviewSetsEditor.component.html',
-  providers: [],
-  styles: [`.k-switch-label-off {    
+    selector: 'ReviewSetsEditor',
+    templateUrl: './reviewSetsEditor.component.html',
+    providers: [],
+    styles: [`.k-switch-label-off {    
                     color:black;
                 }
         `],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class ReviewSetsEditorComponent implements OnInit, OnDestroy {

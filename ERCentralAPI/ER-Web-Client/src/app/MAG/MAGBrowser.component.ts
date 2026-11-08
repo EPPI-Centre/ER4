@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { searchService } from '../services/search.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router, NavigationEnd } from '@angular/router';
@@ -17,7 +17,9 @@ import { Helpers } from '../helpers/HelperMethods';
 @Component({
     selector: 'MAGBrowser',
     templateUrl: './MAGBrowser.component.html',
-    providers: []
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class MAGBrowser implements OnInit, OnDestroy {

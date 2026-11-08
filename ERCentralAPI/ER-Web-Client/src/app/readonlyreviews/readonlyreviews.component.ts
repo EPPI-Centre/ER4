@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewEncapsulation, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { readonlyreviewsService, ReadOnlyReview, ReadOnlyArchieReview } from '../services/readonlyreviews.service';
@@ -11,9 +11,10 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 @Component({
     selector: 'readonlyreviews',
     templateUrl: './readonlyreviews.component.html',
-	providers: [],
-	encapsulation: ViewEncapsulation.None
-    
+    providers: [],
+    encapsulation: ViewEncapsulation.None,
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy{
 	dataSource: any | undefined;

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, ElementRef, NgZone, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, ElementRef, NgZone, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
 import { ReviewSetsService, SetAttribute, ReviewSet, singleNode } from '../services/ReviewSets.service';
 import { ReviewSetsEditingService, ChangeDataEntryMessage } from '../services/ReviewSetsEditing.service';
 import { ReviewInfoService, Contact, ReviewInfo } from '../services/ReviewInfo.service';
@@ -20,10 +20,12 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 import { TabStripComponent } from '@progress/kendo-angular-layout';
 
 @Component({
-  selector: 'ScreeningSetupComp',
-  templateUrl: './ScreeningSetup.component.html',
-  styles: ['.DisabledStep { font-weight: light; opacity: 50%;}'],
-  providers: []
+    selector: 'ScreeningSetupComp',
+    templateUrl: './ScreeningSetup.component.html',
+    styles: ['.DisabledStep { font-weight: light; opacity: 50%;}'],
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {

@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Input, OnDestroy, ViewChild, AfterViewInit, EventEmitter, Output } from '@angular/core';
+import { Component, Inject, OnInit, Input, OnDestroy, ViewChild, AfterViewInit, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewSetsService, ReviewSet, singleNode, SetAttribute } from '../services/ReviewSets.service';
@@ -8,9 +8,11 @@ import { faCircle, faCircleDot, faCircleCheck, faCaretDown, faCaretUp, faAngleDo
 import { EditCodeComp } from '../CodesetTrees/editcode.component';
 
 @Component({
-  selector: 'codesetTreeEdit',
-  templateUrl: './codesetTreeEdit.component.html',
-  providers: []
+    selector: 'codesetTreeEdit',
+    templateUrl: './codesetTreeEdit.component.html',
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class CodesetTreeEditComponent implements OnInit, OnDestroy, AfterViewInit {

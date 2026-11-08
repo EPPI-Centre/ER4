@@ -32,18 +32,22 @@
             <div class="col w-100">
               <input #c_name name="username" required class="form-control" ngModel>
             </div>
-            <div *ngIf="ShowUsernameRequired" class="col-12 col-sm-3 m-0 p-1">
-              <div class="badge badge-warning ml-1 pt-1 "><span class="ml-1 mt-1 mr-1">Username Required!</span></div>
-            </div>
+            @if (ShowUsernameRequired) {
+              <div class="col-12 col-sm-3 m-0 p-1">
+                <div class="badge badge-warning ml-1 pt-1 "><span class="ml-1 mt-1 mr-1">Username Required!</span></div>
+              </div>
+            }
           </div>
           <div class="form-group row m-1 p-0">
             <label class="col-auto control-label text-left text-sm-right px-1 my-auto" for="tbTFullNameReg" style="width:6em;">Password:</label>
             <div class="col w-100">
               <input #c_password type="password" required class="form-control" name="password" ngModel>
             </div>
-            <div *ngIf="ShowPasswordRequired" class="col-12 col-sm-3 m-0 p-1">
-              <div class="badge badge-warning ml-1 pt-1 mx-1 pt-1 text-wrap"><span class="ml-1 mt-1 mr-1">Password Required (or too short)</span></div>
-            </div>
+            @if (ShowPasswordRequired) {
+              <div class="col-12 col-sm-3 m-0 p-1">
+                <div class="badge badge-warning ml-1 pt-1 mx-1 pt-1 text-wrap"><span class="ml-1 mt-1 mr-1">Password Required (or too short)</span></div>
+              </div>
+            }
           </div>
         </div>
       </div>
@@ -51,11 +55,15 @@
     <div class="row mx-1 mt-0 mb-0 d-flex justify-content-center bg-white border-bottom border-primary">
       <div class="col-auto col-sm-1"></div>
       <div class="col-12 col-sm-3 justify-content-center justify-content-sm-end d-flex px-1">
-        <div *ngIf="ShowLoginFailed" class="badge badge-warning ml-1 pt-1 my-auto"><span class="ml-2 mt-1 mr-2">Login Failed!</span></div>
+        @if (ShowLoginFailed) {
+          <div class="badge badge-warning ml-1 pt-1 my-auto"><span class="ml-2 mt-1 mr-2">Login Failed!</span></div>
+        }
         <input type="submit" value="Login" class="btn btn-primary m-1 px-3" [disabled]="IsBusy" />
 
         <div style="min-width:22px;" class="my-auto">
-          <fa-icon *ngIf="IsBusy" [icon]="faSpinner" [spin]="true" class="text-success mt-1 my-auto"></fa-icon>
+          @if (IsBusy) {
+            <fa-icon [icon]="faSpinner" [spin]="true" class="text-success mt-1 my-auto"></fa-icon>
+          }
         </div>
       </div>
       <div class="col-6 col-sm-4 text-center align-self-center px-0">
@@ -72,34 +80,35 @@
       <div class="text-center my-2">
 
         Visit the <a class="text-center font-weight-bold" href="https://eppi.ioe.ac.uk/cms/er4" target="_blank">
-          EPPI-Reviewer Gateway
-        </a><br />
-        for Account and Review Management, Documentation, Support and the RIS export utility.
-      </div>
+        EPPI-Reviewer Gateway
+      </a><br />
+      for Account and Review Management, Documentation, Support and the RIS export utility.
     </div>
-    <div class="col-12 col-sm-auto mt-0 mb-1 mx-0 p-1 float-right d-flex d-sm-block justify-content-center ">
-      <div class="px-1 mx-0 d-flex d-md-block">
-        <div class="mr-1 mr-md-0">Follow us on</div>
-        <div class="px-1 border border-primary rounded d-inline-block bg-white">
-          <a href="https://bsky.app/profile/eppi-reviewer.bsky.social" target="_blank" >
-            BlueSky <img src="assets/Images/Bluesky-Logo-Small.png" width="20" />
-          </a>
-        </div>
-      </div>
-
-
-      <!--<div class="col-auto col-sm-12 px-0"><a href="https://twitter.com/EPPIReviewer" target="_blank"><img src="assets/FollowUs.png" alt="follow us on Twitter image" /></a></div>
-      <div class="col-auto col-sm-12 px-1">on <a href="https://twitter.com/EPPIReviewer" target="_blank">Twitter</a></div>-->
-    </div>
-    <!--<div class=" mt-4 ml-1 p-0 container text-center"><a class="text-danger font-weight-bold justify-center" href="https://eppi.ioe.ac.uk/cms/Default.aspx?tabid=3061" target="_blank">EPPI-Reviewer 4 How-To videos</a></div>-->
   </div>
-  <div class="row mx-1 mt-2 mb-2 d-flex justify-content-center bg-white border-top border-bottom border-primary">
-    <div class="p-1">
-      <img src="assets/Images/cochrane_logo.png" width="30" height="30" class="mr-1" alt="Cochrane logo" />
-      <span class="mt-1 ml-1"><b style="color:#002d64">For Cochrane Authors:</b> click</span><button class="btn btn-sm btn-outline-primary px-1 py-0 m-1" (click)="GoToArchie()">HERE</button> <span class="mt-1">to login with your Cochrane account.</span>
-      <button class="btn btn-sm btn-outline-info px-1 py-0 m-1" (click)="showCochraneHelp = !showCochraneHelp">More info...</button>
+  <div class="col-12 col-sm-auto mt-0 mb-1 mx-0 p-1 float-right d-flex d-sm-block justify-content-center ">
+    <div class="px-1 mx-0 d-flex d-md-block">
+      <div class="mr-1 mr-md-0">Follow us on</div>
+      <div class="px-1 border border-primary rounded d-inline-block bg-white">
+        <a href="https://bsky.app/profile/eppi-reviewer.bsky.social" target="_blank" >
+          BlueSky <img src="assets/Images/Bluesky-Logo-Small.png" width="20" />
+        </a>
+      </div>
     </div>
-    <div *ngIf="showCochraneHelp" class="col-11 justify-center border border-info rounded alert-info mb-1">
+
+
+    <!--<div class="col-auto col-sm-12 px-0"><a href="https://twitter.com/EPPIReviewer" target="_blank"><img src="assets/FollowUs.png" alt="follow us on Twitter image" /></a></div>
+    <div class="col-auto col-sm-12 px-1">on <a href="https://twitter.com/EPPIReviewer" target="_blank">Twitter</a></div>-->
+  </div>
+  <!--<div class=" mt-4 ml-1 p-0 container text-center"><a class="text-danger font-weight-bold justify-center" href="https://eppi.ioe.ac.uk/cms/Default.aspx?tabid=3061" target="_blank">EPPI-Reviewer 4 How-To videos</a></div>-->
+</div>
+<div class="row mx-1 mt-2 mb-2 d-flex justify-content-center bg-white border-top border-bottom border-primary">
+  <div class="p-1">
+    <img src="assets/Images/cochrane_logo.png" width="30" height="30" class="mr-1" alt="Cochrane logo" />
+    <span class="mt-1 ml-1"><b style="color:#002d64">For Cochrane Authors:</b> click</span><button class="btn btn-sm btn-outline-primary px-1 py-0 m-1" (click)="GoToArchie()">HERE</button> <span class="mt-1">to login with your Cochrane account.</span>
+    <button class="btn btn-sm btn-outline-info px-1 py-0 m-1" (click)="showCochraneHelp = !showCochraneHelp">More info...</button>
+  </div>
+  @if (showCochraneHelp) {
+    <div class="col-11 justify-center border border-info rounded alert-info mb-1">
       <p class="mb-1">
         This link allows <b>Cochrane Authors</b> to log into EPPI-Reviewer with their Cochrane Account details.<br />
         Within EPPI-Reviewer, Cochrane Authors are automatically licensed to:
@@ -112,47 +121,53 @@
       <p>
         More details, including guidance, are <a href="https://community.cochrane.org/help/tools-and-software/eppi-reviewer" target="_blank">here</a>.
       </p>
+    </div>
+  }
+</div>
 
-    </div>
+<div class="row mx-1 px-2 d-flex justify-content-center border-top border-bottom border-primary" style="background-color:#A7D9F3;">
+  <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 font-weight-bold p-0 m-0">
+    Latest Changes: @if (IsGettingVersionInfo) {
+    <fa-icon [icon]="faSpinner" [spin]="true" class="text-success mt-1 my-auto"></fa-icon>
+  }
+</div>
+<div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 p-0 m-0">
+  Version: {{vInfo.versionN}}
+</div>
+<div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 p-0 m-0">
+  {{FormatDate(vInfo.date)}}
+</div>
+</div>
+@if (!HasConnectionError) {
+  <div class="row d-flex mx-1 mt-0 mb-0 justify-content-center bg-light border-top border-bottom border-primary" style="background-color:#A7D9F3;">
+    @if (!versionIsNew) {
+      <div class="col-md-12 px-1 m-1">
+        {{vInfo.description}}
+      </div>
+    } @else {
+      <div class="col-md-12 px-1 m-2">
+        <div style="animation: glowingText 1.4s infinite; " class="rounded py-1 px-2">{{vInfo.description}}</div>
+      </div>
+    }
+    @if (vInfo.url != '') {
+      <div class="col-md-12 justify-content-end">
+        <a href="{{vInfo.url}}" target="_blank">Read More...</a>
+      </div>
+    }
   </div>
-
-  <div class="row mx-1 px-2 d-flex justify-content-center border-top border-bottom border-primary" style="background-color:#A7D9F3;">
-    <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 font-weight-bold p-0 m-0">
-      Latest Changes: <fa-icon *ngIf="IsGettingVersionInfo" [icon]="faSpinner" [spin]="true" class="text-success mt-1 my-auto"></fa-icon>
-    </div>
-    <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 p-0 m-0">
-      Version: {{vInfo.versionN}}
-    </div>
-    <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 p-0 m-0">
-      {{FormatDate(vInfo.date)}}
-    </div>
-  </div>
-  <div *ngIf="!HasConnectionError; else ConnErr" class="row d-flex mx-1 mt-0 mb-0 justify-content-center bg-light border-top border-bottom border-primary" style="background-color:#A7D9F3;">
-    <div *ngIf="!versionIsNew; else Newmsg" class="col-md-12 px-1 m-1">
-      {{vInfo.description}}
-    </div>
-    <div *ngIf="vInfo.url != ''" class="col-md-12 justify-content-end">
-      <a href="{{vInfo.url}}" target="_blank">Read More...</a>
-    </div>
-  </div>
-  <ng-template #Newmsg>
-    <div class="col-md-12 px-1 m-2">
-      <div style="animation: glowingText 1.4s infinite; " class="rounded py-1 px-2">{{vInfo.description}}</div>
-    </div>
-  </ng-template>
-  <ng-template #ConnErr>
-    <div class="row d-flex mx-1 mt-0 mb-0 justify-content-center bg-light border-top border-bottom border-primary" style="background-color:#A7D9F3;">
-      <div class="col-12 px-1 m-1">
-        <div class="alert alert-warning">
-          <b>Error:</b> could not retrieve the data about the latest release.<br />
-          This usually indicates a connection issue that might stop you from logging in. Please check your internet connection.<br />
-          Please also check our BlueSky feed as it's the channel we use to communicate about unplanned problems/downtime.
-        </div>
+} @else {
+  <div class="row d-flex mx-1 mt-0 mb-0 justify-content-center bg-light border-top border-bottom border-primary" style="background-color:#A7D9F3;">
+    <div class="col-12 px-1 m-1">
+      <div class="alert alert-warning">
+        <b>Error:</b> could not retrieve the data about the latest release.<br />
+        This usually indicates a connection issue that might stop you from logging in. Please check your internet connection.<br />
+        Please also check our BlueSky feed as it's the channel we use to communicate about unplanned problems/downtime.
       </div>
     </div>
-  </ng-template>
-
-  <div class="row mx-1 mt-0 mb-0 d-flex justify-content-center bg-light align-bottom">
-    &nbsp;
   </div>
+}
+
+<div class="row mx-1 mt-0 mb-0 d-flex justify-content-center bg-light align-bottom">
+  &nbsp;
+</div>
 </div>

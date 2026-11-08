@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, ItemList, Criteria } from '../services/ItemList.service';
@@ -13,7 +13,9 @@ import { Helpers } from '../helpers/HelperMethods';
 @Component({
     selector: 'PubMedComp',
     templateUrl: './PubMed.component.html',
-    providers: []
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class PubMedComponent implements OnInit, OnDestroy {

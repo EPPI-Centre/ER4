@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, Criteria } from '../services/ItemList.service';
@@ -14,7 +14,9 @@ import { ModalService } from '../services/modal.service';
 @Component({
     selector: 'ImportReferencesFile',
     templateUrl: './importreferencesfile.component.html',
-    providers: []
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class ImportReferencesFileComponent implements OnInit, OnDestroy {

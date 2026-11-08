@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
@@ -33,8 +33,9 @@ import { CustomSorting, LocalSort } from '../helpers/CustomSorting';
                     border-collapse:separate; border-spacing:0px;
                 }
                     
-            `]
-
+            `],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class DuplicatesComponent implements OnInit, OnDestroy {

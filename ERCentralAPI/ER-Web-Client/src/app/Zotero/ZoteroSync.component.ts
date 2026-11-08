@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { CustomSorting, LocalSort } from '../helpers/CustomSorting';
@@ -10,10 +10,12 @@ import { ZoteroService } from '../services/Zotero.service';
 import { SyncState, ZoteroItem, ZoteroERWebReviewItem} from '../services/ZoteroClasses.service';
 
 @Component({
-  selector: 'ZoteroSync',
-  templateUrl: './ZoteroSync.component.html',
-  providers: [],
-  styles: []
+    selector: 'ZoteroSync',
+    templateUrl: './ZoteroSync.component.html',
+    providers: [],
+    styles: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class ZoteroSyncComponent implements OnInit, OnDestroy {

@@ -1,4 +1,4 @@
-import { OnInit, Component, Input, OnDestroy, EventEmitter, Output } from "@angular/core";
+import { OnInit, Component, Input, OnDestroy, EventEmitter, Output, ChangeDetectionStrategy } from "@angular/core";
 import { Router } from "@angular/router";
 import { ReviewerIdentityService } from "../services/revieweridentity.service";
 import { ReviewerTermsService, ReviewerTerm } from "../services/ReviewerTerms.service";
@@ -7,8 +7,10 @@ import { ItemCodingService } from "../services/ItemCoding.service";
 import { ConfirmationDialogService } from "../services/confirmation-dialog.service";
 
 @Component({
-	selector: 'ReviewTermsListComp',
-	templateUrl: './ReviewTermsListComp.component.html',
+    selector: 'ReviewTermsListComp',
+    templateUrl: './ReviewTermsListComp.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class ReviewTermsListComp implements OnInit, OnDestroy {

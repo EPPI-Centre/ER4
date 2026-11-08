@@ -1,11 +1,13 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import {  Item } from '../services/ItemList.service';
 import { ArmTimepointLinkListService } from '../services/ArmTimepointLinkList.service';
 
 @Component({
     selector: 'ArmsComp',
     templateUrl: './arms.component.html',
-    providers: []
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class armsComp implements OnInit{

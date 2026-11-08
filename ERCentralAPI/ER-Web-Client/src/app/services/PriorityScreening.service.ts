@@ -1,7 +1,7 @@
 import { Inject, Injectable, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { last, lastValueFrom, Subscription } from 'rxjs';
-import { HttpClient, } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewInfo, ReviewInfoService, iReviewInfo } from './ReviewInfo.service';
 import { Item, iAdditionalItemDetails } from './ItemList.service';

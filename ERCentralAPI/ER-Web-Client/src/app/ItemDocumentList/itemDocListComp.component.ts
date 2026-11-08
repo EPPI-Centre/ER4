@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -10,9 +10,11 @@ import { ConfigService } from '../services/config.service';
 
 
 @Component({
-  selector: 'ItemDocListComp',
-  templateUrl: './ItemDocListComp.component.html',
-  providers: []
+    selector: 'ItemDocListComp',
+    templateUrl: './ItemDocListComp.component.html',
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class ItemDocListComp implements OnInit, OnDestroy {
 

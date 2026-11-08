@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Inject, OnInit, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ReviewSetsService, SetAttribute, singleNode } from '../services/ReviewSets.service';
@@ -9,7 +9,9 @@ import { ReviewSetsEditingService, PerformClusterCommand } from '../services/Rev
 @Component({
     selector: 'RunLingo3G',
     templateUrl: './runlingo3g.component.html',
-    providers: []
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class RunLingo3G implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, OnDestroy, ElementRef, HostListener, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, OnDestroy, ElementRef, HostListener, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { ReviewSetsService, singleNode, ReviewSet, SetAttribute, ItemSetCompleteCommand } from '../services/ReviewSets.service';
@@ -15,8 +15,8 @@ import { Subscription } from 'rxjs';
 import { TreeItem } from '@progress/kendo-angular-treeview';
 
 @Component({
-  selector: 'codesetTreeCoding',
-  styles: [`.bt-infoBox {    
+    selector: 'codesetTreeCoding',
+    styles: [`.bt-infoBox {    
                     padding: .08rem .12rem .12rem .12rem;
                     margin-bottom: .12rem;
                     font-size: .875rem;
@@ -32,7 +32,9 @@ import { TreeItem } from '@progress/kendo-angular-treeview';
               font-style: italic;
             }
         `],
-  templateUrl: './codesetTreeCoding.component.html'
+    templateUrl: './codesetTreeCoding.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
   constructor(private router: Router,
@@ -79,12 +81,14 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy {
   @HostListener('window:keydown.Alt.8', ['$event'])
   @HostListener('window:keydown.Alt.9', ['$event'])
   @HostListener('window:keydown.Alt.0', ['$event'])
-  handleKeyDown(event: KeyboardEvent) {
+  handleKeyDown(eventAny: any) {
     if (this.HotKeysOn === false || this.SelectedNodeData == null
     || this.IsServiceBusy) return;
     else {
+      const event = (eventAny as KeyboardEvent);
+      if (!event || !event.key) return;
       let index = parseInt(event.key);
-      if (index == NaN || index > this.SelectedNodeData.attributes.length) return;
+      if (Number.isNaN(index) || index > this.SelectedNodeData.attributes.length) return;
       else if (index == 0) index = 9; //10th code as per zero-based indexing
       else index--;//move it to zero-based indexing
       if (this.SelectedNodeData.attributes[index].showCheckBox == true //code is selectable
@@ -479,8 +483,10 @@ export class CheckBoxClickedEventData {
 
 //EVEN more: small separate component for the infobox modal.
 @Component({
-  selector: 'ngbd-InfoBoxModal-content',
-  templateUrl: './InfoBoxModal.component.html'
+    selector: 'ngbd-InfoBoxModal-content',
+    templateUrl: './InfoBoxModal.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class InfoBoxModalContent {
   @ViewChild('InfoBoxText')

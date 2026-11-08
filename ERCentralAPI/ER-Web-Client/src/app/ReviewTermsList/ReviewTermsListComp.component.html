@@ -1,66 +1,72 @@
 <div>
-	<div style="max-height: 810px; height:680px; overflow: auto" >
-		<table class=" table-condensed border p-0 m-0" >
-            <thead>
-                <tr *ngIf="!ShowNewTermPanel">
-                    <td colspan="4">
-                        <button (click)="OpenRowPanel()" [disabled]="!HasWriteRights"
-                                class="btn btn-sm btn-outline-primary">
-                                <span class="k-icon k-i-plus k-color-info"></span>
-                            New term
-                        </button>
-                    </td>
-                </tr>
-                <tr>
-                  <th>Review Term</th>
-                  <td class="small font-weight-bold" style="max-width:38px;">
-                    <div style="position:relative; left:-12px;">Relevant?</div>
-                  </td>
-                  <th style="width:36px;">&nbsp;</th>
-                  <th>&nbsp;</th>
-                </tr>
+  <div style="max-height: 810px; height:680px; overflow: auto" >
+    <table class=" table-condensed border p-0 m-0" >
+      <thead>
+        @if (!ShowNewTermPanel) {
+          <tr>
+            <td colspan="4">
+              <button (click)="OpenRowPanel()" [disabled]="!HasWriteRights"
+                class="btn btn-sm btn-outline-primary">
+                <span class="k-icon k-i-plus k-color-info"></span>
+                New term
+              </button>
+            </td>
+          </tr>
+        }
+        <tr>
+          <th>Review Term</th>
+          <td class="small font-weight-bold" style="max-width:38px;">
+            <div style="position:relative; left:-12px;">Relevant?</div>
+          </td>
+          <th style="width:36px;">&nbsp;</th>
+          <th>&nbsp;</th>
+        </tr>
 
-            </thead>
-            <tbody>
-                <tr *ngIf="ShowNewTermPanel" class="border border-primary rounded p-1">
-                    <td><input class="form-control" type="text" [(ngModel)]="newReviewTerm" /></td>
-                    <td><input class="form-control" type="checkbox" [(ngModel)]="newReviewIncluded" /></td>
-                    <td>
-                        <button [disabled]="!HasWriteRights || newReviewTerm.trim() == ''" title="Save new term"
-                                class="btn btn-sm btn-outline-primary" (click)="InsertNewRow()">
-                          <span class="k-icon k-i-floppy"></span>
-                        </button>
-                    </td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-danger" title="Cancel" (click)="OpenRowPanel()">
-                          <span class="k-icon k-i-close"></span>
-                        </button>
-                    </td>
-                </tr>
-                <tr *ngFor="let term of TermsList">
-                  <td>
-                    <input class="form-control" type="text" [ngClass]="term.IsValid ? '' : 'alert-danger'"
-                           [(ngModel)]="term.reviewerTerm" />
-                  </td>
-                    <td>
-                        <input class="form-control" type="checkbox" [(ngModel)]="term.included" />
-                    </td>
-                    <td>
-                        <button [disabled]="!HasWriteRights" [hidden]="!term.CanSave" title="Save Changes"
-                                class="btn btn-sm btn-outline-primary"
-                                (click)="SaveChanges()">
-                          <span class="k-icon k-i-floppy"></span>
-                        </button>
-                    </td>
-                    <td>
-                        <button [disabled]="!HasWriteRights" title="Delete"
-                                class="btn btn-sm btn-outline-danger"
-                                (click)="Remove(term)">
-                          <span class="k-icon k-i-trash"></span>
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-		</table>
-	</div>
-</div>
+      </thead>
+      <tbody>
+        @if (ShowNewTermPanel) {
+          <tr class="border border-primary rounded p-1">
+            <td><input class="form-control" type="text" [(ngModel)]="newReviewTerm" /></td>
+            <td><input class="form-control" type="checkbox" [(ngModel)]="newReviewIncluded" /></td>
+            <td>
+              <button [disabled]="!HasWriteRights || newReviewTerm.trim() == ''" title="Save new term"
+                class="btn btn-sm btn-outline-primary" (click)="InsertNewRow()">
+                <span class="k-icon k-i-floppy"></span>
+              </button>
+            </td>
+            <td>
+              <button class="btn btn-sm btn-outline-danger" title="Cancel" (click)="OpenRowPanel()">
+                <span class="k-icon k-i-close"></span>
+              </button>
+            </td>
+          </tr>
+        }
+        @for (term of TermsList; track term) {
+          <tr>
+            <td>
+              <input class="form-control" type="text" [ngClass]="term.IsValid ? '' : 'alert-danger'"
+                [(ngModel)]="term.reviewerTerm" />
+              </td>
+              <td>
+                <input class="form-control" type="checkbox" [(ngModel)]="term.included" />
+              </td>
+              <td>
+                <button [disabled]="!HasWriteRights" [hidden]="!term.CanSave" title="Save Changes"
+                  class="btn btn-sm btn-outline-primary"
+                  (click)="SaveChanges()">
+                  <span class="k-icon k-i-floppy"></span>
+                </button>
+              </td>
+              <td>
+                <button [disabled]="!HasWriteRights" title="Delete"
+                  class="btn btn-sm btn-outline-danger"
+                  (click)="Remove(term)">
+                  <span class="k-icon k-i-trash"></span>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>

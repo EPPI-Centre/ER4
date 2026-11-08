@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, ItemList, Criteria } from '../services/ItemList.service';
@@ -16,9 +16,11 @@ import { RobotsService } from '../services/Robots.service';
 
 
 @Component({
-  selector: 'reviewerList',
-  templateUrl: './reviewerList.component.html',
-  providers: []
+    selector: 'reviewerList',
+    templateUrl: './reviewerList.component.html',
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class ReviewerListComponent implements OnInit {

@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Input, ViewChild, OnDestroy } from '@angular/core';
+import { Component, Inject, OnInit, Input, ViewChild, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
@@ -9,7 +9,9 @@ import { TreeItem } from '@progress/kendo-angular-treeview';
 @Component({
     selector: 'codesetTree4Copy',
     styles: [],
-    templateUrl: './codesetTree4Copy.component.html'
+    templateUrl: './codesetTree4Copy.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class codesetTree4CopyComponent implements OnInit, OnDestroy {

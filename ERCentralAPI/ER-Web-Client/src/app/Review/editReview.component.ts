@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewService } from '../services/review.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -8,9 +8,11 @@ import { ReviewInfo, ReviewInfoService } from '../services/ReviewInfo.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 
 @Component({
-  selector: 'EditReviewComp',
-  templateUrl: './editReview.component.html',
-  providers: []
+    selector: 'EditReviewComp',
+    templateUrl: './editReview.component.html',
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class EditReviewComponent implements OnInit, OnDestroy {

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, OnDestroy, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, OnDestroy, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Item, ItemListService, iAdditionalItemDetails } from '../services/ItemList.service';
 import { ReviewerTermsService, ReviewerTerm } from '../services/ReviewerTerms.service';
@@ -17,10 +17,12 @@ import { faBook, faCopy } from '@fortawesome/free-solid-svg-icons';
 // https://www.bennadel.com/blog/3439-creating-a-medium-inspired-text-selection-directive-in-angular-5-2-10.htm
 
 @Component({
-  selector: 'itemDetailsComp',
-  templateUrl: './itemDetails.component.html',
-  providers: [],
-  styles: []
+    selector: 'itemDetailsComp',
+    templateUrl: './itemDetails.component.html',
+    providers: [],
+    styles: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class itemDetailsComp implements OnInit, OnDestroy {
 

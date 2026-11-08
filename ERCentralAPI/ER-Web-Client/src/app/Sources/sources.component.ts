@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ActivatedRoute, Params } from '@angular/router';
 import { SourcesService, ReadOnlySource, Source } from '../services/sources.service';
@@ -14,16 +14,18 @@ import { faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
 
 
 @Component({
-  selector: 'SourcesComp',
-  templateUrl: './sources.component.html',
-  providers: [],
-  styles: [
-    `@keyframes oscillate {
+    selector: 'SourcesComp',
+    templateUrl: './sources.component.html',
+    providers: [],
+    styles: [
+        `@keyframes oscillate {
           0%   {transform:rotate(35deg);}
           50% {transform:rotate(-35deg);}
           100% {transform:rotate(35deg);}
         }`
-  ]
+    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class SourcesComponent implements OnInit, OnDestroy {

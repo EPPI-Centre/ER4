@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, ItemList, Criteria } from '../services/ItemList.service';
@@ -20,7 +20,9 @@ import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
           50% {transform:rotate(-35deg);}
           100% {transform:rotate(35deg);}
         }`
-    ]
+    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class ROSourcesListComponent implements OnInit {

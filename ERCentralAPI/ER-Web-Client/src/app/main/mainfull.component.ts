@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild, OnDestroy, } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { WorkAllocation, WorkAllocationListService } from '../services/WorkAllocationList.service'
@@ -40,12 +40,13 @@ import { ArmTimepointLinkListService } from '../services/ArmTimepointLinkList.se
 import { RobotInvestigate } from '../Robots/robotInvestigate.component';
 import {  RobotsService } from '../services/Robots.service';
 import { ReviewService } from '../services/review.service';
+import { SVGIcon, chartBarClusteredIcon, arrowRotateCwIcon, printIcon, gearsIcon, trashIcon } from '@progress/kendo-svg-icons';
 
 
 @Component({
-  selector: 'mainComp',
-  templateUrl: './mainfull.component.html'
-  , styles: [`
+    selector: 'mainComp',
+    templateUrl: './mainfull.component.html',
+    styles: [`
                 .pane-content { padding: 0em 1em; margin: 1;}
                 .ReviewsBg {
                     background-color:#f1f1f8 !important; 
@@ -66,9 +67,10 @@ import { ReviewService } from '../services/review.service';
                     font-size:18px;
                 }
 
-        `]
-  , providers: []
-
+        `],
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class MainFullReviewComponent implements OnInit, OnDestroy {
 
@@ -115,6 +117,14 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
   @ViewChild('EditReviewComp') EditReviewComp!: EditReviewComponent;
   @ViewChild('RobotInvestigate') RobotInvestigate!: RobotInvestigate;
   //@ViewChild('AdvancedMAG') AdvancedMAG!: AdvancedMAGFeaturesComponent;
+
+  //svg icons
+  public chartBarClustered: SVGIcon = chartBarClusteredIcon;
+  public arrowsRotate: SVGIcon = arrowRotateCwIcon;
+  public printIcn: SVGIcon = printIcon;
+  public gearsIcn: SVGIcon = gearsIcon;
+  public deleteIcn: SVGIcon = trashIcon; 
+  //end of svg icons
 
   public DropdownSelectedCodeAllocate: singleNode | null = null;
   public stats: ReviewStatisticsCountsCommand | null = null;

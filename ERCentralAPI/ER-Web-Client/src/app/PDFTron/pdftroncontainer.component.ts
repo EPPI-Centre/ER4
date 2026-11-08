@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, AfterViewInit, OnInit, Input, OnDestroy, NgZone } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit, OnInit, Input, OnDestroy, NgZone, ChangeDetectionStrategy } from '@angular/core';
 import { WebViewerComponent } from './webviewer.component';
 import { Helpers } from '../helpers/HelperMethods';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -17,7 +17,9 @@ declare let licenseKey: string;
 
 @Component({
     selector: 'pdftroncontainer',
-    templateUrl: './pdftroncontainer.component.html'
+    templateUrl: './pdftroncontainer.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
     constructor(private ReviewerIdentityServ: ReviewerIdentityService,

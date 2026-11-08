@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import {  Item } from '../services/ItemList.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
@@ -8,9 +8,11 @@ import { NgModel, NgForm } from '@angular/forms';
 import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
-	selector: 'timePointsComp',
-	templateUrl: './timePoints.component.html',
-    providers: []
+    selector: 'timePointsComp',
+    templateUrl: './timePoints.component.html',
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class timePointsComp  implements OnInit {

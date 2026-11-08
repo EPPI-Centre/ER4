@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewService } from '../services/review.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -7,9 +7,11 @@ import { iRobotCoderReadOnly, iRobotSettings, RobotsService } from '../services/
 import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
-  selector: 'RobotSettings',
-  templateUrl: './robotSettings.component.html',
-  providers: []
+    selector: 'RobotSettings',
+    templateUrl: './robotSettings.component.html',
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class RobotSettings implements OnInit, OnDestroy {

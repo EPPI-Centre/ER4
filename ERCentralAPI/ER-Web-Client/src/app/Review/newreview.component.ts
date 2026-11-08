@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewService } from '../services/review.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -6,9 +6,11 @@ import { ModalService } from '../services/modal.service';
 import { readonlyreviewsService } from '../services/readonlyreviews.service';
 
 @Component({
-	selector: 'NewReviewComp',
-	templateUrl: './newreview.component.html',
-	providers: []
+    selector: 'NewReviewComp',
+    templateUrl: './newreview.component.html',
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class NewReviewComponent implements OnInit, OnDestroy {

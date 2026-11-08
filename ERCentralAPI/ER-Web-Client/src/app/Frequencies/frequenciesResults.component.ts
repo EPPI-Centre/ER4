@@ -1,4 +1,4 @@
-import { Component,  OnInit,  OnDestroy, AfterViewInit, ViewChild,  Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, Input, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, Criteria } from '../services/ItemList.service';
@@ -10,11 +10,11 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 import 'hammerjs';
 
 @Component({
-   
     selector: 'frequenciesResults',
     templateUrl: './frequenciesResults.component.html',
     providers: [],
-
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class frequenciesResultsComp implements OnInit, OnDestroy, AfterViewInit {
 

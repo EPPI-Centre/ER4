@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ReviewSetsService, ReviewSet } from '../services/ReviewSets.service';
 import { ComparisonsService, Comparison, ComparisonStatistics } from '../services/comparisons.service';
 import { Router } from '@angular/router';
@@ -18,9 +18,9 @@ import { Helpers } from '../helpers/HelperMethods';
 
 
 @Component({
-  selector: 'ComparisonReconciliationComp',
-  templateUrl: './comparisonReconciliation.component.html',
-  styles: [`
+    selector: 'ComparisonReconciliationComp',
+    templateUrl: './comparisonReconciliation.component.html',
+    styles: [`
                .bg-comp {    
                     background-color: #C2F3C0;
                 }
@@ -38,7 +38,9 @@ import { Helpers } from '../helpers/HelperMethods';
                 } 
 				button.disabled {color:black; }
             `],
-  providers: []
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class ComparisonReconciliationComp extends BusyAwareService implements OnInit, OnDestroy {

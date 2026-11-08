@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ItemListService, Item } from '../services/ItemList.service';
 import { ItemCodingService, ReadOnlyItemAttribute } from '../services/ItemCoding.service';
@@ -9,10 +9,10 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 
 
 @Component({
-
-  selector: 'LiveComparisonComp',
-  templateUrl: './LiveComparison.component.html'
-
+    selector: 'LiveComparisonComp',
+    templateUrl: './LiveComparison.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class LiveComparisonComp implements OnInit, OnDestroy {

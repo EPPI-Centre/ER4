@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ModalService } from '../services/modal.service';
@@ -11,10 +11,12 @@ import { iReviewJob, ReviewInfoService, ReviewJob } from '../services/ReviewInfo
 import { ExcelService } from '../services/excel.service';
 
 @Component({
-  selector: 'ReviewJobs',
-  templateUrl: './ReviewJobs.component.html',
-  styles: [],
-  providers: []
+    selector: 'ReviewJobs',
+    templateUrl: './ReviewJobs.component.html',
+    styles: [],
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class ReviewJobs implements OnInit, OnDestroy {

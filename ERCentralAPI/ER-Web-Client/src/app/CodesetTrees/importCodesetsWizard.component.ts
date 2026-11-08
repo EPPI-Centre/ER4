@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Output, Input, OnDestroy, } from '@angular/core';
+import { Component, Inject, OnInit, Output, Input, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { ReviewSetsService, ReviewSet } from '../services/ReviewSets.service';
@@ -7,9 +7,11 @@ import { ReviewSetsEditingService, ReadOnlyTemplateReview } from '../services/Re
 import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
-  selector: 'importCodesetsWizard',
-  styles: [``],
-  templateUrl: './importCodesetsWizard.component.html'
+    selector: 'importCodesetsWizard',
+    styles: [``],
+    templateUrl: './importCodesetsWizard.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class ImportCodesetsWizardComponent implements OnInit, OnDestroy {

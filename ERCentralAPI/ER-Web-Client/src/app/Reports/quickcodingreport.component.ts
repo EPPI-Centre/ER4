@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy, Inject, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, Inject, Output, EventEmitter, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ItemCodingService, QuickQuestionReportOptions } from '../services/ItemCoding.service';
 import { ItemListService } from '../services/ItemList.service';
 import { ReviewSet, ReviewSetsService } from '../services/ReviewSets.service';
@@ -13,6 +13,8 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 @Component({
     selector: 'quickcodingreport',
     templateUrl: './quickcodingreport.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class QuickCodingReportComponent implements OnInit, OnDestroy {
 

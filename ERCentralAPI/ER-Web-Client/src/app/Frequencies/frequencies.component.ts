@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject } from "@angular/core";
+import { Component, OnInit, OnDestroy, Inject, ChangeDetectionStrategy } from "@angular/core";
 import { ReviewerIdentityService } from "../services/revieweridentity.service";
 import { ItemListService } from "../services/ItemList.service";
 import { ActivatedRoute } from "@angular/router";
@@ -7,11 +7,11 @@ import { EventEmitterService } from "../services/EventEmitter.service";
 import { frequenciesService } from "../services/frequencies.service";
 
 @Component({
-
     selector: 'frequencies',
     templateUrl: './frequencies.component.html',
     providers: [],
-
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class frequenciesComp implements OnInit {
 

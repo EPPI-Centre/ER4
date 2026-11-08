@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild, OnDestroy, Output, EventEmitter } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, OnDestroy, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -25,9 +25,11 @@ import { iItemAttributeWithThisCodeCountCommand, ItemCodingService } from '../se
 
 
 @Component({
-  selector: 'reviewStatisticsComp',
-  templateUrl: './reviewstatistics.component.html',
-  providers: []
+    selector: 'reviewStatisticsComp',
+    templateUrl: './reviewstatistics.component.html',
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class ReviewStatisticsComp implements OnInit, OnDestroy {

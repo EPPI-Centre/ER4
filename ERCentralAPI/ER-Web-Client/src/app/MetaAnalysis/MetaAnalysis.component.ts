@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
@@ -14,10 +14,10 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 
 
 @Component({
-  selector: 'MetaAnalysis',
-  templateUrl: './MetaAnalysis.component.html',
-  providers: [],
-  styles: [`
+    selector: 'MetaAnalysis',
+    templateUrl: './MetaAnalysis.component.html',
+    providers: [],
+    styles: [`
 @keyframes hiding {
   0%   {max-height:70vh; padding:0.5rem;}
   33%   {max-height:60vh; padding:0.2rem;}
@@ -58,7 +58,9 @@ padding:0.5rem;
 .MAsTable div {padding:0.3rem;}
 .selectedMA td {background-color: #cce5ff;}
 .selectedMA div {font-weight:bold;}
-  `]
+  `],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class MetaAnalysisComp implements OnInit, OnDestroy {
 

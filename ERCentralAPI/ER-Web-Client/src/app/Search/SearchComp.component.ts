@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnDestroy, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, ViewChild, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, Criteria } from '../services/ItemList.service';
@@ -22,10 +22,13 @@ import { faArrowsRotate, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import 'hammerjs';
 import { SearchFromOpenAlexImport } from './SearchFromOpenAlexImport.component';
 import { RobotsService } from '../services/Robots.service';
+import { SVGIcon, arrowRotateCwIcon, trashIcon } from '@progress/kendo-svg-icons';
 
 @Component({
-  selector: 'SearchComp',
-  templateUrl: './SearchComp.component.html'
+    selector: 'SearchComp',
+    templateUrl: './SearchComp.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class SearchComp implements OnInit, OnDestroy {
@@ -51,6 +54,10 @@ export class SearchComp implements OnInit, OnDestroy {
 
   faArrowsRotate = faArrowsRotate;
   faSpinner = faSpinner;
+  //svg icons
+  public refresh: SVGIcon = arrowRotateCwIcon;
+  public deleteIcn: SVGIcon = trashIcon;
+  //end of svg icons
 
   ngOnInit() {
 

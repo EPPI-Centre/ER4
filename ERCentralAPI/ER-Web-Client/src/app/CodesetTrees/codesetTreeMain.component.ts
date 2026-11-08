@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Output, Input, ViewChild, OnDestroy, ElementRef, AfterViewInit, ViewContainerRef } from '@angular/core';
+import { Component, Inject, OnInit, Output, Input, ViewChild, OnDestroy, ElementRef, AfterViewInit, ViewContainerRef, ChangeDetectionStrategy } from '@angular/core';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { ReviewSetsService, singleNode, ReviewSet, SetAttribute, iAttributeSet } from '../services/ReviewSets.service';
@@ -8,8 +8,8 @@ import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service'
 import { TreeItem, TreeViewComponent } from "@progress/kendo-angular-treeview";
 
 @Component({
-  selector: 'codesetTreeMain',
-  styles: [`.bt-infoBox {    
+    selector: 'codesetTreeMain',
+    styles: [`.bt-infoBox {    
                     padding: .08rem .12rem .12rem .12rem;
                     margin-bottom: .12rem;
                     font-size: .875rem;
@@ -21,7 +21,9 @@ import { TreeItem, TreeViewComponent } from "@progress/kendo-angular-treeview";
 				cursor:not-allowed; /*makes it even more obvious*/
 				}
         `],
-  templateUrl: './codesetTreeMain.component.html'
+    templateUrl: './codesetTreeMain.component.html',
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class CodesetTreeMainComponent implements OnInit, OnDestroy {

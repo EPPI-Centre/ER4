@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService, ReviewerIdentity } from '../services/revieweridentity.service';
 import { Helpers } from '../helpers/HelperMethods';
@@ -7,18 +7,20 @@ import { ConfigService, versionInfo } from '../services/config.service';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
-  selector: 'home',
-  templateUrl: './home.component.html'
-  , providers: []
-  , styles: [
-    `@keyframes glowingText {
+    selector: 'home',
+    templateUrl: './home.component.html',
+    providers: [],
+    styles: [
+        `@keyframes glowingText {
       0% { background-color:#FFFADD; margin-left:1rem; }
     50% { background-color:#BAEEBA; margin-left:1rem;}
     100% { background-color:#FFFADD; margin-left:1rem; } 
         }`
-  ]
-
-  //providers: [ReviewerIdentityService]
+    ]
+    //providers: [ReviewerIdentityService]
+    ,
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class HomeComponent implements OnInit {
   constructor(private router: Router,

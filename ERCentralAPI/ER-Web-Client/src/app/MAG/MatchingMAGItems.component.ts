@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy, Output, EventEmitter, Input, Inject } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, Output, EventEmitter, Input, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { searchService } from '../services/search.service';
 import { singleNode, SetAttribute, ReviewSetsService } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
@@ -20,9 +20,11 @@ import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
 import { Workbook, WorkbookSheet, WorkbookSheetColumn, WorkbookSheetRow, WorkbookSheetRowCell, WorkbookSheetRowCellBorderBottom, WorkbookSheetRowCellBorderLeft, WorkbookSheetRowCellBorderRight, WorkbookSheetRowCellBorderTop } from '@progress/kendo-angular-excel-export';
 
 @Component({
-  selector: 'MatchingMAGItems',
-  templateUrl: './MatchingMAGItems.component.html',
-  providers: []
+    selector: 'MatchingMAGItems',
+    templateUrl: './MatchingMAGItems.component.html',
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class MatchingMAGItemsComponent implements OnInit, OnDestroy {

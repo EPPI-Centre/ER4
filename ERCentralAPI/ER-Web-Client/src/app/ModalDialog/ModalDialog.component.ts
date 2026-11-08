@@ -13,16 +13,19 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
   </div>
   <div  class="modal-body" >
     <p [innerHTML]="prompt"  style="white-space: pre-line;"></p>
-    <button  *ngIf="DetailsAsHTMLdoc !== ''" class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-info" (click)="SeeMore()">See more...</button>
+    @if (DetailsAsHTMLdoc !== '') {
+      <button  class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-info" (click)="SeeMore()">See more...</button>
+    }
   </div>
   <div class="modal-footer">
-      <button type="button"
+    <button type="button"
       class="btn btn-danger"
-      (click)="activeModal.close(true)">Close</button>
+    (click)="activeModal.close(true)">Close</button>
   </div>
 </div>
 `,
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class ModalDialogComponent {
 

@@ -1,5 +1,5 @@
 import {  Inject, Injectable, OnDestroy} from '@angular/core';
-import { HttpClient, HttpHeaders   } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { ReviewInfo, ReviewInfoService } from './ReviewInfo.service';

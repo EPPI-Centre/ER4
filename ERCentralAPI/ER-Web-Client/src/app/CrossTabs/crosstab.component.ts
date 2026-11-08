@@ -1,4 +1,4 @@
-import { Component,  OnInit,  OnDestroy, AfterViewInit,  } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, Criteria } from '../services/ItemList.service';
@@ -8,11 +8,11 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 
 
 @Component({
-   
     selector: 'crosstab',
-	templateUrl: './crosstab.component.html',
+    templateUrl: './crosstab.component.html',
     providers: [],
-
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class CrossTabsComp implements OnInit, OnDestroy, AfterViewInit {
 

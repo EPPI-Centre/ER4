@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Params } from '@angular/router';
 import { Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
@@ -14,7 +14,9 @@ import { PriorityScreeningService } from '../services/PriorityScreening.service'
     selector: 'editItemDetails',
     templateUrl: './editItemDetails.component.html',
     providers: [],
-    styles: []
+    styles: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class editItemDetailsComp implements OnInit, OnDestroy {
 

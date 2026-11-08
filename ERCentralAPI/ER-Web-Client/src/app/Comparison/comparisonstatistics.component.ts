@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Input, OnDestroy } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ReviewSet, singleNode } from '../services/ReviewSets.service';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
@@ -12,9 +12,11 @@ import { Subscription } from 'rxjs';
 
 
 @Component({
-	selector: 'ComparisonStatsComp',
+    selector: 'ComparisonStatsComp',
     templateUrl: './comparisonstatistics.component.html',
-    providers: []
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class ComparisonStatsComp implements OnInit {

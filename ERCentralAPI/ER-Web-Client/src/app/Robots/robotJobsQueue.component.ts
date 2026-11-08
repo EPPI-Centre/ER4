@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewService } from '../services/review.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -12,9 +12,11 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
-  selector: 'robotJobsQueue',
-  templateUrl: './robotJobsQueue.component.html',
-  providers: []
+    selector: 'robotJobsQueue',
+    templateUrl: './robotJobsQueue.component.html',
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class robotJobsQueue implements OnInit, OnDestroy {

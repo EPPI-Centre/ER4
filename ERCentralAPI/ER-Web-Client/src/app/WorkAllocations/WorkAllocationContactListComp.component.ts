@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, EventEmitter, Output, AfterContentInit, OnDestroy, Input } from '@angular/core';
+import { Component, Inject, OnInit, EventEmitter, Output, AfterContentInit, OnDestroy, Input, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, Subscription, } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -8,10 +8,12 @@ import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
 
 @Component({
-  selector: 'WorkAllocationContactListComp',
-  templateUrl: './WorkAllocationContactListComp.component.html',
-  styles: ['.UsedWorkAllocation { font-weight: bold; background-color: lightblue;}'],
-  providers: []
+    selector: 'WorkAllocationContactListComp',
+    templateUrl: './WorkAllocationContactListComp.component.html',
+    styles: ['.UsedWorkAllocation { font-weight: bold; background-color: lightblue;}'],
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class WorkAllocationContactListComp implements OnInit, AfterContentInit, OnDestroy {

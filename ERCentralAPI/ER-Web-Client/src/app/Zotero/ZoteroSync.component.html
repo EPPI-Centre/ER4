@@ -1,4 +1,6 @@
-<div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
+@if (IsServiceBusy) {
+  <div class="k-loading-image" style="position: fixed; top: 2%;"></div>
+}
 <div class="container col-12">
   <div class="col-12 px-1 my-1 row">
     <div class="rounded border border-info alert-info mx-auto  px-2">
@@ -14,18 +16,18 @@
           <div class="my-auto">Select a code:</div>
           <div ngbDropdown>
             <button ngbDropdownAnchor class="btn btn-primary dropdown-toggle p-1 m-1" id="dropdownTree"
-                    (click)="isCollapsed = !isCollapsed"
-                    [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree" style="min-width: 100px;">
+              (click)="isCollapsed = !isCollapsed"
+              [attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree" style="min-width: 100px;">
               {{CurrentDropdownSelectedCode?.name}}
             </button>
             <div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
               <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCodeSelector
-                               (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="false"></codesetSelector>
+              (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="false"></codesetSelector>
             </div>
           </div>
         </div>
       </div>
-      
+
     </div>
     <div class="col-12 col-md-6 px-0 ">
       <div>
@@ -33,24 +35,28 @@
         New items will be imported as part of a "new source".
       </div>
       <div class="row mx-0 mb-1">
-        <div *ngIf="NameOfCurrentLibrary != '[Unknown]'" class="border col-auto rounded border-info bg-light my-auto px-1">
-          Library: <strong>{{NameOfCurrentLibrary}}</strong>
-        </div>
+        @if (NameOfCurrentLibrary != '[Unknown]') {
+          <div class="border col-auto rounded border-info bg-light my-auto px-1">
+            Library: <strong>{{NameOfCurrentLibrary}}</strong>
+          </div>
+        }
       </div>
-      <div *ngIf="BusyMessage == ''" class="row mx-0 mb-1">
-        <button *ngIf="!showRebuildExplanation; else rebuildPanel" class="btn-sm btn btn-outline-danger py-0" (click)="showRebuildExplanation = true;">Rebuild</button>
-        <ng-template #rebuildPanel>
-          <div class="p-2 rounded bg-light col-12 row">
-            <p>
-              In some circumstances, the data used by EPPI-Reviewer to keep track of Zotero references can become <strong>out-of-sync or corrupted</strong>.
-            </p>
-            <p>
-              EPPI-Reviewer can try to <strong>rebuild</strong> this data using the EPPI-Reviewer ID tags that have been assigned to the Zotero references and documents.
-            </p>
-            <p>
-              You can click on the "<strong>OK, Rebuild!</strong>" button to start this process. It may take several minutes depending on how many references are present in the Zotero library.
-            </p>
-            <!--<ul>
+      @if (BusyMessage == '') {
+        <div class="row mx-0 mb-1">
+          @if (!showRebuildExplanation) {
+            <button class="btn-sm btn btn-outline-danger py-0" (click)="showRebuildExplanation = true;">Rebuild</button>
+          } @else {
+            <div class="p-2 rounded bg-light col-12 row">
+              <p>
+                In some circumstances, the data used by EPPI-Reviewer to keep track of Zotero references can become <strong>out-of-sync or corrupted</strong>.
+              </p>
+              <p>
+                EPPI-Reviewer can try to <strong>rebuild</strong> this data using the EPPI-Reviewer ID tags that have been assigned to the Zotero references and documents.
+              </p>
+              <p>
+                You can click on the "<strong>OK, Rebuild!</strong>" button to start this process. It may take several minutes depending on how many references are present in the Zotero library.
+              </p>
+              <!--<ul>
               <li>The Access Key used to communicate with Zotero has been (accidentaly?) revoked and then re-created.</li>
               <li>In Zotero, a number of items has been moved to the trash, and then reinstated.</li>
             </ul>
@@ -61,99 +67,130 @@
             <button class="btn btn-outline-dark py-1 px-4 mr-1" (click)="showRebuildExplanation = false;">&nbsp;&nbsp;&nbsp;&nbsp;Cancel&nbsp;&nbsp;&nbsp;&nbsp;</button>
             <button class="btn btn-danger py-1" (click)="RebuildItemConnections(); showRebuildExplanation = false;">OK, Rebuild!</button>
           </div>
-        </ng-template>
+        }
       </div>
-    </div>
+    }
+  </div>
 
-    </div>
-  <!--<div class="col-auto border border-info p-1 rounded bg-light ml-1">
-    <div>Step 2: click "Get Status"</div>
-    <button class="btn btn-primary m-2 p-1"
-            (click)="getErWebObjects()">
-      Get Status
-    </button>
-  </div>-->
+</div>
+<!--<div class="col-auto border border-info p-1 rounded bg-light ml-1">
+<div>Step 2: click "Get Status"</div>
+<button class="btn btn-primary m-2 p-1"
+  (click)="getErWebObjects()">
+  Get Status
+</button>
+</div>-->
 
-  <div *ngIf="BusyMessage != ''" class="col-12 row mx-0 px-1">
+@if (BusyMessage != '') {
+  <div class="col-12 row mx-0 px-1">
     <div class="rounded bg-light p-1 mx-auto mb-1">
       <div class="alert alert-warning border-warning border mb-0" [innerHTML]="BusyMessage"></div>
     </div>
   </div>
-  <div class="col-12 row mx-0 px-1">
-    <div class="col-12 col-md-6 pl-0 pr-1 mx-0 row">
-      <div class="col-md-12 alert-primary card">
-        <div class="row mt-1">
-          <div class="my-auto mx-2 h5 font-weight-bold">Items with this code</div>
-          <button *ngIf="!IsServiceBusy" class="btn btn-success my-auto ml-auto mr-1 px-1 py-0" (click)="PushERWebItems()"
-                  [disabled]="ItemsToPushCount < 1">
+}
+<div class="col-12 row mx-0 px-1">
+  <div class="col-12 col-md-6 pl-0 pr-1 mx-0 row">
+    <div class="col-md-12 alert-primary card">
+      <div class="row mt-1">
+        <div class="my-auto mx-2 h5 font-weight-bold">Items with this code</div>
+        @if (!IsServiceBusy) {
+          <button class="btn btn-success my-auto ml-auto mr-1 px-1 py-0" (click)="PushERWebItems()"
+            [disabled]="ItemsToPushCount < 1">
             <span class="my-auto mx-1">Push</span>
-            <span *ngIf="HasSelections1; else elseAll" class="my-auto mx-1">(sel: {{SelectedList1.length}})</span>
+            @if (HasSelections1) {
+              <span class="my-auto mx-1">(sel: {{SelectedList1.length}})</span>
+            } @else {
+              <span class="my-auto mx-1">(All)</span>
+            }
             <span class="k-icon k-i-arrow-right k-color-info k-icon-md"></span>
           </button>
-        </div>
-        <div *ngIf="ZoteroERWebReviewItemList.length > 0" class="small">
+        }
+      </div>
+      @if (ZoteroERWebReviewItemList.length > 0) {
+        <div class="small">
           There are {{ZoteroERWebReviewItemList.length}} "Items With this Code". Of these, <strong>{{ItemsToPushCount}} item(s)</strong> can be pushed (including those that only have a pusheable uploaded document).
         </div>
+      }
 
-        <div *ngIf="PagedList1.length > 0" class="mt-1 mx-auto">
+      @if (PagedList1.length > 0) {
+        <div class="mt-1 mx-auto">
           <div class="row mx-0 p-1 rounded bg-light">
             <div class="small px-1 mx-1 mt-1 d-inline-block">
               Paging:
               <select class="select" [(ngModel)]="PageSize1">
-                <option *ngFor="let n of PagingDD1" [ngValue]="n" [selected]="n == PageSize1">{{n}}</option>
+                @for (n of PagingDD1; track n) {
+                  <option [ngValue]="n" [selected]="n == PageSize1">{{n}}</option>
+                }
               </select>
             </div>
-            <div *ngIf="TotPages1 > 1">
-              <button class="btn py-0 px-1 border-primary border" (click)="FirstPage1()" [disabled]="!CanPageDown1">
-                <span class="mb-1  k-icon k-i-seek-w" aria-label="Go to the previous page"></span>
-              </button>
-              <button class="btn py-0 px-1 border-primary border" (click)="PageDown1()" [disabled]="!CanPageDown1">
-                <span class="mb-1 k-icon k-i-arrow-w" aria-label="Go to the previous page"></span>
-              </button>
-              Page: {{CurrentPage1}} of {{TotPages1}}
-              <button class="btn py-0 px-1 border-primary border" (click)="PageUp1()" [disabled]="!CanPageUp1">
-                <span class="mb-1 k-icon k-i-arrow-e" aria-label="Go to the next page"></span>
-              </button>
-              <button class="btn py-0 px-1 border-primary border" (click)="LastPage1()" [disabled]="!CanPageUp1">
-                <span class="mb-1  k-icon k-i-seek-e" aria-label="Go to the next page"></span>
-              </button>
-            </div>
+            @if (TotPages1 > 1) {
+              <div>
+                <button class="btn py-0 px-1 border-primary border" (click)="FirstPage1()" [disabled]="!CanPageDown1">
+                  <span class="mb-1  k-icon k-i-seek-w" aria-label="Go to the previous page"></span>
+                </button>
+                <button class="btn py-0 px-1 border-primary border" (click)="PageDown1()" [disabled]="!CanPageDown1">
+                  <span class="mb-1 k-icon k-i-arrow-w" aria-label="Go to the previous page"></span>
+                </button>
+                Page: {{CurrentPage1}} of {{TotPages1}}
+                <button class="btn py-0 px-1 border-primary border" (click)="PageUp1()" [disabled]="!CanPageUp1">
+                  <span class="mb-1 k-icon k-i-arrow-e" aria-label="Go to the next page"></span>
+                </button>
+                <button class="btn py-0 px-1 border-primary border" (click)="LastPage1()" [disabled]="!CanPageUp1">
+                  <span class="mb-1  k-icon k-i-seek-e" aria-label="Go to the next page"></span>
+                </button>
+              </div>
+            }
             <button class="btn-sm btn btn-outline-primary py-0" (click)="ShowMore1 = !ShowMore1">{{ShowMore1txt}}</button>
           </div>
         </div>
-        <div *ngIf="ShowMore1" class="rounded bg-light my-1 px-0 mx-1">
+      }
+      @if (ShowMore1) {
+        <div class="rounded bg-light my-1 px-0 mx-1">
           <div class="row mx-1 px-1 ">
             <div class="d-inline-block">
               Filter:
               <select class="select" [(ngModel)]="ActiveFilter1">
-                <option *ngFor="let n of Filter1DD" [ngValue]="n" [selected]="n == ActiveFilter1">{{n}}</option>
+                @for (n of Filter1DD; track n) {
+                  <option [ngValue]="n" [selected]="n == ActiveFilter1">{{n}}</option>
+                }
               </select>
             </div>
-            <div *ngIf="ActiveFilter1 != 'No filter'" class="ml-1 px-1">Filtered list has {{FilteredList1.length}} of {{ZoteroERWebReviewItemList.length}} items</div>
+            @if (ActiveFilter1 != 'No filter') {
+              <div class="ml-1 px-1">Filtered list has {{FilteredList1.length}} of {{ZoteroERWebReviewItemList.length}} items</div>
+            }
           </div>
-          <div class="row mx-1 px-1 ">Show: 
+          <div class="row mx-1 px-1 ">
+            Show:
             <div class="px-1 mx-1 mb-1 border-icon border rounded bg-white">Short Title <input type="checkbox" [(ngModel)]="showItemShortTitles" /></div>
             <div class="px-1 mx-1 mb-1 border-icon border rounded bg-white">Zotero ID <input type="checkbox" [(ngModel)]="showItemKeys" /></div>
             <div class="px-1 mx-1 mb-1 border-icon border rounded bg-white">Title <input type="checkbox" [(ngModel)]="showItemTitles" /></div>
           </div>
         </div>
+      }
 
-        <div *ngIf="ZoteroERWebReviewItemList.length > 0" class="row p-0 m-0 w-100" style="max-height:600px; overflow:auto;">
+      @if (ZoteroERWebReviewItemList.length > 0) {
+        <div class="row p-0 m-0 w-100" style="max-height:600px; overflow:auto;">
           <table class="table table-sm table-striped p-2 m-2">
             <thead>
               <tr>
                 <th (click)="SortBy1('itemID')" style="cursor:pointer">
                   ItemId<span [innerHTML]="SortingSymbol1('itemID')"></span>
                 </th>
-                <th  *ngIf="showItemShortTitles" (click)="SortBy1('shortTitle')" style="cursor:pointer">
-                  Short Title<span [innerHTML]="SortingSymbol1('shortTitle')"></span>
-                </th>
-                <th *ngIf="showItemKeys" (click)="SortBy1('itemKey')" style="cursor:pointer">
-                  Zotero ID<span [innerHTML]="SortingSymbol1('itemKey')"></span>
-                </th>
-                <th *ngIf="showItemTitles" (click)="SortBy1('title')" style="cursor:pointer">
-                  Title<span [innerHTML]="SortingSymbol1('title')"></span>
-                </th>
+                @if (showItemShortTitles) {
+                  <th (click)="SortBy1('shortTitle')" style="cursor:pointer">
+                    Short Title<span [innerHTML]="SortingSymbol1('shortTitle')"></span>
+                  </th>
+                }
+                @if (showItemKeys) {
+                  <th (click)="SortBy1('itemKey')" style="cursor:pointer">
+                    Zotero ID<span [innerHTML]="SortingSymbol1('itemKey')"></span>
+                  </th>
+                }
+                @if (showItemTitles) {
+                  <th (click)="SortBy1('title')" style="cursor:pointer">
+                    Title<span [innerHTML]="SortingSymbol1('title')"></span>
+                  </th>
+                }
                 <th (click)="SortBy1('pdfList')" style="cursor:pointer">
                   Docs?<span [innerHTML]="SortingSymbol1('pdfList')"></span>
                 </th>
@@ -161,68 +198,111 @@
                   state<span [innerHTML]="SortingSymbol1('syncState')"></span>
                 </th>
                 <th style="width: 25px; max-width: 25px; border-left: solid 1px white;" class="">
-                  <ng-container [ngSwitch]="HasSelectionsDetail1">
-                    <input *ngSwitchCase="0" type="checkbox" (click)="SelectAll1()" title="No items selected" />
-                    <input *ngSwitchCase="1" type="checkbox" (click)="UnSelectAll1()" checked class="linear-fade" title="Some pushable items are selected" />
-                    <input *ngSwitchDefault type="checkbox" checked (click)="UnSelectAll1()" title="All pushable items are selected" />
-                  </ng-container>
+                  @switch (HasSelectionsDetail1) {
+                    @case (0) {
+                      <input type="checkbox" (click)="SelectAll1()" title="No items selected" />
+                    }
+                    @case (1) {
+                      <input type="checkbox" (click)="UnSelectAll1()" checked class="linear-fade" title="Some pushable items are selected" />
+                    }
+                    @default {
+                      <input type="checkbox" checked (click)="UnSelectAll1()" title="All pushable items are selected" />
+                    }
+                  }
                 </th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let object of PagedList1; index as i" [ngClass]="{'text-black-50': object.syncState != 2}" class="">
-                <td>
-                  {{ object.itemID}}
-                </td>
-                <td *ngIf="showItemShortTitles">
-                  {{ object.shortTitle}}
-                </td>
-                <td *ngIf="showItemKeys">{{object.itemKey}}</td>
-                <td *ngIf="showItemTitles">{{object.title}}</td>
-                <td>
-                  <div class="bg-warning" *ngIf="!object.HasPdf">
-                    No Docs
-                  </div>
-                  <div class="bg-success" *ngIf="object.HasPdf">
-                    Doc(s)
-                    <ng-container [ngSwitch]="object.HasPdfToPush">
-                      <div *ngSwitchCase="true" class="k-icon k-i-arrow-right k-color-info" title="Contains documents that can be pushed"></div>
-                      <div *ngSwitchCase="false" class="k-icon k-i-success k-color-info mb-1" title="Documents are Up to Date"></div>
-                      <div *ngSwitchDefault>Uh??</div>
-                    </ng-container>
-                  </div>
-                </td>
-                <td>
-                  <ng-container [ngSwitch]="object.syncState">
-                    <div *ngSwitchCase="0" class="">N/A</div>
-                    <div *ngSwitchCase="1" class="k-icon k-i-success k-color-success mb-1" title="Reference is Up to Date"></div>
-                    <div *ngSwitchCase="2" class="k-icon k-i-arrow-right k-color-info" title="Reference can be pushed"></div>
-                    <div *ngSwitchCase="3" class="k-icon k-i-arrow-left k-color-info" title="Reference can be pulled"></div>
-                  </ng-container>
-                </td>
-                <td class="border-left">
-                  <div *ngIf="object.syncState == 2 || object.HasPdfToPush">
-                    <input type="checkbox" [(ngModel)]="object.ClientSelected" />
-                  </div>
-                </td>
-              </tr>
-          </table>
-        </div>
-        <div *ngIf="ZoteroERWebReviewItemList.length == 0" class="m-2 rounded alert-dark border  border-info small p-1">
-          No items to show, please change the selected code above and try again, this will list "items with this code" along with their Sync status.
-        </div>
+              @for (object of PagedList1; track object; let i = $index) {
+                <tr [ngClass]="{'text-black-50': object.syncState != 2}" class="">
+                  <td>
+                    {{ object.itemID}}
+                  </td>
+                  @if (showItemShortTitles) {
+                    <td>
+                      {{ object.shortTitle}}
+                    </td>
+                  }
+                  @if (showItemKeys) {
+                    <td>{{object.itemKey}}</td>
+                  }
+                  @if (showItemTitles) {
+                    <td>{{object.title}}</td>
+                  }
+                  <td>
+                    @if (!object.HasPdf) {
+                      <div class="bg-warning">
+                        No Docs
+                      </div>
+                    }
+                    @if (object.HasPdf) {
+                      <div class="bg-success">
+                        Doc(s)
+                        @switch (object.HasPdfToPush) {
+                          @case (true) {
+                            <div class="k-icon k-i-arrow-right k-color-info" title="Contains documents that can be pushed"></div>
+                          }
+                          @case (false) {
+                            <div class="k-icon k-i-success k-color-info mb-1" title="Documents are Up to Date"></div>
+                          }
+                          @default {
+                            <div>Uh??</div>
+                          }
+                        }
+                      </div>
+                    }
+                  </td>
+                  <td>
+                    @switch (object.syncState) {
+                      @case (0) {
+                        <div class="">N/A</div>
+                      }
+                      @case (1) {
+                        <div class="k-icon k-i-success k-color-success mb-1" title="Reference is Up to Date"></div>
+                      }
+                      @case (2) {
+                        <div class="k-icon k-i-arrow-right k-color-info" title="Reference can be pushed"></div>
+                      }
+                      @case (3) {
+                        <div class="k-icon k-i-arrow-left k-color-info" title="Reference can be pulled"></div>
+                      }
+                    }
+                  </td>
+                  <td class="border-left">
+                    @if (object.syncState == 2 || object.HasPdfToPush) {
+                      <div>
+                        <input type="checkbox" [(ngModel)]="object.ClientSelected" />
+                      </div>
+                    }
+                  </td>
+                </tr>
+              }
+            </table>
+          </div>
+        }
+        @if (ZoteroERWebReviewItemList.length == 0) {
+          <div class="m-2 rounded alert-dark border  border-info small p-1">
+            No items to show, please change the selected code above and try again, this will list "items with this code" along with their Sync status.
+          </div>
+        }
       </div>
 
     </div>
     <div class="col-12 col-md-6 pl-0 pr-1 mx-0 row">
       <div class="col-12 alert-primary card">
         <div class="row mt-1">
-          <button *ngIf="!IsServiceBusy" class="btn btn-success my-auto ml-1 mr-auto px-1 py-0" [disabled]="ItemsToPullCount <1 || HasWriteRights == false"
-                  (click)="PullConfirmZoteroItems()">
-            <span class="k-icon k-i-arrow-left k-color-info k-icon-md"></span>
-            <span class="my-auto mx-1">Pull</span>
-            <span *ngIf="HasSelections2; else elseAll" class="my-auto mx-1">(sel: {{SelectedList2.length}})</span>
-          </button>
+          @if (!IsServiceBusy) {
+            <button class="btn btn-success my-auto ml-1 mr-auto px-1 py-0" [disabled]="ItemsToPullCount <1 || HasWriteRights == false"
+              (click)="PullConfirmZoteroItems()">
+              <span class="k-icon k-i-arrow-left k-color-info k-icon-md"></span>
+              <span class="my-auto mx-1">Pull</span>
+              @if (HasSelections2) {
+                <span class="my-auto mx-1">(sel: {{SelectedList2.length}})</span>
+              } @else {
+                <span class="my-auto mx-1">(All)</span>
+              }
+            </button>
+          }
           <div class="my-auto mx-2 h5 font-weight-bold">
             Items in Zotero
           </div>
@@ -233,133 +313,187 @@
         </div>
 
 
-        <div *ngIf="ZoteroItems.length > 0" class=" small">
-          There are {{ZoteroItems.length}} references in the Zotero Group Library. Of these, <strong>{{ItemsToPullCount}} item(s)</strong> can be pulled (including those that only have a pulleable uploaded document).
-        </div>
-        <div *ngIf="ZoteroItems.length == 0" class="m-2 rounded alert-dark border  border-info small p-1">
-          No items to show, there may be no references in the Zotero Library.
-        </div>
+        @if (ZoteroItems.length > 0) {
+          <div class=" small">
+            There are {{ZoteroItems.length}} references in the Zotero Group Library. Of these, <strong>{{ItemsToPullCount}} item(s)</strong> can be pulled (including those that only have a pulleable uploaded document).
+          </div>
+        }
+        @if (ZoteroItems.length == 0) {
+          <div class="m-2 rounded alert-dark border  border-info small p-1">
+            No items to show, there may be no references in the Zotero Library.
+          </div>
+        }
 
-        <div *ngIf="PagedList2.length > 0" class="mt-1 mx-auto">
-          <div class="row mx-0 p-1 rounded bg-light">
-            <div class="small px-1 mx-1 mt-1 d-inline-block">
-              Paging:
-              <select class="select" [(ngModel)]="PageSize2">
-                <option *ngFor="let n of PagingDD2" [ngValue]="n" [selected]="n == PageSize2">{{n}}</option>
-              </select>
-            </div>
-            <div *ngIf="TotPages2 > 1">
-              <button class="btn py-0 px-1 border-primary border" (click)="FirstPage2()" [disabled]="!CanPageDown2">
-                <span class="mb-1  k-icon k-i-seek-w" aria-label="Go to the previous page"></span>
-              </button>
-              <button class="btn py-0 px-1 border-primary border" (click)="PageDown2()" [disabled]="!CanPageDown2">
-                <span class="mb-1 k-icon k-i-arrow-w" aria-label="Go to the previous page"></span>
-              </button>
-              Page: {{CurrentPage2}} of {{TotPages2}}
-              <button class="btn py-0 px-1 border-primary border" (click)="PageUp2()" [disabled]="!CanPageUp2">
-                <span class="mb-1 k-icon k-i-arrow-e" aria-label="Go to the next page"></span>
-              </button>
-              <button class="btn py-0 px-1 border-primary border" (click)="LastPage2()" [disabled]="!CanPageUp2">
-                <span class="mb-1  k-icon k-i-seek-e" aria-label="Go to the next page"></span>
-              </button>
-            </div>
-            <button class="btn-sm btn btn-outline-primary py-0" (click)="ShowMore2 = !ShowMore2">{{ShowMore2txt}}</button>
-          </div>
-        </div>
-        <div *ngIf="ShowMore2" class="rounded bg-light my-1 px-0 mx-1">
-          <div class="row mx-1 px-1">
-            <div class="d-inline-block">
-              Filter:
-              <select class="select" [(ngModel)]="ActiveFilter2">
-                <option *ngFor="let n of Filter2DD" [ngValue]="n" [selected]="n == ActiveFilter2">{{n}}</option>
-              </select>
-            </div>
-            <div *ngIf="ActiveFilter2 != 'No filter'" class="ml-1 px-1">Filtered list has {{FilteredList2.length}} of {{ZoteroItems.length}} items</div>
-          </div>
-          <div class="row mx-1 px-1 ">
-            Show:
-            <div class="px-1 mx-1 mb-1 border-icon border rounded bg-white">
-              Short Title <input type="checkbox" [(ngModel)]="showZoteroShortTitles" />
-            </div>
-            <div class="px-1 mx-1 mb-1 border-icon border rounded bg-white">
-              Title <input type="checkbox" [(ngModel)]="showZoteroTitles" />
+        @if (PagedList2.length > 0) {
+          <div class="mt-1 mx-auto">
+            <div class="row mx-0 p-1 rounded bg-light">
+              <div class="small px-1 mx-1 mt-1 d-inline-block">
+                Paging:
+                <select class="select" [(ngModel)]="PageSize2">
+                  @for (n of PagingDD2; track n) {
+                    <option [ngValue]="n" [selected]="n == PageSize2">{{n}}</option>
+                  }
+                </select>
+              </div>
+              @if (TotPages2 > 1) {
+                <div>
+                  <button class="btn py-0 px-1 border-primary border" (click)="FirstPage2()" [disabled]="!CanPageDown2">
+                    <span class="mb-1  k-icon k-i-seek-w" aria-label="Go to the previous page"></span>
+                  </button>
+                  <button class="btn py-0 px-1 border-primary border" (click)="PageDown2()" [disabled]="!CanPageDown2">
+                    <span class="mb-1 k-icon k-i-arrow-w" aria-label="Go to the previous page"></span>
+                  </button>
+                  Page: {{CurrentPage2}} of {{TotPages2}}
+                  <button class="btn py-0 px-1 border-primary border" (click)="PageUp2()" [disabled]="!CanPageUp2">
+                    <span class="mb-1 k-icon k-i-arrow-e" aria-label="Go to the next page"></span>
+                  </button>
+                  <button class="btn py-0 px-1 border-primary border" (click)="LastPage2()" [disabled]="!CanPageUp2">
+                    <span class="mb-1  k-icon k-i-seek-e" aria-label="Go to the next page"></span>
+                  </button>
+                </div>
+              }
+              <button class="btn-sm btn btn-outline-primary py-0" (click)="ShowMore2 = !ShowMore2">{{ShowMore2txt}}</button>
             </div>
           </div>
-        </div>
+        }
+        @if (ShowMore2) {
+          <div class="rounded bg-light my-1 px-0 mx-1">
+            <div class="row mx-1 px-1">
+              <div class="d-inline-block">
+                Filter:
+                <select class="select" [(ngModel)]="ActiveFilter2">
+                  @for (n of Filter2DD; track n) {
+                    <option [ngValue]="n" [selected]="n == ActiveFilter2">{{n}}</option>
+                  }
+                </select>
+              </div>
+              @if (ActiveFilter2 != 'No filter') {
+                <div class="ml-1 px-1">Filtered list has {{FilteredList2.length}} of {{ZoteroItems.length}} items</div>
+              }
+            </div>
+            <div class="row mx-1 px-1 ">
+              Show:
+              <div class="px-1 mx-1 mb-1 border-icon border rounded bg-white">
+                Short Title <input type="checkbox" [(ngModel)]="showZoteroShortTitles" />
+              </div>
+              <div class="px-1 mx-1 mb-1 border-icon border rounded bg-white">
+                Title <input type="checkbox" [(ngModel)]="showZoteroTitles" />
+              </div>
+            </div>
+          </div>
+        }
 
-        <div *ngIf="ZoteroItems.length > 0" class="row p-0 m-0 w-100" style="max-height:600px; overflow:auto;">
-          <table class="table table-sm table-striped p-2 m-2">
-            <thead>
-              <tr>
-                <th style="width:25px;max-width:25px; border-right:solid 1px white;" class="">
-                  <ng-container [ngSwitch]="HasSelectionsDetail2">
-                    <input *ngSwitchCase="0" type="checkbox" (click)="SelectAll2()" title="No items selected" />
-                    <input *ngSwitchCase="1" type="checkbox" (click)="UnSelectAll2()" checked class="linear-fade" title="Some pullable items are selected" />
-                    <input *ngSwitchDefault type="checkbox" checked (click)="UnSelectAll2()" title="All pullable items are selected" />
-                  </ng-container>
-                </th>
-                <th (click)="SortBy2('syncState')" style="cursor:pointer">
-                  State<span [innerHTML]="SortingSymbol2('syncState')"></span>
-                </th>
-                <th (click)="SortBy2('attachments')" style="cursor:pointer">
-                  Docs?<span [innerHTML]="SortingSymbol2('attachments')"></span>
-                </th>
-                <th (click)="SortBy2('key')" style="cursor:pointer">
-                  Zotero ID<span [innerHTML]="SortingSymbol2('key')"></span>
-                </th>
-                <th *ngIf="showZoteroTitles" (click)="SortBy2('title')" style="cursor:pointer">
-                  Title<span [innerHTML]="SortingSymbol2('title')"></span>
-                </th>
-                <th *ngIf="showZoteroShortTitles" (click)="SortBy2('shortTitle')" style="cursor:pointer">
-                  Short Title<span [innerHTML]="SortingSymbol2('shortTitle')"></span>
-                </th>
-              </tr>
-            </thead>
-            <tbody *ngFor="let object of PagedList2">
-              <tr [ngClass]="{'text-black-50': object.syncState != 3}">
-                <td class="border-right">
-                  <div *ngIf="object.syncState == 3 || object.HasAttachmentsToPull">
-                    <input type="checkbox" [(ngModel)]="object.ClientSelected" />
-                  </div>
-                </td>
-                <td>
-                  <ng-container [ngSwitch]="object.syncState">
-                    <div *ngSwitchCase="0" class="">N/A</div>
-                    <div *ngSwitchCase="1" class="k-icon k-i-success k-color-success mb-1" title="Reference is Up to Date"></div>
-                    <div *ngSwitchCase="2" class="k-icon k-i-arrow-right k-color-info" title="Reference can be pushed"></div>
-                    <div *ngSwitchCase="3" class="k-icon k-i-arrow-left k-color-info" title="Reference can be pulled"></div>
-                  </ng-container>
-                </td>
-                <td>
-                  <div class="bg-warning" *ngIf="!object.HasAttachments">
-                    No Docs
-                  </div>
-                  <div class="bg-success" *ngIf="object.HasAttachments">
-                    <ng-container [ngSwitch]="object.HasAttachmentsToPull">
-                      <div *ngSwitchCase="true" class="k-icon k-i-arrow-left k-color-info ml-1" title="Contains documents that can be pulled"></div>
-                      <div *ngSwitchCase="false" class="k-icon k-i-success k-color-info mb-1 ml-1" title="Documents are Up to Date"></div>
-                      <div *ngSwitchDefault>?</div>
-                    </ng-container>
-                    Doc(s)
-                  </div>
-                </td>
-                <td>
-                  {{object.key}}
-                </td>
-                <td *ngIf="showZoteroTitles">
-                  {{object.title}}
-                </td>
-                <td *ngIf="showZoteroShortTitles">
-                  {{object.shortTitle}}
-                </td>
-                <!--<td>
-    {{object.itemType}}
-  </td>-->
-              </tr>
+        @if (ZoteroItems.length > 0) {
+          <div class="row p-0 m-0 w-100" style="max-height:600px; overflow:auto;">
+            <table class="table table-sm table-striped p-2 m-2">
+              <thead>
+                <tr>
+                  <th style="width:25px;max-width:25px; border-right:solid 1px white;" class="">
+                    @switch (HasSelectionsDetail2) {
+                      @case (0) {
+                        <input type="checkbox" (click)="SelectAll2()" title="No items selected" />
+                      }
+                      @case (1) {
+                        <input type="checkbox" (click)="UnSelectAll2()" checked class="linear-fade" title="Some pullable items are selected" />
+                      }
+                      @default {
+                        <input type="checkbox" checked (click)="UnSelectAll2()" title="All pullable items are selected" />
+                      }
+                    }
+                  </th>
+                  <th (click)="SortBy2('syncState')" style="cursor:pointer">
+                    State<span [innerHTML]="SortingSymbol2('syncState')"></span>
+                  </th>
+                  <th (click)="SortBy2('attachments')" style="cursor:pointer">
+                    Docs?<span [innerHTML]="SortingSymbol2('attachments')"></span>
+                  </th>
+                  <th (click)="SortBy2('key')" style="cursor:pointer">
+                    Zotero ID<span [innerHTML]="SortingSymbol2('key')"></span>
+                  </th>
+                  @if (showZoteroTitles) {
+                    <th (click)="SortBy2('title')" style="cursor:pointer">
+                      Title<span [innerHTML]="SortingSymbol2('title')"></span>
+                    </th>
+                  }
+                  @if (showZoteroShortTitles) {
+                    <th (click)="SortBy2('shortTitle')" style="cursor:pointer">
+                      Short Title<span [innerHTML]="SortingSymbol2('shortTitle')"></span>
+                    </th>
+                  }
+                </tr>
+              </thead>
+              <tbody>
+                @for (object of PagedList2; track object) {
+                  <tr [ngClass]="{'text-black-50': object.syncState != 3}">
+                    <td class="border-right">
+                      @if (object.syncState == 3 || object.HasAttachmentsToPull) {
+                        <div>
+                          <input type="checkbox" [(ngModel)]="object.ClientSelected" />
+                        </div>
+                      }
+                    </td>
+                    <td>
+                      @switch (object.syncState) {
+                        @case (0) {
+                          <div class="">N/A</div>
+                        }
+                        @case (1) {
+                          <div class="k-icon k-i-success k-color-success mb-1" title="Reference is Up to Date"></div>
+                        }
+                        @case (2) {
+                          <div class="k-icon k-i-arrow-right k-color-info" title="Reference can be pushed"></div>
+                        }
+                        @case (3) {
+                          <div class="k-icon k-i-arrow-left k-color-info" title="Reference can be pulled"></div>
+                        }
+                      }
+                    </td>
+                    <td>
+                      @if (!object.HasAttachments) {
+                        <div class="bg-warning">
+                          No Docs
+                        </div>
+                      }
+                      @if (object.HasAttachments) {
+                        <div class="bg-success">
+                          @switch (object.HasAttachmentsToPull) {
+                            @case (true) {
+                              <div class="k-icon k-i-arrow-left k-color-info ml-1" title="Contains documents that can be pulled"></div>
+                            }
+                            @case (false) {
+                              <div class="k-icon k-i-success k-color-info mb-1 ml-1" title="Documents are Up to Date"></div>
+                            }
+                            @default {
+                              <div>?</div>
+                            }
+                          }
+                          Doc(s)
+                        </div>
+                      }
+                    </td>
+                    <td>
+                      {{object.key}}
+                    </td>
+                    @if (showZoteroTitles) {
+                      <td>
+                        {{object.title}}
+                      </td>
+                    }
+                    @if (showZoteroShortTitles) {
+                      <td>
+                        {{object.shortTitle}}
+                      </td>
+                    }
+                    <!--<td>
+                    {{object.itemType}}
+                  </td>-->
+                </tr>
+              }
+            </tbody>
           </table>
         </div>
-      </div>
+      }
     </div>
   </div>
 </div>
-<ng-template #elseAll><span class="my-auto mx-1">(All)</span></ng-template>
+</div>

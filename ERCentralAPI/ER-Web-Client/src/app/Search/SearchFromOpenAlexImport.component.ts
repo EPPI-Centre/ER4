@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewService } from '../services/review.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -15,9 +15,11 @@ import { ReadOnlySource, Source, SourcesService } from '../services/sources.serv
 import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
-  selector: 'SearchFromOpenAlexImport',
-  templateUrl: './SearchFromOpenAlexImport.component.html',
-  providers: []
+    selector: 'SearchFromOpenAlexImport',
+    templateUrl: './SearchFromOpenAlexImport.component.html',
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class SearchFromOpenAlexImport implements OnInit, OnDestroy {

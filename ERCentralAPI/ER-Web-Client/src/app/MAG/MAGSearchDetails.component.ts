@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
@@ -14,7 +14,9 @@ import { MAGTopicsService } from '../services/MAGTopics.service';
 @Component({
     selector: 'MAGSearchDetailsComponent',
     templateUrl: './MAGSearchDetails.component.html',
-    providers: []
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class MAGSearchDetailsComponent implements OnInit {

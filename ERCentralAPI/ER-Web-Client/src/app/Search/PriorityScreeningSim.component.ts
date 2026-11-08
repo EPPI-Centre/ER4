@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, ElementRef } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewService } from '../services/review.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -53,9 +53,11 @@ interface simulationStats {
 }
 
 @Component({
-  selector: 'PriorityScreeningSim',
-  templateUrl: './PriorityScreeningSim.component.html',
-  providers: []
+    selector: 'PriorityScreeningSim',
+    templateUrl: './PriorityScreeningSim.component.html',
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class PriorityScreeningSim implements OnInit, OnDestroy {

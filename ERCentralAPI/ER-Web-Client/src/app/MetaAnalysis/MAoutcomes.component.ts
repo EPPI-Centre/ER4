@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, EventEmitter, Output, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, EventEmitter, Output, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Helpers } from '../helpers/HelperMethods';
@@ -12,11 +12,11 @@ import { encodeBase64, saveAs } from '@progress/kendo-file-saver';
 
 
 @Component({
-  selector: 'MAoutcomes',
-  templateUrl: './MAoutcomes.component.html',
-  providers: [],
-  styles: [
-`
+    selector: 'MAoutcomes',
+    templateUrl: './MAoutcomes.component.html',
+    providers: [],
+    styles: [
+        `
 .OutcomesTableContainer {border-top: 1px solid DarkBlue; border-bottom: 1px solid DarkBlue; max-height: 55vh; overflow:auto; max-width:95vw;}
 .OutcomesTable table { max-height: 50vh; max-width: 90vm; }
 .OutcomesTable th {border: 0 1px dotted Silver; min-width:3vw;}
@@ -36,7 +36,10 @@ import { encodeBase64, saveAs } from '@progress/kendo-file-saver';
 .DisabledClickableIcon { color:Gray !important;}
 .DisabledClickableIcon:hover {border: 1px solid Gray !important; color:Gray !important;}
 
-`]
+`
+    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
   //see https://stackoverflow.com/a/47923622 for how the "ticky" thing works for tableFixHead!!
   //.OutcomesTable thead th { box-shadow: inset 0px -0.8px #222222, 0 0 #000; }

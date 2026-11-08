@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, AfterViewInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -8,9 +8,11 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { ConfigService, versionInfo } from '../services/config.service';
 
 @Component({
-  selector: 'statusbar',
-  templateUrl: './statusbar.component.html',
-  providers: []
+    selector: 'statusbar',
+    templateUrl: './statusbar.component.html',
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 
 export class StatusBarComponent implements OnInit {

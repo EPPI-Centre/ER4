@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ElementRef, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, ViewChild, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { WorkAllocation, WorkAllocationListService } from '../services/WorkAllocationList.service';
@@ -11,9 +11,11 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'ItemListComp',
-  templateUrl: './ItemListComp.component.html',
-  providers: []
+    selector: 'ItemListComp',
+    templateUrl: './ItemListComp.component.html',
+    providers: [],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class ItemListComp implements OnInit, OnDestroy {
 

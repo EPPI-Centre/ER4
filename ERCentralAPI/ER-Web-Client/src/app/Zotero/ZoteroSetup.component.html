@@ -1,333 +1,433 @@
 <div class="container col-12 px-1" style="min-height:50vh;">
-  <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
-  <ng-container [ngSwitch]="UIphase">
-    <div *ngSwitchCase="'BeginOauthProcess'" class="">
-      <ng-container *ngTemplateOutlet="SetupOverview"></ng-container>
-      <button class="btn btn-primary p-1 m-1" (click)="BeginOauthProcess()" [disabled]="!CanAskForApiKey">Start Setup</button>
-    </div>
-    <div *ngSwitchCase="'ViewSettings'">
-      <ng-container *ngTemplateOutlet="groupsEtAl"></ng-container>
-    </div>
-    <div *ngSwitchCase="'PickGroup'">
-      <ng-container *ngTemplateOutlet="groupsEtAl"></ng-container>
-    </div>
-    <div *ngSwitchCase="'TryAgain'">
-      <div class="row mt-1">
-        <div class="alert alert-warning border border-danger mx-auto">
-          <h4 class="text-center"><span class="k-icon k-i-warning mb-1"></span> Sorry, the authentication attempt failed. <span class="k-icon k-i-warning mb-1"></span></h4>
-          <p>
-            Sometimes Zotero fails to provide the API-Key needed to access Zotero data on your behalf.<br />
-            Why this happens is unclear, but it appears to be random and fairly rare. <br />
-            Please <strong>wait one or two minutes</strong> and <strong>try again</strong>.
-          </p>
-          <p class="mb-1">If the problem persists, please contact EPPISupport.</p>
-        </div>
+  @if (IsServiceBusy) {
+    <div class="k-loading-image" style="position: fixed; top: 2%;"></div>
+  }
+  @switch (UIphase) {
+    @case ('BeginOauthProcess') {
+      <div class="">
+        <ng-container *ngTemplateOutlet="SetupOverview"></ng-container>
+        <button class="btn btn-primary p-1 m-1" (click)="BeginOauthProcess()" [disabled]="!CanAskForApiKey">Start Setup</button>
       </div>
-      <ng-container *ngTemplateOutlet="SetupOverview"></ng-container>
-      <button class="btn btn-primary p-1 m-1" (click)="BeginOauthProcess()" [disabled]="!CanAskForApiKey">Start Setup</button>
-    </div>
-    <div *ngSwitchCase="'library_clash'">
-      <div class="row mt-1">
-        <div class="alert alert-warning border border-danger mx-auto">
-          <h4 class="text-center"><span class="k-icon k-i-warning mb-1"></span> Sorry, the authourised Group Library is <u>in use</u>. <span class="k-icon k-i-warning mb-1"></span></h4>
-          <p>
-            The Key you obtained provides access to one Group Library, but the library itself is <strong>already linked to a different review</strong>.<br />
-            This arrangement (linking the same Library to multiple reviews) is <strong>not allowed</strong> as it could easily lead to confusing situations where data from different reviews is mixed up.<br />
-            Please <strong>try again</strong> after making sure the Group Library you plan to use is the correct one. (You may of course <a href="https://www.zotero.org/groups/new" target="_blank">create a new library</a> and link it to <em>the current review</em>.)
-          </p>
-          <p class="mb-1">If the problem persists, please contact EPPISupport.</p>
-        </div>
+    }
+    @case ('ViewSettings') {
+      <div>
+        <ng-container *ngTemplateOutlet="groupsEtAl"></ng-container>
       </div>
-      <ng-container *ngTemplateOutlet="SetupOverview"></ng-container>
-      <button class="btn btn-primary p-1 m-1" (click)="BeginOauthProcess()" [disabled]="!CanAskForApiKey">Start Setup</button>
-    </div>
-    <div *ngSwitchCase="'NoGroups'">
-      <div class="row mt-1">
-        <div class="alert alert-warning border border-danger mx-auto">
-          <h4 class="text-center"><span class="k-icon k-i-warning mb-1"></span> Sorry, please try again. <span class="k-icon k-i-warning mb-1"></span></h4>
-          <p>
-            EPPI-Reviewer could obtain an API Key from Zotero, but the Key does <strong>not grant read and write access to <em>any</em> group library</strong>!<br />
-            This could be due to:
-          </p>
-          <ul>
-            <li>
-              You may have not created a group, so could not use an API key to provide access.<br />
-              (You can click <a href="https://www.zotero.org/groups/" target="_blank">here</a> to see the groups you own.)<br />
-              If needed, please click <a href="https://www.zotero.org/groups/new" target="_blank">here</a> to create a new group. (See instructions for point 1 below!)
-            </li>
-            <li>
-              You may have created a group, but didn't create the key with the right permissions.<br />
-              If so, please open the instructions for point 3 in a "new tab", so to have them available when in the Zotero page.
-            </li>
-          </ul>
-          <p>Please revise the instructions below and <strong>try again</strong>.</p>
-        </div>
+    }
+    @case ('PickGroup') {
+      <div>
+        <ng-container *ngTemplateOutlet="groupsEtAl"></ng-container>
       </div>
-      <ng-container *ngTemplateOutlet="SetupOverview"></ng-container>
-      <button class="btn btn-primary p-1 m-1" (click)="BeginOauthProcess()" [disabled]="!CanAskForApiKey">Start Setup</button>
-    </div>
-    <div *ngSwitchCase="'ResetAndRestartOauthProcess'">
-      <div class="col-12 row mx-0 px-1 py-2 bg-light mt-1">
-        <div *ngIf="CurrentUserOwnsTheApiKey;else doesntown ">
-          <div>
-            You appear to have set-up the Zotero connnection, however, the attempt to verify that the connection is working failed. Perhaps you deleted the "API Key" on
-            the Zotero side/website. If that's the case, you will need to <strong>Reset</strong> and repeat the Zotero connection process. <br />
-            If you wish to do so, please click on the <strong>Reset</strong> button below. <br />
-            Otherwise, it's possible that your API Key does not provide write access to any group. In such cases (and similar) <strong>please check</strong>
-            your API Key settings in the <a href="https://www.zotero.org/settings/keys" target="_blank">Zotero</a> page.
-            [The most recently used API Key is probably the one that needs checking.]
+    }
+    @case ('TryAgain') {
+      <div>
+        <div class="row mt-1">
+          <div class="alert alert-warning border border-danger mx-auto">
+            <h4 class="text-center"><span class="k-icon k-i-warning mb-1"></span> Sorry, the authentication attempt failed. <span class="k-icon k-i-warning mb-1"></span></h4>
+            <p>
+              Sometimes Zotero fails to provide the API-Key needed to access Zotero data on your behalf.<br />
+              Why this happens is unclear, but it appears to be random and fairly rare. <br />
+              Please <strong>wait one or two minutes</strong> and <strong>try again</strong>.
+            </p>
+            <p class="mb-1">If the problem persists, please contact EPPISupport.</p>
           </div>
-          <button class="btn btn-danger p-1 m-1" (click)="DeleteApiKey()" [disabled]="!CurrentUserOwnsTheApiKey">Reset</button>
+        </div>
+        <ng-container *ngTemplateOutlet="SetupOverview"></ng-container>
+        <button class="btn btn-primary p-1 m-1" (click)="BeginOauthProcess()" [disabled]="!CanAskForApiKey">Start Setup</button>
+      </div>
+    }
+    @case ('library_clash') {
+      <div>
+        <div class="row mt-1">
+          <div class="alert alert-warning border border-danger mx-auto">
+            <h4 class="text-center"><span class="k-icon k-i-warning mb-1"></span> Sorry, the authourised Group Library is <u>in use</u>. <span class="k-icon k-i-warning mb-1"></span></h4>
+            <p>
+              The Key you obtained provides access to one Group Library, but the library itself is <strong>already linked to a different review</strong>.<br />
+              This arrangement (linking the same Library to multiple reviews) is <strong>not allowed</strong> as it could easily lead to confusing situations where data from different reviews is mixed up.<br />
+              Please <strong>try again</strong> after making sure the Group Library you plan to use is the correct one. (You may of course <a href="https://www.zotero.org/groups/new" target="_blank">create a new library</a> and link it to <em>the current review</em>.)
+            </p>
+            <p class="mb-1">If the problem persists, please contact EPPISupport.</p>
+          </div>
+        </div>
+        <ng-container *ngTemplateOutlet="SetupOverview"></ng-container>
+        <button class="btn btn-primary p-1 m-1" (click)="BeginOauthProcess()" [disabled]="!CanAskForApiKey">Start Setup</button>
+      </div>
+    }
+    @case ('NoGroups') {
+      <div>
+        <div class="row mt-1">
+          <div class="alert alert-warning border border-danger mx-auto">
+            <h4 class="text-center"><span class="k-icon k-i-warning mb-1"></span> Sorry, please try again. <span class="k-icon k-i-warning mb-1"></span></h4>
+            <p>
+              EPPI-Reviewer could obtain an API Key from Zotero, but the Key does <strong>not grant read and write access to <em>any</em> group library</strong>!<br />
+              This could be due to:
+            </p>
+            <ul>
+              <li>
+                You may have not created a group, so could not use an API key to provide access.<br />
+                (You can click <a href="https://www.zotero.org/groups/" target="_blank">here</a> to see the groups you own.)<br />
+                If needed, please click <a href="https://www.zotero.org/groups/new" target="_blank">here</a> to create a new group. (See instructions for point 1 below!)
+              </li>
+              <li>
+                You may have created a group, but didn't create the key with the right permissions.<br />
+                If so, please open the instructions for point 3 in a "new tab", so to have them available when in the Zotero page.
+              </li>
+            </ul>
+            <p>Please revise the instructions below and <strong>try again</strong>.</p>
+          </div>
+        </div>
+        <ng-container *ngTemplateOutlet="SetupOverview"></ng-container>
+        <button class="btn btn-primary p-1 m-1" (click)="BeginOauthProcess()" [disabled]="!CanAskForApiKey">Start Setup</button>
+      </div>
+    }
+    @case ('ResetAndRestartOauthProcess') {
+      <div>
+        <div class="col-12 row mx-0 px-1 py-2 bg-light mt-1">
+          @if (CurrentUserOwnsTheApiKey) {
+            <div>
+              <div>
+                You appear to have set-up the Zotero connnection, however, the attempt to verify that the connection is working failed. Perhaps you deleted the "API Key" on
+                the Zotero side/website. If that's the case, you will need to <strong>Reset</strong> and repeat the Zotero connection process. <br />
+                If you wish to do so, please click on the <strong>Reset</strong> button below. <br />
+                Otherwise, it's possible that your API Key does not provide write access to any group. In such cases (and similar) <strong>please check</strong>
+                your API Key settings in the <a href="https://www.zotero.org/settings/keys" target="_blank">Zotero</a> page.
+                [The most recently used API Key is probably the one that needs checking.]
+              </div>
+              <button class="btn btn-danger p-1 m-1" (click)="DeleteApiKey()" [disabled]="!CurrentUserOwnsTheApiKey">Reset</button>
+            </div>
+          } @else {
+            <div>
+              <p>
+                You appear to have set-up the Zotero connnection, however, the attempt to verify that the connection is working failed. Perhaps the "API Key" was deleted on
+                the Zotero side/website. <br />
+                Otherwise, it's possible that your API Key does not provide write access to any group. <br />
+                In such cases (and similar) <strong>you should ask {{NameOfAPIKeyOwner}}</strong> to login, visit this page, and from here,
+                click on the link to <strong>check the API Key</strong> settings.
+              </p>
+              <p>
+                In all cases, you do not own the API Key, and something is wrong, so <strong>{{NameOfAPIKeyOwner}}</strong>
+                (who owns the API key) should visit this page to "fix" the current problem.
+              </p>
+            </div>
+          }
         </div>
       </div>
-      <ng-template #doesntown>
-        <div>
-          <p>
-            You appear to have set-up the Zotero connnection, however, the attempt to verify that the connection is working failed. Perhaps the "API Key" was deleted on
-            the Zotero side/website. <br />
-            Otherwise, it's possible that your API Key does not provide write access to any group. <br />
-            In such cases (and similar) <strong>you should ask {{NameOfAPIKeyOwner}}</strong> to login, visit this page, and from here,
-            click on the link to <strong>check the API Key</strong> settings.
-          </p>
-          <p>
-            In all cases, you do not own the API Key, and something is wrong, so <strong>{{NameOfAPIKeyOwner}}</strong>
-            (who owns the API key) should visit this page to "fix" the current problem.
-          </p>
-        </div>
-      </ng-template>
-    </div>
-    <div *ngSwitchDefault>
-      Unknown Phase - ResetAndRestartOauthProcess?
-    </div>
-  </ng-container>
+    }
+    @default {
+      <div>
+        Unknown Phase - ResetAndRestartOauthProcess?
+      </div>
+    }
+  }
   <div style="display:none;">
-    <ng-container [ngSwitch]="InstructionsShown">
-      <div *ngSwitchCase="'NWcreateGroupLibInZotero'" #InstructionsForNewWindow>
-        <ng-container *ngTemplateOutlet="createGroupLibInZotero"></ng-container>
-      </div>
-      <div *ngSwitchCase="'NWinviteCollaborators'" #InstructionsForNewWindow>
-        <ng-container *ngTemplateOutlet="inviteCollaborators"></ng-container>
-      </div>
-      <div *ngSwitchCase="'NWobtainAPIKey'" #InstructionsForNewWindow>
-        <ng-container *ngTemplateOutlet="obtainAPIKey"></ng-container>
-      </div>
-      <div *ngSwitchDefault></div>
-    </ng-container>
+    @switch (InstructionsShown) {
+      @case ('NWcreateGroupLibInZotero') {
+        <div #InstructionsForNewWindow>
+          <ng-container *ngTemplateOutlet="createGroupLibInZotero"></ng-container>
+        </div>
+      }
+      @case ('NWinviteCollaborators') {
+        <div #InstructionsForNewWindow>
+          <ng-container *ngTemplateOutlet="inviteCollaborators"></ng-container>
+        </div>
+      }
+      @case ('NWobtainAPIKey') {
+        <div #InstructionsForNewWindow>
+          <ng-container *ngTemplateOutlet="obtainAPIKey"></ng-container>
+        </div>
+      }
+      @default {
+        <div></div>
+      }
+    }
 
   </div>
   <ng-template #groupsEtAl>
     <div class="col-12 row mx-0 px-1 py-2 bg-light mt-1">
       <div class="col-12 col-md-6 p-2 ">
         <h5>API Key info</h5>
-        <ng-container [ngSwitch]="ErrorMessage">
-          <div *ngSwitchCase="''">
-            <!--No error message, all is good-->
-            <div *ngIf="CurrentUserOwnsTheApiKey">
-              You own the API Key. This means that <strong>data pushed to Zotero will contribute to your own "Storage Quota" in Zotero</strong>, and only yours.<br />
-              You can click <a href="https://www.zotero.org/settings/storage" target="_blank">Here</a> to check your quota in Zotero. <br />
-              If your quota is filling up, you can:
-              <ul>
-                <li>
-                  Purchase more (Zotero) storage
-                </li>
-                <li>
-                  Make up space by deleting references in this or other libraries that sync with the Zotero API (remember to "empty the trash")
-                </li>
-                <li>
-                  Replace the current Key with one created by a collborator. To do so, delete the current key, then ask your collaborator to "Setup" a new API key in here. (They will need to have admin right over this review.)
-                </li>
-              </ul>
+        @switch (ErrorMessage) {
+          @case ('') {
+            <div>
+              <!--No error message, all is good-->
+              @if (CurrentUserOwnsTheApiKey) {
+                <div>
+                  You own the API Key. This means that <strong>data pushed to Zotero will contribute to your own "Storage Quota" in Zotero</strong>, and only yours.<br />
+                  You can click <a href="https://www.zotero.org/settings/storage" target="_blank">Here</a> to check your quota in Zotero. <br />
+                  If your quota is filling up, you can:
+                  <ul>
+                    <li>
+                      Purchase more (Zotero) storage
+                    </li>
+                    <li>
+                      Make up space by deleting references in this or other libraries that sync with the Zotero API (remember to "empty the trash")
+                    </li>
+                    <li>
+                      Replace the current Key with one created by a collborator. To do so, delete the current key, then ask your collaborator to "Setup" a new API key in here. (They will need to have admin right over this review.)
+                    </li>
+                  </ul>
+                </div>
+              }
+              @if (!CurrentUserOwnsTheApiKey) {
+                <div>
+                  <p>The API Key is owned by {{NameOfAPIKeyOwner}}. This means that <strong>data pushed to Zotero will contribute to their own "Storage Quota" in Zotero</strong>, and theirs only.</p>
+                  <p>
+                    If you are running out of Zotero storage space, {{NameOfAPIKeyOwner}} may purchase storage there, or perhaps you could agree to re-create the API key
+                    so to make it belong to a Zotero user that does have free space.
+                  </p>
+                  <p>
+                    You can click <a href="https://www.zotero.org/settings/storage" target="_blank">Here</a> to check <strong>your own</strong>
+                    quota in Zotero (which currently does not apply to data coming from EPPI-Reviewer).
+                  </p>
+                </div>
+              }
             </div>
-            <div *ngIf="!CurrentUserOwnsTheApiKey">
-              <p>The API Key is owned by {{NameOfAPIKeyOwner}}. This means that <strong>data pushed to Zotero will contribute to their own "Storage Quota" in Zotero</strong>, and theirs only.</p>
-              <p>
-                If you are running out of Zotero storage space, {{NameOfAPIKeyOwner}} may purchase storage there, or perhaps you could agree to re-create the API key
-                so to make it belong to a Zotero user that does have free space.
-              </p>
-              <p>
-                You can click <a href="https://www.zotero.org/settings/storage" target="_blank">Here</a> to check <strong>your own</strong>
-                quota in Zotero (which currently does not apply to data coming from EPPI-Reviewer).
-              </p>
+          }
+          @case ('No Group Library') {
+            <div>
+              @if (CurrentUserOwnsTheApiKey) {
+                <div>
+                  Your API Key is valid and provides write access to at least one group library. Please select a group library on the right.<br /><br />
+                  If the group you require is not listed, please Delete the API key to return to the setup process.
+                </div>
+              }
+              @if (!CurrentUserOwnsTheApiKey) {
+                <div>
+                  The API Key is valid and provides write access to at least one group library. However, you do not <strong>own the API key</strong>.<br />
+                  Please ask <strong>{{NameOfAPIKeyOwner}}</strong> to visit this page and complete the "Sync setup" configuration.
+                </div>
+              }
+            </div>
+          }
+          @default {
+            <div>
+              The current settings and API key (if any) are incomplete or not correct. Error message is:<br />
+              <strong>{{ErrorMessage}}</strong>
+            </div>
+          }
+        }
+        @if (CurrentUserOwnsTheApiKey) {
+          <div>
+            <button class="btn btn-danger p-1 m-1" (click)="DeleteApiKey()" [disabled]="!CurrentUserOwnsTheApiKey">Delete API Key</button>
+          </div>
+        }
+        @if (!CurrentUserOwnsTheApiKey) {
+          <div class="mx-0 px-0 mb-1 row">
+            <div class="bg-white rounded border border-info col-auto px-1">
+              You do not own the API Key, only <strong>{{NameOfAPIKeyOwner}}</strong> can delete it.
             </div>
           </div>
-          <div *ngSwitchCase="'No Group Library'">
-            <div *ngIf="CurrentUserOwnsTheApiKey">
-              Your API Key is valid and provides write access to at least one group library. Please select a group library on the right.<br /><br />
-              If the group you require is not listed, please Delete the API key to return to the setup process.
-            </div>
-            <div *ngIf="!CurrentUserOwnsTheApiKey">
-              The API Key is valid and provides write access to at least one group library. However, you do not <strong>own the API key</strong>.<br />
-              Please ask <strong>{{NameOfAPIKeyOwner}}</strong> to visit this page and complete the "Sync setup" configuration.
-            </div>
-          </div>
-          <div *ngSwitchDefault>
-            The current settings and API key (if any) are incomplete or not correct. Error message is:<br />
-            <strong>{{ErrorMessage}}</strong>
-          </div>
-        </ng-container>
-        <div *ngIf="CurrentUserOwnsTheApiKey">
-          <button class="btn btn-danger p-1 m-1" (click)="DeleteApiKey()" [disabled]="!CurrentUserOwnsTheApiKey">Delete API Key</button>
-        </div>
-        <div *ngIf="!CurrentUserOwnsTheApiKey" class="mx-0 px-0 mb-1 row">
-          <div class="bg-white rounded border border-info col-auto px-1">
-            You do not own the API Key, only <strong>{{NameOfAPIKeyOwner}}</strong> can delete it.
-          </div>
-        </div>
+        }
       </div>
       <div class="col-12 col-md-6 p-2 border border-primary rounded ">
         <h5>Group Library info</h5>
-        <ng-container [ngSwitch]="groupMeta.length">
-          <div *ngSwitchCase="0">
-            This API Key provides access to zero group libraries.
-            <div *ngIf="CurrentUserOwnsTheApiKey == true">
-              You can change the API key setting <a href="https://www.zotero.org/settings/keys" target="_blank">here</a>.<br />
-              If you need to <i>first</i> create a Zotero Group Library you can do so <a href="https://www.zotero.org/groups/new" target="_blank">here</a> (<strong>private groups are <i>recommended</i>!</strong>).<br />
-              Otherwise you can delete the API Key below and start again.
-            </div>
-            <div *ngIf="CurrentUserOwnsTheApiKey == false">
-              In order to exchange data With Zotero, the API Key needs to provide access to one Group library.<br />
-              Please ask <strong>{{NameOfAPIKeyOwner}}</strong> to visit this page and complete/correct the configuration.
-            </div>
-          </div>
-          <div *ngSwitchCase="1">
-            The current API key provides access to one group:
-            <div class="row mx-0 px-0">
-              <div><strong>Group Id:</strong> {{groupMeta[0].id}}</div>
-            </div>
-            <div class="row mx-0 px-0">
-              <div><strong>Group Name:</strong> {{groupMeta[0].data.name}}</div>
-            </div>
-            <div class="row mx-0 px-0">
-              <ng-container [ngSwitch]="groupMeta[0].groupBeingSynced">
-                <div *ngSwitchCase="true" class="mx-0 px-0 row">
-                  <strong>Status:</strong>&nbsp;
-                  <div class="mx-auto alert-info border border-info rounded px-2">Active</div>
+        @switch (groupMeta.length) {
+          @case (0) {
+            <div>
+              This API Key provides access to zero group libraries.
+              @if (CurrentUserOwnsTheApiKey == true) {
+                <div>
+                  You can change the API key setting <a href="https://www.zotero.org/settings/keys" target="_blank">here</a>.<br />
+                  If you need to <i>first</i> create a Zotero Group Library you can do so <a href="https://www.zotero.org/groups/new" target="_blank">here</a> (<strong>private groups are <i>recommended</i>!</strong>).<br />
+                  Otherwise you can delete the API Key below and start again.
                 </div>
-                <div *ngSwitchCase="false" class="mx-0 px-0 row">
-                  <div>
-                    Please click here to
-                    <button class="btn btn-success p-1 mx-auto" (click)="changeGroupBeingSynced(groupMeta[0])"
-                            [disabled]="HasWriteRights == false || CurrentUserOwnsTheApiKey == false">
-                      Select
-                    </button>
-                    this group for "syncing":
-                  </div>
-
+              }
+              @if (CurrentUserOwnsTheApiKey == false) {
+                <div>
+                  In order to exchange data With Zotero, the API Key needs to provide access to one Group library.<br />
+                  Please ask <strong>{{NameOfAPIKeyOwner}}</strong> to visit this page and complete/correct the configuration.
                 </div>
-                <div *ngSwitchDefault>
-                  <h4>Unknown</h4>
-                </div>
-              </ng-container>
+              }
             </div>
-          </div>
-          <div *ngSwitchDefault class="">
-            <ng-container [ngSwitch]="ErrorMessage">
-              <div *ngSwitchCase="''">
-                <div *ngIf="CurrentUserOwnsTheApiKey == true">
-                  The current API key provides access to multiple groups. You can change what group is currently being used below.<br />
-                  However, it's usually best to make this decision once and never change it: <br />
-                  ideally, <em>one Group Library</em> should be linked to one and only one EPPI-Reviewer review.
-                </div>
-                <div *ngIf="CurrentUserOwnsTheApiKey == false">
-                  The current API key provides access to multiple groups. You can see what group is currently being used below.<br />
-                  If the group needs to be changed (not recommended), please ask the owner of the Key ({{NameOfAPIKeyOwner}}) to visit this page and make the change.<br />
-                </div>
+          }
+          @case (1) {
+            <div>
+              The current API key provides access to one group:
+              <div class="row mx-0 px-0">
+                <div><strong>Group Id:</strong> {{groupMeta[0].id}}</div>
               </div>
-              <div *ngSwitchCase="'No Group Library'">
-                <div *ngIf="CurrentUserOwnsTheApiKey">
-                  Please select the group library to use below.
-                </div>
-                <div *ngIf="!CurrentUserOwnsTheApiKey">
-                  Please ask <strong>{{NameOfAPIKeyOwner}}</strong> to visit this page and complete the "Sync setup" configuration by selecting one of the groups below.
-                </div>
+              <div class="row mx-0 px-0">
+                <div><strong>Group Name:</strong> {{groupMeta[0].data.name}}</div>
               </div>
-              <div *ngSwitchCase="'No write access to Group Library'">
-                <div *ngIf="CurrentUserOwnsTheApiKey == true">
-                  The current API key provides access to multiple groups, but is configured to use a group for which <strong>it does not provide "Write" access</strong>. <br />
-                  <strong>You need to pick one group</strong>, ensuring the API key does provide write access to it.<br />
-                  Please select one group from the list below.
-                </div>
-                <div *ngIf="CurrentUserOwnsTheApiKey == false">
-                  The current API key provides access to multiple groups, but is configured to use a group for which <strong>it does not provide "Write" access</strong>. <br />
-                  The owner of the Key ({{NameOfAPIKeyOwner}}) <strong>needs to pick one group</strong>, ensuring the API key does provide write access to it.<br />
-                  Please ask <strong>{{NameOfAPIKeyOwner}}</strong> to visit this page and complete the "Sync setup" configuration.
-                </div>
-              </div>
-              <div *ngSwitchCase="'No write access'">
-                <div *ngIf="CurrentUserOwnsTheApiKey == true">
-                  The current API key does not seem to work: you need to pick one group library, but the key does not provide access to any group.<br />
-                  Please retry:<br />
-                  <button class="btn btn-danger p-1 m-1" (click)="DeleteApiKey()" [disabled]="!CurrentUserOwnsTheApiKey">Reset</button>
-                </div>
-                <div *ngIf="CurrentUserOwnsTheApiKey == false">
-                  The current API key does not seem to work: the owner of the Key ({{NameOfAPIKeyOwner}}) would need to pick one group library to use, but the key does not provide access to any group.<br />
-                  Please ask <strong>{{NameOfAPIKeyOwner}}</strong> to visit this page and complete the "Sync setup" configuration.
-                </div>
-              </div>
-              <div *ngSwitchDefault>
-                <div *ngIf="CurrentUserOwnsTheApiKey == true">
-                  <strong>Unspecified error</strong>, while ensuring the API key does provide write access to one Zotero Group Library.<br />
-                  Error message is: <em>{{ErrorMessage}}</em><br />
-                  Please retry:<br />
-                  <button class="btn btn-danger p-1 m-1" (click)="DeleteApiKey()" [disabled]="!CurrentUserOwnsTheApiKey">Reset</button>
-                </div>
-                <div *ngIf="CurrentUserOwnsTheApiKey == false">
-                  <strong>Unspecified error</strong>, while ensuring the API key does provide write access to one Zotero Group Library.<br />
-                  Please ask <strong>{{NameOfAPIKeyOwner}}</strong> to visit this page and complete the "Sync setup" configuration.
-                </div>
-              </div>
-            </ng-container>
-            <div *ngIf="ErrorMessage == ''">
-
-            </div>
-
-            <div *ngIf="ErrorMessage == 'No Group Library'">
-
-            </div>
-            <div *ngIf="ErrorMessage != 'No Group Library' && ErrorMessage !=''">
-
-            </div>
-            <table class="table table-sm table-bordered table-striped mx-1">
-              <thead>
-                <tr>
-                  <td>
-                    <div class="m-1 p-1 ">GroupID</div>
-                  </td>
-                  <td>
-                    <div class="m-1 p-1 ">Group Name</div>
-                  </td>
-                  <td>
-                    <div class="m-1 p-1 ">Status</div>
-                  </td>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let item of groupMeta; index as i" class="" [ngClass]="{'font-weight-bold': item.groupBeingSynced == true}">
-                  <td>
-                    {{item.id}}
-                  </td>
-                  <td class="">{{item.data.name}}</td>
-                  <td>
-                    <ng-container [ngSwitch]="item.groupBeingSynced">
-                      <div *ngSwitchCase="true" class="mx-auto row">
-                        <div class="mx-auto alert-info border border-info rounded px-2">Active</div>
-                      </div>
-                      <div *ngSwitchCase="false" class="mx-auto row">
-                        <button class="btn btn-success p-1 mx-auto" (click)="changeGroupBeingSynced(item)"
-                                [disabled]="HasWriteRights == false || CurrentUserOwnsTheApiKey == false">
+              <div class="row mx-0 px-0">
+                @switch (groupMeta[0].groupBeingSynced) {
+                  @case (true) {
+                    <div class="mx-0 px-0 row">
+                      <strong>Status:</strong>&nbsp;
+                      <div class="mx-auto alert-info border border-info rounded px-2">Active</div>
+                    </div>
+                  }
+                  @case (false) {
+                    <div class="mx-0 px-0 row">
+                      <div>
+                        Please click here to
+                        <button class="btn btn-success p-1 mx-auto" (click)="changeGroupBeingSynced(groupMeta[0])"
+                          [disabled]="HasWriteRights == false || CurrentUserOwnsTheApiKey == false">
                           Select
                         </button>
+                        this group for "syncing":
                       </div>
-                      <div *ngSwitchDefault>
-                        <h4>uh?</h4>
+                    </div>
+                  }
+                  @default {
+                    <div>
+                      <h4>Unknown</h4>
+                    </div>
+                  }
+                }
+              </div>
+            </div>
+          }
+          @default {
+            <div class="">
+              @switch (ErrorMessage) {
+                @case ('') {
+                  <div>
+                    @if (CurrentUserOwnsTheApiKey == true) {
+                      <div>
+                        The current API key provides access to multiple groups. You can change what group is currently being used below.<br />
+                        However, it's usually best to make this decision once and never change it: <br />
+                        ideally, <em>one Group Library</em> should be linked to one and only one EPPI-Reviewer review.
                       </div>
-                    </ng-container>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </ng-container>
+                    }
+                    @if (CurrentUserOwnsTheApiKey == false) {
+                      <div>
+                        The current API key provides access to multiple groups. You can see what group is currently being used below.<br />
+                        If the group needs to be changed (not recommended), please ask the owner of the Key ({{NameOfAPIKeyOwner}}) to visit this page and make the change.<br />
+                      </div>
+                    }
+                  </div>
+                }
+                @case ('No Group Library') {
+                  <div>
+                    @if (CurrentUserOwnsTheApiKey) {
+                      <div>
+                        Please select the group library to use below.
+                      </div>
+                    }
+                    @if (!CurrentUserOwnsTheApiKey) {
+                      <div>
+                        Please ask <strong>{{NameOfAPIKeyOwner}}</strong> to visit this page and complete the "Sync setup" configuration by selecting one of the groups below.
+                      </div>
+                    }
+                  </div>
+                }
+                @case ('No write access to Group Library') {
+                  <div>
+                    @if (CurrentUserOwnsTheApiKey == true) {
+                      <div>
+                        The current API key provides access to multiple groups, but is configured to use a group for which <strong>it does not provide "Write" access</strong>. <br />
+                        <strong>You need to pick one group</strong>, ensuring the API key does provide write access to it.<br />
+                        Please select one group from the list below.
+                      </div>
+                    }
+                    @if (CurrentUserOwnsTheApiKey == false) {
+                      <div>
+                        The current API key provides access to multiple groups, but is configured to use a group for which <strong>it does not provide "Write" access</strong>. <br />
+                        The owner of the Key ({{NameOfAPIKeyOwner}}) <strong>needs to pick one group</strong>, ensuring the API key does provide write access to it.<br />
+                        Please ask <strong>{{NameOfAPIKeyOwner}}</strong> to visit this page and complete the "Sync setup" configuration.
+                      </div>
+                    }
+                  </div>
+                }
+                @case ('No write access') {
+                  <div>
+                    @if (CurrentUserOwnsTheApiKey == true) {
+                      <div>
+                        The current API key does not seem to work: you need to pick one group library, but the key does not provide access to any group.<br />
+                        Please retry:<br />
+                        <button class="btn btn-danger p-1 m-1" (click)="DeleteApiKey()" [disabled]="!CurrentUserOwnsTheApiKey">Reset</button>
+                      </div>
+                    }
+                    @if (CurrentUserOwnsTheApiKey == false) {
+                      <div>
+                        The current API key does not seem to work: the owner of the Key ({{NameOfAPIKeyOwner}}) would need to pick one group library to use, but the key does not provide access to any group.<br />
+                        Please ask <strong>{{NameOfAPIKeyOwner}}</strong> to visit this page and complete the "Sync setup" configuration.
+                      </div>
+                    }
+                  </div>
+                }
+                @default {
+                  <div>
+                    @if (CurrentUserOwnsTheApiKey == true) {
+                      <div>
+                        <strong>Unspecified error</strong>, while ensuring the API key does provide write access to one Zotero Group Library.<br />
+                        Error message is: <em>{{ErrorMessage}}</em><br />
+                        Please retry:<br />
+                        <button class="btn btn-danger p-1 m-1" (click)="DeleteApiKey()" [disabled]="!CurrentUserOwnsTheApiKey">Reset</button>
+                      </div>
+                    }
+                    @if (CurrentUserOwnsTheApiKey == false) {
+                      <div>
+                        <strong>Unspecified error</strong>, while ensuring the API key does provide write access to one Zotero Group Library.<br />
+                        Please ask <strong>{{NameOfAPIKeyOwner}}</strong> to visit this page and complete the "Sync setup" configuration.
+                      </div>
+                    }
+                  </div>
+                }
+              }
+              @if (ErrorMessage == '') {
+                <div>
+                </div>
+              }
+              @if (ErrorMessage == 'No Group Library') {
+                <div>
+                </div>
+              }
+              @if (ErrorMessage != 'No Group Library' && ErrorMessage !='') {
+                <div>
+                </div>
+              }
+              <table class="table table-sm table-bordered table-striped mx-1">
+                <thead>
+                  <tr>
+                    <td>
+                      <div class="m-1 p-1 ">GroupID</div>
+                    </td>
+                    <td>
+                      <div class="m-1 p-1 ">Group Name</div>
+                    </td>
+                    <td>
+                      <div class="m-1 p-1 ">Status</div>
+                    </td>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of groupMeta; track item; let i = $index) {
+                    <tr class="" [ngClass]="{'font-weight-bold': item.groupBeingSynced == true}">
+                      <td>
+                        {{item.id}}
+                      </td>
+                      <td class="">{{item.data.name}}</td>
+                      <td>
+                        @switch (item.groupBeingSynced) {
+                          @case (true) {
+                            <div class="mx-auto row">
+                              <div class="mx-auto alert-info border border-info rounded px-2">Active</div>
+                            </div>
+                          }
+                          @case (false) {
+                            <div class="mx-auto row">
+                              <button class="btn btn-success p-1 mx-auto" (click)="changeGroupBeingSynced(item)"
+                                [disabled]="HasWriteRights == false || CurrentUserOwnsTheApiKey == false">
+                                Select
+                              </button>
+                            </div>
+                          }
+                          @default {
+                            <div>
+                              <h4>uh?</h4>
+                            </div>
+                          }
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        }
       </div>
     </div>
   </ng-template>
@@ -349,26 +449,32 @@
           <strong>Before proceeding:</strong> create a Group Library in Zotero (this can be done <a href="https://www.zotero.org/groups/new" target="_blank">here</a>).
           <button class="btn btn-sm btn-outline-primary px-1 py-0 mr-1" (click)="InstructionsShown = 'createGroupLibInZotero'">Show me</button>
           <button class="btn btn-sm btn-outline-primary px-1 py-0 mr-1" (click)="ShowInstructionsInNewWindow('NWcreateGroupLibInZotero')">Show me (new tab)</button>
-          <div *ngIf="InstructionsShown == 'createGroupLibInZotero'" class="border border-info rounded bg-light col-12 my-1 p-1 mx-0">
-            <ng-container *ngTemplateOutlet="createGroupLibInZotero"></ng-container>
-          </div>
+          @if (InstructionsShown == 'createGroupLibInZotero') {
+            <div class="border border-info rounded bg-light col-12 my-1 p-1 mx-0">
+              <ng-container *ngTemplateOutlet="createGroupLibInZotero"></ng-container>
+            </div>
+          }
         </li>
         <li>
           (Optional) Invite collaborators into the Group Library (also done in Zotero).
           <button class="btn btn-sm btn-outline-primary px-1 py-0 mr-1" (click)="InstructionsShown = 'inviteCollaborators'">Show me</button>
           <button class="btn btn-sm btn-outline-primary px-1 py-0 mr-1" (click)="ShowInstructionsInNewWindow('NWinviteCollaborators')">Show me (new tab)</button>
-          <div *ngIf="InstructionsShown == 'inviteCollaborators'" class="border border-info rounded bg-light col-12 my-1 p-1 mx-0">
-            <ng-container *ngTemplateOutlet="inviteCollaborators"></ng-container>
-          </div>
+          @if (InstructionsShown == 'inviteCollaborators') {
+            <div class="border border-info rounded bg-light col-12 my-1 p-1 mx-0">
+              <ng-container *ngTemplateOutlet="inviteCollaborators"></ng-container>
+            </div>
+          }
         </li>
         <li>
           Obtain an "API Key", granting EPPI-Reviewer permission to exchange data with Zotero on your behalf.<br />
           Note: <span class="alert-warning">the default permissions offered by Zotero <strong>Will NOT work</strong>, please read and follow the instructions instead.</span>
           <button class="btn btn-sm btn-outline-primary px-1 py-0 ml-1 mr-1" (click)="InstructionsShown = 'obtainAPIKey'">Show me</button>
           <button class="btn btn-sm btn-outline-primary px-1 py-0 mr-1" (click)="ShowInstructionsInNewWindow('NWobtainAPIKey')">Show me (new tab)</button>
-          <div *ngIf="InstructionsShown == 'obtainAPIKey'" class="border border-info rounded bg-light col-12 my-1 p-1 mx-0">
-            <div style="max-height:50vh; overflow:auto;"><ng-container *ngTemplateOutlet="obtainAPIKey"></ng-container></div>
-          </div>
+          @if (InstructionsShown == 'obtainAPIKey') {
+            <div class="border border-info rounded bg-light col-12 my-1 p-1 mx-0">
+              <div style="max-height:50vh; overflow:auto;"><ng-container *ngTemplateOutlet="obtainAPIKey"></ng-container></div>
+            </div>
+          }
         </li>
         <li>
           Done! If you followed these instructions, EPPI-Reviewer will automatically open the "Sync" tab where you can move data to/from EPPI-Reviewer/Zotero.
