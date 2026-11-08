@@ -29,7 +29,8 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
     private ReviewSetsService: ReviewSetsService,
     private ReviewSetsEditingService: ReviewSetsEditingService,
     private confirmationDialogService: ConfirmationDialogService,
-    private ReviewInfoService: ReviewInfoService
+    private ReviewInfoService: ReviewInfoService,
+    private _ReviewerIdentityServ: ReviewerIdentityService
   ) { }
   ngOnInit() {
     this.subRedrawTree = this.ReviewSetsEditingService.PleaseRedrawTheTree.subscribe(
@@ -72,7 +73,9 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
   public get ActivityPanelName() {
       return this._ActivityPanelName;
   }
-
+  public get IsSiteAdmin(): boolean {
+    return this._ReviewerIdentityServ.reviewerIdentity.isSiteAdmin;
+  }
   private _EditCodeActivity: string = "";
   public get EditCodeActivity() {
     return this._EditCodeActivity;

@@ -251,6 +251,7 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
       newSet.oldestKnownId = Itemset.oldestKnownId;
       newSet.extURL = Itemset.extURL;
       newSet.extType = Itemset.extType;
+      newSet.userCanEditURLs = Itemset.userCanEditURLs;
       newSet.attributes = ReviewSetsService.childrenFromLocalJSONarray(Itemset.attributes);
       result.push(newSet);
     }
@@ -273,6 +274,7 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
       newAtt.attribute_order = iAtt.attributeOrder;
       newAtt.extURL = iAtt.extURL;
       newAtt.extType = iAtt.extType;
+      newAtt.userCanEditURLs = iAtt.userCanEditURLs;
       newAtt.originalAttributeID = iAtt.originalAttributeID;
       newAtt.oldestKnownId = iAtt.oldestKnownId;
       newAtt.isExclusive = iAtt.isExclusive;
@@ -300,6 +302,7 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
         newAtt.set_id = iAtt.set_id;
         newAtt.extURL = iAtt.extURL;
         newAtt.extType = iAtt.extType;
+        newAtt.userCanEditURLs = iAtt.userCanEditURLs;
         if (iAtt.attributes) newAtt.attributes = ReviewSetsService.childrenFromLocalJSONarray(iAtt.attributes);
         else newAtt.attributes = [];
         result.push(newAtt);
@@ -608,7 +611,7 @@ export interface singleNode {
   codingComplete: boolean;
   allowEditingCodeset: boolean;
   itemSetIsLocked: boolean;
-  //usersCanEditURLs: boolean;
+  userCanEditURLs: boolean;
   extURL: string;
   extType: string;
 }
@@ -622,6 +625,7 @@ export class ReviewSet implements singleNode {
   reviewSetId: number = -1;
   extURL: string = "";
   extType: string = "";
+  userCanEditURLs: boolean = false;;
   readonly typeCanBeExclusive: boolean = false;
   attributes: SetAttribute[] = [];
   showCheckBox: boolean = false;
@@ -709,7 +713,6 @@ export class ReviewSet implements singleNode {
   armId: number = 0;
   armTitle: string = "";
   codingComplete: boolean = false;
-  userCanEditURLs: boolean = false;
   originalSetId: number = 0;
   oldestKnownId: number = 0;
   isExclusive: boolean = false;
@@ -747,6 +750,7 @@ export class SetAttribute implements singleNode {
   public get id(): string { return "A" + this.attribute_id; };
   attribute_name: string = "";
   public get name(): string { return this.attribute_name; };
+  userCanEditURLs: boolean = false;
   attribute_order: number = -1;
   attributeSetId: number = -1;
   attribute_type: string = "";
@@ -789,7 +793,6 @@ export class SetAttribute implements singleNode {
   originalAttributeID: number = -1;
   oldestKnownId: number = 0;
   attributes: SetAttribute[] = [];
-
   allowEditingCodeset: boolean = false;//not used for attributes
   itemSetIsLocked: boolean = false;//not used for attributes
   readonly nodeType: string = "SetAttribute";
@@ -900,6 +903,7 @@ export interface iAttributeSet {
   attributeOrder: number;
   extURL: string;
   extType: string;
+  userCanEditURLs: boolean;
   originalAttributeID: number;
   oldestKnownId: number;
   isExclusive: boolean;

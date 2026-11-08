@@ -640,6 +640,21 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
         }
+        public static readonly PropertyInfo<bool> UserCanEditURLsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("UserCanEditURLs", "UserCanEditURLs", false));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
+        public bool UserCanEditURLs
+        {
+            get
+            {
+                return GetProperty(UserCanEditURLsProperty);
+            }
+            set
+            {
+                SetProperty(UserCanEditURLsProperty, value);
+            }
+        }
 
         /* ***************** end item info ******************/
 
@@ -979,6 +994,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(AttributeDescriptionProperty, reader.GetString("ATTRIBUTE_DESC"));
             returnValue.LoadProperty<string>(ExtURLProperty, reader.GetString("Ext_URL"));
             returnValue.LoadProperty<string>(ExtTypeProperty, reader.GetString("Ext_Type"));
+            returnValue.LoadProperty<bool>(UserCanEditURLsProperty, reader.GetBoolean("USER_CAN_EDIT_URLS"));
             returnValue.LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
             
             return returnValue;
@@ -1011,6 +1027,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(ExtTypeProperty, reader.GetString("Ext_Type"));
             returnValue.LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
             returnValue.LoadProperty<bool>(IsExclusiveProperty, reader.GetBoolean("IS_EXCLUSIVE"));
+            returnValue.LoadProperty<bool>(UserCanEditURLsProperty, reader.GetBoolean("USER_CAN_EDIT_URLS"));
             returnValue.LoadProperty<int>(MaxDepthProperty, MaxDepth);
             returnValue.LoadProperty<bool>(UserCanEditProperty, UserCanEdit);
             return returnValue;

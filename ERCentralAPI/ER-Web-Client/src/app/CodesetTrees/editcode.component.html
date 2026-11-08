@@ -117,18 +117,18 @@
         <div class="form-group">
           <label for="Codeset_Type">Code Type*</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           @if (ShowIsExclusiveCheckbox) {
-            <div>
-              <input type="checkbox" [(ngModel)]="UpdatingCode.isExclusive" name="radioButtonCB">&nbsp;
-              <label for="Codeset_TypeCollaborate">Radio-button code   (untick for non-radio code)</label>
-            </div>
+          <div>
+            <input type="checkbox" [(ngModel)]="UpdatingCode.isExclusive" name="radioButtonCB">&nbsp;
+            <label for="Codeset_TypeCollaborate">Radio-button code   (untick for non-radio code)</label>
+          </div>
           }
           <select #EditCodeTypeSelect class="col-md-6 form-control"
-            (change)="AttributeTypeChanged($event)" name="Code_Type"
-            [(ngModel)]="UpdatingCode.attribute_type_id">
+                  (change)="AttributeTypeChanged($event)" name="Code_Type"
+                  [(ngModel)]="UpdatingCode.attribute_type_id">
             @for (type of AllowedChildTypes; track type) {
-              <option [value]="type.key" [selected]="UpdatingCode && type.key == UpdatingCode.attribute_type_id">
-                {{type.value}}
-              </option>
+            <option [value]="type.key" [selected]="UpdatingCode && type.key == UpdatingCode.attribute_type_id">
+              {{type.value}}
+            </option>
             }
           </select>
         </div>
@@ -136,57 +136,59 @@
       <div class="form-group col-12">
         <label for="source_Name">Code Name*</label>
         <input type="text" class="form-control" id="AttName"
-          [(ngModel)]="UpdatingCode.attribute_name" name="attribute_name"
-          #name="ngModel">
-          <span [hidden]="IsNewCodeNameValid()"
-            class="alert alert-danger small p-1">
-            Name is required
-          </span>
-        </div>
-        <div class="form-group col-12">
-          <label for="newSetDescription">Description (optional)</label>
-          <textarea class="form-control" id="newSetDescription"
-          [(ngModel)]="UpdatingCode.attribute_set_desc" name="newAttDescription" rows="3"></textarea>
-        </div>
-        <div class="form-group col-12 mt-2">
-  External URL (optional)
-  <input class="form-control"
-         id="newSetExtURL"
-         [(ngModel)]="UpdatingCode.extURL"
-         name="newSetExtURL">
-  External URL type (optional)
-  <input class="form-control"
-         id="newSetExtType"
-         [(ngModel)]="UpdatingCode.extType"
-         name="newSetExtType">
-</div>
-        <div class="col-12">
-          <button type="submit" (click)="UpdateCode()" class="btn btn-success ml-2 mr-2"
-            [disabled]="!HasAnythingChanged() || !IsNewCodeNameValid() || !CanWrite()">
-            Update
-          </button>
-          @if (UpdatingCode.attribute_type != 'Exclude' && UpdatingCode.attribute_type != 'Include') {
-            <button class="btn btn-outline-primary ml-1" type="button"
-              (click)="ShowMoveCodeClicked()" [disabled]="!CanWrite()">
-              Move...
-            </button>
-          }
-          <button class="btn btn-outline-danger ml-1" (click)="ShowDeleteCodesetClicked()" type="button"
-            [disabled]="!CanWrite()">
-            Delete Code...
-          </button>
-          <button class="btn btn-outline-secondary ml-2" type="button"
-            (click)="CancelActivity(EditCodeFrom.dirty || HasAnythingChanged())" style="width:200px;">
-            Cancel
-          </button>
-        </div>
-        @if (UpdatingCode.extURL != '') {
-          <div class="col-12 small alert-info p-1 m-1">
-            <div>URL: {{UpdatingCode.extURL}}</div>
-            <div>Type: {{UpdatingCode.extType}}</div>
-          </div>
+               [(ngModel)]="UpdatingCode.attribute_name" name="attribute_name"
+               #name="ngModel">
+        <span [hidden]="IsNewCodeNameValid()"
+              class="alert alert-danger small p-1">
+          Name is required
+        </span>
+      </div>
+      <div class="form-group col-12">
+        <label for="newSetDescription">Description (optional)</label>
+        <textarea class="form-control" id="newSetDescription"
+                  [(ngModel)]="UpdatingCode.attribute_set_desc" name="newAttDescription" rows="3"></textarea>
+      </div>
+      @if (UpdatingCode.userCanEditURLs) {
+      <div class="form-group col-12 mt-2">
+        External URL (optional)
+        <input class="form-control"
+               id="newSetExtURL"
+               [(ngModel)]="UpdatingCode.extURL"
+               name="newSetExtURL">
+        External URL type (optional)
+        <input class="form-control"
+               id="newSetExtType"
+               [(ngModel)]="UpdatingCode.extType"
+               name="newSetExtType">
+      </div>
+      }
+      <div class="col-12">
+        <button type="submit" (click)="UpdateCode()" class="btn btn-success ml-2 mr-2"
+                [disabled]="!HasAnythingChanged() || !IsNewCodeNameValid() || !CanWrite()">
+          Update
+        </button>
+        @if (UpdatingCode.attribute_type != 'Exclude' && UpdatingCode.attribute_type != 'Include') {
+        <button class="btn btn-outline-primary ml-1" type="button"
+                (click)="ShowMoveCodeClicked()" [disabled]="!CanWrite()">
+          Move...
+        </button>
         }
-      </form>
+        <button class="btn btn-outline-danger ml-1" (click)="ShowDeleteCodesetClicked()" type="button"
+                [disabled]="!CanWrite()">
+          Delete Code...
+        </button>
+        <button class="btn btn-outline-secondary ml-2" type="button"
+                (click)="CancelActivity(EditCodeFrom.dirty || HasAnythingChanged())" style="width:200px;">
+          Cancel
+        </button>
+      </div>
+      @if (UpdatingCode.extURL != '') {
+      <div class="col-12 small alert-info p-1 m-1">
+        <div>URL: {{UpdatingCode.extURL}}</div>
+        <div>Type: {{UpdatingCode.extType}}</div>
+      </div>
+      }
+    </form>
     }
   </div>
 </div>

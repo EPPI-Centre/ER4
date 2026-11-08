@@ -78,7 +78,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
       setName: rs.set_name,
       setOrder: rs.order,
       setDescription: rs.description,
-      usersCanEditURLs: rs.userCanEditURLs,
+      userCanEditURLs: rs.userCanEditURLs,
       extURL: rs.extURL,
       extType: rs.extType,
       setTypeId: rs.setType ? rs.setType.setTypeId : -1
@@ -107,7 +107,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
       setName: rs.set_name,
       setOrder: rs.order,
       setDescription: rs.description,
-      usersCanEditURLs: rs.userCanEditURLs,
+      userCanEditURLs: rs.userCanEditURLs,
       extURL: rs.extURL,
       extType: rs.extType,
       setTypeId: rs.setType ? rs.setType.setTypeId : -1
@@ -1524,7 +1524,7 @@ export interface ReviewSetUpdateCommand
   setOrder: number;
   setDescription: string;
   setTypeId: number;
-  usersCanEditURLs: boolean;
+  userCanEditURLs: boolean;
   extURL: string;
   extType: string;
 }

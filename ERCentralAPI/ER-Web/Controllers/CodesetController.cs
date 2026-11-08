@@ -70,7 +70,7 @@ namespace ERxWebClient2.Controllers
                         , data.setName
                         , data.setOrder
                         , data.setDescription
-                        , data.usersCanEditURLs
+                        , data.userCanEditURLs
                         , data.extURL
                         , data.extType
                         );//i.e. no way to make sets accept URLs for codes in ERx, until we implement this...
@@ -494,7 +494,7 @@ namespace ERxWebClient2.Controllers
         public bool codingIsFinal;//normal or comparison mode
         public bool allowCodingEdits; //AllowCodingEdits can edit this codeset...
         public int setTypeId;
-        public bool usersCanEditURLs;
+        public bool userCanEditURLs;
         public string extURL = "";
         public string extType = "";
     }
