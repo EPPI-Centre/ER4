@@ -90,24 +90,24 @@
               </thead>
 
               <tbody>
-                @for (item of PriorityScreeningSimulationList; track item) {
-                  <tr>
-                    <td class="">
-                      <button (click)="showSimulation(item)" [ngClass]="{'font-weight-bold': item.simulationName==PriorityScreeningSimulationName }" class="btn btn-link px-1 py-0">{{item.simulationName}}</button>
-                    </td>
-                    <td class="" style="min-width: 65px; max-width: 65px; text-align:right">
-                      <button class="btn btn-sm btn-danger" title="Delete this simulation" (click)="confirmDeleteSimulation(item)">
-                        <span class="k-icon k-i-trash" size="small" style="position: relative; top:-2px;"></span>
-                      </button>
-                      <!--<div class="p-0 "
-                      style="border: 1px solid white; border-radius: 3px; float: right; cursor: pointer; position: relative; top: 15%; margin-left: 2px;"
-                      title="Delete this simulation" (click)="confirmDeleteSimulation(item)">
-                      <span class="k-icon k-i-trash alert-danger" size="small" style="position: relative; top:-2px;"></span>
-                    </div>-->
+                @for (item of PriorityScreeningSimulationList; track item.simulationName) {
+                <tr>
+                  <td class="">
+                    <button (click)="showSimulation(item)" [ngClass]="{'font-weight-bold': item.simulationName==PriorityScreeningSimulationName }" class="btn btn-link px-1 py-0">{{item.simulationName}}</button>
+                  </td>
+                  <td class="" style="min-width: 65px; max-width: 65px; text-align:right">
+                    <button class="btn btn-sm btn-danger" title="Delete this simulation" (click)="confirmDeleteSimulation(item)">
+                      <span class="k-icon k-i-trash" size="small" style="position: relative; top:-2px;"></span>
+                    </button>
+                    <!--<div class="p-0 "
+        style="border: 1px solid white; border-radius: 3px; float: right; cursor: pointer; position: relative; top: 15%; margin-left: 2px;"
+        title="Delete this simulation" (click)="confirmDeleteSimulation(item)">
+        <span class="k-icon k-i-trash alert-danger" size="small" style="position: relative; top:-2px;"></span>
+      </div>-->
                   </td>
                 </tr>
-              }
-            </tbody>
+                }
+              </tbody>
           </table>
         </div>
       </div>
@@ -120,66 +120,69 @@
     <div class="col-12 col-md-6 mx-0 px-1 mb-1">
       <div class="container-fluid mt-1 bg-light border border-primary rounded m-0 p-1">
         <div>
+          @if (GraphIsBusy) {
+          <div class="mx-2 mt-1 pl-1 " style="display:inline-block;position:relative; top:0.10em;">
+            <fa-icon [icon]="faSpinner" [spin]="true" class="text-success mt-1 "></fa-icon>
+          </div>
+          }
+
+
           <figure class="figure col-12">
             @if (simulationDataContainer && simulationDataContainer.length > 0 ) {
-              <kendo-chart #VisualiseChart style="min-height:400px; height:52vh;"
-                >
-                <kendo-chart-title [text]="PriorityScreeningSimulationName.replace('.tsv', '')">
-                </kendo-chart-title>
-                <kendo-chart-legend [visible]="false"></kendo-chart-legend>
-                <kendo-chart-series>
-                  @for (series of simulationDataContainer; track series; let i = $index) {
-                    <kendo-chart-series-item
-                      type="scatterLine"
-                      [data]="series"
-                      name="Sim #{{(i + 1).toString()}}"
-                      [markers]="{ visible: false }"
-                      [tooltip]="{ visible: true }">
-                      <kendo-chart-series-item-tooltip>
-                        <ng-template let-category="category" let-value="value" let-dataItem="dataItem" let-series="series">
-                          {{series.name}}: {{dataItem[0]}},{{dataItem[1]}}
-                        </ng-template>
-                      </kendo-chart-series-item-tooltip>
-                    </kendo-chart-series-item>
-                  }
-                  @if (scatterData && scatterData.length) {
-                    <kendo-chart-series-item
-                      type="scatter"
-                      [data]="scatterData"
-                      name="Buscar"
-                      [yAxis]="'rightAxis'"
-                      [markers]="{ visible: true, size: 8 }"
-                      [tooltip]="{ visible: true }">
-                      <kendo-chart-series-item-tooltip>
-                        <ng-template let-category="category" let-value="value" let-dataItem="dataItem" let-series="series">
-                          <div>N screened: {{dataItem[0]}}; p-value: {{+dataItem[1] | number:'1.2-2'}}</div>
-                          <div>Workload reduction: {{(GetSimulationDataItemCount - dataItem[0]) / GetSimulationDataItemCount * 100 | number:'1.2-2'}}%</div>
-                        </ng-template>
-                      </kendo-chart-series-item-tooltip>
-                    </kendo-chart-series-item>
-                  }
-                </kendo-chart-series>
-                <kendo-chart-x-axis>
-                  <kendo-chart-x-axis-item [title]="{ text: xAxisText }"
-                    [max]="simulationDataItemCountRoundedUp"
-                    [min]="0"
-                    [axisCrossingValue]="crossingValues">
-                  </kendo-chart-x-axis-item>
-                </kendo-chart-x-axis>
-                <kendo-chart-y-axis>
-                  <kendo-chart-y-axis-item [title]="{ text: yAxisText }"
-                    [max]="simulationDataIncludedItemsCountRoundedUp">
-                  </kendo-chart-y-axis-item>
-                  @if (scatterData && scatterData.length) {
-                    <kendo-chart-y-axis-item
-                      name="rightAxis"
-                      [min]="0"
-                      [max]="1.03"
-                      [title]="{ text: 'p score for H0 that recall target ' + recallLevel + '% missed' }">
-                    </kendo-chart-y-axis-item>
-                  }
-                </kendo-chart-y-axis>
-              </kendo-chart>
+            <kendo-chart #VisualiseChart style="min-height:400px; height:52vh;">
+              <kendo-chart-title [text]="PriorityScreeningSimulationName.replace('.tsv', '')">
+              </kendo-chart-title>
+              <kendo-chart-legend [visible]="false"></kendo-chart-legend>
+              <kendo-chart-series>
+                @for (series of simulationDataContainer; track series; let i = $index) {
+                <kendo-chart-series-item type="scatterLine"
+                                         [data]="series"
+                                         name="Sim #{{(i + 1).toString()}}"
+                                         [markers]="{ visible: false }"
+                                         [tooltip]="{ visible: true }">
+                  <kendo-chart-series-item-tooltip>
+                    <ng-template let-category="category" let-value="value" let-dataItem="dataItem" let-series="series">
+                      {{series.name}}: {{dataItem[0]}},{{dataItem[1]}}
+                    </ng-template>
+                  </kendo-chart-series-item-tooltip>
+                </kendo-chart-series-item>
+                }
+                @if (scatterData && scatterData.length) {
+                <kendo-chart-series-item type="scatter"
+                                         [data]="scatterData"
+                                         name="Buscar"
+                                         [yAxis]="'rightAxis'"
+                                         [markers]="{ visible: true, size: 8 }"
+                                         [tooltip]="{ visible: true }">
+                  <kendo-chart-series-item-tooltip>
+                    <ng-template let-category="category" let-value="value" let-dataItem="dataItem" let-series="series">
+                      <div>N screened: {{dataItem[0]}}; p-value: {{+dataItem[1] | number:'1.2-2'}}</div>
+                      <div>Workload reduction: {{(GetSimulationDataItemCount - dataItem[0]) / GetSimulationDataItemCount * 100 | number:'1.2-2'}}%</div>
+                    </ng-template>
+                  </kendo-chart-series-item-tooltip>
+                </kendo-chart-series-item>
+                }
+              </kendo-chart-series>
+              <kendo-chart-x-axis>
+                <kendo-chart-x-axis-item [title]="{ text: xAxisText }"
+                                         [max]="simulationDataItemCountRoundedUp"
+                                         [min]="0"
+                                         [axisCrossingValue]="crossingValues">
+                </kendo-chart-x-axis-item>
+              </kendo-chart-x-axis>
+              <kendo-chart-y-axis>
+                <kendo-chart-y-axis-item [title]="{ text: yAxisText }"
+                                         [max]="simulationDataIncludedItemsCountRoundedUp">
+                </kendo-chart-y-axis-item>
+                @if (scatterData && scatterData.length) {
+                <kendo-chart-y-axis-item name="rightAxis"
+                                         [min]="0"
+                                         [max]="1.03"
+                                         [title]="{ text: 'p score for H0 that recall target ' + recallLevel + '% missed' }">
+                </kendo-chart-y-axis-item>
+                }
+              </kendo-chart-y-axis>
+            </kendo-chart>
             }
           </figure>
         </div>

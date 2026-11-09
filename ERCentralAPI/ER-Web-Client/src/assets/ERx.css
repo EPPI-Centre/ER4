@@ -137,6 +137,7 @@ body {
   padding: 4px 8px;
   font-size: 14px;
   line-height: 1.4285714286;
+  border-radius: 4px;
 }
 
 .k-tabstrip-items-wrapper .k-tabstrip-item.k-active {

@@ -229,7 +229,7 @@
                       <kendo-toolbar-button [toggleable]="true" [text]="'Configurable reports'" (click)="reportsShowWhat = 'ReportsCfg'" [selected]="reportsShowWhat == 'ReportsCfg'">Configurable reports</kendo-toolbar-button>
 
                     </kendo-toolbar-buttongroup>
-                    <kendo-toolbar-button text="Run Reports" [iconClass]="RunReportsShow2 ? 'k-icon k-i-arrow-chevron-up ml-0 mr-0' : 'k-icon k-i-arrow-chevron-down ml-0 mr-0'"
+                    <kendo-toolbar-button text="Run Reports" [iconClass]="RunReportsShow2 ? 'k-icon k-i-chevron-up ml-0 mr-0' : 'k-icon k-i-chevron-down ml-0 mr-0'"
                     (click)="RunConfigurableReports2()" [selected]="RunReportsShow2"></kendo-toolbar-button>
                     @if (CanShowRobotInvestigate) {
                       <kendo-toolbar-button [text]="'Investigate'" (click)="GoToInvestigate()" [disabled]="!HasWriteRights"></kendo-toolbar-button>

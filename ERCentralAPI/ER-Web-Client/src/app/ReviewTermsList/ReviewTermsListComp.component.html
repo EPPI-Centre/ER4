@@ -31,12 +31,12 @@
             <td>
               <button [disabled]="!HasWriteRights || newReviewTerm.trim() == ''" title="Save new term"
                 class="btn btn-sm btn-outline-primary" (click)="InsertNewRow()">
-                <span class="k-icon k-i-floppy"></span>
+                <span class="k-icon k-i-save"></span>
               </button>
             </td>
             <td>
               <button class="btn btn-sm btn-outline-danger" title="Cancel" (click)="OpenRowPanel()">
-                <span class="k-icon k-i-close"></span>
+                <span class="k-icon k-i-x"></span>
               </button>
             </td>
           </tr>
@@ -54,7 +54,7 @@
                 <button [disabled]="!HasWriteRights" [hidden]="!term.CanSave" title="Save Changes"
                   class="btn btn-sm btn-outline-primary"
                   (click)="SaveChanges()">
-                  <span class="k-icon k-i-floppy"></span>
+                  <span class="k-icon k-i-save"></span>
                 </button>
               </td>
               <td>

@@ -10,7 +10,7 @@
             <th class="text-center">Intervention</th>
             <th class="text-center">Actions</th>
           </tr>
-          @for (outcome of OutcomesBySet; track outcome; let key = $index) {
+          @for (outcome of OutcomesBySet; track outcome.outcomeId; let key = $index) {
             <tr>
               <td class="p-1" >{{outcome.title}}</td>
               <td class="p-1">{{outcome.interventionText}}</td>
@@ -20,7 +20,7 @@
                     [disabled]="!HasWriteRights"
                     type="button" rounded="true"
                     size="sm" class="btn btn-sm btn-outline-success my-auto py-0 px-1 ml-1">
-                    <span class="k-icon k-i-edit"></span>&nbsp;Edit
+                    <span class="k-icon k-i-pencil"></span>&nbsp;Edit
                   </button>
                   <button type="button" rounded="true" title="Delete Outcome Measure"
                     size="sm" class="btn btn-sm btn-outline-danger my-auto py-0 px-1 ml-1"
@@ -101,7 +101,7 @@
             class="alert alert-danger">
             <div>
               <strong>Outcome refers to a missing arm.</strong> <br />
-              To fix this, please click the "Remove Arm Selection" button (<span class="k-icon k-i-error"></span>)
+              To fix this, please click the "Remove Arm Selection" button (<span class="k-icon k-i-x-circle"></span>)
               where the missing arm was used and now shows no arm name selected in the drop-down.
             </div>
           </div>
@@ -111,7 +111,7 @@
             class="alert alert-danger">
             <div>
               <strong>Outcome refers to a missing Timepoint.</strong> <br />
-              To fix this, please click the "Remove Timepoint Selection" button (<span class="k-icon k-i-error"></span>)
+              To fix this, please click the "Remove Timepoint Selection" button (<span class="k-icon k-i-x-circle"></span>)
               below.
             </div>
           </div>
@@ -160,7 +160,7 @@
                 </select>
                 <button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemTimepointId == 0"
                   title="Remove Timepoint Selection" (click)="_OutcomesService.currentOutcome.itemTimepointId = 0">
-                  <span class="k-icon k-i-error"></span>
+                  <span class="k-icon k-i-x-circle"></span>
                 </button>
               </div>
             </div>
@@ -199,7 +199,7 @@
                 </select>
                 <button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemAttributeIdOutcome == 0"
                   title="Remove Outcome Code Selection" (click)="_OutcomesService.currentOutcome.itemAttributeIdOutcome = 0">
-                  <span class="k-icon k-i-error"></span>
+                  <span class="k-icon k-i-x-circle"></span>
                 </button>
               </div>
             </div>
@@ -219,7 +219,7 @@
                 </select>
                 <button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemAttributeIdIntervention == 0"
                   title="Remove Intervention Code Selection" (click)="_OutcomesService.currentOutcome.itemAttributeIdIntervention = 0">
-                  <span class="k-icon k-i-error"></span>
+                  <span class="k-icon k-i-x-circle"></span>
                 </button>
               </div>
               <label class="col-md-4 mt-1">Comparison</label>
@@ -237,7 +237,7 @@
                 </select>
                 <button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemAttributeIdControl == 0"
                   title="Remove Comparison Code Selection" (click)="_OutcomesService.currentOutcome.itemAttributeIdControl = 0">
-                  <span class="k-icon k-i-error"></span>
+                  <span class="k-icon k-i-x-circle"></span>
                 </button>
               </div>
             </div>
@@ -255,7 +255,7 @@
                 </select>
                 <button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemArmIdGrp1 == 0"
                   title="Remove Arm1 Selection" (click)="_OutcomesService.currentOutcome.itemArmIdGrp1 = 0">
-                  <span class="k-icon k-i-error"></span>
+                  <span class="k-icon k-i-x-circle"></span>
                 </button>
               </div>
               <label class="col-md-4 mt-1">Group 2 arm</label>
@@ -271,7 +271,7 @@
                 </select>
                 <button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemArmIdGrp2 == 0"
                   title="Remove Arm2 Selection" (click)="_OutcomesService.currentOutcome.itemArmIdGrp2 = 0">
-                  <span class="k-icon k-i-error"></span>
+                  <span class="k-icon k-i-x-circle"></span>
                 </button>
               </div>
             </div>

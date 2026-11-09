@@ -307,7 +307,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (member of Contacts; track member; let i = $index) {
+              @for (member of Contacts; track member.contactId; let i = $index) {
                 <tr class="">
                   <td>{{ member.contactId }}</td>
                   <td>{{ member.contactName }}</td>
@@ -456,62 +456,61 @@
                 </tr>
               </thead>
               <tbody>
-                @for (item of _comparisonsService.Comparisons; track item; let i = $index) {
-                  <ng-container class="small">
-                    <tr>
-                      <td class="p-1">{{ item.setName }}</td>
-                      <td class="p-1">{{ item.contactName1 }}</td>
-                      <td class="p-1">{{ item.contactName2 }}</td>
-                      <td class="p-1">{{ item.contactName3 }}</td>
-                      <td class="p-1">{{ item.attributeName}}</td>
-                      <td class="py-1 px-0 small">{{ FormatDate(item.comparisonDate) }}</td>
-                      <td class="p-1"><button class="btn btn-outline-success w-100 py-0" (click)="getPanelRunQuickReport(item.comparisonId);">&nbsp; Run &nbsp;</button></td>
-                      <td class="p-1"><button class="btn btn-outline-info w-100 py-0" (click)="getStatistics(item.comparisonId);">&nbsp; View &nbsp;</button></td>
-                      <td class="p-1"><button class="btn btn-outline-danger w-100 py-0" (click)="removeComparisonWarning(item.comparisonId)">&nbsp; Delete &nbsp;</button></td>
-                    </tr>
-                    <tr>
-                      <td colspan="9" class="p-0 py-1">
-                        @if (PanelName == 'getStats' + item.comparisonId && this._comparisonsService.currentComparison.comparisonId == item.comparisonId) {
-                          <ComparisonStatsComp #ComparisonStatsCompList
-                          [rowSelected]="item.comparisonId"
-                          (setListSubType)="setCompListType($event)">
-                        </ComparisonStatsComp>
+                @for (item of _comparisonsService.Comparisons; track item.comparisonId; let i = $index) {
+                <ng-container class="small">
+                  <tr>
+                    <td class="p-1">{{ item.setName }}</td>
+                    <td class="p-1">{{ item.contactName1 }}</td>
+                    <td class="p-1">{{ item.contactName2 }}</td>
+                    <td class="p-1">{{ item.contactName3 }}</td>
+                    <td class="p-1">{{ item.attributeName}}</td>
+                    <td class="py-1 px-0 small">{{ FormatDate(item.comparisonDate) }}</td>
+                    <td class="p-1"><button class="btn btn-outline-success w-100 py-0" (click)="getPanelRunQuickReport(item.comparisonId);">&nbsp; Run &nbsp;</button></td>
+                    <td class="p-1"><button class="btn btn-outline-info w-100 py-0" (click)="getStatistics(item.comparisonId);">&nbsp; View &nbsp;</button></td>
+                    <td class="p-1"><button class="btn btn-outline-danger w-100 py-0" (click)="removeComparisonWarning(item.comparisonId)">&nbsp; Delete &nbsp;</button></td>
+                  </tr>
+                  <tr>
+                    <td colspan="9" class="p-0 py-1">
+                      @if (PanelName == 'getStats' + item.comparisonId && this._comparisonsService.currentComparison.comparisonId == item.comparisonId) {
+                      <ComparisonStatsComp #ComparisonStatsCompList
+                                           [rowSelected]="item.comparisonId"
+                                           (setListSubType)="setCompListType($event)">
+                      </ComparisonStatsComp>
                       }
                       @if (PanelName == 'runQuickReport'+ item.comparisonId && this._comparisonsService.currentComparison.comparisonId == item.comparisonId) {
-                        <div
-                          class="card col-12">
-                          <h5 class="m-1 p-1 font-weight-bold">Run Quick Comparison Report</h5>
-                          <div class="col-12 row bg-light p-0 m-1 rounded border border-success mb-2">
-                            <div class="col-12 col-lg-4 row p-0 m-0">
-                              <div class="mx-1 mt-2">Selected Code/Set: </div>
-                              <div class="border border-dark mt-2 px-1 ml-1" [ngClass]="{'alert-success font-weight-bold' : CanRunQuickReport}">{{chosenFilterName}}</div>
-                              <div class="col-12 my-1">
-                                <button (click)="RunHTMLComparisonReport()"
-                                  [disabled]="!CanRunQuickReport"
-                                  class="btn btn-outline-success p-1 m-1">
-                                  &nbsp;&nbsp;Run&nbsp;&nbsp;
-                                </button>
-                                <button (click)="getPanelRunQuickReport(item.comparisonId)"
-                                  class="btn btn-outline-info p-1 m-1">
-                                  &nbsp;&nbsp;Cancel&nbsp;&nbsp;
-                                </button>
-                              </div>
-                            </div>
-                            <div class="col-12 col-lg-8 row p-1 m-0">
-                              Please select the coding tool (used for this comparison), or a parent code in the same coding tool, for the comparison report.
+                      <div class="card col-12">
+                        <h5 class="m-1 p-1 font-weight-bold">Run Quick Comparison Report</h5>
+                        <div class="col-12 row bg-light p-0 m-1 rounded border border-success mb-2">
+                          <div class="col-12 col-lg-4 row p-0 m-0">
+                            <div class="mx-1 mt-2">Selected Code/Set: </div>
+                            <div class="border border-dark mt-2 px-1 ml-1" [ngClass]="{'alert-success font-weight-bold' : CanRunQuickReport}">{{chosenFilterName}}</div>
+                            <div class="col-12 my-1">
+                              <button (click)="RunHTMLComparisonReport()"
+                                      [disabled]="!CanRunQuickReport"
+                                      class="btn btn-outline-success p-1 m-1">
+                                &nbsp;&nbsp;Run&nbsp;&nbsp;
+                              </button>
+                              <button (click)="getPanelRunQuickReport(item.comparisonId)"
+                                      class="btn btn-outline-info p-1 m-1">
+                                &nbsp;&nbsp;Cancel&nbsp;&nbsp;
+                              </button>
                             </div>
                           </div>
+                          <div class="col-12 col-lg-8 row p-1 m-0">
+                            Please select the coding tool (used for this comparison), or a parent code in the same coding tool, for the comparison report.
+                          </div>
                         </div>
+                      </div>
                       }
                     </td>
                   </tr>
                   <!--<tr>
-                  <td colspan="12">
-                  </td>
-                </tr>-->
-              </ng-container>
-            }
-          </tbody>
+      <td colspan="12">
+      </td>
+    </tr>-->
+                </ng-container>
+                }
+              </tbody>
         </table>
       }
     </div>

@@ -30,37 +30,31 @@
 
   <div class="col-4 col-xl-3 px-1 py-0" >
     <div class="containsAtoolbar row m-0 p-0">
-      <div class="mx-auto row">
+      <div class="mx-auto row mb-1">
         @if (CurrentListHasPages) {
-          <div>
-            <button class="btn py-0 px-1 border-primary border" (click)="FirstPage()" [disabled]="!CanPageDown">
-              <span class="mb-1  k-icon k-i-seek-w" aria-label="Go to the previous page"></span>
-            </button>
-            <button class="btn py-0 px-1 border-primary border" (click)="PageDown()" [disabled]="!CanPageDown">
-              <span class="mb-1 k-icon k-i-arrow-w" aria-label="Go to the previous page"></span>
-            </button>
-            Page: {{CurrentPage}} of {{TotPages}}
-            <button class="btn py-0 px-1 border-primary border" (click)="PageUp()" [disabled]="!CanPageUp">
-              <span class="mb-1 k-icon k-i-arrow-e" aria-label="Go to the next page"></span>
-            </button>
-            <button class="btn py-0 px-1 border-primary border" (click)="LastPage()" [disabled]="!CanPageUp">
-              <span class="mb-1  k-icon k-i-seek-e" aria-label="Go to the next page"></span>
-            </button>
-          </div>
+          <button kendoButton [svgIcon]="caretDoubleAltLeftIcn" class="text-primary py-0 px-1 border-primary border" (click)="FirstPage()" [disabled]="!CanPageDown" title="Go to the previous page">
+          </button>
+          <button kendoButton [svgIcon]="caretAltLeftIcn" class="text-primary py-0 px-1 border-primary border" (click)="PageDown()" [disabled]="!CanPageDown" title="Go to the previous page">
+          </button>
+          <div class="my-auto mx-1" style="font-size: 0.9em;">Page: {{CurrentPage}} of {{TotPages}}</div>
+          <button kendoButton [svgIcon]="caretAltRightIcn" class="text-primary py-0 px-1 border-primary border" (click)="PageUp()" [disabled]="!CanPageUp" title="Go to the next page">
+          </button>
+          <button kendoButton [svgIcon]="caretDoubleAltRightIcn" class="text-primary py-0 px-1 border-primary border" (click)="LastPage()" [disabled]="!CanPageUp" title="Go to the next page">
+          </button>
         }
-        <button class="btn py-0 px-1 border-primary border" (click)="ShowGroupslistTools = !ShowGroupslistTools">
-          Tools...
+        <button kendoButton class="font-weight-bold py-0 px-1 text-primary border-primary border" (click)="ShowGroupslistTools = !ShowGroupslistTools">
+          More...
         </button>
       </div>
       @if (ShowGroupslistTools) {
-        <div class="border border-dark px-1 col-12">
-          <button class="btn btn-sm py-0 mb-1 px-1 border-primary border" (click)="FindNextUnchecked()">
+        <div class="border rounded border-primary k-bg-light row mx-0 p-1 col-12">
+          <button class="btn btn-sm my-auto py-0 px-1 text-primary border-primary border" (click)="FindNextUnchecked()">
             1st To-Do
           </button>
-          <div class="border rounded border-info small px-1 mx-1 mt-1 d-inline-block">
-            Auto Advance: <input type="checkbox" [(ngModel)]="AutoAdvance" />
+          <div class="border rounded border-info small px-1 mx-1 my-auto d-inline-block align-content-center">
+            Auto Advance: <input type="checkbox" class="my-auto" [(ngModel)]="AutoAdvance" style="position: relative; bottom:-3px;" />
           </div>
-          <div class="small px-1 mx-1 mt-1 d-inline-block">
+          <div class="small px-1 mx-1 my-auto d-inline-block">
             Paging:
             <select class="select" [(ngModel)]="PageSize">
               @for (n of PagingDD; track n) {
@@ -84,13 +78,13 @@
             Short Title<span [innerHTML]="SortingSymbol('shortTitle')"></span>
           </th>
         </tr>
-        @for (group of DuplicateGroups; track group) {
-          <tr (click)="FetchGroup(group.groupId); "  [id]="'grp-' + group.groupId.toString()"
+        @for (group of DuplicateGroups; track group.groupId) {
+        <tr (click)="FetchGroup(group.groupId); " [id]="'grp-' + group.groupId.toString()"
             [ngClass]="MainListRowClass(group)">
-            <td style="cursor:pointer" class="py-1">{{group.isComplete}}</td>
-            <td style="cursor:pointer" class="py-1">{{group.groupId}}</td>
-            <td style="cursor:pointer" class="py-1">{{group.shortTitle}}</td>
-          </tr>
+          <td style="cursor:pointer" class="py-1">{{group.isComplete}}</td>
+          <td style="cursor:pointer" class="py-1">{{group.groupId}}</td>
+          <td style="cursor:pointer" class="py-1">{{group.shortTitle}}</td>
+        </tr>
         }
       </table>
     </div>

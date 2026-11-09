@@ -229,13 +229,12 @@
           <div class="form-group row mx-0 border-bottom">
             <label class="col-12 col-sm-5" for="rev1">Delete coding from this Reviewer: </label>
             <select class="col-12 col-sm-7 form-control mb-1" name="rev1" (change)="DropdownDeleteChangeReviewerSelection()"
-              [(ngModel)]="selectedReviewer4BulkDelete">
-              <option ngValue="" ></option>
-              @for (member of CodersForCodingToolToDelete; track member) {
-                <option
-                  [ngValue]="member" [selected]="member == selectedReviewer4BulkDelete">
-                  {{member.contactName}}
-                </option>
+                    [(ngModel)]="selectedReviewer4BulkDelete">
+              <option ngValue=""></option>
+              @for (member of CodersForCodingToolToDelete; track member.contactId) {
+              <option [ngValue]="member" [selected]="member == selectedReviewer4BulkDelete">
+                {{member.contactName}}
+              </option>
               }
             </select>
           </div>

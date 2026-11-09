@@ -32,7 +32,7 @@
                       <div class="my-auto">{{EditingReport.name}}</div>&nbsp;&nbsp;
                       <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 ml-1" (click)="UpdatingReportName = true" title="Edit Report Name"
                         [disabled]="!HasWriteRights">
-                        Edit&nbsp;<span class="k-icon k-i-edit k-color-success"></span>
+                        Edit&nbsp;<span class="k-icon k-i-pencil k-color-success"></span>
                       </button>
                     </div>
                   </div>
@@ -92,7 +92,7 @@
                           <div class="row mx-0 px-0 alert-info " style="min-width:195px;">
                             <button class="btn btn-sm btn-outline-success mx-0 my-auto px-1 py-0" (click)="EditColumn(col)" title="Edit column content"
                               [disabled]="!HasWriteRights">
-                              <span class="k-icon k-i-edit k-color-success"></span>
+                              <span class="k-icon k-i-pencil k-color-success"></span>
                             </button>
                             <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="AddCodeToColumn(col, selectedNode)" title="Add selected code to column"
                               [disabled]="!CanAddNodeToColumn(col, selectedNode) || !HasWriteRights">
@@ -137,7 +137,7 @@
               New Report
             </button> to create a report or one of the
             <button class="btn btn-outline-success px-1 ml-auto mr-1 py-0 my-1" (click)="DoNothingButton()" >
-              <span class="k-icon k-i-edit k-color-success"></span>
+              <span class="k-icon k-i-pencil k-color-success"></span>
             </button> buttons to view/edit an existing report.
             <!--We can put some "welcome / instructions" content here, which will disappear when we edit a report...-->
           </div>
@@ -177,7 +177,7 @@
         <div class="row ml-1 mr-1 border-bottom border-info">
           <div class="my-auto">{{rpt.name}}</div>
           <button class="btn btn-outline-success px-1 ml-auto mr-1 py-0 my-1" (click)="EditReport(rpt)" title="View/Edit report details">
-            <span class="k-icon k-i-edit k-color-success"></span>
+            <span class="k-icon k-i-pencil k-color-success"></span>
           </button>
           <button class="btn btn-sm btn-outline-danger ml-0 mr-1 my-1 px-1 py-0" (click)="DeleteReport(rpt)" title="Delete Report"
             [disabled]="!HasWriteRights || (EditingReport != null && EditingReport.reportId == rpt.reportId)">
@@ -224,7 +224,7 @@
                             <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : !code.codeExists}"> {{code.userDefText}}</span>
                           </div>
                           <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="EditCode(code)" title="View/Edit details">
-                            <span class="k-icon k-i-edit k-color-success"></span>
+                            <span class="k-icon k-i-pencil k-color-success"></span>
                           </button>
                           <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" [disabled]="code.codeOrder == 0 || !HasWriteRights" title="Move code up (within this column)"
                             (click)="MoveColumnCodeUp(EditingColumn, code)">
@@ -266,7 +266,7 @@
           <div class="card alert alert-info  my-auto border-0 ml-1 mr-0">
             <div class="card-body font-weight-bold">
               Click <button class="btn btn-outline-success px-1 ml-auto mr-1 py-0 my-1" (click)="DoNothingButton()">
-              <span class="k-icon k-i-edit k-color-success"></span>
+              <span class="k-icon k-i-pencil k-color-success"></span>
             </button> in a column to edit that column's content.
           </div>
         </div>

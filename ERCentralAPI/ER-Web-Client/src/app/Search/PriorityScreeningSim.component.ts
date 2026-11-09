@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, ElementRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, ElementRef, ChangeDetectionStrategy, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewService } from '../services/review.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -13,7 +13,7 @@ import { ChartComponent } from '@progress/kendo-angular-charts';
 import { saveAs } from '@progress/kendo-file-saver';
 import 'hammerjs';
 import { NgModel } from '@angular/forms';
-import { PriorityScreeningService } from '../services/PriorityScreening.service';
+import { Helpers } from '../helpers/HelperMethods';
 
 function nextMultipleOfTen(num: number): number {
   return Math.ceil(num / 10) * 10;
@@ -33,7 +33,7 @@ function standardDeviation(arr: number[]): number {
 }
 function calculateConfidence(stdev: number, n: number): number {
   // Z-score for 95% confidence level
-  const z = 1.96; 
+  const z = 1.96;
 
   // Standard error
   const standardError = stdev / Math.sqrt(n);
@@ -53,11 +53,11 @@ interface simulationStats {
 }
 
 @Component({
-    selector: 'PriorityScreeningSim',
-    templateUrl: './PriorityScreeningSim.component.html',
-    providers: [],
-    changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+  selector: 'PriorityScreeningSim',
+  templateUrl: './PriorityScreeningSim.component.html',
+  providers: [],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  standalone: false
 })
 
 export class PriorityScreeningSim implements OnInit, OnDestroy {
@@ -69,7 +69,8 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
     private _eventEmitterService: EventEmitterService,
     private notificationService: NotificationService,
     private modalService: ModalService,
-    public reviewSetsService: ReviewSetsService
+    public reviewSetsService: ReviewSetsService,
+    private ngZone: NgZone,
   ) { }
 
   @Output() PleaseCloseMe = new EventEmitter();
@@ -112,7 +113,7 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
   refreshPriorityScreeningSimulationList() {
     this.classifierService.FetchPriorityScreeningSimulationList();
   }
-  
+
   simulationDataContainer: [number, number][][] = [];
   simulationDataItemCount: number = 0;
   simulationDataIncludedItemsCountRoundedUp: number = 0;
@@ -129,22 +130,20 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
 
   async showSimulation(simulation: PriorityScreeningSimulation) {
     const res = await this.classifierService.FetchPriorityScreeningSimulation(simulation.simulationName);
-    if (res == true)
-    {
+    if (res == true) {
       this.processSimulation(true);
     }
   }
   public crossingValues: number[] = [0, 100000];
 
-  processSimulation(redrawGraph: boolean)
-  {
+  processSimulation(redrawGraph: boolean) {
     const dataframe = this.PriorityScreeningSimulationText;
 
     if (this.PriorityScreeningSimulationText != null) {
-
+      this.ngZone.run((() => setTimeout(() => { this.GraphIsBusy = true; }, 5)));
+      //this.GraphIsBusy = true;
       // clear out previous runs
-      if (redrawGraph)
-      { 
+      if (redrawGraph) {
         this.simulationDataContainer = [];
       }
       this.statistics = [];
@@ -185,7 +184,7 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
       this.simulationDataIncludedItemsCountRoundedUp = nextMultipleOfTen(this.simulationDataIncludedItemsCount);
       this.xAxisText = "Number of items screened (N=" + this.simulationDataItemCount + ")";
       this.yAxisText = "Cumulative number of includes found (N=" + this.simulationDataIncludedItemsCount + ")";
-      
+
 
       // lastly, set the data
       let simCount = (headers.length - 1) / 2;
@@ -211,7 +210,7 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
       //} catch (e) {
       //  // ignore if redraw not available
       //}
-    
+
 
 
       // now calculate the statistics
@@ -258,6 +257,28 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
       this.workloadReductionPercentStats = "Mean simulated workload reduction percent: " + String(Math.round(100 - (meanNScreened / this.simulationDataItemCount * 100))) +
         "% (" + String(Math.round(100 - (ciUpper / this.simulationDataItemCount * 100))) + ", " + String(Math.round(100 -
           (ciLower / this.simulationDataItemCount * 100))) + ")";
+      this.deferRedraw()
+    }
+  }
+  public GraphIsBusy: boolean = false;
+  async deferRedraw() {
+    let counter = 0;
+    let maxcount = 200;
+    let mincount = 20;
+    let renderingDone: boolean = false;
+    while (counter < maxcount && renderingDone == false) {
+      await Helpers.Sleep(50);
+      counter++;
+      console.log("deferRedraw: " + counter.toString());
+      if (counter > mincount && this.VisualiseChart && this.VisualiseChart.instance) renderingDone = true;
+    }
+    this.GraphIsBusy = false;
+    if (this.VisualiseChart && this.VisualiseChart.instance) {
+      this.ngZone.run((() => setTimeout(() => {  this.VisualiseChart.instance.redraw("Pane$1"); }, 100)));
+      
+    }
+    else {
+      console.log("deferRedraw gave up - resize your window to see the chart!");
     }
   }
   public scatterData: Array<[number, number]> = [];
@@ -273,25 +294,25 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
     filterValue: number
   ): Array<[number, number]> {
 
-  const rows = tsv
-    .trim()
-    .split("\n")
-    .map(r => r.split("\t"));
+    const rows = tsv
+      .trim()
+      .split("\n")
+      .map(r => r.split("\t"));
 
-  // Extract header → index mapping
-  const header = rows[0];
-  const colIndex = (name: string) => header.indexOf(name);
+    // Extract header → index mapping
+    const header = rows[0];
+    const colIndex = (name: string) => header.indexOf(name);
 
-  const fValue = (filterValue as number) / 100
-  const idxFilter = colIndex(filterColumn);
-  const idxA = colIndex(header[0]);   // second column
-  const idxB = colIndex(header[1]);   // third column
+    const fValue = (filterValue as number) / 100
+    const idxFilter = colIndex(filterColumn);
+    const idxA = colIndex(header[0]);   // second column
+    const idxB = colIndex(header[1]);   // third column
 
-  return rows
-    .slice(1) // skip header
-    .filter(r => r[idxFilter] === (fValue == 1 ? "1.0" : String(fValue)))
-    .map(r => [Number(r[idxA]), Number(r[idxB])]);
-}
+    return rows
+      .slice(1) // skip header
+      .filter(r => r[idxFilter] === (fValue == 1 ? "1.0" : String(fValue)))
+      .map(r => [Number(r[idxA]), Number(r[idxB])]);
+  }
   private prepareRightAxisScatter(): void {
     if (this.PriorityScreeningSimulationBuscar == "") {
       this.scatterData = [];
@@ -433,27 +454,27 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
     }
   }
 
-public exportChart(): void {
-  let title = this.PriorityScreeningSimulationName;
-  title = title.replace(".tsv", "");
-  this.VisualiseChart.exportImage().then((dataURI) => {
-    saveAs(dataURI, title + '.png');
-  });
-}
-public exportChart2x(): void {
-  let title = this.PriorityScreeningSimulationName;
-  title = title.replace(".tsv", "");
-  const chart = (this.VisualiseChart.instance);
-  if (chart) {
-    let width2x = chart.element.offsetWidth * 2;
-    let height2x = chart.element.offsetHeight * 2;
-    console.log(width2x, height2x);
-    this.VisualiseChart.exportImage({height: height2x, width: width2x}).then((dataURI) => {
+  public exportChart(): void {
+    let title = this.PriorityScreeningSimulationName;
+    title = title.replace(".tsv", "");
+    this.VisualiseChart.exportImage().then((dataURI) => {
       saveAs(dataURI, title + '.png');
     });
   }
+  public exportChart2x(): void {
+    let title = this.PriorityScreeningSimulationName;
+    title = title.replace(".tsv", "");
+    const chart = (this.VisualiseChart.instance);
+    if (chart) {
+      let width2x = chart.element.offsetWidth * 2;
+      let height2x = chart.element.offsetHeight * 2;
+      console.log(width2x, height2x);
+      this.VisualiseChart.exportImage({ height: height2x, width: width2x }).then((dataURI) => {
+        saveAs(dataURI, title + '.png');
+      });
+    }
   }
-  public exportChartBuscar(magnified:boolean = false): void {
+  public exportChartBuscar(magnified: boolean = false): void {
     if (magnified == false) {
       let title = this.PriorityScreeningSimulationName.replace(".tsv", "") + "_Buscar";
       this.VisualiseChartBuscar.exportImage().then((dataURI) => {
@@ -473,41 +494,41 @@ public exportChart2x(): void {
     if (chart.instance) {
       let width2x = chart.instance.element.offsetWidth * 2;
       let height2x = chart.instance.element.offsetHeight * 2;
-      
+
       //console.log(width2x, height2x);
       chart.exportImage({ height: height2x, width: width2x }).then((dataURI) => {
         saveAs(dataURI, title + '.png');
       });
     }
   }
-  
 
-downloadData() {
-  if (this.PriorityScreeningSimulationText != null) {
-    const blob = new Blob([this.PriorityScreeningSimulationText], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', this.PriorityScreeningSimulationName);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+
+  downloadData() {
+    if (this.PriorityScreeningSimulationText != null) {
+      const blob = new Blob([this.PriorityScreeningSimulationText], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', this.PriorityScreeningSimulationName);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   }
-}
-downloadBuscarData() {
-  if (this.PriorityScreeningSimulationBuscar != null) {
-    const blob = new Blob([this.PriorityScreeningSimulationBuscar], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', this.PriorityScreeningSimulationName + "_Buscar.tsv");
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  downloadBuscarData() {
+    if (this.PriorityScreeningSimulationBuscar != null) {
+      const blob = new Blob([this.PriorityScreeningSimulationBuscar], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', this.PriorityScreeningSimulationName + "_Buscar.tsv");
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   }
-}
 
   public confirmDeleteSimulation(simulation: PriorityScreeningSimulation) {
     this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to delete this priority screening simulation?', false, '')

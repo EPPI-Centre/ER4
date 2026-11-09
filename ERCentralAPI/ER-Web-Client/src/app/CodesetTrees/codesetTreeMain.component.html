@@ -45,7 +45,7 @@
             @if (IsCollapsed(data)) {
               <span class="k-icon k-i-arrows-top-bottom text-primary" (click)="ExpandAllFromHere(data)" title="Expand this and all children"></span>
             } @else {
-              <span class="k-icon k-i-arrow-down-left text-primary " (click)="CollapseAllFromHere(data)"  title="Collapse this and all children"></span>
+              <kendo-icon name="undo" class="text-primary " flip="vertical" (click)="CollapseAllFromHere(data)"  title="Collapse this and all children"></kendo-icon>
             }
           </span>
         }
