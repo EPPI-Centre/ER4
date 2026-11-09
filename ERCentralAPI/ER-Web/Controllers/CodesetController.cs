@@ -70,7 +70,10 @@ namespace ERxWebClient2.Controllers
                         , data.setName
                         , data.setOrder
                         , data.setDescription
-                        , data.usersCanEditURLs);//i.e. no way to make sets accept URLs for codes in ERx, until we implement this...
+                        , data.userCanEditURLs
+                        , data.extURL
+                        , data.extType
+                        );//i.e. no way to make sets accept URLs for codes in ERx, until we implement this...
                     DataPortal<ReviewSetUpdateCommand> dp = new DataPortal<ReviewSetUpdateCommand>();
                     cmd = dp.Execute(cmd);
                     return Ok(data);//if no error, all should be OK.
@@ -143,6 +146,8 @@ namespace ERxWebClient2.Controllers
                     newCodeSet.SetName = data.setName;
                     newCodeSet.SetTypeId = data.setTypeId;
                     newCodeSet.SetDescription = data.setDescription;
+                    newCodeSet.ExtURL = data.extURL;
+                    newCodeSet.ExtType = data.extType;
                     DataPortal<ReadOnlySetTypeList> dp = new DataPortal<ReadOnlySetTypeList>();
                     ReadOnlySetTypeList res = dp.Fetch();
                     ReadOnlySetType rost = new ReadOnlySetType();
@@ -256,6 +261,8 @@ namespace ERxWebClient2.Controllers
                     newCode.ParentAttributeId = data.parentAttributeId;
                     newCode.SetId = data.setId;
                     newCode.IsExclusive = data.isExclusive;
+                    newCode.ExtURL = data.extURL;
+                    newCode.ExtType = data.extType;
                     newCode = newCode.Save();
                     return Ok(newCode);//will be used on client side!
                 }
@@ -487,7 +494,9 @@ namespace ERxWebClient2.Controllers
         public bool codingIsFinal;//normal or comparison mode
         public bool allowCodingEdits; //AllowCodingEdits can edit this codeset...
         public int setTypeId;
-        public bool usersCanEditURLs;
+        public bool userCanEditURLs;
+        public string extURL = "";
+        public string extType = "";
     }
     public class AttributeMoveCommandJSON
     {
@@ -545,6 +554,7 @@ namespace ERxWebClient2.Controllers
         public string extURL;
         public string extType;
         public Boolean isExclusive;
+
     }
     public class ReviewSetCopyCommandJSON
     {

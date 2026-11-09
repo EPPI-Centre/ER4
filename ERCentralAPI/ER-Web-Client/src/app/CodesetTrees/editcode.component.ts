@@ -130,6 +130,8 @@ export class EditCodeComp implements OnInit, OnDestroy {
     else if (this._UnchangedUpdatingCode.isExclusive != this._UpdatingCode.isExclusive) return true;
     else if (this._UnchangedUpdatingCode.attribute_set_desc.trim() != this._UpdatingCode.attribute_set_desc.trim()) return true;
     else if (this._UnchangedUpdatingCode.attribute_type != this._UpdatingCode.attribute_type) return true;
+    else if (this._UnchangedUpdatingCode.extURL != this._UpdatingCode.extURL) return true;
+    else if (this._UnchangedUpdatingCode.extType != this._UpdatingCode.extType) return true;
     else return false;
   }
 

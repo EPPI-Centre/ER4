@@ -127,7 +127,14 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
     else return this._reviewSetsService.selectedNode;
   }
   public get NewCode(): SetAttribute {
-    if (this._NewCode.attribute_type_id !== this.LastSelectedCodeTypeId) this.SetNewCodeTypeId();
+    if (this._NewCode.attribute_type_id !== this.LastSelectedCodeTypeId)
+      this.SetNewCodeTypeId();
+      if (this.CurrentNode != null && this.CurrentNode.nodeType == "ReviewSet"){
+      this._NewCode.userCanEditURLs = this.CurrentNode.userCanEditURLs;;
+      }
+    else if (this.CurrentNode != null && this.CurrentNode.nodeType == "SetAttribute"){
+      this._NewCode.userCanEditURLs = this.CurrentNode.userCanEditURLs;
+      }
     return this._NewCode;
   }
   public get AllowedChildTypesOfSelectedNode() {
@@ -153,6 +160,7 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
       }
       else if (this.CurrentNode.nodeType == "SetAttribute") {
         this._NewCode.set_id = (this.CurrentNode as SetAttribute).set_id;
+        this._NewCode.userCanEditURLs = (this.CurrentNode as SetAttribute).userCanEditURLs;
         this._NewCode.parent_attribute_id = (this.CurrentNode as SetAttribute).attribute_id;
       }
     }
@@ -171,6 +179,13 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
       this._NewCode.attribute_type_id = 1;//non selectable HARDCODED WARNING!
       this._NewCode.attribute_type = "Not selectable(no checkbox)";
     }
+
+    if (this.CurrentNode != null && this.CurrentNode.nodeType == "ReviewSet"){
+      this._NewCode.userCanEditURLs = this.CurrentNode.userCanEditURLs;;
+      }
+    else if (this.CurrentNode != null && this.CurrentNode.nodeType == "SetAttribute"){
+      this._NewCode.userCanEditURLs = this.CurrentNode.userCanEditURLs;
+      }
   }
   async CreateNewCodes() {
 

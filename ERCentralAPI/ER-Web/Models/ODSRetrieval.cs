@@ -21,6 +21,10 @@ using Azure;
 using NuGet.Common;
 using static Csla.Security.MembershipIdentity;
 using System.Buffers;
+using static BusinessLibrary.BusinessClasses.ImportJsonCommand;
+using static BusinessLibrary.BusinessClasses.MagMakesHelpers;
+
+
 
 
 
@@ -178,7 +182,15 @@ namespace BusinessLibrary.BusinessClasses
             get { return GetProperty(ItemsListProperty); }
             set { SetProperty(ItemsListProperty, value); }
         }
-        
+        public static readonly PropertyInfo<ReviewSetsList> ReviewSetsProperty = RegisterProperty<ReviewSetsList>(new PropertyInfo<ReviewSetsList>("ReviewSets", "ReviewSets"));
+        public ReviewSetsList ReviewSets
+        {
+            get { return ReadProperty(ReviewSetsProperty); }
+            set { LoadProperty(ReviewSetsProperty, value); }
+        }
+
+        public List<Enhancement> LinkedDataEnhancements { get; set; } = new List<Enhancement>();
+
 #if !SILVERLIGHT
         protected void DataPortal_Fetch(SingleCriteria<ODSRetrieval, string> criteria)
         {
@@ -189,6 +201,7 @@ namespace BusinessLibrary.BusinessClasses
             {
                 ItemsList = new IncomingItemsList();
             }
+
             UrlStr = criteria.Value;
             showStart = 1;
             showEnd = showStart + 19;
@@ -229,7 +242,43 @@ namespace BusinessLibrary.BusinessClasses
             if (toSave && ItemsList != null && ItemsList.IncomingItems.Count > 0)
             {
                 ItemsList.Saved += new EventHandler<SavedEventArgs>(ItemsList_Saved);
-                IncomingItemsList throwaway = ItemsList.Save();
+                IncomingItemsList newItems = ItemsList.Save();
+
+                // check if the records have any linked data enhancements
+                if (LinkedDataEnhancements.Count > 0)
+                {
+                    // First, we need to check if we have the right codesets
+                    if (CheckCodeSets)
+                    {
+                        ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                        foreach (Enhancement e in LinkedDataEnhancements)
+                        {
+                            if (e.content != null &&
+                                e.content.data != null &&
+                                e.content.data.hasInvestigation != null &&
+                                e.content.data.hasInvestigation.hasAppliedConcept != null &&
+                                e.content.data.hasInvestigation.hasAppliedConcept.Length > 0)
+                            {
+                                Int64 itemId = 0;
+                                itemId = Item.ItemIdFromOldItemId(e.reference_id);
+                                if (itemId > 0)
+                                {
+                                    foreach (string url in e.content.data.hasInvestigation.hasAppliedConcept)
+                                    {
+                                        SaveAttributeCode(url, ri.ReviewId, ri.UserId, itemId);
+                                    }
+                                }
+                            }
+                        }
+                        
+                    }
+                    else
+                    {
+                        // log here that we failed to find the codesets for some reason?
+                        return;
+                    }
+                    
+                }
             }
             else
             {
@@ -365,8 +414,6 @@ namespace BusinessLibrary.BusinessClasses
 
         private void FetchResults(ODSResponse? result)
         {
-            bool toSave = false;
-
             foreach(Reference reference in result.references)
             {
                 Enhancement biblioEnhancement = getEnhancement("bibliographic", reference);
@@ -391,9 +438,196 @@ namespace BusinessLibrary.BusinessClasses
                 tItem.AuthorsLi = getAuthors(biblioEnhancement);
                 tItem.Url = getURL(biblioEnhancement);
                 tItem.DOI = getDoi(reference);
+                tItem.Short_title = Item.SetShortTitle(getFirstAuthor(biblioEnhancement), tItem.Year);
                 tItem.SearchText = Item.ToShortSearchText(biblioEnhancement.content.title);
                 this.ItemsList.IncomingItems.Add(tItem);
+                AddEnhancements(reference);
             }
+        }
+        private void AddEnhancements(Reference reference)
+        {
+            if (reference.enhancements != null)
+            {
+                foreach (Enhancement enhancement in reference.enhancements)
+                {
+                    if (enhancement.content != null && enhancement.content.enhancement_type == "linked_data" &&
+                        enhancement.content.data != null && enhancement.content.data.hasInvestigation != null &&
+                        enhancement.content.vocabulary_uri != null)
+                    {
+                        LinkedDataEnhancements.Add(enhancement);
+                    }
+                }
+            }
+        }
+        private bool CheckCodeSets
+        {
+            get
+            {
+                // check if we have the right codesets for the linked data enhancements
+                // if not, we need to create them first
+
+                foreach (Enhancement e in LinkedDataEnhancements)
+                {
+                    // get the right codeset. We have to this per Enhancement as there might be multiple code sets to deal with
+                    bool foundIt = false;
+                    if (ReviewSets != null)
+                    {
+                        foreach (ReviewSet rs in ReviewSets)
+                        {
+
+                            if (rs.ExtURL == e.content.vocabulary_uri)
+                            {
+                                foundIt = true;
+                            }
+                        }
+                    }
+                    if (foundIt == false)
+                    {
+                        // we need to create /load up a new codeset for this linked data enhancement
+                        ReviewSet newRS = GetOrCreateReviewSet(e);
+                        if (newRS != null)
+                        {
+                            if (ReviewSets == null)
+                            {
+                                ReviewSets = new ReviewSetsList();
+                            }
+                            ReviewSets.Add(newRS);
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+        }
+        private ReviewSet GetOrCreateReviewSet(Enhancement e)
+        {
+            ReviewSet rs = ReviewSet.GetReviewSetFromExtURLAndReviewId(e.content.vocabulary_uri);
+            if (rs == null)
+            {
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                rs = ReviewSet.NewReviewSet();
+                rs.SetName = "Vocabulary from evidence repository";
+                rs.SetDescription = "This vocabulary is sourced from the evidence repository";
+                rs.UserCanEditURLs = false;
+                rs.CodingIsFinal = true;
+                rs.SetTypeId = 3;
+                rs.ReviewId = ri.ReviewId;
+                rs.SetOrder = -1; // i.e. the stored procedure will set the order to the next available number
+                rs.ExtURL = e.content.vocabulary_uri;
+                rs.ExtType = "Vocabulary from evidence repository";
+                rs = rs.Save();
+                AddAttributesToNewCodeSet(e.content.vocabulary_uri, rs);
+            }
+            return rs;
+        }
+
+        private bool AddAttributesToNewCodeSet(string uri, ReviewSet rs)
+        {
+            string vocab = FetchVocabulary(uri).GetAwaiter().GetResult();
+            var roots = SkosTreeBuilder.Build(vocab);
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+            SaveAttributes(roots, null, rs, ri);
+            ReviewSet.ReviewSetFromDBCommonPart(rs);
+            return true;
+        }
+        private void SaveAttributes(IEnumerable<VocabularyNode> nodes, AttributeSet? parent, ReviewSet rs, ReviewerIdentity ri)
+        {
+            int order = 1;
+            
+            foreach (var node in nodes)
+            {
+                AttributeSet a = new AttributeSet
+                {
+                    SetId = rs.SetId,
+                    ParentAttributeId = parent != null ? parent.AttributeId : 0,
+                    AttributeTypeId = node.IsConceptScheme ? 1 : 2,
+                    AttributeSetDescription = node.Definition != null ? node.Definition : "",
+                    AttributeOrder = order,
+                    AttributeName = node.Label,
+                    AttributeDescription = node.Definition != null ? node.Definition : "",
+                    ExtURL = node.Uri,
+                    ExtType = node.IsConceptScheme ? "Concept Scheme" : "Concept",
+                    IsExclusive = false, // I have no idea what an exclusive attribute is!
+                    ContactId = ri.UserId,
+                    OriginalAttributeID = 0,
+                    OldestKnownId = 0
+                };
+                
+                // Save item and obtain its new object.
+                a = a.Save();
+                if (parent == null)
+                {
+                    if (rs.Attributes == null)
+                    {
+                        rs.Attributes = new AttributeSetList();
+                    }
+                    rs.Attributes.Add(a);
+                }
+                else
+                {
+                    if (parent.Attributes == null)
+                    {
+                        parent.Attributes = new AttributeSetList();
+                    }
+                    parent.Attributes.Add(a);
+                }
+                order++;
+
+                // Every child is a direct child of this node.
+                SaveAttributes(node.Children, a, rs, ri);
+            }
+        }
+        private Int64 SaveAttributeCode(string extURL, int ReviewId, int ContactId, Int64 ItemId)
+        {
+            Int64 ItemAttributeId = 0;
+            AttributeSet aset = this.ReviewSets.GetAttributeSetFromExtURL(extURL);
+            if (aset != null)
+            {
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                {
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand("st_ItemAttributeInsert", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@CONTACT_ID", ContactId));
+                        command.Parameters.Add(new SqlParameter("@ADDITIONAL_TEXT", ""));
+                        command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", aset.AttributeId));
+                        command.Parameters.Add(new SqlParameter("@SET_ID", aset.SetId));
+                        command.Parameters.Add(new SqlParameter("@ITEM_ID", ItemId));
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                        command.Parameters.Add(new SqlParameter("@ITEM_ARM_ID", (object)DBNull.Value));
+                        command.Parameters.Add(new SqlParameter("@NEW_ITEM_ATTRIBUTE_ID", 0));
+                        command.Parameters["@NEW_ITEM_ATTRIBUTE_ID"].Direction = System.Data.ParameterDirection.Output;
+                        command.Parameters.Add(new SqlParameter("@NEW_ITEM_SET_ID", 0));
+                        command.Parameters["@NEW_ITEM_SET_ID"].Direction = System.Data.ParameterDirection.Output;
+                        command.ExecuteNonQuery();
+                        if (command.Parameters["@NEW_ITEM_ATTRIBUTE_ID"].Value != DBNull.Value)
+                        {
+                            ItemAttributeId = (Int64)command.Parameters["@NEW_ITEM_ATTRIBUTE_ID"].Value;
+                        }
+                        Int64 _itemSetId = (Int64)command.Parameters["@NEW_ITEM_SET_ID"].Value;
+                    }
+                    connection.Close();
+                }
+            }
+            return ItemAttributeId;
+        }
+        private async Task<string> FetchVocabulary(string uri)
+        {
+            using var http = new HttpClient();
+            var response = await http.GetAsync(uri);
+            var body = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                // but we could handle explicitly
+                throw new InvalidOperationException($"Evidence Repository get vocab call failed: {(int)response.StatusCode} {body}");
+            }
+            return body;
         }
 
         public class Identifier
@@ -418,7 +652,18 @@ namespace BusinessLibrary.BusinessClasses
             }
             return authors;
         }
-                
+        private string getFirstAuthor(Enhancement biblioEnhancement)
+        {
+            string? displayName = biblioEnhancement?.content?.authorship?
+                .FirstOrDefault()?
+                .display_name;
+
+            return string.IsNullOrWhiteSpace(displayName)
+                ? string.Empty
+                : displayName.Trim()
+                    .Split(' ', StringSplitOptions.RemoveEmptyEntries)[^1];
+        }
+
 
         private string getURL(Enhancement biblioEnhancement)
         {

@@ -74,7 +74,7 @@ namespace IntegrationTests.By_Controller_Tests
             public bool CodingIsFinal;//normal or comparison mode
             public bool AllowCodingEdits; //AllowCodingEdits can edit this codeset...
             public int SetTypeId;
-            public bool usersCanEditURLs;
+            public bool userCanEditURLs;
             */
 
             /* default values
@@ -87,7 +87,7 @@ namespace IntegrationTests.By_Controller_Tests
             rsc.CodingIsFinal = true;
             rsc.AllowCodingEdits = true;
             rsc.SetTypeId = 5; // screening tool
-            rsc.usersCanEditURLs = false;
+            rsc.userCanEditURLs = false;
             */
 
             var codesetName = "test 1";
@@ -321,7 +321,7 @@ namespace IntegrationTests.Fixtures
             newCT.codingIsFinal = codingIsFinal;
             newCT.allowCodingEdits = allowCodingEdits;
             newCT.setTypeId = setTypeId; 
-            newCT.usersCanEditURLs = false;
+            newCT.userCanEditURLs = false;
 
 
             JsonNode? res = await client.PostAndDeserialize("api/Codeset/ReviewSetCreate", newCT);

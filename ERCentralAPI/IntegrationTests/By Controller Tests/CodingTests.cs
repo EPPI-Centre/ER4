@@ -68,7 +68,7 @@ namespace IntegrationTests.By_Controller_Tests
             rsc.CodingIsFinal = true;
             rsc.AllowCodingEdits = true;
             rsc.SetTypeId = 5; // screening tool
-            rsc.usersCanEditURLs = false;
+            rsc.userCanEditURLs = false;
 
             JsonNode? resCT = await client.PostAndDeserialize("api/Codeset/ReviewSetCreate", rsc);
             resCT.Should().NotBeNull();

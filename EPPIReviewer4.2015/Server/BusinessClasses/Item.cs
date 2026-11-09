@@ -1260,7 +1260,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
-                SetShortTitle();
+                ShortTitle = SetShortTitle(Authors, Year);
                 connection.Open();
                 using (SqlCommand command = new SqlCommand("st_ItemCreate", connection))
                 {
@@ -1307,8 +1307,23 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        protected void SetShortTitle()
+        //protected void SetShortTitle()
+        //{
+        //    if (ShortTitle == "")
+        //    {
+        //        if (Authors == "")
+        //        {
+        //            ShortTitle = "Set short title";
+        //        }
+        //        else
+        //        {
+        //            ShortTitle = Authors.Substring(0, Authors.IndexOf(" ") > 1 ? Authors.IndexOf(" ") : Math.Min(Authors.Length, 10)) + " (" + Year + ")";
+        //        }
+        //    }
+        //}
+        public static string SetShortTitle(string Authors, string Year)
         {
+            string ShortTitle = "";
             if (ShortTitle == "")
             {
                 if (Authors == "")
@@ -1320,6 +1335,7 @@ namespace BusinessLibrary.BusinessClasses
                     ShortTitle = Authors.Substring(0, Authors.IndexOf(" ") > 1 ? Authors.IndexOf(" ") : Math.Min(Authors.Length, 10)) + " (" + Year + ")";
                 }
             }
+            return ShortTitle;
         }
 
         protected override void DataPortal_Update()
@@ -1327,7 +1343,7 @@ namespace BusinessLibrary.BusinessClasses
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-                SetShortTitle();
+                ShortTitle = SetShortTitle(Authors, Year);
                 using (SqlCommand command = new SqlCommand("st_ItemUpdate", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -1731,6 +1747,28 @@ namespace BusinessLibrary.BusinessClasses
         public void DeleteOldItemId()
         {
             LoadProperty<string>(OldItemIdProperty, "");
+        }
+
+        public static Int64 ItemIdFromOldItemId(string OldItemId)
+        {
+            Int64 returnValue = 0;
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_ItemIdFromOldItemId", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@OldItemId", OldItemId));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@ITEM_ID", returnValue));
+                    command.Parameters["@ITEM_ID"].Direction = System.Data.ParameterDirection.Output;
+                    command.ExecuteNonQuery();
+                    returnValue = (Int64)command.Parameters["@ITEM_ID"].Value;
+                }
+                connection.Close();
+            }
+            return returnValue;
         }
 #endif
 

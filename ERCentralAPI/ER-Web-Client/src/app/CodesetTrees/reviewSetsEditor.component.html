@@ -130,13 +130,13 @@
                 <div class="form-group">
                   <label for="Codeset_Type">Coding Tool Type*</label>
                   @if (SetTypes) {
-                    <select class="col-md-6 form-control" (change)="CodesetTypeChanged($event)" name="Codeset_Type">
-                      @for (type of SetTypes; track type) {
-                        <option [value]="type.setTypeId" [selected]="type.setTypeId == NewSetSelectedTypeId">
-                          {{type.setTypeName}}
-                        </option>
-                      }
-                    </select>
+                  <select class="col-md-6 form-control" (change)="CodesetTypeChanged($event)" name="Codeset_Type">
+                    @for (type of SetTypes; track type) {
+                    <option [value]="type.setTypeId" [selected]="type.setTypeId == NewSetSelectedTypeId">
+                      {{type.setTypeName}}
+                    </option>
+                    }
+                  </select>
                   }
                 </div>
               </div>
@@ -149,40 +149,71 @@
               <div class="form-group col-12">
                 <label for="source_Name">Coding Tool Name*</label>
                 <input type="text" class="form-control" id="SetName"
-                  [(ngModel)]="NewReviewSet.set_name" name="set_name"
-                  #name="ngModel">
-                  <span [hidden]="IsNewSetNameValid()"
-                    class="alert alert-danger small p-1">
-                    Name is required
-                  </span>
-                </div>
-                @if (NewSetTypeCanChangeDataEntryMode()) {
-                  <div class="col-6">
-                    Data Entry Mode:
-                    <input type="radio" [value]="true" name="NewSetDataEntryModeN" [(ngModel)]="NewReviewSet.codingIsFinal" class="ml-3"><b>&nbsp;Normal</b>
-                    <input type="radio" [value]="false" name="NewSetDataEntryModeN" [(ngModel)]="NewReviewSet.codingIsFinal" class="ml-3"><b>&nbsp;Comparison</b>
+                       [(ngModel)]="NewReviewSet.set_name" name="set_name"
+                       #name="ngModel">
+                <span [hidden]="IsNewSetNameValid()"
+                      class="alert alert-danger small p-1">
+                  Name is required
+                </span>
+              </div>
+              @if (NewSetTypeCanChangeDataEntryMode()) {
+              <div class="col-6">
+                Data Entry Mode:
+                <input type="radio" [value]="true" name="NewSetDataEntryModeN" [(ngModel)]="NewReviewSet.codingIsFinal" class="ml-3"><b>&nbsp;Normal</b>
+                <input type="radio" [value]="false" name="NewSetDataEntryModeN" [(ngModel)]="NewReviewSet.codingIsFinal" class="ml-3"><b>&nbsp;Comparison</b>
+              </div>
+              }
+              @if (!NewSetTypeCanChangeDataEntryMode()) {
+              <div class="col-12">
+                Data Entry Mode: <strong>Normal</strong>.
+              </div>
+              }
+              <div class="form-group col-12 mt-2">
+                <label for="newSetDescription">Description (optional)</label>
+                <textarea class="form-control" id="newSetDescription"
+                          [(ngModel)]="NewReviewSet.description" name="newSetDescription" rows="3"></textarea>
+              </div>
+              <div class="form-group col-12 mt-2">
+                <div class="col-12 small alert-info p-1 m-1">
+                  <div>
+                    <span style="position: relative; bottom: -4px;">Link codes to external vocabularies by adding URIs? &nbsp;</span>
+                    <span class="small brightSwitch">
+                      <kendo-switch name="CanEditExternalURLs" class="small small mt-1"
+                                    [(ngModel)]="NewReviewSet.userCanEditURLs"
+                                    [onLabel]="'No'"
+                                    [offLabel]="'Yes'"></kendo-switch>
+                    </span>
+                    <br /><br />
                   </div>
-                }
-                @if (!NewSetTypeCanChangeDataEntryMode()) {
-                  <div class="col-12">
-                    Data Entry Mode: <strong>Normal</strong>.
+                  @if (NewReviewSet.userCanEditURLs) {
+                  <div>
+                    External URL (optional)
+                    <input class="form-control"
+                           id="newSetExtURL"
+                           [(ngModel)]="NewReviewSet.extURL"
+                           name="newSetExtURL">
+                    External URL type (optional)
+                    <input class="form-control"
+                           id="newSetExtType"
+                           [(ngModel)]="NewReviewSet.extType"
+                           name="newSetExtType">
                   </div>
-                }
-                <div class="form-group col-12 mt-2">
-                  <label for="newSetDescription">Description (optional)</label>
-                  <textarea class="form-control" id="newSetDescription"
-                  [(ngModel)]="NewReviewSet.description" name="newSetDescription" rows="3"></textarea>
+                  }
                 </div>
-                <div class="col-12">
-                  <button type="submit" (click)="CreateNewCodeSet()" class="btn btn-success ml-2 mr-2" [disabled]="!NewCodesetFrom.dirty || !IsNewSetNameValid() || !CanWrite() ">
-                    Create
-                  </button>
-                  <button class="btn btn-outline-secondary ml-1" type="button"
-                    (click)="CancelActivity()" style="width:200px;">
-                    Cancel
-                  </button>
-                </div>
-              </form>
+              </div>
+
+
+              <div class="col-12">
+                <button type="submit" (click)="CreateNewCodeSet()" class="btn btn-success ml-2 mr-2" [disabled]="!NewCodesetFrom.dirty || !IsNewSetNameValid() || !CanWrite() ">
+                  Create
+                </button>
+                <button class="btn btn-outline-secondary ml-1" type="button"
+                        (click)="CancelActivity()" style="width:200px;">
+                  Cancel
+                </button>
+              </div>
+              
+            </form>
             </div>
           }
           @if (ActivityPanelName == 'EditCodeset' && CurrentNode != null) {
@@ -212,89 +243,126 @@
                   </div>
                 </div>
               }
-              <form class="row" #EditCodesetFrom="ngForm" (ngSubmit)="onSubmit()">
-                <div class="col-5">
-                  <div>Coding Tool Type: {{CurrentNode.subTypeName}}.</div>
-                  <div>
-                    <span style="position: relative; bottom: -4px;">Locked? &nbsp;</span> <span class="small brightSwitch">
-                    <kendo-switch name="CanEditSW" class="small small mt-1"
-                      [disabled]="!HasWriteRights"
-                      [(ngModel)]="CurrentNode.allowEditingCodeset"
-                      [onLabel]="'No'"
-                    [offLabel]="'Yes'"></kendo-switch>
-                  </span>
-                  <br />
-                </div>
-              </div>
-              <div class="form-group col-7 row">
-                <div>Coding Tool Name*</div>
-                @if (CurrentNodeAsReviewSet) {
-                  <input type="text" class="form-control" id="SetName"
-                    [disabled]="!CanEditSelectedNode"
-                    [(ngModel)]="CurrentNodeAsReviewSet.set_name" name="set_name"
-                    #name="ngModel">
-                }
-                <span [hidden]="IsEditingNodeNameValid()"
-                  class="alert alert-danger small p-1">
-                  Name is required
-                </span>
-              </div>
-              <div class="col-12">
-                <div class="row pl-3">
-                  <div class="mt-1">Data Entry Mode: {{CurrentCodesetDataEntryMode}}</div>
-                  @if (SetTypeCanChangeDataEntryMode()) {
-                    <button class="btn btn-outline-danger btn-sm ml-1 mb-1" type="button"
-                      [disabled]="!CanEditSelectedNode"
-                      (click)="ShowChangeDataEntryClicked()">
-                      Change
-                    </button>
-                  }
-                </div>
-                @if (ShowChangeDataEntry) {
-                  <div class="alert alert-danger">
-                    <div>{{ChangeDataEntryModeMessage}}</div>
-                    <button class="btn btn-outline-secondary btn-sm mb-1" (click)="HideChangeDataEntry()" type="button">Cancel</button>
-                    @if (CanChangeDataEntryMode) {
+                <form class="row" #EditCodesetFrom="ngForm" (ngSubmit)="onSubmit()">
+                  <div class="col-5">
+                    <div>Coding Tool Type: {{CurrentNode.subTypeName}}.</div>
+                    <div>
+                      <span style="position: relative; bottom: -4px;">Locked? &nbsp;</span> <span class="small brightSwitch">
+                        <kendo-switch name="CanEditSW" class="small small mt-1"
+                                      [disabled]="!HasWriteRights"
+                                      [(ngModel)]="CurrentNode.allowEditingCodeset"
+                                      [onLabel]="'No'"
+                                      [offLabel]="'Yes'"></kendo-switch>
+                      </span>
+                      <br />
+                    </div>
+                  </div>
+                  <div class="form-group col-7 row">
+                    <div>Coding Tool Name*</div>
+                    @if (CurrentNodeAsReviewSet) {
+                    <input type="text" class="form-control" id="SetName"
+                           [disabled]="!CanEditSelectedNode"
+                           [(ngModel)]="CurrentNodeAsReviewSet.set_name" name="set_name"
+                           #name="ngModel">
+                    }
+                    <span [hidden]="IsEditingNodeNameValid()"
+                          class="alert alert-danger small p-1">
+                      Name is required
+                    </span>
+                  </div>
+                  <div class="col-12">
+                    <div class="row pl-3">
+                      <div class="mt-1">Data Entry Mode: {{CurrentCodesetDataEntryMode}}</div>
+                      @if (SetTypeCanChangeDataEntryMode()) {
+                      <button class="btn btn-outline-danger btn-sm ml-1 mb-1" type="button"
+                              [disabled]="!CanEditSelectedNode"
+                              (click)="ShowChangeDataEntryClicked()">
+                        Change
+                      </button>
+                      }
+                    </div>
+                    @if (ShowChangeDataEntry) {
+                    <div class="alert alert-danger">
+                      <div>{{ChangeDataEntryModeMessage}}</div>
+                      <button class="btn btn-outline-secondary btn-sm mb-1" (click)="HideChangeDataEntry()" type="button">Cancel</button>
+                      @if (CanChangeDataEntryMode) {
                       <div class="alert alert-light">
                         Yes, change to
                         <button class="btn btn-outline-danger btn-sm ml-1 mr-1" type="button"
-                          [disabled]="!CanEditSelectedNode" (click)="DoChangeDataEntry()">
+                                [disabled]="!CanEditSelectedNode" (click)="DoChangeDataEntry()">
                           {{DestinationDataEntryMode}}
                         </button>
                         mode.
                       </div>
+                      }
+                    </div>
                     }
                   </div>
-                }
-              </div>
-              <div class="form-group col-12 mt-2">
-                <label for="newSetDescription">Description (optional)</label>
-                <textarea class="form-control" id="newSetDescription" [disabled]="!CanEditSelectedNode"
-                [(ngModel)]="CurrentNode.description" name="newSetDescription" rows="3"></textarea>
-              </div>
-              <div class="col-12">
-                <button type="submit" (click)="UpdateCodeSet()" class="btn btn-success ml-2 mr-2"
-                  [disabled]="!EditCodesetFrom.dirty || !IsEditingNodeNameValid()|| !CanWrite()">
-                  Save
-                </button>
-                <button class="btn btn-outline-secondary ml-1" type="button"
-                  (click)="CancelActivity(EditCodesetFrom.dirty)" style="width:200px;">
-                  Cancel
-                </button>
-                <button class="btn btn-outline-danger ml-3" (click)="ShowDeleteCodesetClicked()" type="button"
-                  [disabled]="!CanEditSelectedNode">
-                  <span class="k-icon k-i-trash"></span> Delete Coding Tool...
-                </button>
-                <button class="btn btn-outline-warning ml-3" (click)="CopyCodesetClicked()" type="button" [disabled]="!HasWriteRights">
-                  <span class="k-icon k-i-copy"></span> Create a copy
-                </button>
-              </div>
-              @if (CurrentReviewSetCanEditUrls) {
-                <div class="col-12 small alert-info p-1 m-1">
-                  This codeset is configured to allow linking codes to external ontologies/concepts. (Done by indicating their URL)
-                </div>
-              }
-            </form>
+                  <div class="form-group col-12 mt-2">
+                    <label for="newSetDescription">Description (optional)</label>
+                    <textarea class="form-control" id="newSetDescription" [disabled]="!CanEditSelectedNode"
+                              [(ngModel)]="CurrentNode.description" name="newSetDescription" rows="3"></textarea>
+                  </div>
+                  <div class="form-group col-12 mt-2">
+                    <div class="col-12 small p-1 m-1">
+                      @if (IsSiteAdmin) {
+                      <div>
+                        <span style="position: relative; bottom: -4px;">Allow users to link codes to external vocabularies by adding URIs? &nbsp;</span>
+                        <span class="small brightSwitch">
+                          <kendo-switch name="CanEditExternalURLs" class="small small mt-1"
+                                        [(ngModel)]="CurrentNode.userCanEditURLs"
+                                        [onLabel]="'No'"
+                                        [offLabel]="'Yes'"></kendo-switch>
+                        </span>
+                        <br /><br />
+                      </div>
+                      }
+                      @if (CurrentNode.userCanEditURLs) {
+                      <div>The codes in this tool can be connected with external vocabularies and other tools. Take care when editing!</div>
+                      <div>
+                        External URL for the whole tool (optional)
+                        <input class="form-control"
+                               id="newSetExtURL"
+                               [(ngModel)]="CurrentNode.extURL"
+                               name="newSetExtURL">
+                        External URL type (optional)
+                        <input class="form-control"
+                               id="newSetExtType"
+                               [(ngModel)]="CurrentNode.extType"
+                               name="newSetExtType">
+                      </div>
+                      }
+                    </div>
+                  </div>
+
+
+                  <div class="col-12">
+                    <button type="submit" (click)="UpdateCodeSet()" class="btn btn-success ml-2 mr-2"
+                            [disabled]="!EditCodesetFrom.dirty || !IsEditingNodeNameValid()|| !CanWrite()">
+                      Save
+                    </button>
+                    <button class="btn btn-outline-secondary ml-1" type="button"
+                            (click)="CancelActivity(EditCodesetFrom.dirty)" style="width:200px;">
+                      Cancel
+                    </button>
+                    <button class="btn btn-outline-danger ml-3" (click)="ShowDeleteCodesetClicked()" type="button"
+                            [disabled]="!CanEditSelectedNode">
+                      <span class="k-icon k-i-trash"></span> Delete Coding Tool...
+                    </button>
+                    <button class="btn btn-outline-warning ml-3" (click)="CopyCodesetClicked()" type="button" [disabled]="!HasWriteRights">
+                      <span class="k-icon k-i-copy"></span> Create a copy
+                    </button>
+                  </div>
+                  @if (CurrentNode.extURL != '') {
+                  <div class="col-12 mt-2 mb-1 alert-info">
+                    
+                    <div><b>This coding tool has been linked to an external vocabulary</b></div>
+                    <div>URL: {{CurrentNode.extURL}}</div>
+                    <div>Type: {{CurrentNode.extType}}</div>
+                  </div>
+                  }
+
+                </form>
           </div>
         }
         @if (ActivityPanelName == 'AddCode') {
