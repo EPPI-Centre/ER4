@@ -9,7 +9,7 @@
       <button (click)="SaveReportAsHtml(ComparisonReportHTML)" [disabled]="ComparisonReportHTML.length == 0"
         title="Save as Html (Supports opening in Word)"
         type="button" class="btn btn-sm btn-outline-primary mt-0 mb-1 mr-1">
-        <span class="k-icon k-i-save"></span>
+        <kendo-icon name="save"></kendo-icon>
       </button>
       <button (click)="LiveComparison()" class="btn btn btn-outline-secondary mt-0 mb-1 mx-1">Live Comparison</button>
       @if (!IsServiceBusy) {
@@ -78,7 +78,7 @@
             <button (click)="ViewSingleCodingReport(item, false)"
               title="Save as Html (Supports opening in Word)"
               type="button" class="btn btn-sm btn-outline-info ml-1">
-              <span class="k-icon k-i-save"></span>
+              <kendo-icon name="save"></kendo-icon>
             </button>
           </ng-template>
         </kendo-grid-column>

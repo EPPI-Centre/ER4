@@ -36,10 +36,10 @@
     <div class="containsAtoolbar">
       <kendo-toolbar>
         @if (SearchList.length < autoRefreshThreshold) {
-          <kendo-toolbar-button [title]="'Refresh List'" (click)="refreshSearches()" [disabled]="!HasWriteRights" [svgIcon]="refresh"></kendo-toolbar-button>
+          <kendo-toolbar-button [title]="'Refresh List'" (click)="refreshSearches()" [svgIcon]="refresh"></kendo-toolbar-button>
         }
         @if (SearchList.length >= autoRefreshThreshold) {
-          <kendo-toolbar-button [title]="'Refresh List (auto refresh is disabled)'" (click)="refreshSearches()" [disabled]="!HasWriteRights" [svgIcon]="refresh" iconClass="k-icon k-i-refresh text-primary"></kendo-toolbar-button>
+          <kendo-toolbar-button [title]="'Refresh List (auto refresh is disabled)'" (click)="refreshSearches()" [svgIcon]="refresh" className="text-primary"></kendo-toolbar-button>
         }
         <kendo-toolbar-button [text]="'New Search'" (click)="NewSearch()" [disabled]="!HasWriteRights" aria-controls="collapseExample" [selected]="NewSearchSection"></kendo-toolbar-button>
         <kendo-toolbar-button [title]="'Delete Selected'" (click)="openConfirmationDialogDeleteSearches()" [disabled]="!HasWriteRights || HasSelectedSearches == 0" [svgIcon]="deleteIcn"></kendo-toolbar-button>
@@ -422,7 +422,7 @@
                     <kendo-grid-column field="modelTitle" title="Title" [width]="360" class="px-1 py-0 m-1">
                       <ng-template kendoGridCellTemplate let-dataItem>
                         <div (click)="ModelNameEdit(dataItem.modelId, dataItem.modelTitle)" class="btn btn-sm btn-light">
-                          <span class="k-icon k-i-pencil"></span>
+                          <kendo-icon name="pencil"></kendo-icon>
                         </div>
                         {{dataItem.modelTitle}}
                       </ng-template>
@@ -649,13 +649,13 @@
           <ng-template kendoGridHeaderTemplate>
             @switch (HasSelectedSearches) {
               @case (0) {
-                <input type="checkbox" (click)="selectAllinPageClicked(0)" class="my-auto larger-checkbox" title="No search selected (in this page)" style="font-size: 2.5em; position:relative; top:2px;"/>
+                <input type="checkbox" (click)="selectAllinPageClicked(0)" class="mx-auto larger-checkbox" title="No search selected (in this page)" style="font-size: 2.5em; position: relative; top: -3px;"/>
               }
               @case (1) {
-                <input type="checkbox" (click)="selectAllinPageClicked(1)" checked class="my-auto larger-checkbox linear-fade" title="Some searches are selected (in this page)" style="font-size: 2.5em; position: relative; top:2px;"/>
+                <input type="checkbox" (click)="selectAllinPageClicked(1)" checked class="mx-auto larger-checkbox linear-fade" title="Some searches are selected (in this page)" style="font-size: 2.5em; position: relative; top: -3px;"/>
               }
               @default {
-                <input type="checkbox" checked (click)="selectAllinPageClicked(2)" class="my-auto larger-checkbox" title="All searches are selected (in this page)" style="font-size: 2.5em; position: relative; top:2px;"/>
+                <input type="checkbox" checked (click)="selectAllinPageClicked(2)" class="mx-auto larger-checkbox" title="All searches are selected (in this page)" style="font-size: 2.5em; position: relative; top: -3px;"/>
               }
             }
             <!--<input style="zoom: 1.2;" (click)="selectAllinPageClicked()"

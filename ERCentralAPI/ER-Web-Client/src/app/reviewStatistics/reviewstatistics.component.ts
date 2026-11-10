@@ -657,7 +657,8 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     let Msg = "<strong>Warning!</strong> You are about to delete coding in bulk. <br/>";
     Msg += "If you proceed, the coding done by <strong>" + this.selectedReviewer4BulkDelete.contactName + "</strong> on the \"<strong>" + this.selectedCodeSet.set_name + "</strong>\" tool will be deleted. <br />";
     Msg += "A total of <strong>" + this.BulkDeleteCodingCommand.totalItemsAffected + "</strong> items will be affected. <br />"
-    Msg += "<div class='row m-1 p-0'> <strong class='alert-danger p-1 rounded mx-auto'><span class='k-icon k-i-warning'></span>This cannot be undone!<span class='k-icon k-i-warning'></span></strong></div>";
+    Msg += "<div class='row m-1 p-0'> <strong class='alert-danger p-1 rounded mx-auto'>" +
+      "<kendo-icon class='k-i-warning-triangle k-icon-xs k-icon k-font-icon' name='warning-triangle'></kendo-icon>This cannot be undone!<kendo-icon class='k-i-warning-triangle k-icon-xs k-icon k-font-icon' name='warning-triangle'></kendo-icon></strong></div>";
     let ConfirmText = "";
     const rnd = Math.random();
     if (rnd < 0.33333) ConfirmText = "OK proceed";

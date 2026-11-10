@@ -50,7 +50,7 @@
           @for (member of FilteredContacts; track member; let i = $index) {
             <tr class="p-0">
               <td class="p-0 align-middle">
-                <button [disabled]="isCochraneReview" (click)="RemoveReviewer(member)" class="btn btn-outline-danger p-1 m-1" title="Remove from review"><span class="k-icon k-i-trash"></span></button>
+                <button [disabled]="isCochraneReview" (click)="RemoveReviewer(member)" class="btn btn-outline-danger p-1 m-1" title="Remove from review"><kendo-icon name="trash"></kendo-icon></button>
               </td>
               <td class="p-1 align-middle">{{member.contactName}}</td>
               <td class="p-1 align-middle">{{member.email}}</td>
@@ -70,7 +70,7 @@
               <!--<td style="width: 15%; padding-right:2px;padding-left:2px">
               <button class="btn btn-sm btn-outline-danger my-auto px-0 py-0"
                 (click)="RemoveRoleFromReviewer(member.role,member)" title="Remove role from reviewer">
-                <span class="k-icon k-i-trash k-color-error"></span>
+                <kendo-icon name="trash" class="k-color-error"></span>
               </button>
             </td>-->
           </tr>

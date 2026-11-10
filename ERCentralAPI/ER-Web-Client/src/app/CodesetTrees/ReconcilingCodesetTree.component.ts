@@ -485,14 +485,14 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
     return coding.filter(f => f.ArmID == armId);
   }
   public HtmlPathForReconcilingSetAttribute(sa: ReconcilingSetAttribute): string {
-    let res: string = "";
+    let res: string = ""
     if (this.reconcilingReviewSet) {
       let parents = this.reconcilingReviewSet.ParentsListByAttId(sa.attribute_id);
-      for (let i = parents.length - 1; i > -1; i--) {//parents come from immediate parent towards the root 
-        res += "<span class='k-icon k-i-arrow-right text-primary k-icon-24 '></span><span class='font-italic'>" + parents[i].attribute_name + "</span>";
+      for (let i = parents.length - 1; i > -1; i--) {//parents come from immediate parent towards the root
+        res += "<span name='arrow-right' class='k-i-arrow-right k-icon k-font-icon text-primary k-icon-24 k-icon-m'></span><span class='font-italic'>" + parents[i].attribute_name + "</span>";
       }
     }
-    res += "<span class='k-icon k-i-arrow-right text-primary k-icon-24'></span>" + sa.attribute_name;
+    res += "<span name='arrow-right' class='k-i-arrow-right k-icon k-font-icon text-primary k-icon-24 k-icon-m mr-1'></span>" + sa.attribute_name;
     return res;
   }
 
@@ -654,7 +654,8 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
       msg += "You will copy the coding for the <strong class='border border-success text-success px-1 mb-1 rounded d-inline-block'>" + rc.Name + (rc.ArmID == 0 ? "" : " (Arm: " + rc.ArmName + ")")
         + "</strong> code, to the coding of <strong class='border border-info text-info px-1 mb-1 rounded d-inline-block'>"
         + destName + "</strong>. <br />";
-      msg += "<div class='m-1 p-1 alert-danger rounded'><span class='k-icon k-i-warning mb-1'></span> This will (irreversibly) overwrite the coding (including Info box text) on the destination version (if any).</div>"
+      msg += "<div class='m-1 p-1 alert-danger rounded'><span name='warning-triangle' class='k-i-warning-triangle k-icon k-font-icon text-danger k-icon-m mb-1'></span>"
+        + " This will (irreversibly) overwrite the coding (including Info box text) on the destination version (if any).</div>"
       this.ConfirmationDialogService.confirm(title, msg, false, "", "Copy coding", "Cancel", "lg").then(
         (res: any) => { if (res == true) this.DoTheTransfer(destId, node, rc, from, false); }
       );
@@ -704,7 +705,7 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
       } else {
         msg += "This will <strong class='font-danger'>not merge the PDF coding</strong> (please tick \"Show PDF Coding?\" first, if you want to see and transfer PDF coding).<br />";
       }
-      msg += "<div class='m-1 p-1 alert-danger rounded'><span class='k-icon k-i-warning mb-1'></span> The info-box text will be appended to the existing info-box text in the destination coding.</div>"
+      msg += "<div class='m-1 p-1 alert-danger rounded'><span name='warning-triangle' class='k-i-warning-triangle k-icon k-font-icon text-danger k-icon-m mb-1'></span> The info-box text will be appended to the existing info-box text in the destination coding.</div>"
       this.ConfirmationDialogService.confirm(title, msg, false, "", "Merge coding", "Cancel", "lg").then(
         (res: any) => { if (res == true) this.DoTheTransfer(destId, node, rc, from, true); }
       );

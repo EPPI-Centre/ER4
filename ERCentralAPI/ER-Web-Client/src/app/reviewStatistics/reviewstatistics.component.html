@@ -91,7 +91,7 @@
           <div class="p-0 "
             style="border: 1px solid white; border-radius: 3px; float: right; cursor: pointer; position: relative; top: 15%; margin-left: 2px;"
             title="Advanced: bulk-delete" (click)="OpenBulkDeletePanel()">
-            <span class="k-icon k-i-trash alert-danger" size="xsmall" style="position: relative; top:-2px;"></span>
+            <kendo-icon name="trash" class="alert-danger" size="xsmall" style="position: relative; top:-2px;"></kendo-icon>
           </div>
           <div class="p-0 "
             style="border:1px solid white; border-radius: 3px; float:right; cursor:pointer; position:relative; top:15%; margin-left:2px;"
@@ -209,7 +209,7 @@
           <div>
             <h3>Advanced Bulk Delete</h3>
             This dialog allows you to <strong>delete</strong> coding in bulk, on a per-person, per coding tool basis.<br />
-            Please be aware that this operation <strong><span class="k-icon k-i-warning"></span> destroys data <span class="k-icon k-i-warning"></span></strong> in bulk so please use with care. <br />
+            Please be aware that this operation <strong><kendo-icon name="warning-triangle"></kendo-icon> destroys data <kendo-icon name="warning-triangle"></kendo-icon></strong> in bulk so please use with care. <br />
             If in doubt, please contact us at EPPISupport&#64;ucl.ac.uk.
           </div>
           <div>
@@ -465,12 +465,12 @@
             <button (click)="GetAndSaveCodingReport(item)" [disabled]="!CanGetAllCodingReport"
               title="Save as Html (Supports opening in Word)"
               type="button" class="btn btn-sm btn-outline-primary  ml-1 mr-1 py-0 my-1">
-              <span class="k-icon k-i-save"></span>
+              <kendo-icon name="save"></kendo-icon>
             </button>
             <button (click)="GetAndSaveJsonCodingReport(item)" [disabled]="!CanGetAllCodingReport"
               title="Save as Json (for data analysis)"
               type="button" class="btn btn-sm btn-outline-info  ml-1 mr-1 py-0 my-1">
-              <span class="k-icon k-i-data-json"></span> Json
+              <kendo-icon name="data-json"></kendo-icon> Json
             </button>
             <button (click)="flipShowAllCodingReportOptions()" class="btn btn-sm btn-outline-info  ml-1 mr-1 py-0 my-1">{{showAllCodingReportOptionsText}}</button>
           </div>
@@ -556,7 +556,7 @@
                         <button (click)="GetAndSaveXLSCodingReport(item)" [disabled]="!CanGetAllCodingReport"
                           title="Save as Excel"
                           type="button" class="btn btn-sm btn-outline-info  ml-1 mr-1 py-0 my-1">
-                          <span class="k-icon k-i-excel"></span> Excel
+                          <kendo-icon name="excel"></kendo-icon> Excel
                         </button>
                         <button (click)="flipShowAllCodingReportOptions()"
                           title="Close"

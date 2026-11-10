@@ -513,7 +513,7 @@
             <button (click)="SaveMatchedOutcomes()" [disabled]="MatchedOutcomesHTML.length == 0 && UnmatchedOutcomesHTML.length == 0"
               title="Save as Html (Supports opening in Word)"
               type="button" class="btn btn-sm btn-outline-primary py-0 px-1 my-auto mx-1">
-              <span class="k-icon k-i-save"></span>
+              <kendo-icon name="save"></kendo-icon>
             </button>
             <button class="btn btn-sm btn-outline-primary py-0 mx-1 my-auto" (click)="ShowMatchedOutcomesHelp = !ShowMatchedOutcomesHelp">
               <span style="font-weight: bold; color: blue;">?</span>
@@ -544,7 +544,7 @@
                 [disabled]="!ReconcilingItem.HasOutcomes"
                 title="Save Outcomes table..." type="button"
                 class="btn btn-sm btn-outline-primary py-0 px-1 my-1 ml-auto" style="position: absolute; right:12px;">
-                <span class="k-icon k-i-save"></span>
+                <kendo-icon name="save"></kendo-icon>
               </button>
               <br />
               <div [innerHTML]="OutcomeHTMLtable(ReconcilingItem.OutcomesReviewer1)"></div>

@@ -229,7 +229,7 @@
                       <kendo-toolbar-button [toggleable]="true" [text]="'Configurable reports'" (click)="reportsShowWhat = 'ReportsCfg'" [selected]="reportsShowWhat == 'ReportsCfg'">Configurable reports</kendo-toolbar-button>
 
                     </kendo-toolbar-buttongroup>
-                    <kendo-toolbar-button text="Run Reports" [iconClass]="RunReportsShow2 ? 'k-icon k-i-chevron-up ml-0 mr-0' : 'k-icon k-i-chevron-down ml-0 mr-0'"
+                    <kendo-toolbar-button text="Run Reports" class="ml-0 mr-0" [icon]="RunReportsShow2 ? 'chevron-up' : 'chevron-down'"
                     (click)="RunConfigurableReports2()" [selected]="RunReportsShow2"></kendo-toolbar-button>
                     @if (CanShowRobotInvestigate) {
                       <kendo-toolbar-button [text]="'Investigate'" (click)="GoToInvestigate()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
@@ -263,20 +263,20 @@
       </kendo-tabstrip>
       @if (!CodesAreCollapsed) {
         <button class="btn btn-success p-1 CodesBtn" style="min-width: 28px;" (click)="ShowHideCodes()">
-          <div class="CodesBtnContent row mx-0">
-            <div class="k-icon k-i-arrow-right" style="margin-left:2px;"></div>
-            Codes
-            <div class="k-icon k-i-arrow-right" style="margin-left:2px;"></div>
-          </div>
+            <div class="CodesBtnContent row mx-0">
+                <kendo-icon name="arrow-right" style="margin-left:2px;"></kendo-icon>
+                Codes
+                <kendo-icon name="arrow-right" style="margin-left:2px;"></kendo-icon>
+            </div>
         </button>
       }
       @if (CodesAreCollapsed) {
         <button class="btn btn-success p-1 CodesBtn" style="min-width: 28px;" (click)="ShowHideCodes()">
-          <div class="CodesBtnContent row mx-0">
-            <div class="k-icon k-i-arrow-left" style="margin-left:2px;"></div>
-            Codes
-            <div class="k-icon k-i-arrow-left" style="margin-left:2px;"></div>
-          </div>
+            <div class="CodesBtnContent row mx-0">
+                <kendo-icon name="arrow-left" style="margin-left:2px;"></kendo-icon>
+                Codes
+                <kendo-icon name="arrow-left" style="margin-left:2px;"></kendo-icon>
+            </div>
         </button>
       }
     </kendo-splitter-pane>

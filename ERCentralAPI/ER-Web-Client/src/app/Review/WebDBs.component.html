@@ -910,10 +910,10 @@
                                 <span>
                                   <button class="btn btn-sm btn-outline-danger px-1 pt-0 my-auto ml-auto mr-1" title="Delete Map" [disabled]="EditingSomething" (click)="DeleteMap(map)"><kendo-icon name="trash"></kendo-icon></button>
                                   <button class="btn mr-1 my-auto py-1 px-3 btn-sm btn-outline-success" [disabled]="EditingSomething" (click)="EditMap(map)">Edit</button>
-                                  <button title="Move map up" class="btn btn-sm btn-outline-primary px-1 pt-0 my-auto ml-auto mr-1" [disabled]="EditingSomething || MapCanMoveUp(map) == false" (click)="MoveUp(map)"><span class="k-icon k-i-arrow-up "></span></button>
-                                  <button title="Move map down" class="btn btn-sm btn-outline-primary px-1 pt-0 my-auto ml-auto mr-1" [disabled]="EditingSomething || MapCanMoveDown(map) == false" (click)="MoveDown(map)"><span class="k-icon k-i-arrow-down "></span></button>
-                                </span>
-                              </td>
+                                  <button title="Move map up" class="btn btn-sm btn-outline-primary px-1 pt-0 my-auto ml-auto mr-1" [disabled]="EditingSomething || MapCanMoveUp(map) == false" (click)="MoveUp(map)"><kendo-icon name="arrow-up"></kendo-icon></button>
+                                  <button title="Move map down" class="btn btn-sm btn-outline-primary px-1 pt-0 my-auto ml-auto mr-1" [disabled]="EditingSomething || MapCanMoveDown(map) == false" (click)="MoveDown(map)"><kendo-icon name="arrow-down"></kendo-icon></button>
+                                  </span>
+</td>
                             </tr>
                           </table>
                         </div>
@@ -926,7 +926,7 @@
                         <div class="row col-12 p-1 mx-0 ">
                           <div class="col row m-1 p-0 border border-info rounded" style="vertical-align:top">
                             <div class="col-12 pr-0 pl-1 font-weight-bold">
-                              <span class="k-icon k-i-table-column-insert-left k-color-info"></span>&nbsp;Columns:
+                              <kendo-icon name="table-column-insert-left" class="k-color-info"></kendo-icon>&nbsp;Columns:
                             </div>
                             <div class="rounded col w-100" [ngClass]="{'font-weight-bold alert-danger' : map.columnsAttributeID == -1}">
                               @if (map.columnsAttributeID == -1) {
@@ -938,7 +938,7 @@
                           </div>
                           <div class="col row m-1 p-0 border border-info rounded" style="vertical-align:top">
                             <div class="col-12 pr-0 pl-1 font-weight-bold">
-                              <span class="k-icon k-i-table-row-insert-above k-color-info"></span>&nbsp;Rows:
+                              <kendo-icon name="table-row-insert-above" class="k-color-info"></kendo-icon>&nbsp;Rows:
                             </div>
                             <div class="rounded col w-100" [ngClass]="{'font-weight-bold alert-danger' : map.rowsAttributeID == -1}">
                               @if (map.rowsAttributeID == -1) {
@@ -950,7 +950,7 @@
                           </div>
                           <div class="col row m-1 p-0 border border-info rounded" style="vertical-align:top">
                             <div class="col-12 pr-0 pl-1 font-weight-bold">
-                              <span class="k-icon k-i-chart-bubble k-color-success"></span>&nbsp;Segments:
+                              <kendo-icon name="chart-bubble" class="k-color-success"></kendo-icon>&nbsp;Segments:
                             </div>
                             <div class="rounded col w-100" [ngClass]="{'font-weight-bold alert-danger' : map.segmentsAttributeID == -1}">
                               @if (map.segmentsAttributeID == -1) {

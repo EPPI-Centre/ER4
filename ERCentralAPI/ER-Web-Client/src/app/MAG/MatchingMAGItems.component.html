@@ -234,12 +234,12 @@
                 </button>
                 <button class="btn btn-outline-primary btn-sm m-1"
                   (click)="SaveReport()">
-                  <span class="k-icon k-i-save"></span> HTML
+                  <kendo-icon name="save"></kendo-icon> HTML
                 </button>
                 <button class="btn btn-outline-primary btn-sm m-1"
                   [disabled]="!CanGetCodeMatches() || MustMatchItems"
                   (click)="SaveReportToExcel()">
-                  <span class="k-icon k-i-save"></span> Excel
+                  <kendo-icon name="save"></kendo-icon> Excel
                 </button>
               </div>
             }
@@ -309,7 +309,7 @@
                   <td>
                     <button [disabled]="!CanGetTopics()"
                       (click)="UpdateTopicResults('new')" class="btn btn-primary btn-sm text-white">
-                      <span class="k-icon k-i-search"></span>
+                      <kendo-icon name="search"></kendo-icon>
                     </button>
                   </td>
                 </tr>
@@ -321,12 +321,12 @@
                   Page {{SearchTextTopicResultsPageNumber}} of {{SearchTextTopicResultsTotalPages}}&nbsp;
                   <button [disabled]="SearchTextTopicResultsPageNumber == 1"
                     (click)="UpdateTopicResultsPrevious('step')" class="btn btn-primary btn-sm text-white">
-                    <span class="k-icon k-i-chevron-left"></span>
+                    <kendo-icon name="chevron-left"></kendo-icon>
                   </button>
                   &nbsp;
                   <button [disabled]="SearchTextTopicResultsPageNumber == SearchTextTopicResultsTotalPages"
                     (click)="UpdateTopicResultsNext('step')" class="btn btn-primary btn-sm text-white">
-                    <span class="k-icon k-i-chevron-right"></span>
+                    <kendo-icon name="chevron-right"></kendo-icon>
                   </button>
                 </div>
               }

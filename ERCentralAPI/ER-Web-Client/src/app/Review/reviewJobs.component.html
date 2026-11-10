@@ -7,7 +7,7 @@
   </div>
   <div class="justify-self-end col-auto px-0 d-flex">
     <button class="btn btn-sm btn-outline-success mx-1 align-self-end mt-auto mb-0 py-0 px-1 float-right" (click)="Refresh()">
-      <span class="k-icon k-i-arrows-clockwise" style="font-weight:bold"></span>
+      <kendo-icon name="arrows-clockwise" style="font-weight:bold"></kendo-icon>
     </button>
   </div>
 </div>
@@ -84,10 +84,10 @@
           <div class="m-0 p-0 small k-pager-info">{{skipo+1}}-{{skipo+pageSizep > totalN ? totalN : skipo+pageSizep }} (of {{totalN}})</div>
         }
         <button class="btn btn-sm btn-outline-primary my-auto py-0 px-1 mr-1" (click)="AllToExcel()" title="Export All Data to Excel">
-          Export (all) <i class="k-icon k-i-excel my-1"></i>
+          Export (all) <kendo-icon name="file-excel" class="my-1"></kendo-icon>
         </button>
         <button class="btn btn-sm btn-outline-primary my-auto py-0 px-1 mr-1" (click)="PageToExcel()" title="Export to Excel">
-          Export (page/view)<i class="k-icon k-i-excel my-1"></i>
+          Export (page/view)<kendo-icon name="file-excel" class="my-1"></kendo-icon>
         </button>
         <kendo-pager-page-sizes [pageSizes]="pageSizes"></kendo-pager-page-sizes>
       </div>

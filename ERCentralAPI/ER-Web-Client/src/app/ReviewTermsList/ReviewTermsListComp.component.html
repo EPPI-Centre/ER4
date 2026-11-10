@@ -7,7 +7,7 @@
             <td colspan="4">
               <button (click)="OpenRowPanel()" [disabled]="!HasWriteRights"
                 class="btn btn-sm btn-outline-primary">
-                <span class="k-icon k-i-plus k-color-info"></span>
+                <kendo-icon name="plus" class="k-color-info"></kendo-icon>
                 New term
               </button>
             </td>
@@ -31,12 +31,12 @@
             <td>
               <button [disabled]="!HasWriteRights || newReviewTerm.trim() == ''" title="Save new term"
                 class="btn btn-sm btn-outline-primary" (click)="InsertNewRow()">
-                <span class="k-icon k-i-save"></span>
+                <kendo-icon name="save"></kendo-icon>
               </button>
             </td>
             <td>
               <button class="btn btn-sm btn-outline-danger" title="Cancel" (click)="OpenRowPanel()">
-                <span class="k-icon k-i-x"></span>
+                <kendo-icon name="x"></kendo-icon>
               </button>
             </td>
           </tr>
@@ -54,14 +54,14 @@
                 <button [disabled]="!HasWriteRights" [hidden]="!term.CanSave" title="Save Changes"
                   class="btn btn-sm btn-outline-primary"
                   (click)="SaveChanges()">
-                  <span class="k-icon k-i-save"></span>
+                  <kendo-icon name="save"></kendo-icon>
                 </button>
               </td>
               <td>
                 <button [disabled]="!HasWriteRights" title="Delete"
                   class="btn btn-sm btn-outline-danger"
                   (click)="Remove(term)">
-                  <span class="k-icon k-i-trash"></span>
+                  <kendo-icon name="trash"></kendo-icon>
                 </button>
               </td>
             </tr>
