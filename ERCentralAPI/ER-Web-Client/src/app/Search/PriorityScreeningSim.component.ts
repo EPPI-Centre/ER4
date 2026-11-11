@@ -140,7 +140,7 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
     const dataframe = this.PriorityScreeningSimulationText;
 
     if (this.PriorityScreeningSimulationText != null) {
-      this.ngZone.run((() => setTimeout(() => { this.GraphIsBusy = true; }, 5)));
+      //this.ngZone.run((() => setTimeout(() => { this.GraphIsBusy = true; }, 5)));
       //this.GraphIsBusy = true;
       // clear out previous runs
       if (redrawGraph) {
@@ -257,30 +257,10 @@ export class PriorityScreeningSim implements OnInit, OnDestroy {
       this.workloadReductionPercentStats = "Mean simulated workload reduction percent: " + String(Math.round(100 - (meanNScreened / this.simulationDataItemCount * 100))) +
         "% (" + String(Math.round(100 - (ciUpper / this.simulationDataItemCount * 100))) + ", " + String(Math.round(100 -
           (ciLower / this.simulationDataItemCount * 100))) + ")";
-      this.deferRedraw()
-    }
-  }
-  public GraphIsBusy: boolean = false;
-  async deferRedraw() {
-    let counter = 0;
-    let maxcount = 200;
-    let mincount = 20;
-    let renderingDone: boolean = false;
-    while (counter < maxcount && renderingDone == false) {
-      await Helpers.Sleep(50);
-      counter++;
-      console.log("deferRedraw: " + counter.toString());
-      if (counter > mincount && this.VisualiseChart && this.VisualiseChart.instance) renderingDone = true;
-    }
-    this.GraphIsBusy = false;
-    if (this.VisualiseChart && this.VisualiseChart.instance) {
-      this.ngZone.run((() => setTimeout(() => {  this.VisualiseChart.instance.redraw("Pane$1"); }, 100)));
       
     }
-    else {
-      console.log("deferRedraw gave up - resize your window to see the chart!");
-    }
   }
+  
   public scatterData: Array<[number, number]> = [];
   public heatMapData: Array<[string, string, number]> = [];
   public heatMapSeriesData: Array<{ x: string; y: string; value: number }> = [];

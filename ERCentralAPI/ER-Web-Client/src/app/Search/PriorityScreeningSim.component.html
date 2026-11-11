@@ -97,13 +97,9 @@
                   </td>
                   <td class="" style="min-width: 65px; max-width: 65px; text-align:right">
                     <button class="btn btn-sm btn-danger" title="Delete this simulation" (click)="confirmDeleteSimulation(item)">
-                      <span class="k-icon k-i-trash" size="small" style="position: relative; top:-2px;"></span>
+                      <kendo-icon name="trash" size="small" style="position: relative; top:-2px;"></kendo-icon>
                     </button>
-                    <!--<div class="p-0 "
-        style="border: 1px solid white; border-radius: 3px; float: right; cursor: pointer; position: relative; top: 15%; margin-left: 2px;"
-        title="Delete this simulation" (click)="confirmDeleteSimulation(item)">
-        <span class="k-icon k-i-trash alert-danger" size="small" style="position: relative; top:-2px;"></span>
-      </div>-->
+                    
                   </td>
                 </tr>
                 }
@@ -120,13 +116,6 @@
     <div class="col-12 col-md-6 mx-0 px-1 mb-1">
       <div class="container-fluid mt-1 bg-light border border-primary rounded m-0 p-1">
         <div>
-          @if (GraphIsBusy) {
-          <div class="mx-2 mt-1 pl-1 " style="display:inline-block;position:relative; top:0.10em;">
-            <fa-icon [icon]="faSpinner" [spin]="true" class="text-success mt-1 "></fa-icon>
-          </div>
-          }
-
-
           <figure class="figure col-12">
             @if (simulationDataContainer && simulationDataContainer.length > 0 ) {
             <kendo-chart #VisualiseChart style="min-height:400px; height:52vh;">

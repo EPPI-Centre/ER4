@@ -122,7 +122,7 @@
                   Leave the "new" password fields blank to keep your existing password.<br />
                   @if (oldPassword.length !=0 || newPassword.length !=0 || confirmNewPassword.length !=0 ) {
                     <button (click)="ShowPasswords = !ShowPasswords" class="btn btn-sm btn-primary">
-                      <span class="k-icon k-i-eye"></span> Show passwords
+                      <kendo-icon name="eye"></kendo-icon> Show passwords
                     </button>
                   }
                   <br />

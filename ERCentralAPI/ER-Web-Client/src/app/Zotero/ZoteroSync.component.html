@@ -102,7 +102,7 @@
             } @else {
               <span class="my-auto mx-1">(All)</span>
             }
-            <span class="k-icon k-i-arrow-right k-color-info k-icon-md"></span>
+              <kendo-icon name="arrow-right" class="k-color-info k-icon-md"></kendo-icon>
           </button>
         }
       </div>
@@ -126,17 +126,17 @@
             @if (TotPages1 > 1) {
               <div>
                 <button class="btn py-0 px-1 border-primary border" (click)="FirstPage1()" [disabled]="!CanPageDown1">
-                  <span class="mb-1  k-icon k-i-seek-w" aria-label="Go to the previous page"></span>
+                    <kendo-icon name="caret-alt-to-left" class="mb-1 text-primary" aria-label="Go to the first page"></kendo-icon>
                 </button>
                 <button class="btn py-0 px-1 border-primary border" (click)="PageDown1()" [disabled]="!CanPageDown1">
-                  <span class="mb-1 k-icon k-i-arrow-w" aria-label="Go to the previous page"></span>
+                    <kendo-icon name="caret-alt-left" class="mb-1 text-primary" aria-label="Go to the previous page"></kendo-icon>
                 </button>
                 Page: {{CurrentPage1}} of {{TotPages1}}
                 <button class="btn py-0 px-1 border-primary border" (click)="PageUp1()" [disabled]="!CanPageUp1">
-                  <span class="mb-1 k-icon k-i-arrow-e" aria-label="Go to the next page"></span>
+                    <kendo-icon name="caret-alt-right" class="mb-1 text-primary" aria-label="Go to the next page"></kendo-icon>
                 </button>
                 <button class="btn py-0 px-1 border-primary border" (click)="LastPage1()" [disabled]="!CanPageUp1">
-                  <span class="mb-1  k-icon k-i-seek-e" aria-label="Go to the next page"></span>
+                    <kendo-icon name="caret-alt-to-right" class="mb-1 text-primary" aria-label="Go to the last page"></kendo-icon>
                 </button>
               </div>
             }
@@ -240,10 +240,10 @@
                         Doc(s)
                         @switch (object.HasPdfToPush) {
                           @case (true) {
-                            <div class="k-icon k-i-arrow-right k-color-info" title="Contains documents that can be pushed"></div>
+                            <kendo-icon name="arrow-right" class="k-color-info" title="Contains documents that can be pushed"></kendo-icon>
                           }
                           @case (false) {
-                            <div class="k-icon k-i-success k-color-info mb-1" title="Documents are Up to Date"></div>
+                            <kendo-icon name="check-circle" class="k-color-info mb-1" title="Documents are Up to Date"></kendo-icon>
                           }
                           @default {
                             <div>Uh??</div>
@@ -258,13 +258,13 @@
                         <div class="">N/A</div>
                       }
                       @case (1) {
-                        <div class="k-icon k-i-success k-color-success mb-1" title="Reference is Up to Date"></div>
+                        <kendo-icon name="check-circle" class="k-color-success mb-1" title="Reference is Up to Date"></kendo-icon>
                       }
                       @case (2) {
-                        <div class="k-icon k-i-arrow-right k-color-info" title="Reference can be pushed"></div>
+                        <kendo-icon name="arrow-right" class="k-color-info" title="Reference can be pushed"></kendo-icon>
                       }
                       @case (3) {
-                        <div class="k-icon k-i-arrow-left k-color-info" title="Reference can be pulled"></div>
+                        <kendo-icon name="arrow-left" class="k-color-info" title="Reference can be pulled"></kendo-icon>
                       }
                     }
                   </td>
@@ -294,7 +294,7 @@
           @if (!IsServiceBusy) {
             <button class="btn btn-success my-auto ml-1 mr-auto px-1 py-0" [disabled]="ItemsToPullCount <1 || HasWriteRights == false"
               (click)="PullConfirmZoteroItems()">
-              <span class="k-icon k-i-arrow-left k-color-info k-icon-md"></span>
+              <kendo-icon name="arrow-left" class="k-color-info k-icon-md"></kendo-icon>
               <span class="my-auto mx-1">Pull</span>
               @if (HasSelections2) {
                 <span class="my-auto mx-1">(sel: {{SelectedList2.length}})</span>
@@ -308,7 +308,7 @@
           </div>
 
           <button class="btn btn-sm btn-outline-success mx-1 my-auto pb-1 px-1 " (click)="RefreshBothTables()" title="Refresh list of Zotero references">
-            <span class="k-icon k-i-refresh-sm" style="font-weight:bold"></span>
+              <kendo-icon name="arrows-rotate" style="font-weight:bold"></kendo-icon>
           </button>
         </div>
 
@@ -336,21 +336,21 @@
                 </select>
               </div>
               @if (TotPages2 > 1) {
-                <div>
-                  <button class="btn py-0 px-1 border-primary border" (click)="FirstPage2()" [disabled]="!CanPageDown2">
-                    <span class="mb-1  k-icon k-i-seek-w" aria-label="Go to the previous page"></span>
+              <div>
+                  <button class="btn py-0 px-1 border-primary border" (click)="FirstPage2()" [disabled]="!CanPageDown1">
+                      <kendo-icon name="caret-alt-to-left" class="mb-1 text-primary" aria-label="Go to the first page"></kendo-icon>
                   </button>
-                  <button class="btn py-0 px-1 border-primary border" (click)="PageDown2()" [disabled]="!CanPageDown2">
-                    <span class="mb-1 k-icon k-i-arrow-w" aria-label="Go to the previous page"></span>
+                  <button class="btn py-0 px-1 border-primary border" (click)="PageDown2()" [disabled]="!CanPageDown1">
+                      <kendo-icon name="caret-alt-left" class="mb-1 text-primary" aria-label="Go to the previous page"></kendo-icon>
                   </button>
                   Page: {{CurrentPage2}} of {{TotPages2}}
-                  <button class="btn py-0 px-1 border-primary border" (click)="PageUp2()" [disabled]="!CanPageUp2">
-                    <span class="mb-1 k-icon k-i-arrow-e" aria-label="Go to the next page"></span>
+                  <button class="btn py-0 px-1 border-primary border" (click)="PageUp2()" [disabled]="!CanPageUp1">
+                      <kendo-icon name="caret-alt-right" class="mb-1 text-primary" aria-label="Go to the next page"></kendo-icon>
                   </button>
-                  <button class="btn py-0 px-1 border-primary border" (click)="LastPage2()" [disabled]="!CanPageUp2">
-                    <span class="mb-1  k-icon k-i-seek-e" aria-label="Go to the next page"></span>
+                  <button class="btn py-0 px-1 border-primary border" (click)="LastPage2()" [disabled]="!CanPageUp1">
+                      <kendo-icon name="caret-alt-to-right" class="mb-1 text-primary" aria-label="Go to the last page"></kendo-icon>
                   </button>
-                </div>
+              </div>
               }
               <button class="btn-sm btn btn-outline-primary py-0" (click)="ShowMore2 = !ShowMore2">{{ShowMore2txt}}</button>
             </div>
@@ -438,13 +438,13 @@
                           <div class="">N/A</div>
                         }
                         @case (1) {
-                          <div class="k-icon k-i-success k-color-success mb-1" title="Reference is Up to Date"></div>
+                          <kendo-icon name="check-circle" class="k-color-success mb-1" title="Reference is Up to Date"></kendo-icon>
                         }
                         @case (2) {
-                          <div class="k-icon k-i-arrow-right k-color-info" title="Reference can be pushed"></div>
+                          <kendo-icon name="arrow-right" class="k-color-info" title="Reference can be pushed"></kendo-icon>
                         }
                         @case (3) {
-                          <div class="k-icon k-i-arrow-left k-color-info" title="Reference can be pulled"></div>
+                          <kendo-icon name="arrow-left" class="k-color-info" title="Reference can be pulled"></kendo-icon>
                         }
                       }
                     </td>
@@ -458,13 +458,13 @@
                         <div class="bg-success">
                           @switch (object.HasAttachmentsToPull) {
                             @case (true) {
-                              <div class="k-icon k-i-arrow-left k-color-info ml-1" title="Contains documents that can be pulled"></div>
+                            <kendo-icon name="arrow-left" class="k-color-info ml-1" title="Contains documents that can be pulled"></kendo-icon>
                             }
                             @case (false) {
-                              <div class="k-icon k-i-success k-color-info mb-1 ml-1" title="Documents are Up to Date"></div>
+                            <kendo-icon name="check-circle" class="k-color-info mb-1 ml-1" title="Documents are Up to Date"></kendo-icon>
                             }
                             @default {
-                              <div>?</div>
+                              <kendo-icon name="question-circle" class="k-color-error ml-1"></kendo-icon>
                             }
                           }
                           Doc(s)

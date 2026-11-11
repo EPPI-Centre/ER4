@@ -32,7 +32,7 @@
                       <div class="my-auto">{{EditingReport.name}}</div>&nbsp;&nbsp;
                       <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 ml-1" (click)="UpdatingReportName = true" title="Edit Report Name"
                         [disabled]="!HasWriteRights">
-                        Edit&nbsp;<span class="k-icon k-i-pencil k-color-success"></span>
+                        Edit&nbsp;<kendo-icon name="pencil" class="k-color-success"></kendo-icon>
                       </button>
                     </div>
                   </div>
@@ -92,24 +92,24 @@
                           <div class="row mx-0 px-0 alert-info " style="min-width:195px;">
                             <button class="btn btn-sm btn-outline-success mx-0 my-auto px-1 py-0" (click)="EditColumn(col)" title="Edit column content"
                               [disabled]="!HasWriteRights">
-                              <span class="k-icon k-i-pencil k-color-success"></span>
+                              <kendo-icon name="pencil" class="k-color-success"></kendo-icon>
                             </button>
                             <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="AddCodeToColumn(col, selectedNode)" title="Add selected code to column"
                               [disabled]="!CanAddNodeToColumn(col, selectedNode) || !HasWriteRights">
-                              <span class="k-icon k-i-plus k-color-success"></span>
+                              <kendo-icon name="plus" class="k-color-success"></kendo-icon>
                             </button>
                             <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="MoveColumnLeft(EditingReport, col)" title="Move column to the left"
                               [disabled]="col.columnOrder == 0 || !HasWriteRights">
-                              <span class="k-icon k-i-arrow-left k-color-success"></span>
+                              <kendo-icon name="arrow-left" class="k-color-success"></kendo-icon>
                             </button>
                             <button class="btn btn-sm btn-outline-success my-auto mr-auto ml-0 px-1 py-0" (click)="MoveColumnRight(EditingReport, col)" title="Move column to the right"
                               [disabled]="col.columnOrder >= EditingReport.columns.length-1 || !HasWriteRights">
-                              <span class="k-icon k-i-arrow-right k-color-success"></span>
+                              <kendo-icon name="arrow-right" class="k-color-success"></kendo-icon>
                             </button>
                             Col {{col.columnOrder + 1}}
                             <button class="btn btn-sm btn-outline-danger my-auto ml-1 px-1 py-0" (click)="DeleteColumn(col, EditingReport)" title="Delete column from report"
                               [disabled]="!HasWriteRights">
-                              <span class="k-icon k-i-trash"></span>
+                              <kendo-icon name="trash"></kendo-icon>
                             </button>
                           </div>
                           <div class="mx-1 d-inline-block"><strong class="mr-1">{{ShortColumnName(col)}}</strong></div>
@@ -137,7 +137,7 @@
               New Report
             </button> to create a report or one of the
             <button class="btn btn-outline-success px-1 ml-auto mr-1 py-0 my-1" (click)="DoNothingButton()" >
-              <span class="k-icon k-i-pencil k-color-success"></span>
+              <kendo-icon name="pencil" class="k-color-success"></kendo-icon>
             </button> buttons to view/edit an existing report.
             <!--We can put some "welcome / instructions" content here, which will disappear when we edit a report...-->
           </div>
@@ -177,11 +177,11 @@
         <div class="row ml-1 mr-1 border-bottom border-info">
           <div class="my-auto">{{rpt.name}}</div>
           <button class="btn btn-outline-success px-1 ml-auto mr-1 py-0 my-1" (click)="EditReport(rpt)" title="View/Edit report details">
-            <span class="k-icon k-i-pencil k-color-success"></span>
+            <kendo-icon name="pencil" class=" k-color-success"></kendo-icon>
           </button>
           <button class="btn btn-sm btn-outline-danger ml-0 mr-1 my-1 px-1 py-0" (click)="DeleteReport(rpt)" title="Delete Report"
             [disabled]="!HasWriteRights || (EditingReport != null && EditingReport.reportId == rpt.reportId)">
-            <span class="k-icon k-i-trash"></span>
+            <kendo-icon name="trash"></kendo-icon>
           </button>
         </div>
       }
@@ -201,7 +201,7 @@
                     <button class="btn btn-sm btn-outline-success ml-auto mr-1 my-auto px-1 py-0"
                       (click)="AddCodeToColumn(EditingColumn, selectedNode)" title="Add selected code to column"
                       [disabled]="!HasWriteRights">
-                      Add code <span class="k-icon k-i-plus k-color-success"></span>
+                      Add code <kendo-icon name="plus" class=" k-color-success"></kendo-icon>
                     </button>
                   }
                 </div>
@@ -224,19 +224,19 @@
                             <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : !code.codeExists}"> {{code.userDefText}}</span>
                           </div>
                           <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="EditCode(code)" title="View/Edit details">
-                            <span class="k-icon k-i-pencil k-color-success"></span>
+                            <kendo-icon name="pencil" Class=" k-color-success"></kendo-icon>
                           </button>
                           <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" [disabled]="code.codeOrder == 0 || !HasWriteRights" title="Move code up (within this column)"
                             (click)="MoveColumnCodeUp(EditingColumn, code)">
-                            <span class="k-icon k-i-arrow-up k-color-success"></span>
+                            <kendo-icon name="arrow-up" class="k-color-success"></kendo-icon>
                           </button>
                           <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 mr-1" [disabled]="code.codeOrder >= EditingColumn.codes.length -1 || !HasWriteRights" title="Move code down (within this column)"
                             (click)="MoveColumnCodeDown(EditingColumn, code)">
-                            <span class="k-icon k-i-arrow-down k-color-success"></span>
+                            <kendo-icon name="arrow-down" class=" k-color-success"></kendo-icon>
                           </button>
                           <button class="btn btn-sm btn-outline-danger my-auto px-1 py-0 ml-auto" (click)="DeleteColumnCode(code, EditingColumn)" title="Remove code from column"
                             [disabled]="!HasWriteRights">
-                            <span class="k-icon k-i-trash"></span>
+                            <kendo-icon name="trash"></kendo-icon>
                           </button>
                         </div>
                       } @else {
@@ -266,7 +266,7 @@
           <div class="card alert alert-info  my-auto border-0 ml-1 mr-0">
             <div class="card-body font-weight-bold">
               Click <button class="btn btn-outline-success px-1 ml-auto mr-1 py-0 my-1" (click)="DoNothingButton()">
-              <span class="k-icon k-i-pencil k-color-success"></span>
+                      <kendo-icon name="pencil" class="k-color-success"></kendo-icon>
             </button> in a column to edit that column's content.
           </div>
         </div>

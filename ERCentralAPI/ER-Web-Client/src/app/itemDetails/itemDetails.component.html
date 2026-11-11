@@ -5,7 +5,7 @@
       <div class="row p-0 m-0 col">
         @if (HasPDF) {
           <div class="mb-1 ml-1 mr-0 mt-0 text-success" title="Open the first PDF uploaded to this ref..." style="cursor:pointer;" (click)="OpenFirstPDF()">
-            <span class="k-icon k-i-pdf" style="font-size:1.2em"></span>
+            <kendo-icon name="pdf" style="font-size:1.2em"></kendo-icon>
           </div>
         }
         <div class="small m-1">Ref. Type:</div>
@@ -58,7 +58,7 @@
         }
         <div class="dropdown mr-1">
           <button class="btn btn-outline-dark dropdown-toggle btn-sm px-1 py-0 my-1" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="k-icon k-i-pencil"></span>&nbsp;Change Style:
+            <kendo-icon name="pencil"></kendo-icon>&nbsp;Change Style:
           </button>
           <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
             <a class="dropdown-item" [ngClass]="{'font-weight-bold' : HighlightsStyle == 'Default'}" (click)="SetHighlightStyle('Default')">Default</a>

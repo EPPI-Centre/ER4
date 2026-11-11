@@ -32,7 +32,7 @@
                   <div>
                     <button class="btn btn-primary btn-sm text-white" (click)="AddCurrentPaperToSelectedList()"
                       [disabled]="_magBrowserService.currentMagPaper.linkedITEM_ID > 0">
-                      Selected papers&nbsp;<span class="k-icon k-i-plus"></span>
+                      Selected papers&nbsp;<kendo-icon name="plus"></kendo-icon>
                     </button>
                   </div>
                 }
@@ -40,7 +40,7 @@
                   <div>
                     <button class="btn btn-warning btn-sm text-white" (click)="RemoveCurrentPaperToSelectedList()"
                       [disabled]="_magBrowserService.currentMagPaper.linkedITEM_ID > 0">
-                      Selected papers&nbsp;<span class="k-icon k-i-minus"></span>
+                      Selected papers&nbsp;<kendo-icon name="minus"></kendo-icon>
                     </button>
                   </div>
                 }
@@ -56,7 +56,7 @@
                 <div>
                   <a class="btn btn-dark btn-sm text-white" data-toggle="collapse"
                     href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-                    more details <span class="k-icon k-i-chevron-down"></span>
+                    more details <kendo-icon name="chevron-down"></kendo-icon>
                   </a>
                 </div>
               </td>
@@ -191,11 +191,8 @@
                             </td>
                             <td title="'Select/Unselect reference'">
                               <button [disabled]="!CanSelectMagItem(item)" class="btn btn-sm btn-outline-default mx-1 my-0 pb-1 px-1 " (click)="InOutReview(item, _magBrowserService.MAGList.papers)">
-                                <span [class]="IsCurrentPaperSelected(item.paperId) == true  ? 'k-icon k-i-minus' : 'k-icon k-i-plus'"> </span>
+                                <kendo-icon [name]="IsCurrentPaperSelected(item.paperId) == true  ? 'minus' : 'plus'"> </kendo-icon>
                               </button>
-                              <!--<button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item, _magBrowserService.MAGList.papers)"
-                              [class]="IsCurrentPaperSelected(item.paperId) == true  ? 'k-icon k-i-minus' : 'k-icon k-i-plus'">
-                            </button>-->
                           </td>
                           @if (_magBrowserService.MAGList.papers == _magBrowserService.MAGOriginalList.papers && ListType.startsWith('Auto update results')) {
                             <td title="Model score"
@@ -251,11 +248,8 @@
                       <td (click)="GetMagPaperRef(item, _magBrowserService.MagCitationsByPaperList.papers )">{{item.fullRecord}}</td>
                       <td>
                         <button [disabled]="!CanSelectMagItem(item)" class="btn btn-sm btn-outline-default mx-1 my-0 pb-1 px-1 " (click)="InOutReview(item, _magBrowserService.MagCitationsByPaperList.papers)">
-                          <span [class]="IsCurrentPaperSelected(item.paperId) == true  ? 'k-icon k-i-minus' : 'k-icon k-i-plus'"> </span>
+                          <kendo-icon [name]="IsCurrentPaperSelected(item.paperId) == true  ? 'minus' : 'plus'"> </kendo-icon>
                         </button>
-                        <!--<button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item, _magBrowserService.MagCitationsByPaperList.papers)"
-                        [class]="IsCurrentPaperSelected(item.paperId) == true ? 'k-icon k-i-minus' : 'k-icon k-i-plus'">
-                      </button>-->
                     </td>
                   </tr>
                 }
@@ -284,11 +278,8 @@
                     <td (click)="GetMagPaperRef(item,_magBrowserService.selectedPapers)">{{item.fullRecord}}</td>
                     <td>
                       <button [disabled]="!CanSelectMagItem(item)" class="btn btn-sm btn-outline-default mx-1 my-0 pb-1 px-1 " (click)="InOutReview(item, _magBrowserService.selectedPapers)">
-                        <span [class]="IsCurrentPaperSelected(item.paperId) == true  ? 'k-icon k-i-minus' : 'k-icon k-i-plus'"> </span>
+                        <kendo-icon [name]="IsCurrentPaperSelected(item.paperId) == true  ? 'minus' : 'plus'"> </kendo-icon>
                       </button>
-                      <!--<button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item, _magBrowserService.selectedPapers)"
-                      [class]="IsCurrentPaperSelected(item.paperId) == true  ? 'k-icon k-i-minus' : 'k-icon k-i-plus'">
-                    </button>-->
                   </td>
                 </tr>
               }
@@ -316,12 +307,8 @@
                   <td>
                     <button [disabled]="!CanSelectMagItem(item)"
                       class="btn btn-sm btn-outline-default mx-1 my-0 pb-1 px-1 " (click)="InOutReview(item, _magBrowserService.MAGOriginalList.papers)">
-                      <span [class]="IsCurrentPaperSelected(item.paperId) == true  ? 'k-icon k-i-minus' : 'k-icon k-i-plus'"> </span>
+                      <kendo-icon [name]="IsCurrentPaperSelected(item.paperId) == true  ? 'minus' : 'plus'"> </kendo-icon>
                     </button>
-                    <!--<button [disabled]="!CanSelectMagItem(item)"
-                    (click)="InOutReview(item, _magBrowserService.MAGOriginalList.papers)"
-                    [class]="IsCurrentPaperSelected(item.paperId) == true ? 'k-icon k-i-minus' : 'k-icon k-i-plus'">
-                  </button>-->
                 </td>
                 @if (ListType.startsWith('Auto update results')) {
                   <td title="Model score"

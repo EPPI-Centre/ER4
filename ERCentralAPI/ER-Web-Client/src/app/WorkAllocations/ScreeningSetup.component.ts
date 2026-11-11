@@ -328,6 +328,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
   public GoToAllinOneStep() {
     this.CurrentStep = 5;
   }
+
   public get ScreenAllItems(): boolean {
     return this._ScreenAllItems;
   }

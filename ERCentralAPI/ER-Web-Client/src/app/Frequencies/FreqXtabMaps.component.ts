@@ -70,7 +70,7 @@ export class FreqXtabMapsComp implements OnInit, OnDestroy, AfterViewInit {
 
 
     xTabItemsList(xTab: iWebDbItemAttributeCrosstabList, row: iWebDbItemAttributeCrosstabRow, ColumnIndex: number) {
-        console.log("xTabItemsList...", xTab, row, ColumnIndex);
+        //console.log("xTabItemsList...", xTab, row, ColumnIndex);
         let crit: Criteria = new Criteria();
         crit.pageSize = this.ItemListService.ItemList.pagesize;
         crit.listType = "ErWithWithoutCodes";

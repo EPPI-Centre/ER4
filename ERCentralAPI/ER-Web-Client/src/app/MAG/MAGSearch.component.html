@@ -57,7 +57,7 @@
                             <input class="form-control col border border-dark" type="text" id="SearchTextTopic" [(ngModel)]="magSearchInput"
                               placeholder="Topic search: wildcards will not work" />
                               <button (click)="UpdateTopicResults()" class="col-auto btn btn-primary btn-sm text-white" [disabled]="magSearchInput.length < 3" title="Search for topics">
-                                <span class="k-icon k-i-search"></span>
+                                <kendo-icon name="search"></kendo-icon>
                               </button>
                             </div>
                             <div class="row m-0 " [ngClass]="{'font-weight-light small': SearchTextTopicsResults.length == 0}">
@@ -188,7 +188,7 @@
                     [disabled]="!CanRunSearch()"
                     (click)="RunOpenAlexSearch()">
                     Search&nbsp;&nbsp;
-                    <span class="k-icon k-i-search"></span>
+                    <kendo-icon name="search"></kendo-icon>
                   </button>
                 </div>
 
@@ -223,7 +223,7 @@
                     <button class="btn btn-primary btn-lg btn-sm text-white"
                       [disabled]="!CanCombineSearches()" (click)="CombineSearches()">
                       Combine Searches
-                      <span class="k-icon k-i-search"></span>
+                      <kendo-icon name="search"></kendo-icon>
                     </button>
                   </div>
                 </div>
@@ -256,7 +256,7 @@
                     <button class="btn btn-sm btn-danger"
                       [disabled]="!CanDeleteSearch()"
                       (click)="DeleteSearches()">
-                      Delete&nbsp;&nbsp;<span class="k-icon k-i-trash"></span>
+                      Delete&nbsp;&nbsp;<kendo-icon name="trash"></kendo-icon>
                     </button>&nbsp;
                   </td>
                   <td style="padding-left:5px;vertical-align:top">
@@ -398,7 +398,7 @@
                                 <div title="Results are stored and fixed. Re-run the search to get updated results." class="d-block">
                                   <div class="my-auto d-flex">
                                     <input type="checkbox" checked disabled />
-                                    <span class="k-icon k-i-lock text-primary"></span>
+                                    <kendo-icon name="lock" class="text-primary"></kendo-icon>
                                   </div>
                                   @if (item.dateIdsAcquired != '0001-01-01T00:00:00') {
                                     <div class="small">At: {{FormatDate2(item.dateIdsAcquired)}}</div>
@@ -409,7 +409,7 @@
                                 <div title="Results are stored and fixed. This search cannot be re-run to get up to date results." class="d-block">
                                   <div class="my-auto d-flex">
                                     <input type="checkbox" checked disabled />
-                                    <span class="k-icon k-i-lock text-danger"></span>
+                                    <kendo-icon name="lock" class="text-danger"></kendo-icon>
                                   </div>
                                   @if (item.dateIdsAcquired != '0001-01-01T00:00:00') {
                                     <div class="small">At: {{FormatDate2(item.dateIdsAcquired)}}</div>
@@ -423,7 +423,7 @@
                                     <button (click)="EnumerateSearchItems(item)" class="btn btn-outline-primary btn-sm px-1 py-0 my-auto"
                                       [disabled]="item.hitsNo < 1"
                                       title="Results are NOT stored and NOT fixed. Click this button to get and freeze/finalise the results set.">
-                                      <span class="k-icon k-i-unlock"></span>
+                                      <kendo-icon name="unlock"></kendo-icon>
                                     </button>
                                   </div>
                                 </div>
@@ -436,13 +436,13 @@
                               @if (item.isOASearch && item.canReRun) {
                                 <button (click)="ReRunMAGSearch(item)"
                                   class="btn btn-warning btn-sm text-white align-content-center mr-1 px-1 py-0" title="Re-Run (update)">
-                                  <span class="k-icon k-i-play"></span>
+                                  <kendo-icon name="play"></kendo-icon>
                                 </button>
                               }
                               @if (item.isOASearch) {
                                 <button (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)" title="Import"
                                   class="btn btn-primary btn-sm text-white align-content-center px-1 py-0">
-                                  <span class="k-icon k-i-download"></span>
+                                  <kendo-icon name="download"></kendo-icon>
                                 </button>
                               }
                             </td>

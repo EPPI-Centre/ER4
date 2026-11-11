@@ -444,7 +444,7 @@
                           @if (AllowEditOnStep4 == true) {
                             <div class="mt-1 mr-1">Currently editing PS settings</div>
                           }
-                          <kendo-switch name="CanEditSWfs" class=""
+                          <kendo-switch name="CanEditSWfs" 
                             [disabled]="!CanWrite() || AllowEditOnStep4 == true"
                             [(ngModel)]="AllowEditOnStep4fs"
                             [onLabel]="'Yes'" (click)="CheckIfCancelEditAllOptions('FS')"
@@ -534,7 +534,7 @@
                               </button>
                               <button class="m-1 py-1 px-1 btn btn-outline-danger" [disabled]="TrainingFromSearchList.ListIsStale || TrainingFromSearchList.AllRuns.length == 0"
                                 (click)="DeleteFSlist()" title="Deletes the list, but keeps progress data">
-                                <span class="k-icon k-i-trash"></span>
+                                <kendo-icon name="trash"></kendo-icon>
                               </button>
                               @if (!ConfigHasChanged) {
                                 <div class="row m-0 small"><div class=" rounded p-1 alert-info small">No change to save</div></div>
@@ -775,18 +775,18 @@
                 <kendo-chart [title]="{ text: 'Screening progress' }">
                   <kendo-chart-series>
                     <kendo-chart-series-item type="scatterLine"
-                      [data]="TrainingList"
-                      xField="totalN" yField="totalIncludes">
+                                             [data]="TrainingList"
+                                             xField="totalN" yField="totalIncludes">
                     </kendo-chart-series-item>
                   </kendo-chart-series>
                   <kendo-chart-x-axis>
                     <kendo-chart-x-axis-item [title]="{ text: 'Total Items' }"
-                      [labels]="{ format: '{0}' }">
+                                             [labels]="{ format: '{0}' }">
                     </kendo-chart-x-axis-item>
                   </kendo-chart-x-axis>
                   <kendo-chart-y-axis>
                     <kendo-chart-y-axis-item [title]="{ text: 'Included' }"
-                      [labels]="{ format: '{0}' }">
+                                             [labels]="{ format: '{0}' }">
                     </kendo-chart-y-axis-item>
                   </kendo-chart-y-axis>
                   <kendo-chart-tooltip format="{1} included, of {0} screened" class="small">

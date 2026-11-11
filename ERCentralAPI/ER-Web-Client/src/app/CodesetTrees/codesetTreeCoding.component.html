@@ -122,13 +122,13 @@
           @if (selectedKeys[0] && selectedKeys[0] == data.id && data.attributes && data.attributes.length > 0) {
             <span style="cursor: pointer">
               @if (IsCollapsed(data)) {
-                <span class="k-icon k-i-arrows-top-bottom text-primary" (click)="ExpandAllFromHere(data)" title="Expand this and all children"></span>
+              <kendo-icon name="arrows-top-bottom" class="text-primary" (click)="ExpandAllFromHere(data)" title="Expand this and all children"></kendo-icon>
               } @else {
-                <span class="k-icon k-i-arrow-down-left text-primaryy " (click)="CollapseAllFromHere(data)" title="Collapse this and all children"></span>
+              <kendo-icon name="arrow-down-left" class="text-primaryy " (click)="CollapseAllFromHere(data)" title="Collapse this and all children"></kendo-icon>
               }
-            </span>
-          }
-        </ng-template>
+              </span>
+              }
+</ng-template>
       </kendo-treeview>
     </div>
   }
