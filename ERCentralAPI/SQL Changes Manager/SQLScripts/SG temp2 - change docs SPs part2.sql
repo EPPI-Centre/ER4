@@ -3225,6 +3225,73 @@ RETURN
 SET NOCOUNT OFF
 GO
 
+USE [Reviewer]
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributesAllFullTextDetailsList]    Script Date: 11/11/2026 12:15:46 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER procedure [dbo].[st_ItemAttributesAllFullTextDetailsList] 
+(
+	@REVIEW_ID INT,
+	--@CONTACT_ID INT,
+	@ITEM_ID BIGINT
+)
+
+As
+
+SET NOCOUNT ON
+	declare @linkedItems table (item_id bigint)
+	insert into @linkedItems select ITEM_ID_PRIMARY from TB_ITEM_LINK where ITEM_ID_SECONDARY = @ITEM_ID and ITEM_ID_PRIMARY != @ITEM_ID
+	insert into @linkedItems select ITEM_ID_SECONDARY from TB_ITEM_LINK where ITEM_ID_PRIMARY = @ITEM_ID 
+		and ITEM_ID_SECONDARY not in (Select item_id from @linkedItems)
+
+	SELECT  tis.ITEM_SET_ID, ia.ITEM_ATTRIBUTE_ID, id.ITEM_DOCUMENT_ID, itd.DOCUMENT_TITLE, p.ITEM_ATTRIBUTE_PDF_ID as [ID]
+			, 'Page ' + CONVERT
+							(varchar(10),PAGE) 
+							+ ':' + CHAR(10) + '[¬s]"' 
+							+ replace(SELECTION_TEXTS, '¬', '"' + CHAR(10) + '"') +'[¬e]"' 
+				as [TEXT] 
+			, NULL as [TEXT_FROM], NULL as [TEXT_TO]
+			, 1 as IS_FROM_PDF
+			, IA.ITEM_ARM_ID
+			, CASE WHEN ARM_NAME IS NULL THEN '' ELSE ARM_NAME END AS [ARM_NAME]
+		from TB_REVIEW_SET rs
+		inner join TB_ITEM_SET tis on rs.REVIEW_ID = @REVIEW_ID and tis.SET_ID = rs.SET_ID and tis.ITEM_ID = @ITEM_ID
+		inner join TB_ATTRIBUTE_SET tas on tis.SET_ID = tas.SET_ID --and tis.IS_COMPLETED = 1 
+		inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID
+		inner join TB_ITEM_ATTRIBUTE_PDF p on ia.ITEM_ATTRIBUTE_ID = p.ITEM_ATTRIBUTE_ID
+		inner join TB_ITEM_DOCUMENT id on p.ITEM_DOCUMENT_ID = id.ITEM_DOCUMENT_ID
+		inner join TB_ITEM_TO_DOCUMENT itd on id.ITEM_DOCUMENT_ID = itd.ITEM_DOCUMENT_ID 
+			AND (itd.ITEM_ID = tis.ITEM_ID OR (itd.ITEM_ID != tis.ITEM_ID AND itd.ITEM_ID in (select item_id from @linkedItems)))
+		LEFT OUTER JOIN TB_ITEM_ARM ON TB_ITEM_ARM.ITEM_ARM_ID = ia.ITEM_ARM_ID
+	UNION
+	SELECT tis.ITEM_SET_ID, ia.ITEM_ATTRIBUTE_ID, id.ITEM_DOCUMENT_ID, itd.DOCUMENT_TITLE, t.ITEM_ATTRIBUTE_TEXT_ID as [ID]
+			, SUBSTRING(
+					replace(id.DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10)), TEXT_FROM + 1, TEXT_TO - TEXT_FROM
+				 ) 
+				 as [TEXT]
+			, TEXT_FROM, TEXT_TO 
+			, 0 as IS_FROM_PDF
+			, IA.ITEM_ARM_ID
+			, CASE WHEN ARM_NAME IS NULL THEN '' ELSE ARM_NAME END AS [ARM_NAME]
+		from TB_REVIEW_SET rs
+		inner join TB_ITEM_SET tis on rs.REVIEW_ID = @REVIEW_ID and tis.SET_ID = rs.SET_ID and tis.ITEM_ID = @ITEM_ID
+		inner join TB_ATTRIBUTE_SET tas on tis.SET_ID = tas.SET_ID --and tis.IS_COMPLETED = 1 
+		inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID
+		inner join TB_ITEM_ATTRIBUTE_TEXT t on ia.ITEM_ATTRIBUTE_ID = t.ITEM_ATTRIBUTE_ID
+		inner join TB_ITEM_DOCUMENT id on t.ITEM_DOCUMENT_ID = id.ITEM_DOCUMENT_ID
+		inner join TB_ITEM_TO_DOCUMENT itd on id.ITEM_DOCUMENT_ID = itd.ITEM_DOCUMENT_ID 
+			AND (itd.ITEM_ID = tis.ITEM_ID OR (itd.ITEM_ID != tis.ITEM_ID AND itd.ITEM_ID in (select item_id from @linkedItems)))
+		LEFT OUTER JOIN TB_ITEM_ARM ON TB_ITEM_ARM.ITEM_ARM_ID = ia.ITEM_ARM_ID
+	ORDER by IS_FROM_PDF, [TEXT]	
+	
+SET NOCOUNT OFF
+
+GO
+
+
 ----------------Added here for other reasons, nothing to do with deduping docs!-----------------
 USE [Reviewer]
 GO

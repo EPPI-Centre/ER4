@@ -2,12 +2,12 @@
   <div class="col-12 px-1 mb-2 bg-info">
     Codes Apply to:
     <!--<select (change)="filterArms($event.target.value)" >-->
-    <select class="col-md-12"  (change)="ArmChanged($event)">
+    <select class="col-md-12" (change)="ArmChanged($event)">
       <option value="0">Whole Study</option>
-      @for (arm of CurrentItem.arms; track arm) {
-        <option [value]="arm.itemArmId">
-          {{arm.title}}
-        </option>
+      @for (arm of CurrentItem.arms; track arm.itemArmId) {
+      <option [value]="arm.itemArmId">
+        {{arm.title}}
+      </option>
       }
     </select>
   </div>
