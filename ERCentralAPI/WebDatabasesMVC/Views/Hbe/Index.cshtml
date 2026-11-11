@@ -60,6 +60,10 @@
     // this is what we fill and then access when applying filters...
     var SavedCodingData = [];
 
+    // this is and array of itemIds we pass to the details page
+    // (so we can step through items)
+    var itemList = [];
+
     var visualHTML = "";
     var globalCounter = 0;
     var itemCounter = 0;
@@ -149,6 +153,7 @@
         cbExposures = "";
         searchFor = "";
 
+        sessionStorage.setItem("itemList", "");
 
         $("#smallPhoneButton").hide();
         if ($(window).outerWidth() <= 325) {
@@ -707,6 +712,10 @@
 
     // whenever we change any of the filters we call this....
     function updateByFilter() {
+        // reset the itemList
+        itemList.length = 0;
+        sessionStorage.setItem("itemList", "");
+
         for (var i = 0; i < documentData.items.totalItemCount; i++) {
             // build cards one at a time from the array of data... (this is fast enough)
             buildCard(SavedCodingData[i], "success", i);
@@ -1002,6 +1011,7 @@
                             
                             
                             if (itemCounter == 0) {
+                                itemList.push(documentData.items.items[i].itemId);
                                 visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px; min-height: 150px;>";
 
                                 //-----------------------------------------------------
@@ -1061,7 +1071,7 @@
                             }
 
                             if (itemCounter == 1) {
-
+                                itemList.push(documentData.items.items[i].itemId);
                                 visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px; min-height: 150px;>";
 
                                 //-----------------------------------------------------
@@ -1121,7 +1131,7 @@
                             }
 
                             if (itemCounter == 2) {
-
+                                itemList.push(documentData.items.items[i].itemId);
                                 visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px; min-height: 150px;>";
 
                                 //-----------------------------------------------------
@@ -1181,7 +1191,7 @@
                             }
 
                             if (itemCounter == 3) {
-
+                                itemList.push(documentData.items.items[i].itemId);
                                 visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px; min-height: 150px;>";
 
                                 //-----------------------------------------------------
@@ -1256,6 +1266,9 @@
                 globalCounter += 1;
                 if (globalCounter == documentData.items.totalItemCount) 
                 {
+                    var test = itemList;
+                    var ItemListCsv = itemList.join(",");
+                    sessionStorage.setItem("itemList", ItemListCsv);
                     let resultsDiv = $("#visualsHBEDiv");
                     resultsDiv.html(visualHTML);
                     globalCounter = 0;
