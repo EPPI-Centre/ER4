@@ -45,3 +45,4 @@ begin
 end
 
 SET NOCOUNT OFF
+GO
