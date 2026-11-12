@@ -113,6 +113,18 @@ namespace BusinessLibrary.BusinessClasses
             }
             return returnValue;
         }
+        public ReviewSet GetReviewSetFromExtURL(string ExtURL)
+        {
+            ReviewSet returnValue = null;
+            foreach (ReviewSet rs in this)
+            { 
+                if (rs.ExtURL == ExtURL)
+                {
+                    return rs;
+                }
+            }
+            return returnValue;
+        }
 
         // JT commented out 07/06/2018 - doesn't look like this is ever called??
         //public void SetItemData(ItemSetList data)

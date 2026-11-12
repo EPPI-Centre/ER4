@@ -190,6 +190,8 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public List<Enhancement> LinkedDataEnhancements { get; set; } = new List<Enhancement>();
+        public List<Enhancement> LinkedDataOutcomeEnhancements { get; set; } = new List<Enhancement>();
+
 
 #if !SILVERLIGHT
         protected void DataPortal_Fetch(SingleCriteria<ODSRetrieval, string> criteria)
@@ -251,26 +253,88 @@ namespace BusinessLibrary.BusinessClasses
                     if (CheckCodeSets)
                     {
                         ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                        var savedAttributes = new HashSet<(string ReferenceId, string AttributeUri, string AdditionalText)>();
+                        var jsonLdPrefixesByContext = new Dictionary<string, Dictionary<string, string>>(StringComparer.Ordinal);
+                        string vocabularyUri = LinkedDataEnhancements[0].content.vocabulary_uri; // this isn't great, but we don't have the notion of an individual data extraction, so the linked data doesn't tell us where the outcomes should go
                         foreach (Enhancement e in LinkedDataEnhancements)
                         {
+                            if (e.content == null ||
+                                e.content.data.ValueKind != System.Text.Json.JsonValueKind.Object)
+                            {
+                                continue;
+                            }
+
+                            Int64 itemId = Item.ItemIdFromOldItemId(e.reference_id);
+                            if (itemId <= 0)
+                            {
+                                continue;
+                            }
+
+                            string contextKey = GetJsonLdContextKey(e.content.data);
+                            if (!jsonLdPrefixesByContext.TryGetValue(contextKey, out var jsonLdPrefixes))
+                            {
+                                jsonLdPrefixes = GetJsonLdPrefixes(e.content.data);
+                                jsonLdPrefixesByContext.Add(contextKey, jsonLdPrefixes);
+                            }
+
+                            if (TryGetPropertyIgnoreCase(e.content.data, "hasInvestigation", out var investigationElement) &&
+                                TryGetPropertyIgnoreCase(investigationElement, "hasAppliedConcept", out var appliedConceptsElement) &&
+                                appliedConceptsElement.ValueKind == System.Text.Json.JsonValueKind.Array)
+                            {
+                                foreach (var conceptElement in appliedConceptsElement.EnumerateArray())
+                                {
+                                    if (conceptElement.ValueKind == System.Text.Json.JsonValueKind.String &&
+                                        conceptElement.GetString() is string legacyId)
+                                    {
+                                        string? attributeUri = ExpandJsonLdIdentifier(legacyId, jsonLdPrefixes);
+                                        if (!string.IsNullOrWhiteSpace(attributeUri) &&
+                                            savedAttributes.Add((e.reference_id, attributeUri, string.Empty)))
+                                        {
+                                            SaveAttributeCode(e.content.vocabulary_uri, attributeUri, ri.ReviewId, ri.UserId, itemId, string.Empty);
+                                        }
+                                    }
+                                }
+                            }
+
+                            // New linked-data payloads store vocabulary codes in nested coding annotations.
+                            foreach (var annotation in EnumerateCodingAnnotations(e.content.data))
+                            {
+                                string? attributeUri = ExpandJsonLdIdentifier(annotation.Identifier, jsonLdPrefixes);
+                                if (!string.IsNullOrWhiteSpace(attributeUri) &&
+                                    savedAttributes.Add((e.reference_id, attributeUri, annotation.AdditionalText)))
+                                {
+                                    SaveAttributeCode(e.content.vocabulary_uri, attributeUri, ri.ReviewId, ri.UserId, itemId, annotation.AdditionalText);
+                                }
+                            }
+                        }
+                        foreach (Enhancement e in LinkedDataOutcomeEnhancements)
+                        {
                             if (e.content != null &&
-                                e.content.data != null &&
-                                e.content.data.hasInvestigation != null &&
-                                e.content.data.hasInvestigation.hasAppliedConcept != null &&
-                                e.content.data.hasInvestigation.hasAppliedConcept.Length > 0)
+                                e.content.data.ValueKind == System.Text.Json.JsonValueKind.Object)
                             {
                                 Int64 itemId = 0;
                                 itemId = Item.ItemIdFromOldItemId(e.reference_id);
                                 if (itemId > 0)
                                 {
-                                    foreach (string url in e.content.data.hasInvestigation.hasAppliedConcept)
+                                    if (TryGetPropertyIgnoreCase(e.content.data, "Outcomes", out var outcomesElement) &&
+                                        outcomesElement.ValueKind == System.Text.Json.JsonValueKind.Array)
                                     {
-                                        SaveAttributeCode(url, ri.ReviewId, ri.UserId, itemId);
+                                        var outcomes = System.Text.Json.JsonSerializer.Deserialize<ImportJsonCommand.Outcome[]>(
+                                            outcomesElement,
+                                            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+                                            ?? Array.Empty<ImportJsonCommand.Outcome>();
+
+                                        foreach (var outcome in outcomes)
+                                        {
+                                            SaveOutcome(outcome, ri.ReviewId,
+                                                ri.UserId,
+                                                itemId,
+                                                vocabularyUri);
+                                        }
                                     }
                                 }
                             }
                         }
-                        
                     }
                     else
                     {
@@ -451,11 +515,19 @@ namespace BusinessLibrary.BusinessClasses
                 foreach (Enhancement enhancement in reference.enhancements)
                 {
                     if (enhancement.content != null && enhancement.content.enhancement_type == "linked_data" &&
-                        enhancement.content.data != null && enhancement.content.data.hasInvestigation != null &&
+                        enhancement.content.data.ValueKind == System.Text.Json.JsonValueKind.Object &&
+                        TryGetPropertyIgnoreCase(enhancement.content.data, "hasInvestigation", out _) &&
                         enhancement.content.vocabulary_uri != null)
                     {
                         LinkedDataEnhancements.Add(enhancement);
                     }
+                    else
+                        if (enhancement.content != null && enhancement.content.enhancement_type == "raw" &&
+                            enhancement.content.data.ValueKind == System.Text.Json.JsonValueKind.Object &&
+                            TryGetPropertyIgnoreCase(enhancement.content.data, "outcomes", out _))
+                        {
+                            LinkedDataOutcomeEnhancements.Add(enhancement);
+                        }
                 }
             }
         }
@@ -502,6 +574,185 @@ namespace BusinessLibrary.BusinessClasses
                 return true;
             }
         }
+        // GPT-6-Luna wrote the following functions *****************************************************
+        private static bool TryGetPropertyIgnoreCase(
+            System.Text.Json.JsonElement element,
+            string name,
+            out System.Text.Json.JsonElement value)
+        {
+            if (element.ValueKind == System.Text.Json.JsonValueKind.Object)
+            {
+                foreach (var property in element.EnumerateObject())
+                {
+                    if (property.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+                    {
+                        value = property.Value;
+                        return true;
+                    }
+                }
+            }
+            value = default;
+            return false;
+        }
+
+        private static string GetJsonLdContextKey(System.Text.Json.JsonElement data)
+        {
+            if (!TryGetPropertyIgnoreCase(data, "@context", out var context))
+            {
+                return string.Empty;
+            }
+
+            return context.ValueKind == System.Text.Json.JsonValueKind.String
+                ? context.GetString() ?? string.Empty
+                : context.GetRawText();
+        }
+
+        private Dictionary<string, string> GetJsonLdPrefixes(System.Text.Json.JsonElement data)
+        {
+            var prefixes = new Dictionary<string, string>(StringComparer.Ordinal);
+            if (!TryGetPropertyIgnoreCase(data, "@context", out var context))
+            {
+                return prefixes;
+            }
+
+            if (context.ValueKind == System.Text.Json.JsonValueKind.String &&
+                context.GetString() is string contextUri &&
+                !string.IsNullOrWhiteSpace(contextUri))
+            {
+                string contextJson = FetchVocabulary(contextUri).GetAwaiter().GetResult();
+                using var contextDocument = System.Text.Json.JsonDocument.Parse(contextJson);
+                if (TryGetPropertyIgnoreCase(contextDocument.RootElement, "@context", out var remoteContext))
+                {
+                    AddJsonLdPrefixes(remoteContext, prefixes);
+                }
+                else
+                {
+                    AddJsonLdPrefixes(contextDocument.RootElement, prefixes);
+                }
+            }
+            else
+            {
+                AddJsonLdPrefixes(context, prefixes);
+            }
+
+            return prefixes;
+        }
+
+        private static void AddJsonLdPrefixes(
+            System.Text.Json.JsonElement context,
+            Dictionary<string, string> prefixes)
+        {
+            if (context.ValueKind == System.Text.Json.JsonValueKind.Array)
+            {
+                foreach (var contextPart in context.EnumerateArray())
+                {
+                    AddJsonLdPrefixes(contextPart, prefixes);
+                }
+                return;
+            }
+
+            if (context.ValueKind != System.Text.Json.JsonValueKind.Object)
+            {
+                return;
+            }
+
+            if (TryGetPropertyIgnoreCase(context, "@context", out var nestedContext))
+            {
+                AddJsonLdPrefixes(nestedContext, prefixes);
+            }
+
+            foreach (var property in context.EnumerateObject())
+            {
+                if (property.Name.StartsWith("@", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                string? iri = null;
+                if (property.Value.ValueKind == System.Text.Json.JsonValueKind.String)
+                {
+                    iri = property.Value.GetString();
+                }
+                else if (property.Value.ValueKind == System.Text.Json.JsonValueKind.Object &&
+                         TryGetPropertyIgnoreCase(property.Value, "@id", out var idElement) &&
+                         idElement.ValueKind == System.Text.Json.JsonValueKind.String)
+                {
+                    iri = idElement.GetString();
+                }
+
+                if (!string.IsNullOrWhiteSpace(iri))
+                {
+                    prefixes[property.Name] = iri;
+                }
+            }
+        }
+
+        private static string? ExpandJsonLdIdentifier(
+            string identifier,
+            IReadOnlyDictionary<string, string> prefixes)
+        {
+            if (string.IsNullOrWhiteSpace(identifier))
+            {
+                return null;
+            }
+
+            int colonIndex = identifier.IndexOf(':');
+            if (colonIndex > 0 && prefixes.TryGetValue(identifier[..colonIndex], out var prefixIri))
+            {
+                return prefixIri + identifier[(colonIndex + 1)..];
+            }
+
+            if (System.Uri.TryCreate(identifier, UriKind.Absolute, out var absoluteUri) &&
+                (absoluteUri.Scheme == Uri.UriSchemeHttp ||
+                 absoluteUri.Scheme == Uri.UriSchemeHttps ||
+                 absoluteUri.Scheme == "urn"))
+            {
+                return absoluteUri.AbsoluteUri;
+            }
+
+            return null;
+        }
+
+        private static IEnumerable<(string Identifier, string AdditionalText)> EnumerateCodingAnnotations(
+            System.Text.Json.JsonElement element)
+        {
+            if (element.ValueKind == System.Text.Json.JsonValueKind.Object)
+            {
+                if (TryGetPropertyIgnoreCase(element, "codedValue", out var codedValue) &&
+                    codedValue.ValueKind == System.Text.Json.JsonValueKind.Object &&
+                    TryGetPropertyIgnoreCase(codedValue, "@id", out var idElement) &&
+                    idElement.ValueKind == System.Text.Json.JsonValueKind.String &&
+                    idElement.GetString() is string identifier)
+                {
+                    string additionalText =
+                        TryGetPropertyIgnoreCase(element, "supportingText", out var supportingText) &&
+                        supportingText.ValueKind == System.Text.Json.JsonValueKind.String
+                            ? supportingText.GetString() ?? string.Empty
+                            : string.Empty;
+
+                    yield return (identifier, additionalText);
+                }
+
+                foreach (var property in element.EnumerateObject())
+                {
+                    foreach (var annotation in EnumerateCodingAnnotations(property.Value))
+                    {
+                        yield return annotation;
+                    }
+                }
+            }
+            else if (element.ValueKind == System.Text.Json.JsonValueKind.Array)
+            {
+                foreach (var item in element.EnumerateArray())
+                {
+                    foreach (var annotation in EnumerateCodingAnnotations(item))
+                    {
+                        yield return annotation;
+                    }
+                }
+            }
+        }
+        // end luna created stuff
         private ReviewSet GetOrCreateReviewSet(Enhancement e)
         {
             ReviewSet rs = ReviewSet.GetReviewSetFromExtURLAndReviewId(e.content.vocabulary_uri);
@@ -581,10 +832,131 @@ namespace BusinessLibrary.BusinessClasses
                 SaveAttributes(node.Children, a, rs, ri);
             }
         }
-        private Int64 SaveAttributeCode(string extURL, int ReviewId, int ContactId, Int64 ItemId)
+        // based on SaveOutcome from importjsoncommand.cs, but we don't have the notion of an individual data extraction, so the linked data doesn't tell us where the outcomes should go
+        private void SaveOutcome(ImportJsonCommand.Outcome o, int ReviewId, int ContactId, Int64 ItemId, string VocabularyUri)
+        {
+            //commented out: we try something a bit better below
+            //// If there is > 1 codeset in the json, we don't know where to 'tie' the outcomes, so don't try to import them
+            //if (ReviewSets.Count != 1)
+            //{
+            //    return;
+            //}
+
+            ReviewSet rs = this.ReviewSets.GetReviewSetFromExtURL(VocabularyUri);
+            if (rs == null) return;
+            Int64 NewOutcomeId = 0;
+            Int64 ItemSetId = 0;
+            if (rs != null)
+            {
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                {
+                    connection.Open();
+                    using (SqlCommand command3 = new SqlCommand("st_ItemSetGetCompleted", connection))
+                    {
+                        command3.CommandType = System.Data.CommandType.StoredProcedure;
+                        command3.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                        command3.Parameters.Add(new SqlParameter("@ITEM_ID", ItemId));
+                        command3.Parameters.Add(new SqlParameter("@SET_ID", rs.SetId));
+                        using (Csla.Data.SafeDataReader reader3 = new Csla.Data.SafeDataReader(command3.ExecuteReader()))
+                        {
+                            if (reader3.Read())
+                                ItemSetId = Convert.ToInt64(reader3["ITEM_SET_ID"].ToString());
+                        }
+                    }
+
+                    if (ItemSetId > 0)
+                    {
+                        AttributeSet InterventionId = rs.GetAttributeSetFromOriginalAttributeId(o.ItemAttributeIdIntervention);
+                        AttributeSet ControlId = rs.GetAttributeSetFromOriginalAttributeId(o.ItemAttributeIdControl);
+                        AttributeSet OutcomeId = rs.GetAttributeSetFromOriginalAttributeId(o.ItemAttributeIdOutcome);
+                        int grp1 = 0;
+                        int grp2 = 0;
+                        //if (grp1 != 0 && this.ArmsDictionary.TryGetValue((ItemId, grp1), out int mapped1)) grp1 = mapped1;
+                        //if (grp2 != 0 && this.ArmsDictionary.TryGetValue((ItemId, grp2), out int mapped2)) grp2 = mapped2;
+                        using (SqlCommand command = new SqlCommand("st_OutcomeItemInsert", connection))
+                        {
+                            command.CommandType = System.Data.CommandType.StoredProcedure;
+                            command.Parameters.Add(new SqlParameter("@ITEM_SET_ID", ItemSetId));
+                            command.Parameters.Add(new SqlParameter("@OUTCOME_TYPE_ID", o.OutcomeTypeId));
+                            command.Parameters.Add(new SqlParameter("@OUTCOME_TITLE", o.Title));
+                            command.Parameters.Add(new SqlParameter("@ITEM_ATTRIBUTE_ID_INTERVENTION", InterventionId == null ? 0 : InterventionId.AttributeId));
+                            command.Parameters.Add(new SqlParameter("@ITEM_ATTRIBUTE_ID_CONTROL", ControlId == null ? 0 : ControlId.AttributeId));
+                            command.Parameters.Add(new SqlParameter("@ITEM_ATTRIBUTE_ID_OUTCOME", OutcomeId == null ? 0 : OutcomeId.AttributeId));
+                            command.Parameters.Add(new SqlParameter("@OUTCOME_DESCRIPTION", o.OutcomeDescription));
+                            command.Parameters.Add(new SqlParameter("@DATA1", o.Data1));
+                            command.Parameters.Add(new SqlParameter("@DATA2", o.Data2));
+                            command.Parameters.Add(new SqlParameter("@DATA3", o.Data3));
+                            command.Parameters.Add(new SqlParameter("@DATA4", o.Data4));
+                            command.Parameters.Add(new SqlParameter("@DATA5", o.Data5));
+                            command.Parameters.Add(new SqlParameter("@DATA6", o.Data6));
+                            command.Parameters.Add(new SqlParameter("@DATA7", o.Data7));
+                            command.Parameters.Add(new SqlParameter("@DATA8", o.Data8));
+                            command.Parameters.Add(new SqlParameter("@DATA9", o.Data9));
+                            command.Parameters.Add(new SqlParameter("@DATA10", o.Data10));
+                            command.Parameters.Add(new SqlParameter("@DATA11", o.Data11));
+                            command.Parameters.Add(new SqlParameter("@DATA12", o.Data12));
+                            command.Parameters.Add(new SqlParameter("@DATA13", o.Data13));
+                            command.Parameters.Add(new SqlParameter("@DATA14", o.Data14));
+                            command.Parameters.Add(new SqlParameter("@ITEM_TIMEPOINT_ID", o.ItemTimepointId));
+                            command.Parameters.Add(new SqlParameter("@ITEM_ARM_ID_GRP1", grp1));
+                            command.Parameters.Add(new SqlParameter("@ITEM_ARM_ID_GRP2", grp2));
+                            command.Parameters.Add(new SqlParameter("@NEW_OUTCOME_ID", 0));
+                            command.Parameters["@NEW_OUTCOME_ID"].Direction = System.Data.ParameterDirection.Output;
+                            command.ExecuteNonQuery();
+                            if (command.Parameters["@NEW_OUTCOME_ID"].Value != DBNull.Value)
+                            {
+                                NewOutcomeId = (Int64)command.Parameters["@NEW_OUTCOME_ID"].Value;
+                            }
+                        }
+
+                        // Currently this is in the "too difficult and not worth the effort" box, as these data structures will all change soon
+                        //if (NewOutcomeId > 0)
+                        //{
+                        //    string attributes = "";
+                        //    if (o.OutcomeCodes != null && o.OutcomeCodes.OutcomeItemAttributesList != null)
+                        //    {
+                        //        foreach (Outcomeitemattributeslist a in o.OutcomeCodes.OutcomeItemAttributesList)
+                        //        {
+                        //            if (attributes == "")
+                        //            {
+                        //                AttributeSet tmp = rs.GetAttributeSetFromOriginalAttributeId(a.AttributeId);
+                        //                if (tmp != null) attributes = tmp.AttributeId.ToString();
+                        //            }
+                        //            else
+                        //            {
+                        //                AttributeSet tmp = rs.GetAttributeSetFromOriginalAttributeId(a.AttributeId);
+                        //                if (tmp != null) attributes += "," + tmp.AttributeId.ToString();
+                        //            }
+                        //        }
+                        //        using (SqlCommand command = new SqlCommand("st_OutcomeItemAttributesSave", connection))
+                        //        {
+                        //            command.CommandType = System.Data.CommandType.StoredProcedure;
+                        //            command.Parameters.Add(new SqlParameter("@OUTCOME_ID", NewOutcomeId));
+                        //            command.Parameters.Add(new SqlParameter("@ATTRIBUTES", attributes));
+                        //            command.ExecuteNonQuery();
+                        //        }
+                        //    }
+                        //}
+                    }
+                    connection.Close();
+                }
+            }
+        }
+        private Int64 SaveAttributeCode(string setURL, string extURL, int ReviewId, int ContactId, Int64 ItemId, string additionalText = "")
         {
             Int64 ItemAttributeId = 0;
-            AttributeSet aset = this.ReviewSets.GetAttributeSetFromExtURL(extURL);
+            AttributeSet aset;
+            ReviewSet rs = this.ReviewSets.GetReviewSetFromExtURL(setURL);
+            if (rs != null)
+            {
+                // this *should* return the right attributeset
+                aset = rs.GetAttributeSetFromExtURL(extURL);
+            }
+            else
+            {
+                // but if it doesn't, we have a backup
+                aset = this.ReviewSets.GetAttributeSetFromExtURL(extURL);
+            }
             if (aset != null)
             {
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
@@ -594,7 +966,7 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.Parameters.Add(new SqlParameter("@CONTACT_ID", ContactId));
-                        command.Parameters.Add(new SqlParameter("@ADDITIONAL_TEXT", ""));
+                        command.Parameters.Add(new SqlParameter("@ADDITIONAL_TEXT", additionalText ?? string.Empty));
                         command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", aset.AttributeId));
                         command.Parameters.Add(new SqlParameter("@SET_ID", aset.SetId));
                         command.Parameters.Add(new SqlParameter("@ITEM_ID", ItemId));
@@ -890,6 +1262,7 @@ public class Enhancement
     public string[] derived_from { get; set; }
     public Content content { get; set; }
     public DateTime created_at { get; set; }
+    public string? supersedes { get; set; }
 }
 
 public class Content
@@ -912,7 +1285,7 @@ public class Content
     public Associated_Reference_Ids[] associated_reference_ids { get; set; }
     public string association_type { get; set; }
     public string vocabulary_uri { get; set; }
-    public Data data { get; set; }
+    public System.Text.Json.JsonElement data { get; set; }
 }
 
 public class Pagination
