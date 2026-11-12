@@ -203,16 +203,16 @@
               </tr>
             </thead>
             <tbody>
-              @for (statistic of statistics; track statistic) {
+                @for (statistic of statistics; track statistic.simulation) {
                 <tr>
-                  <td>{{ statistic.simulation }}</td>
-                  <td>{{ statistic.nIncludes }}</td>
-                  <td>{{ statistic.nScreened }}</td>
-                  <td>{{ statistic.nScreenedAt100 }}</td>
-                  <td>{{ statistic.workloadReduction }}</td>
-                  <td>{{ statistic.workloadReductionPercent }}</td>
+                    <td>{{ statistic.simulation }}</td>
+                    <td>{{ statistic.nIncludes }}</td>
+                    <td>{{ statistic.nScreened }}</td>
+                    <td>{{ statistic.nScreenedAt100 }}</td>
+                    <td>{{ statistic.workloadReduction }}</td>
+                    <td>{{ statistic.workloadReductionPercent }}</td>
                 </tr>
-              }
+                }
             </tbody>
           </table>
         </div>

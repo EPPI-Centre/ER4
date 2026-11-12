@@ -231,52 +231,52 @@
           }
           @if (DirtyGroup != null) {
             <tbody>
-              @for (member of DirtyGroup.MembersOnly; track member) {
+                @for (member of DirtyGroup.MembersOnly; track member.itemId) {
                 <tr class="bg-light">
-                  <td>Item ID:</td>
-                  <td class="bg-white">
-                    @if (CanGoToThisItem(member.itemId)) {
-                      <button class="btn btn-link p-0" (click)="OpenItem(member.itemId)">{{member.itemId}}</button>
-                    } @else {
-                      {{member.itemId}}
-                    }
-                  </td>
-                  <td>Coded count:</td>
-                  <td [ngClass]="{'font-weight-bold alert-danger' : member.codedCount > 0}">{{member.codedCount}}</td>
-                  <td>Uploaded Docs:</td>
-                  <td [ngClass]="{'alert-danger font-weight-bold' : member.docCount > 0}">{{member.docCount}}</td>
-                  <td>Date:</td>
-                  <td class="bg-white">{{member.year}}</td>
+                    <td>Item ID:</td>
+                    <td class="bg-white">
+                        @if (CanGoToThisItem(member.itemId)) {
+                        <button class="btn btn-link p-0" (click)="OpenItem(member.itemId)">{{member.itemId}}</button>
+                        } @else {
+                        {{member.itemId}}
+                        }
+                    </td>
+                    <td>Coded count:</td>
+                    <td [ngClass]="{'font-weight-bold alert-danger' : member.codedCount > 0}">{{member.codedCount}}</td>
+                    <td>Uploaded Docs:</td>
+                    <td [ngClass]="{'alert-danger font-weight-bold' : member.docCount > 0}">{{member.docCount}}</td>
+                    <td>Date:</td>
+                    <td class="bg-white">{{member.year}}</td>
                 </tr>
                 <tr class="bg-light">
-                  <td>Authors(s): </td>
-                  <td colspan="7">{{member.authors}}</td>
+                    <td>Authors(s): </td>
+                    <td colspan="7">{{member.authors}}</td>
                 </tr>
                 <tr class="bg-light">
-                  <td>Title: </td>
-                  <td colspan="7">{{member.title}}</td>
+                    <td>Title: </td>
+                    <td colspan="7">{{member.title}}</td>
                 </tr>
                 <tr class="bg-light">
-                  <td>Pub Name: </td>
-                  <td colspan="7">{{member.parentTitle}}</td>
+                    <td>Pub Name: </td>
+                    <td colspan="7">{{member.parentTitle}}</td>
                 </tr>
                 <tr class="alert-info ">
-                  <td class="font-weight-bold">Status: </td>
-                  <td colspan="5"
-                    [ngClass]="{'alert-success': member.propertiesConverter == 0, 'alert-danger': member.propertiesConverter !== 0}">
-                    {{DirtyMemberStatus(member)}}
-                  </td>
-                  <td colspan="2">
-                    <button class="btn py-1 px-1 mx-1 my-0 btn-outline-success" (click)="MakeMasterOfDirtyGroup(member)"
-                      [disabled]="member.propertiesConverter == 2">
-                      Make Master
-                    </button>
-                  </td>
+                    <td class="font-weight-bold">Status: </td>
+                    <td colspan="5"
+                        [ngClass]="{'alert-success': member.propertiesConverter == 0, 'alert-danger': member.propertiesConverter !== 0}">
+                        {{DirtyMemberStatus(member)}}
+                    </td>
+                    <td colspan="2">
+                        <button class="btn py-1 px-1 mx-1 my-0 btn-outline-success" (click)="MakeMasterOfDirtyGroup(member)"
+                                [disabled]="member.propertiesConverter == 2">
+                            Make Master
+                        </button>
+                    </td>
                 </tr>
                 <tr>
-                  <td colspan="8" class="small p-0" style="line-height:0.4em;">&nbsp;</td>
+                    <td colspan="8" class="small p-0" style="line-height:0.4em;">&nbsp;</td>
                 </tr>
-              }
+                }
             </tbody>
           }
         </table>
@@ -408,112 +408,110 @@
               </tr>
             </thead>
             <tbody style="position: relative; z-index: -20;">
-              @for (member of CurrentGroup.JustMembers; track member) {
+                @for (member of CurrentGroup.JustMembers; track member.itemId) {
                 <tr class="bg-light">
-                  <td>Item ID:</td>
-                  <td class="bg-white">{{member.itemId}}</td>
-                  <td>Coded count:</td>
-                  <td>{{member.codedCount}}</td>
-                  <td>Uploaded Docs:</td>
-                  <td [ngClass]="{'alert-danger font-weight-bold' : member.docCount !== 0}">{{member.docCount}}</td>
-                  <td>Pages:</td>
-                  <td>{{member.pages}}</td>
+                    <td>Item ID:</td>
+                    <td class="bg-white">{{member.itemId}}</td>
+                    <td>Coded count:</td>
+                    <td>{{member.codedCount}}</td>
+                    <td>Uploaded Docs:</td>
+                    <td [ngClass]="{'alert-danger font-weight-bold' : member.docCount !== 0}">{{member.docCount}}</td>
+                    <td>Pages:</td>
+                    <td>{{member.pages}}</td>
                 </tr>
                 <tr class="bg-light">
-                  <td>Pub Type:</td>
-                  <td class="bg-white">{{member.typeName}}</td>
-                  @if (CurrentGroup.HasOriginalMaster) {
+                    <td>Pub Type:</td>
+                    <td class="bg-white">{{member.typeName}}</td>
+                    @if (CurrentGroup.HasOriginalMaster) {
                     <td class="font-weight-bold">
-                      Similarity: {{member.similarityScore.toPrecision(4)}}
+                        Similarity: {{member.similarityScore.toPrecision(4)}}
                     </td>
-                  }
-                  @if (!CurrentGroup.HasOriginalMaster) {
+                    }
+                    @if (!CurrentGroup.HasOriginalMaster) {
                     <td class="font-weight-bold alert-danger">
-                      Similarity: Unknown
+                        Similarity: Unknown
                     </td>
-                  }
-                  <td>Date:</td>
-                  <td><span>{{member.year}}</span>&nbsp;<span>{{member.month}}</span></td>
-                  <td>Source:</td>
-                  <td class="bg-white" colspan="2">{{member.source}}</td>
+                    }
+                    <td>Date:</td>
+                    <td><span>{{member.year}}</span>&nbsp;<span>{{member.month}}</span></td>
+                    <td>Source:</td>
+                    <td class="bg-white" colspan="2">{{member.source}}</td>
                 </tr>
                 <tr class="bg-light">
-                  <td>Authors(s): </td>
-                  <td colspan="7"><div style="max-height:200px;overflow-y:auto;">{{member.authors}}</div></td>
+                    <td>Authors(s): </td>
+                    <td colspan="7"><div style="max-height:200px;overflow-y:auto;">{{member.authors}}</div></td>
                 </tr>
                 <tr class="bg-light">
-                  <td>Title: </td>
-                  <td colspan="7">{{member.title}}</td>
+                    <td>Title: </td>
+                    <td colspan="7">{{member.title}}</td>
                 </tr>
                 <tr class="bg-light">
-                  <td>Pub Name: </td>
-                  <td colspan="4">{{member.parentTitle}}</td>
-                  <td class="font-weight-bold">DOI: </td>
-                  <td colspan="2" class="bg-white">{{member.doi}}</td>
+                    <td>Pub Name: </td>
+                    <td colspan="4">{{member.parentTitle}}</td>
+                    <td class="font-weight-bold">DOI: </td>
+                    <td colspan="2" class="bg-white">{{member.doi}}</td>
                 </tr>
                 <tr class="bg-light">
-                  <td>Marked As:</td>
-                  @if (member.isDuplicate && member.isChecked) {
+                    <td>Marked As:</td>
+                    @if (member.isDuplicate && member.isChecked) {
                     <td class="font-weight-bold alert-success">Duplicate</td>
-                  }
-                  @if (!member.isDuplicate && member.isChecked) {
+                    }
+                    @if (!member.isDuplicate && member.isChecked) {
                     <td class="font-weight-bold alert-success">NOT Duplicate</td>
-                  }
-                  @if (!member.isChecked) {
+                    }
+                    @if (!member.isChecked) {
                     <td class="bg-white">Not checked</td>
-                  }
-                  @if (CurrentGroup.isEditable) {
+                    }
+                    @if (CurrentGroup.isEditable) {
                     <td colspan="6" class="bg-white">
-                      @if (!member.isChecked || !member.isDuplicate) {
+                        @if (!member.isChecked || !member.isDuplicate) {
                         <button class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-success">A Duplicate</button>
-                      }
-                      @if (!member.isChecked || member.isDuplicate) {
+                        }
+                        @if (!member.isChecked || member.isDuplicate) {
                         <button class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-info">Not a Duplicate</button>
-                      }
-                      <button class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-danger">Mark as Master</button>
+                        }
+                        <button class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-danger">Mark as Master</button>
                     </td>
-                  }
-                  @if (HasWriteRights && !CurrentGroup.isEditable) {
+                    }
+                    @if (HasWriteRights && !CurrentGroup.isEditable) {
                     <td colspan="6" class="alert-danger small">
-                      Entire group is read-only (current master might be marked as duplicate in another group).
+                        Entire group is read-only (current master might be marked as duplicate in another group).
                     </td>
-                  }
-                  @if (!HasWriteRights && !CurrentGroup.isEditable) {
+                    }
+                    @if (!HasWriteRights && !CurrentGroup.isEditable) {
                     <td colspan="6" class="alert-danger small">
-                      Entire group is read-only (you don't have write-rights).
+                        Entire group is read-only (you don't have write-rights).
                     </td>
-                  }
+                    }
                 </tr>
                 <tr>
-                  <td colspan="8" class="small p-0" style="line-height:0.4em;">&nbsp;</td>
+                    <td colspan="8" class="small p-0" style="line-height:0.4em;">&nbsp;</td>
                 </tr>
-              }
+                }
             </tbody>
           </table>
           @if (CurrentGroup.manualMembers && CurrentGroup.manualMembers.length > 0) {
             <div id="ManualMembersDiv0" class="bg-white" style="position: relative;">
-              <table class="table-primary table-striped table table-sm m-0 p-0">
-                <tr>
-                  <td class="small">Manually added:</td>
-                  <th>ItemID</th>
-                  <th>Authors</th>
-                  <th>Title</th>
-                </tr>
-                @for (mMember of CurrentGroup.manualMembers; track mMember) {
-                  <tr>
-                    <td >
-                      <button
-                        class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-danger"
-                        >
-                        Remove
-                      </button>
-                    </td>
-                    <td>{{mMember.itemId}}</td>
-                    <td>{{mMember.authors}}</td>
-                    <td>{{mMember.title}}</td>
-                  </tr>
-                }
-              </table>
+                <table class="table-primary table-striped table table-sm m-0 p-0">
+                    <tr>
+                        <td class="small">Manually added:</td>
+                        <th>ItemID</th>
+                        <th>Authors</th>
+                        <th>Title</th>
+                    </tr>
+                    @for (mMember of CurrentGroup.manualMembers; track mMember.itemId) {
+                    <tr>
+                        <td>
+                            <button class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-danger">
+                                Remove
+                            </button>
+                        </td>
+                        <td>{{mMember.itemId}}</td>
+                        <td>{{mMember.authors}}</td>
+                        <td>{{mMember.title}}</td>
+                    </tr>
+                    }
+                </table>
             </div>
           }
         </div>
@@ -566,115 +564,115 @@
               </tr>
             </thead>
             <tbody style="position: relative; z-index: 20;">
-              @for (member of CurrentGroup.JustMembers; track member) {
+                @for (member of CurrentGroup.JustMembers; track member.itemId) {
                 <tr class="bg-light">
-                  <td>Item ID:</td>
-                  <td class="bg-white">{{member.itemId}}</td>
-                  <td>Coded count:</td>
-                  <td [ngClass]="{'bg-white' : member.codedCount <= 0, 'alert-danger font-weight-bold' : member.codedCount !== 0}">{{member.codedCount}}</td>
-                  <td>Uploaded Docs:</td>
-                  <td [ngClass]="{'bg-white' : member.docCount <= 0, 'alert-danger font-weight-bold' : member.docCount !== 0}">{{member.docCount}}</td>
-                  <td>Pages:</td>
-                  <td [ngClass]="DistanceClass(member.pages, CurrentGroup.Master.pages)">{{member.pages}}</td>
+                    <td>Item ID:</td>
+                    <td class="bg-white">{{member.itemId}}</td>
+                    <td>Coded count:</td>
+                    <td [ngClass]="{'bg-white' : member.codedCount <= 0, 'alert-danger font-weight-bold' : member.codedCount !== 0}">{{member.codedCount}}</td>
+                    <td>Uploaded Docs:</td>
+                    <td [ngClass]="{'bg-white' : member.docCount <= 0, 'alert-danger font-weight-bold' : member.docCount !== 0}">{{member.docCount}}</td>
+                    <td>Pages:</td>
+                    <td [ngClass]="DistanceClass(member.pages, CurrentGroup.Master.pages)">{{member.pages}}</td>
                 </tr>
                 <tr class="bg-light">
-                  <td>Pub Type:</td>
-                  <td class="bg-white">{{member.typeName}}</td>
-                  @if (CurrentGroup.HasOriginalMaster) {
+                    <td>Pub Type:</td>
+                    <td class="bg-white">{{member.typeName}}</td>
+                    @if (CurrentGroup.HasOriginalMaster) {
                     <td class="font-weight-bold"
-                      [ngClass]="{'alert-success': member.similarityScore >= 0.999, 'alert-warning' : member.similarityScore >= 0.9 && member.similarityScore < 0.999, 'alert-danger': member.similarityScore < 0.9}">
-                      Similarity: {{member.similarityScore.toPrecision(4)}}
+                        [ngClass]="{'alert-success': member.similarityScore >= 0.999, 'alert-warning' : member.similarityScore >= 0.9 && member.similarityScore < 0.999, 'alert-danger': member.similarityScore < 0.9}">
+                        Similarity: {{member.similarityScore.toPrecision(4)}}
                     </td>
-                  }
-                  @if (!CurrentGroup.HasOriginalMaster) {
+                    }
+                    @if (!CurrentGroup.HasOriginalMaster) {
                     <td class="font-weight-bold alert-danger">
-                      Similarity: Unknown
+                        Similarity: Unknown
                     </td>
-                  }
-                  <td>Date:</td>
-                  <td><span [ngClass]="DistanceClass(member.year, CurrentGroup.Master.year)">{{member.year}}</span>&nbsp;<span [ngClass]="DistanceClass(member.month, CurrentGroup.Master.month)">{{member.month}}</span></td>
-                  <td>Source:</td>
-                  <td class="bg-white" colspan="2">{{member.source}}</td>
+                    }
+                    <td>Date:</td>
+                    <td><span [ngClass]="DistanceClass(member.year, CurrentGroup.Master.year)">{{member.year}}</span>&nbsp;<span [ngClass]="DistanceClass(member.month, CurrentGroup.Master.month)">{{member.month}}</span></td>
+                    <td>Source:</td>
+                    <td class="bg-white" colspan="2">{{member.source}}</td>
                 </tr>
                 <tr class="bg-light">
-                  <td>Authors(s): </td>
-                  <td colspan="7" [ngClass]="DistanceClass(member.authors, CurrentGroup.Master.authors)">
-                    <div style="max-height:200px;overflow-y:auto;">{{member.authors}}</div>
-                  </td>
+                    <td>Authors(s): </td>
+                    <td colspan="7" [ngClass]="DistanceClass(member.authors, CurrentGroup.Master.authors)">
+                        <div style="max-height:200px;overflow-y:auto;">{{member.authors}}</div>
+                    </td>
                 </tr>
                 <tr class="bg-light">
-                  <td>Title: </td>
-                  <td colspan="7" [ngClass]="DistanceClass(member.title, CurrentGroup.Master.title)">{{member.title}}</td>
+                    <td>Title: </td>
+                    <td colspan="7" [ngClass]="DistanceClass(member.title, CurrentGroup.Master.title)">{{member.title}}</td>
                 </tr>
                 <tr class="bg-light">
-                  <td>Pub Name: </td>
-                  <td colspan="4" [ngClass]="DistanceClass(member.parentTitle, CurrentGroup.Master.parentTitle)">{{member.parentTitle}}</td>
-                  <td class="font-weight-bold">DOI: </td>
-                  <td colspan="2" [ngClass]="(CurrentGroup.Master) && member.doi.length > 0 && CurrentGroup.Master.doi.length > 0 && CurrentGroup.Master.doi != member.doi ? 'bg-lev3' : 'bg-white'">{{member.doi}}</td>
+                    <td>Pub Name: </td>
+                    <td colspan="4" [ngClass]="DistanceClass(member.parentTitle, CurrentGroup.Master.parentTitle)">{{member.parentTitle}}</td>
+                    <td class="font-weight-bold">DOI: </td>
+                    <td colspan="2" [ngClass]="(CurrentGroup.Master) && member.doi.length > 0 && CurrentGroup.Master.doi.length > 0 && CurrentGroup.Master.doi != member.doi ? 'bg-lev3' : 'bg-white'">{{member.doi}}</td>
                 </tr>
                 <tr class="bg-light">
-                  <td>Marked As:</td>
-                  @if (member.isDuplicate && member.isChecked) {
+                    <td>Marked As:</td>
+                    @if (member.isDuplicate && member.isChecked) {
                     <td class="font-weight-bold alert-success">Duplicate</td>
-                  }
-                  @if (!member.isDuplicate && member.isChecked) {
+                    }
+                    @if (!member.isDuplicate && member.isChecked) {
                     <td class="font-weight-bold alert-success">NOT Duplicate</td>
-                  }
-                  @if (!member.isChecked) {
+                    }
+                    @if (!member.isChecked) {
                     <td class="bg-white">Not checked</td>
-                  }
-                  @if (CurrentGroup.isEditable) {
+                    }
+                    @if (CurrentGroup.isEditable) {
                     <td colspan="6" class="bg-white">
-                      @if (!member.isChecked || !member.isDuplicate) {
+                        @if (!member.isChecked || !member.isDuplicate) {
                         <button [disabled]="!HasWriteRights || !member.isEditable " class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-success" (click)="MarkUnmarkItemAsDuplicate(member, true)">A Duplicate</button>
-                      }
-                      @if (!member.isChecked || member.isDuplicate) {
+                        }
+                        @if (!member.isChecked || member.isDuplicate) {
                         <button [disabled]="!HasWriteRights || !member.isEditable" class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-info" (click)="MarkUnmarkItemAsDuplicate(member, false)">Not a Duplicate</button>
-                      }
-                      <button [disabled]="!HasWriteRights || !member.isEditable" class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-danger" (click)="MarkAsMaster(member)">Mark as Master</button>
+                        }
+                        <button [disabled]="!HasWriteRights || !member.isEditable" class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-danger" (click)="MarkAsMaster(member)">Mark as Master</button>
                     </td>
-                  }
-                  @if (HasWriteRights && !CurrentGroup.isEditable) {
+                    }
+                    @if (HasWriteRights && !CurrentGroup.isEditable) {
                     <td colspan="6" class="alert-danger small">
-                      Entire group is read-only (current master might be marked as duplicate in another group).
+                        Entire group is read-only (current master might be marked as duplicate in another group).
                     </td>
-                  }
-                  @if (!HasWriteRights && !CurrentGroup.isEditable) {
+                    }
+                    @if (!HasWriteRights && !CurrentGroup.isEditable) {
                     <td colspan="6" class="alert-danger small">
-                      Entire group is read-only (you don't have write-rights).
+                        Entire group is read-only (you don't have write-rights).
                     </td>
-                  }
+                    }
                 </tr>
                 <tr>
-                  <td colspan="8" class="small p-0" style="line-height:0.4em;">&nbsp;</td>
+                    <td colspan="8" class="small p-0" style="line-height:0.4em;">&nbsp;</td>
                 </tr>
-              }
+                }
             </tbody>
           </table>
           @if (CurrentGroup.manualMembers && CurrentGroup.manualMembers.length > 0) {
             <div id="ManualMembersDiv" class="bg-white" style="position: relative;">
-              <table class="table-primary table-striped table table-sm m-0 p-0">
-                <tr>
-                  <td class="small">Manually added:</td>
-                  <th>ItemID</th>
-                  <th>Authors</th>
-                  <th>Title</th>
-                </tr>
-                @for (mMember of CurrentGroup.manualMembers; track mMember) {
-                  <tr>
-                    <td>
-                      <button [disabled]="!HasWriteRights "
-                        class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-danger"
-                        (click)="RemoveManualMember(mMember.itemId)">
-                        Remove
-                      </button>
-                    </td>
-                    <td>{{mMember.itemId}}</td>
-                    <td>{{mMember.authors}}</td>
-                    <td>{{mMember.title}}</td>
-                  </tr>
-                }
-              </table>
+                <table class="table-primary table-striped table table-sm m-0 p-0">
+                    <tr>
+                        <td class="small">Manually added:</td>
+                        <th>ItemID</th>
+                        <th>Authors</th>
+                        <th>Title</th>
+                    </tr>
+                    @for (mMember of CurrentGroup.manualMembers; track mMember.itemId) {
+                    <tr>
+                        <td>
+                            <button [disabled]="!HasWriteRights "
+                                    class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-danger"
+                                    (click)="RemoveManualMember(mMember.itemId)">
+                                Remove
+                            </button>
+                        </td>
+                        <td>{{mMember.itemId}}</td>
+                        <td>{{mMember.authors}}</td>
+                        <td>{{mMember.title}}</td>
+                    </tr>
+                    }
+                </table>
             </div>
           }
         </div>

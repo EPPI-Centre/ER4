@@ -265,15 +265,14 @@
                 &nbsp; {{item.contactName}}&nbsp;
               </div>
               ?-->
-              <select class="col-md-6 form-control" name="rev3"
-                [disabled]="!HasWriteRights" [(ngModel)]="selectedCompleteUser">
-                @for (member of lstContacts; track member) {
-                  <option
-                    [ngValue]="member" [selected]="member == selectedCompleteUser">
-                    {{member.contactName}}
-                  </option>
-                }
-              </select>
+                <select class="col-md-6 form-control" name="rev3"
+                        [disabled]="!HasWriteRights" [(ngModel)]="selectedCompleteUser">
+                    @for (member of lstContacts; track member.contactId) {
+                    <option [ngValue]="member" [selected]="member == selectedCompleteUser">
+                        {{member.contactName}}
+                    </option>
+                    }
+                </select>
               <div class="col-12 row">
                 <button class="btn btn-outline-success" (click)="Complete(_comparisonsService.currentComparison)"
                   [disabled]="!lstContacts.includes(selectedCompleteUser)">

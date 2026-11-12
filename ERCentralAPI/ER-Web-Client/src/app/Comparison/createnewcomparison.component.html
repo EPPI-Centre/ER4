@@ -4,14 +4,13 @@
       <div class="form-group">
         <label for="rev1">Reviewer 1</label>
         <select class="col-md-6 form-control" name="rev1"
-          [disabled]="!HasWriteRights" [(ngModel)]="selectedReviewer1" >
-          <option> </option>
-          @for (member of Contacts; track member) {
-            <option
-              [ngValue]="member" [selected]="member == selectedReviewer1">
-              {{member.contactName}}
+                [disabled]="!HasWriteRights" [(ngModel)]="selectedReviewer1">
+            <option> </option>
+            @for (member of Contacts; track member.contactId) {
+            <option [ngValue]="member" [selected]="member == selectedReviewer1">
+                {{member.contactName}}
             </option>
-          }
+            }
         </select>
       </div>
     </div>
@@ -19,14 +18,13 @@
       <div class="form-group">
         <label for="rev2">Reviewer 2</label>
         <select class="col-md-6 form-control" name="rev2"
-          [disabled]="!HasWriteRights" [(ngModel)]="selectedReviewer2">
-          <option> </option>
-          @for (member of Contacts; track member) {
-            <option
-              [ngValue]="member" [selected]="member == selectedReviewer2">
-              {{member.contactName}}
+                [disabled]="!HasWriteRights" [(ngModel)]="selectedReviewer2">
+            <option> </option>
+            @for (member of Contacts; track member.contactId) {
+            <option [ngValue]="member" [selected]="member == selectedReviewer2">
+                {{member.contactName}}
             </option>
-          }
+            }
         </select>
       </div>
     </div>
@@ -34,14 +32,13 @@
       <div class="form-group">
         <label for="rev3">Reviewer 3 (optional)</label>
         <select class="col-md-6 form-control" name="rev3"
-          [disabled]="!HasWriteRights" [(ngModel)]="selectedReviewer3">
-          <option> </option>
-          @for (member of Contacts; track member) {
-            <option
-              name="rev3" [ngValue]="member" [selected]="member == selectedReviewer3">
-              {{member.contactName}}
+                [disabled]="!HasWriteRights" [(ngModel)]="selectedReviewer3">
+            <option> </option>
+            @for (member of Contacts; track member.contactId) {
+            <option name="rev3" [ngValue]="member" [selected]="member == selectedReviewer3">
+                {{member.contactName}}
             </option>
-          }
+            }
         </select>
       </div>
     </div>
@@ -50,13 +47,13 @@
         <div class="form-group">
           <label for="codeSET">Code set</label>
           <select class="col-md-6 form-control" [disabled]="!HasWriteRights"
-            name="codeSET" [(ngModel)]="selectedCodeSet">
-            @for (item of CodeSets; track item) {
+                  name="codeSET" [(ngModel)]="selectedCodeSet">
+              @for (item of CodeSets; track item.set_id) {
               <option name="codeSET"
-                [ngValue]="item"  [selected]="item == selectedCodeSet">
-                {{item.name}}
+                      [ngValue]="item" [selected]="item == selectedCodeSet">
+                  {{item.name}}
               </option>
-            }
+              }
           </select>
         </div>
       }

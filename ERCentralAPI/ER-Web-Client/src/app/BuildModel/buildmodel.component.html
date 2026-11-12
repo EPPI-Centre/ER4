@@ -12,13 +12,12 @@
             <div class="mx-1">ML Model to build:</div>
           </div>
           <select class="alert-info col-12 col-sm-10 col-md-8 col-lg-9  mx-0 px-0 py-1" name="ModelSelector"
-            [disabled]="!HasWriteRights" [(ngModel)]="selectedModel">
-            @for (mod of modelsList; track mod) {
-              <option
-                [ngValue]="mod" [selected]="mod == selectedModel">
-                {{mod.value}}
+                  [disabled]="!HasWriteRights" [(ngModel)]="selectedModel">
+              @for (mod of modelsList; track mod.key) {
+              <option [ngValue]="mod" [selected]="mod == selectedModel">
+                  {{mod.value}}
               </option>
-            }
+              }
           </select>
         </div>
       }

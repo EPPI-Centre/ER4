@@ -125,11 +125,11 @@
           <select #EditCodeTypeSelect class="col-md-6 form-control"
                   (change)="AttributeTypeChanged($event)" name="Code_Type"
                   [(ngModel)]="UpdatingCode.attribute_type_id">
-            @for (type of AllowedChildTypes; track type) {
-            <option [value]="type.key" [selected]="UpdatingCode && type.key == UpdatingCode.attribute_type_id">
-              {{type.value}}
-            </option>
-            }
+              @for (type of AllowedChildTypes; track type.key) {
+              <option [value]="type.key" [selected]="UpdatingCode && type.key == UpdatingCode.attribute_type_id">
+                  {{type.value}}
+              </option>
+              }
           </select>
         </div>
       </div>
@@ -269,13 +269,13 @@
           <div class="form-group">
             <div for="Codeset_Type">Code Type*</div>
             <select #EditCodeTypeSelect class="p-1"
-              (change)="AttributeTypeChanged($event)" name="Code_Type"
-              [(ngModel)]="UpdatingCode.attribute_type_id">
-              @for (type of AllowedChildTypes; track type) {
+                    (change)="AttributeTypeChanged($event)" name="Code_Type"
+                    [(ngModel)]="UpdatingCode.attribute_type_id">
+                @for (type of AllowedChildTypes; track type.key) {
                 <option [value]="type.key" [selected]="UpdatingCode && type.key == UpdatingCode.attribute_type_id">
-                  {{type.value}}
+                    {{type.value}}
                 </option>
-              }
+                }
             </select>
             @if (ShowIsExclusiveCheckbox) {
               <div>

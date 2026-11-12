@@ -23,16 +23,16 @@
               </tr>
             </thead>
             <tbody>
-              @for (item of MagCurrentInfoList; track item) {
+                @for (item of MagCurrentInfoList; track item.magCurrentInfoId) {
                 <tr>
-                  <td>{{item.magFolder}}</td>
-                  <td>{{item.whenLive}}</td>
-                  <td>{{item.makesDeploymentStatus}}</td>
-                  <td><button (click)="MakeLive(item)" class="btn btn-link btn-sm font-weight-bold px-0">Make live</button></td>
-                  <td><button (click)="MakePending(item)" class="btn btn-link btn-sm font-weight-bold px-0">Make pending</button></td>
-                  <td><button (click)="DeleteCurrentInfo(item)" class="btn btn-link btn-sm font-weight-bold px-0">Delete</button></td>
+                    <td>{{item.magFolder}}</td>
+                    <td>{{item.whenLive}}</td>
+                    <td>{{item.makesDeploymentStatus}}</td>
+                    <td><button (click)="MakeLive(item)" class="btn btn-link btn-sm font-weight-bold px-0">Make live</button></td>
+                    <td><button (click)="MakePending(item)" class="btn btn-link btn-sm font-weight-bold px-0">Make pending</button></td>
+                    <td><button (click)="DeleteCurrentInfo(item)" class="btn btn-link btn-sm font-weight-bold px-0">Delete</button></td>
                 </tr>
-              }
+                }
             </tbody>
           </table>
         </div>
@@ -118,18 +118,18 @@
               </tr>
             </thead>
             <tbody>
-              @for (item of MagReviewList; track item) {
+                @for (item of MagReviewList; track item.reviewId) {
                 <tr>
-                  <td>
-                    <button class="btn alert-danger btn-sm"
-                      (click)="DeleteReview(item)">
-                      Delete
-                    </button>
-                  </td>
-                  <td>{{item.reviewId}}</td>
-                  <td>{{item.name}}</td>
+                    <td>
+                        <button class="btn alert-danger btn-sm"
+                                (click)="DeleteReview(item)">
+                            Delete
+                        </button>
+                    </td>
+                    <td>{{item.reviewId}}</td>
+                    <td>{{item.name}}</td>
                 </tr>
-              }
+                }
             </tbody>
           </table>
         </div>
@@ -155,17 +155,17 @@
               </tr>
             </thead>
             <tbody>
-              @for (item of MagLogList; track item) {
+                @for (item of MagLogList; track item.magLogId) {
                 <tr>
-                  <td>{{item.jobType}}</td>
-                  <td>{{item.contactName}}</td>
-                  <td>{{item.jobStatus}}</td>
-                  <td>{{item.timeSubmitted}}</td>
-                  <td>{{item.timeUpdated}}</td>
-                  <td>{{item.jobMessage}}</td>
-                  <td><button (click)="DownloadResults(item)" class="btn btn-link btn-sm font-weight-bold px-0" [disabled]="(item.jobStatus || '').toLowerCase() !== 'failed'">Download</button></td>
+                    <td>{{item.jobType}}</td>
+                    <td>{{item.contactName}}</td>
+                    <td>{{item.jobStatus}}</td>
+                    <td>{{item.timeSubmitted}}</td>
+                    <td>{{item.timeUpdated}}</td>
+                    <td>{{item.jobMessage}}</td>
+                    <td><button (click)="DownloadResults(item)" class="btn btn-link btn-sm font-weight-bold px-0" [disabled]="(item.jobStatus || '').toLowerCase() !== 'failed'">Download</button></td>
                 </tr>
-              }
+                }
             </tbody>
           </table>
         </div>

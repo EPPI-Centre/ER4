@@ -44,7 +44,7 @@
             <div class="row align-items-center mt-2">
               <div class="mx-0 px-1 col-12 col-md-4 text-md-right align-self-start">Gold standard records have this code</div>
               <div class="col-12 col-md-8">
-                <div ngbDropdown class="d-inline-block w-100 mb-1">
+                <div class="d-inline-block w-100 mb-1">
                   <button class="btn alert-primary dropdown-toggle w-100" id="dropdownTree" (click)="isCollapsedSetSelectedGoldStandardEvaluationAttribute = !isCollapsedSetSelectedGoldStandardEvaluationAttribute; isCollapsed2SetSelectedGoldStandardEvaluationAttribute=false" [attr.aria-expanded]="!isCollapsedSetSelectedGoldStandardEvaluationAttribute" aria-controls="collapseCodeTree">{{selectedModelDropDown1}}&nbsp;</button>
                   <div (click)="SetSelectedGoldStandardEvaluationAttribute(nodeSelected)" class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsedSetSelectedGoldStandardEvaluationAttribute">
                     <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown1()" [rootsOnly]=false></codesetSelector>
@@ -73,15 +73,15 @@
             <div class="row align-items-center mt-2">
               <div class="mx-0 px-1 col-12 col-md-4 my-auto text-md-right align-self-start">Evaluate the prompts in this code set</div>
               <div class="col-12 col-md-8">
-                <select class="w-100 mb-1 form-control" (change)="DropdownSelectCodingToolPromptEvaluation()"
-                  name="codeSET" [(ngModel)]="selectedCodeSet">
-                  @for (item of AllCodeSets; track item) {
-                    <option name="codeSET"
-                      [ngValue]="item" [selected]="item == selectedCodeSet">
-                      {{item.name}}
-                    </option>
-                  }
-                </select>
+                  <select class="w-100 mb-1 form-control" (change)="DropdownSelectCodingToolPromptEvaluation()"
+                          name="codeSET" [(ngModel)]="selectedCodeSet">
+                      @for (item of AllCodeSets; track item.set_id) {
+                      <option name="codeSET"
+                              [ngValue]="item" [selected]="item == selectedCodeSet">
+                          {{item.name}}
+                      </option>
+                      }
+                  </select>
                 @if (selectedCodeSet.set_id > 0 && selectedCodeSet.HasChildrenWithPrompt == false) {
                   <div class="alert alert-danger small mt-1 px-1 py-0 d-inline-block">
                     Selected tool appears to contain no prompts!
@@ -107,14 +107,14 @@
               <div class="row align-items-center mt-2">
                 <div class="mx-0 px-1 col-12 col-md-4 my-auto text-md-right align-self-start">Robot</div>
                 <div class="col-12 col-md-8">
-                  <select class="w-100 mb-1 py-1" (change)="RobotChanged($event)" id="LLMevalRobotlist">
-                    <option value="">Please select</option>
-                    @for (r of RobotsList; track r) {
-                      <option [ngValue]="r.robotName" [selected]="r.robotName == RobotSettings.robotName" [disabled]="r.isRetired">
-                        {{r.robotName}}
-                      </option>
-                    }
-                  </select>
+                    <select class="w-100 mb-1 py-1" (change)="RobotChanged($event)" id="LLMevalRobotlist">
+                        <option value="">Please select</option>
+                        @for (r of RobotsList; track r.robotId) {
+                        <option [ngValue]="r.robotName" [selected]="r.robotName == RobotSettings.robotName" [disabled]="r.isRetired">
+                            {{r.robotName}}
+                        </option>
+                        }
+                    </select>
                 </div>
               </div>
               @if (showRobotDetails && SelectedRobot) {
@@ -182,51 +182,51 @@
                     </tr>
                   </thead>
                   <tbody>
-                    @for (item of RobotOpenAiPromptEvaluationList; track item) {
+                      @for (item of RobotOpenAiPromptEvaluationList; track item.openAiPromptEvaluationId) {
                       <tr [ngClass]="{'disableThisAndChildren': EvalDisableClass(item), 'font-weight-bold': item.openAiPromptEvaluationId == currentSelectedEvaluationId}">
-                        <td class="px-1 py-0">
-                          <button (click)="showEvaluation(item)" class="btn btn-link px-1 py-0" [disabled]="item.tp + item.tn + item.fp + item.fn == -4">
-                            {{item.title}}
-                          </button>
-                        </td>
-                        <td class="px-1 py-0">
-                          {{item.contactName}}
-                        </td>
-                        <td class="px-1 py-0">
-                          {{item.robotName}}
-                        </td>
-                        <td class="px-1 py-0">
-                          {{item.nRecords}}
-                        </td>
-                        <td class="px-1 py-0">
-                          {{item.nCodes}}
-                        </td>
-                        <td class="px-1 py-0">
-                          {{item.nIterations}}
-                        </td>
-                        <td class="px-1 py-0 font-weight-bold">
-                          {{item.nRecords * item.nCodes * item.nIterations}}
-                        </td>
-                        <td class="px-1 py-0">
-                          {{item.tp}}
-                        </td>
-                        <td class="px-1 py-0">
-                          {{item.tn}}
-                        </td>
-                        <td class="px-1 py-0">
-                          {{item.fp}}
-                        </td>
-                        <td class="px-1 py-0">
-                          {{item.fn}}
-                        </td>
-                        <td class="" style="text-align:right">
-                          <button class="btn btn-sm btn-danger px-1 py-0 " title="Delete this evaluation" (click)="confirmDeleteEvaluation(item)"
-                            [disabled]="HasWriteRights == false || EvalDisableClass(item)">
-                            <kendo-icon name="trash" size="small" style="position: relative; top:-2px;"></kendo-icon>
-                          </button>
-                        </td>
+                          <td class="px-1 py-0">
+                              <button (click)="showEvaluation(item)" class="btn btn-link px-1 py-0" [disabled]="item.tp + item.tn + item.fp + item.fn == -4">
+                                  {{item.title}}
+                              </button>
+                          </td>
+                          <td class="px-1 py-0">
+                              {{item.contactName}}
+                          </td>
+                          <td class="px-1 py-0">
+                              {{item.robotName}}
+                          </td>
+                          <td class="px-1 py-0">
+                              {{item.nRecords}}
+                          </td>
+                          <td class="px-1 py-0">
+                              {{item.nCodes}}
+                          </td>
+                          <td class="px-1 py-0">
+                              {{item.nIterations}}
+                          </td>
+                          <td class="px-1 py-0 font-weight-bold">
+                              {{item.nRecords * item.nCodes * item.nIterations}}
+                          </td>
+                          <td class="px-1 py-0">
+                              {{item.tp}}
+                          </td>
+                          <td class="px-1 py-0">
+                              {{item.tn}}
+                          </td>
+                          <td class="px-1 py-0">
+                              {{item.fp}}
+                          </td>
+                          <td class="px-1 py-0">
+                              {{item.fn}}
+                          </td>
+                          <td class="" style="text-align:right">
+                              <button class="btn btn-sm btn-danger px-1 py-0 " title="Delete this evaluation" (click)="confirmDeleteEvaluation(item)"
+                                      [disabled]="HasWriteRights == false || EvalDisableClass(item)">
+                                  <kendo-icon name="trash" size="small" style="position: relative; top:-2px;"></kendo-icon>
+                              </button>
+                          </td>
                       </tr>
-                    }
+                      }
                   </tbody>
                 </table>
               </div>
@@ -250,7 +250,7 @@
               <div class="row align-items-center mt-2 mx-0">
                 <div class="mx-0 px-1 col-12 col-sm-6 col-md-4 my-auto text-sm-right">Split records with this code</div>
 
-                <div ngbDropdown class="d-inline-block mx-0 px-1 col-12 col-sm-6 col-md-8 my-auto">
+                <div class="d-inline-block mx-0 px-1 col-12 col-sm-6 col-md-8 my-auto">
                   <button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree2" (click)="isCollapsedSetSelectedGoldStandardTrainTestAttribute = !isCollapsedSetSelectedGoldStandardTrainTestAttribute; isCollapsedSetSelectedTrainTestBelowHereAttribute=false" [attr.aria-expanded]="!isCollapsedSetSelectedGoldStandardTrainTestAttribute" aria-controls="collapseCodeTree">{{selectedModelDropDown2}}&nbsp;</button>
                   <div (click)="SetSelectedGoldStandardTrainTestAttribute(nodeSelected)" class="dropdown-menu" id="collapseCodeTree2" [ngbCollapse]="!isCollapsedSetSelectedGoldStandardTrainTestAttribute">
                     <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" (selectedNodeInTree)="CloseBMDropDown2()" [rootsOnly]=false></codesetSelector>
@@ -271,7 +271,7 @@
               @if (CreateTrainTestSplitsSection) {
                 <div class="row align-items-center mt-2 mx-0">
                   <div class="mx-0 px-1 col-12 col-sm-6 col-md-4 my-auto text-sm-right">Create below here</div>
-                  <div ngbDropdown class="d-inline-block mx-0 px-1 col-12 col-sm-6 col-md-8 my-auto" >
+                  <div  class="d-inline-block mx-0 px-1 col-12 col-sm-6 col-md-8 my-auto" >
                     <button class="btn alert-primary col-12  dropdown-toggle" id="dropdownTree3"
                       (click)="isCollapsedSetSelectedTrainTestBelowHereAttribute = !isCollapsedSetSelectedTrainTestBelowHereAttribute; isCollapsedSetSelectedGoldStandardTrainTestAttribute=false"
                       [attr.aria-expanded]="!isCollapsedSetSelectedTrainTestBelowHereAttribute" aria-controls="collapseCodeTree">
@@ -346,24 +346,24 @@
                     </tr>
                   </thead>
                   <tbody>
-                    @for (m of metrics; track m) {
+                      @for (m of metrics; track m.attributeId) {
                       <tr>
-                        <td>{{ getAttributeName(m.attributeId) }}</td>
-                        <td class="text-center">{{ m.sensitivity | number:'1.3-3' }}</td>
-                        <td class="text-center">{{ m.specificity | number:'1.3-3' }}</td>
-                        <td class="text-center">{{ m.tp + m.fn }}</td>
-                        <td class="text-center">
-                          <div [ngClass]="{'alert-danger font-weight-bold': m.tp + m.fp != m.tp + m.fn}" class="px-1">{{ m.tp + m.fp }}</div>
-                        </td>
-                        <td class="text-center">{{ m.precision | number:'1.3-3' }}</td>
-                        @if (m.tp + m.fn > 0) {
+                          <td>{{ getAttributeName(m.attributeId) }}</td>
+                          <td class="text-center">{{ m.sensitivity | number:'1.3-3' }}</td>
+                          <td class="text-center">{{ m.specificity | number:'1.3-3' }}</td>
+                          <td class="text-center">{{ m.tp + m.fn }}</td>
+                          <td class="text-center">
+                              <div [ngClass]="{'alert-danger font-weight-bold': m.tp + m.fp != m.tp + m.fn}" class="px-1">{{ m.tp + m.fp }}</div>
+                          </td>
+                          <td class="text-center">{{ m.precision | number:'1.3-3' }}</td>
+                          @if (m.tp + m.fn > 0) {
                           <td class="text-center">{{ m.f1Score | number:'1.3-3' }}</td>
-                        } @else {
+                          } @else {
                           <td class="text-center">N/A</td>
-                        }
-                        <td class="text-center">{{ m.accuracy | number:'1.3-3' }}</td>
+                          }
+                          <td class="text-center">{{ m.accuracy | number:'1.3-3' }}</td>
                       </tr>
-                    }
+                      }
                   </tbody>
                 </table>
               </div>
@@ -384,21 +384,21 @@
                           </tr>
                         </thead>
                         <tbody>
-                          @for (row of getRowsForAttribute(attributeId); track row) {
+                            @for (row of getRowsForAttribute(attributeId); track row.attribute_id_row_descriptor) {
                             <tr>
-                              <td class="table-light">
-                                <strong>{{ row.llmClassification ? 'LLM True' : 'LLM False' }}</strong>
-                              </td>
-                              <td class="text-center" style="cursor: pointer;" [ngClass]="{'table-success': row.llmClassification, 'table-danger': !row.llmClassification}" (click)="listItems(row, true)">
-                                {{ row.llm_human_true }}
-                                <small class="text-muted">{{ row.llmClassification ? '(TP' : '(FN' }} mean over {{currentSelectedEvaluationNIterations}} iterations: {{row.llm_human_true / currentSelectedEvaluationNIterations | number:'1.0-2'}})</small>
-                              </td>
-                              <td class="text-center" style="cursor: pointer;" [ngClass]="{'table-danger': row.llmClassification, 'table-success': !row.llmClassification}" (click)="listItems(row, false)">
-                                {{ row.llm_human_false }}
-                                <small class="text-muted">{{ row.llmClassification ? '(FP' : '(TN' }} mean over {{currentSelectedEvaluationNIterations}} iterations: {{row.llm_human_false / currentSelectedEvaluationNIterations | number:'1.0-2'}})</small>
-                              </td>
+                                <td class="table-light">
+                                    <strong>{{ row.llmClassification ? 'LLM True' : 'LLM False' }}</strong>
+                                </td>
+                                <td class="text-center" style="cursor: pointer;" [ngClass]="{'table-success': row.llmClassification, 'table-danger': !row.llmClassification}" (click)="listItems(row, true)">
+                                    {{ row.llm_human_true }}
+                                    <small class="text-muted">{{ row.llmClassification ? '(TP' : '(FN' }} mean over {{currentSelectedEvaluationNIterations}} iterations: {{row.llm_human_true / currentSelectedEvaluationNIterations | number:'1.0-2'}})</small>
+                                </td>
+                                <td class="text-center" style="cursor: pointer;" [ngClass]="{'table-danger': row.llmClassification, 'table-success': !row.llmClassification}" (click)="listItems(row, false)">
+                                    {{ row.llm_human_false }}
+                                    <small class="text-muted">{{ row.llmClassification ? '(FP' : '(TN' }} mean over {{currentSelectedEvaluationNIterations}} iterations: {{row.llm_human_false / currentSelectedEvaluationNIterations | number:'1.0-2'}})</small>
+                                </td>
                             </tr>
-                          }
+                            }
                         </tbody>
                       </table>
                       <!-- Metrics for this attribute -->

@@ -70,12 +70,12 @@
                             }
                             @if (SearchTextTopicsResults.length > 0) {
                               <div class="row bg-white border" style="max-height:300px;overflow:auto;">
-                                @for (item of SearchTextTopicsResults; track item) {
+                                  @for (item of SearchTextTopicsResults; track item.fieldOfStudyId) {
                                   <div class="col-auto btn border rounded p-1 m-1" (click)="SelectTopic(item)"
-                                    [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
-                                    {{item.displayName}}
+                                       [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
+                                      {{item.displayName}}
                                   </div>
-                                }
+                                  }
                               </div>
                             }
                             <div class="row m-0" [ngClass]="{'font-weight-light small': SearchTextTopicDisplayName == ''}">
@@ -106,7 +106,7 @@
               @if (WordsInSelection != '5') {
                 <div class="col-12 row mb-2">
                   <div class="row mx-0 col-sm-6">
-                    <div ngbDropdown class="col-12 px-0">
+                    <div class="col-12 px-0">
                       <select class=" form-control mb-1" name="DateLimitSelection"
                         [(ngModel)]="DateLimitSelection">
                         <option [ngValue]="0" [selected]="DateLimitSelection == 0">No date limit</option>
@@ -207,7 +207,7 @@
               <div class="card-text row col-12">
 
                 <div class="p-2 m-2 col-12">
-                  <div ngbDropdown style="min-width:90px">
+                  <div style="min-width:90px">
                     <select class="form-control" name="LogicalOperator"
                       [disabled]="AllSelectedItems.length < 2 || AllSelectedItems.length > 20"
                       [(ngModel)]="LogicalOperator">
@@ -336,119 +336,119 @@
                       </tr>
                     </thead>
 
-                    <tbody>
-                      @for (item of MagSearchList; track item) {
-                        <tr class="small" [ngClass]="{'font-italic': !CanImportMagPapers(item), 'font-weight-bold': CanImportMagPapers(item) }">
+                  <tbody>
+                      @for (item of MagSearchList; track item.magSearchId) {
+                      <tr class="small" [ngClass]="{'font-italic': !CanImportMagPapers(item), 'font-weight-bold': CanImportMagPapers(item) }">
                           <td class="align-middle">
-                            <input class="ml-1 larger-checkbox"
-                              type="checkbox"
-                              [(ngModel)]="item.add" />
-                            </td>
-                            <td class="align-middle">{{item.searchNo}}</td>
-                            <td class="align-middle" title={{item.searchText}} style="word-break: break-all;">
+                              <input class="ml-1 larger-checkbox"
+                                     type="checkbox"
+                                     [(ngModel)]="item.add" />
+                          </td>
+                          <td class="align-middle">{{item.searchNo}}</td>
+                          <td class="align-middle" title={{item.searchText}} style="word-break: break-all;">
                               @switch (DisplayStyleForName(item)) {
-                                @case (0) {
-                                  <div>{{item.searchText}}</div>
-                                }
-                                @case (1) {
-                                  <div>
-                                    <div class="row px-1 mx-0">
+                              @case (0) {
+                              <div>{{item.searchText}}</div>
+                              }
+                              @case (1) {
+                              <div>
+                                  <div class="row px-1 mx-0">
                                       <div class="px-1 bg-light">{{item.searchText}}</div>
                                       <button (click)="showFullTextForNameOfThisSearchId = -1" class="btn btn-link btn-sm py-0">Collapse...</button>
-                                    </div>
                                   </div>
-                                }
-                                @case (2) {
-                                  <div>
-                                    <div class="row px-1 mx-0">
+                              </div>
+                              }
+                              @case (2) {
+                              <div>
+                                  <div class="row px-1 mx-0">
                                       {{TruncateThis(item.searchText)}}
                                       <button (click)="showFullTextForNameOfThisSearchId = item.magSearchId" class="btn btn-link btn-sm py-0 px-1">See all...</button>
-                                    </div>
                                   </div>
-                                }
+                              </div>
                               }
-                            </td>
-                            <td class="align-middle" title={{item.magSearchText}} style="word-break: break-all;">
+                              }
+                          </td>
+                          <td class="align-middle" title={{item.magSearchText}} style="word-break: break-all;">
                               @switch (DisplayStyleForSearchString(item)) {
-                                @case (0) {
-                                  <div>{{item.magSearchText}}</div>
-                                }
-                                @case (1) {
-                                  <div>
-                                    <div class="row px-1 mx-0">
+                              @case (0) {
+                              <div>{{item.magSearchText}}</div>
+                              }
+                              @case (1) {
+                              <div>
+                                  <div class="row px-1 mx-0">
                                       <div class="px-1 bg-light">{{item.magSearchText}}</div>
                                       <button (click)="showFullTextForSearchStringOfThisSearchId = -1" class="btn btn-link btn-sm py-0 ">Collapse...</button>
-                                    </div>
                                   </div>
-                                }
-                                @case (2) {
-                                  <div>
-                                    <div class="row px-1 mx-0">
+                              </div>
+                              }
+                              @case (2) {
+                              <div>
+                                  <div class="row px-1 mx-0">
                                       {{TruncateThis(item.magSearchText)}}
                                       <button (click)="showFullTextForSearchStringOfThisSearchId = item.magSearchId" class="btn btn-link btn-sm py-0 px-1">See all...</button>
-                                    </div>
                                   </div>
-                                }
+                              </div>
                               }
-                            </td>
-                            <td class="align-middle">{{item.contactName}}</td>
-                            <td class="align-middle">{{FormatDate2(item.searchDate)}}</td>
-                            <td class="align-middle">
+                              }
+                          </td>
+                          <td class="align-middle">{{item.contactName}}</td>
+                          <td class="align-middle">{{FormatDate2(item.searchDate)}}</td>
+                          <td class="align-middle">
                               @if (item.searchIdsStored && item.canReRun) {
-                                <div title="Results are stored and fixed. Re-run the search to get updated results." class="d-block">
+                              <div title="Results are stored and fixed. Re-run the search to get updated results." class="d-block">
                                   <div class="my-auto d-flex">
-                                    <input type="checkbox" checked disabled />
-                                    <kendo-icon name="lock" class="text-primary"></kendo-icon>
+                                      <input type="checkbox" checked disabled />
+                                      <kendo-icon name="lock" class="text-primary"></kendo-icon>
                                   </div>
                                   @if (item.dateIdsAcquired != '0001-01-01T00:00:00') {
-                                    <div class="small">At: {{FormatDate2(item.dateIdsAcquired)}}</div>
+                                  <div class="small">At: {{FormatDate2(item.dateIdsAcquired)}}</div>
                                   }
-                                </div>
+                              </div>
                               }
                               @if (item.searchIdsStored && !item.canReRun) {
-                                <div title="Results are stored and fixed. This search cannot be re-run to get up to date results." class="d-block">
+                              <div title="Results are stored and fixed. This search cannot be re-run to get up to date results." class="d-block">
                                   <div class="my-auto d-flex">
-                                    <input type="checkbox" checked disabled />
-                                    <kendo-icon name="lock" class="text-danger"></kendo-icon>
+                                      <input type="checkbox" checked disabled />
+                                      <kendo-icon name="lock" class="text-danger"></kendo-icon>
                                   </div>
                                   @if (item.dateIdsAcquired != '0001-01-01T00:00:00') {
-                                    <div class="small">At: {{FormatDate2(item.dateIdsAcquired)}}</div>
+                                  <div class="small">At: {{FormatDate2(item.dateIdsAcquired)}}</div>
                                   }
-                                </div>
+                              </div>
                               }
                               @if (!item.searchIdsStored) {
-                                <div title="Results are NOT stored and NOT fixed. Click this button to get and freeze/finalise the results set.">
+                              <div title="Results are NOT stored and NOT fixed. Click this button to get and freeze/finalise the results set.">
                                   <div class="my-auto d-flex">
-                                    <input type="checkbox" disabled class="my-auto mr-1" />
-                                    <button (click)="EnumerateSearchItems(item)" class="btn btn-outline-primary btn-sm px-1 py-0 my-auto"
-                                      [disabled]="item.hitsNo < 1"
-                                      title="Results are NOT stored and NOT fixed. Click this button to get and freeze/finalise the results set.">
-                                      <kendo-icon name="unlock"></kendo-icon>
-                                    </button>
+                                      <input type="checkbox" disabled class="my-auto mr-1" />
+                                      <button (click)="EnumerateSearchItems(item)" class="btn btn-outline-primary btn-sm px-1 py-0 my-auto"
+                                              [disabled]="item.hitsNo < 1"
+                                              title="Results are NOT stored and NOT fixed. Click this button to get and freeze/finalise the results set.">
+                                          <kendo-icon name="unlock"></kendo-icon>
+                                      </button>
                                   </div>
-                                </div>
+                              </div>
                               }
-                            </td>
-                            <td class="align-middle p-0" style="vertical-align:middle;text-align:center">
+                          </td>
+                          <td class="align-middle p-0" style="vertical-align:middle;text-align:center">
                               <button (click)="GetItems(item)" [disabled]="item.isOASearch == false || item.hitsNo < 1" class="btn btn-link btn-sm font-weight-bold px-0">{{item.hitsNo}}</button>
-                            </td>
-                            <td class="align-middle" style="min-width:65px;text-align:center">
+                          </td>
+                          <td class="align-middle" style="min-width:65px;text-align:center">
                               @if (item.isOASearch && item.canReRun) {
-                                <button (click)="ReRunMAGSearch(item)"
-                                  class="btn btn-warning btn-sm text-white align-content-center mr-1 px-1 py-0" title="Re-Run (update)">
+                              <button (click)="ReRunMAGSearch(item)"
+                                      class="btn btn-warning btn-sm text-white align-content-center mr-1 px-1 py-0" title="Re-Run (update)">
                                   <kendo-icon name="play"></kendo-icon>
-                                </button>
+                              </button>
                               }
                               @if (item.isOASearch) {
-                                <button (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)" title="Import"
-                                  class="btn btn-primary btn-sm text-white align-content-center px-1 py-0">
+                              <button (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)" title="Import"
+                                      class="btn btn-primary btn-sm text-white align-content-center px-1 py-0">
                                   <kendo-icon name="download"></kendo-icon>
-                                </button>
+                              </button>
                               }
-                            </td>
-                          </tr>
-                        }
-                      </tbody>
+                          </td>
+                      </tr>
+                      }
+                  </tbody>
 
                     </table>
 

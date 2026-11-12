@@ -3,12 +3,12 @@
   <div class="row px-1 mx-0 my-1 border-bottom ">
     <div class="col-auto mr-1 px-0">Robot:</div>
     <select class="col px-0" (change)="RobotChanged($event)" id="batchRobotList">
-      <option value="">Please select</option>
-      @for (r of RobotsList; track r) {
+        <option value="">Please select</option>
+        @for (r of RobotsList; track r.robotId) {
         <option [ngValue]="r.robotName" [selected]="r.robotName == RobotSettings.robotName" [disabled]="r.isRetired">
-          {{r.robotName}}
+            {{r.robotName}}
         </option>
-      }
+        }
     </select>
   </div>
   @if (showRobotDetails && SelectedRobot) {

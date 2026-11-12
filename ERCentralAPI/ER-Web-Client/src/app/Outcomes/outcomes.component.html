@@ -148,16 +148,15 @@
             <div class="row col-md-12 p-1 m-0">
               <label class="col-md-4 ">Timepoint</label>
               <div class="d-flex col-md-8 p-0 m-0">
-                <select [(ngModel)]="_OutcomesService.currentOutcome.itemTimepointId"
-                  class="form-control p-0 m-0">
-                  @for (timepoint of timePointsList; track timepoint) {
-                    <option [ngValue]="timepoint.itemTimepointId"
-                      [selected]="timepoint.itemTimepointId == _OutcomesService.currentOutcome.itemTimepointId"
-                      >
-                      {{timepoint.timepointValue}} &nbsp; {{timepoint.timepointMetric}}
-                    </option>
-                  }
-                </select>
+                  <select [(ngModel)]="_OutcomesService.currentOutcome.itemTimepointId"
+                          class="form-control p-0 m-0">
+                      @for (timepoint of timePointsList; track timepoint.itemTimepointId) {
+                      <option [ngValue]="timepoint.itemTimepointId"
+                              [selected]="timepoint.itemTimepointId == _OutcomesService.currentOutcome.itemTimepointId">
+                          {{timepoint.timepointValue}} &nbsp; {{timepoint.timepointMetric}}
+                      </option>
+                      }
+                  </select>
                 <button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemTimepointId == 0"
                   title="Remove Timepoint Selection" (click)="_OutcomesService.currentOutcome.itemTimepointId = 0">
                   <kendo-icon name="x-circle"></kendo-icon>
@@ -173,30 +172,28 @@
             <div class="row col-md-12  p-1 m-0">
               <label class="col-md-4 mt-1">Outcome type</label>
               <div class="d-flex col-12 col-md-8  p-1">
-                <select [(ngModel)]="_OutcomesService.currentOutcome.outcomeTypeId"
-                  class="form-control">
-                  @for (outcomeT of OutcomeTypeList; track outcomeT) {
-                    <option [ngValue]="outcomeT.outcomeTypeId"
-                      [selected]="outcomeT.outcomeTypeId == _OutcomesService.currentOutcome.outcomeTypeId"
-                      >
-                      {{outcomeT.outcomeTypeName}}
-                    </option>
-                  }
-                </select>
+                  <select [(ngModel)]="_OutcomesService.currentOutcome.outcomeTypeId"
+                          class="form-control">
+                      @for (outcomeT of OutcomeTypeList; track outcomeT.outcomeTypeId) {
+                      <option [ngValue]="outcomeT.outcomeTypeId"
+                              [selected]="outcomeT.outcomeTypeId == _OutcomesService.currentOutcome.outcomeTypeId">
+                          {{outcomeT.outcomeTypeName}}
+                      </option>
+                      }
+                  </select>
               </div>
               <label class="col-md-4 mt-1">Outcome</label>
               <div class="d-flex col-12  col-md-8  p-1"
                 placeholder="Outcomes">
-                <select [(ngModel)]="_OutcomesService.currentOutcome.itemAttributeIdOutcome"
-                  class="form-control ">
-                  @for (out of _OutcomesService.ReviewSetOutcomeList; track out) {
-                    <option [ngValue]="out.attributeId"
-                      [selected]="out.attributeId == _OutcomesService.currentOutcome.itemAttributeIdOutcome"
-                      >
-                      {{out.attributeName}}
-                    </option>
-                  }
-                </select>
+                  <select [(ngModel)]="_OutcomesService.currentOutcome.itemAttributeIdOutcome"
+                          class="form-control ">
+                      @for (out of _OutcomesService.ReviewSetOutcomeList; track out.attributeId) {
+                      <option [ngValue]="out.attributeId"
+                              [selected]="out.attributeId == _OutcomesService.currentOutcome.itemAttributeIdOutcome">
+                          {{out.attributeName}}
+                      </option>
+                      }
+                  </select>
                 <button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemAttributeIdOutcome == 0"
                   title="Remove Outcome Code Selection" (click)="_OutcomesService.currentOutcome.itemAttributeIdOutcome = 0">
                   <kendo-icon name="x-circle"></kendo-icon>
@@ -206,17 +203,16 @@
             <div class="row col-md-12  p-1 m-0">
               <label class="col-md-4 mt-1">Intervention</label>
               <div class="d-flex col-12 col-md-8  p-1">
-                <select (change)="UpdateInterventionName($event)"
-                  [(ngModel)]="_OutcomesService.currentOutcome.itemAttributeIdIntervention"
-                  class="form-control">
-                  @for (intervention of _OutcomesService.ReviewSetInterventionList; track intervention) {
-                    <option [value]="intervention.attributeId"
-                      [selected]="intervention.attributeId == _OutcomesService.currentOutcome.itemAttributeIdIntervention"
-                      >
-                      {{intervention.attributeName}}
-                    </option>
-                  }
-                </select>
+                  <select (change)="UpdateInterventionName($event)"
+                          [(ngModel)]="_OutcomesService.currentOutcome.itemAttributeIdIntervention"
+                          class="form-control">
+                      @for (intervention of _OutcomesService.ReviewSetInterventionList; track intervention.attributeId) {
+                      <option [value]="intervention.attributeId"
+                              [selected]="intervention.attributeId == _OutcomesService.currentOutcome.itemAttributeIdIntervention">
+                          {{intervention.attributeName}}
+                      </option>
+                      }
+                  </select>
                 <button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemAttributeIdIntervention == 0"
                   title="Remove Intervention Code Selection" (click)="_OutcomesService.currentOutcome.itemAttributeIdIntervention = 0">
                   <kendo-icon name="x-circle"></kendo-icon>
@@ -224,17 +220,16 @@
               </div>
               <label class="col-md-4 mt-1">Comparison</label>
               <div class="d-flex col-12 col-md-8  p-1">
-                <select (change)="UpdateComparisonName($event)"
-                  [(ngModel)]="_OutcomesService.currentOutcome.itemAttributeIdControl"
-                  class="form-control">
-                  @for (control of _OutcomesService.ReviewSetControlList; track control) {
-                    <option [value]="control.attributeId"
-                      [selected]="control.attributeId == _OutcomesService.currentOutcome.itemAttributeIdControl"
-                      >
-                      {{control.attributeName}}
-                    </option>
-                  }
-                </select>
+                  <select (change)="UpdateComparisonName($event)"
+                          [(ngModel)]="_OutcomesService.currentOutcome.itemAttributeIdControl"
+                          class="form-control">
+                      @for (control of _OutcomesService.ReviewSetControlList; track control.attributeId) {
+                      <option [value]="control.attributeId"
+                              [selected]="control.attributeId == _OutcomesService.currentOutcome.itemAttributeIdControl">
+                          {{control.attributeName}}
+                      </option>
+                      }
+                  </select>
                 <button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemAttributeIdControl == 0"
                   title="Remove Comparison Code Selection" (click)="_OutcomesService.currentOutcome.itemAttributeIdControl = 0">
                   <kendo-icon name="x-circle"></kendo-icon>
@@ -244,15 +239,15 @@
             <div class="row col-md-12 p-1 m-0">
               <label class="col-md-4 mt-1">Group 1 arm</label>
               <div class="d-flex col-12 col-md-8  p-1">
-                <select [(ngModel)]="_OutcomesService.currentOutcome.itemArmIdGrp1"
-                  class="form-control">
-                  @for (arm of item.arms; track arm) {
-                    <option [ngValue]="arm.itemArmId"
-                      [selected]="arm.itemArmId == _OutcomesService.currentOutcome.itemArmIdGrp1">
-                      {{arm.title}}
-                    </option>
-                  }
-                </select>
+                  <select [(ngModel)]="_OutcomesService.currentOutcome.itemArmIdGrp1"
+                          class="form-control">
+                      @for (arm of item.arms; track arm.itemArmId) {
+                      <option [ngValue]="arm.itemArmId"
+                              [selected]="arm.itemArmId == _OutcomesService.currentOutcome.itemArmIdGrp1">
+                          {{arm.title}}
+                      </option>
+                      }
+                  </select>
                 <button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemArmIdGrp1 == 0"
                   title="Remove Arm1 Selection" (click)="_OutcomesService.currentOutcome.itemArmIdGrp1 = 0">
                   <kendo-icon name="x-circle"></kendo-icon>
@@ -260,15 +255,15 @@
               </div>
               <label class="col-md-4 mt-1">Group 2 arm</label>
               <div class="d-flex col-12 col-md-8 p-1">
-                <select [(ngModel)]="_OutcomesService.currentOutcome.itemArmIdGrp2"
-                  class="form-control ">
-                  @for (arm of item.arms; track arm) {
-                    <option [ngValue]="arm.itemArmId"
-                      [selected]="arm.itemArmId == _OutcomesService.currentOutcome.itemArmIdGrp2">
-                      {{arm.title}}
-                    </option>
-                  }
-                </select>
+                  <select [(ngModel)]="_OutcomesService.currentOutcome.itemArmIdGrp2"
+                          class="form-control ">
+                      @for (arm of item.arms; track arm.itemArmId) {
+                      <option [ngValue]="arm.itemArmId"
+                              [selected]="arm.itemArmId == _OutcomesService.currentOutcome.itemArmIdGrp2">
+                          {{arm.title}}
+                      </option>
+                      }
+                  </select>
                 <button class="btn btn-sm btn-outline-dark my-auto py-0 px-1 ml-1" [disabled]="_OutcomesService.currentOutcome.itemArmIdGrp2 == 0"
                   title="Remove Arm2 Selection" (click)="_OutcomesService.currentOutcome.itemArmIdGrp2 = 0">
                   <kendo-icon name="x-circle"></kendo-icon>

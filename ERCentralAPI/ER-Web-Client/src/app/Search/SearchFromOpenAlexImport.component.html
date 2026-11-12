@@ -36,21 +36,21 @@
           </tr>
         </thead>
         <tbody class="bg-white">
-          @for (task of MagAutoUpdateRunList; track task) {
+            @for (task of MagAutoUpdateRunList; track task.magAutoUpdateRunId) {
             <tr [ngClass]="{'font-weight-bold' : task.magAutoUpdateRunId == SelectedMagAutoUpdateRun.magAutoUpdateRunId}">
-              <td>
-                <input type="checkbox" [checked]="task.magAutoUpdateRunId == SelectedMagAutoUpdateRun.magAutoUpdateRunId" (click)="SelectThisRun(task)" />
-              </td>
-              <td class="pointerCursor" (click)="SelectThisRun(task)">{{task.userDescription}}</td>
-              <td class="pointerCursor" (click)="SelectThisRun(task)">{{task.allIncluded}}</td>
-              <td class="pointerCursor" (click)="SelectThisRun(task)">{{task.attributeName}}</td>
-              <td class="pointerCursor" (click)="SelectThisRun(task)">{{task.studyTypeClassifier}}</td>
-              <td class="pointerCursor" (click)="SelectThisRun(task)">{{task.userClassifierDescription}}</td>
-              <td class="pointerCursor" (click)="SelectThisRun(task)">{{task.magVersion}}</td>
-              <td class="pointerCursor" (click)="SelectThisRun(task)">{{FormatDate(task.dateRun)}}</td>
-              <td class="pointerCursor" (click)="SelectThisRun(task)">{{task.nPapers}}</td>
+                <td>
+                    <input type="checkbox" [checked]="task.magAutoUpdateRunId == SelectedMagAutoUpdateRun.magAutoUpdateRunId" (click)="SelectThisRun(task)" />
+                </td>
+                <td class="pointerCursor" (click)="SelectThisRun(task)">{{task.userDescription}}</td>
+                <td class="pointerCursor" (click)="SelectThisRun(task)">{{task.allIncluded}}</td>
+                <td class="pointerCursor" (click)="SelectThisRun(task)">{{task.attributeName}}</td>
+                <td class="pointerCursor" (click)="SelectThisRun(task)">{{task.studyTypeClassifier}}</td>
+                <td class="pointerCursor" (click)="SelectThisRun(task)">{{task.userClassifierDescription}}</td>
+                <td class="pointerCursor" (click)="SelectThisRun(task)">{{task.magVersion}}</td>
+                <td class="pointerCursor" (click)="SelectThisRun(task)">{{FormatDate(task.dateRun)}}</td>
+                <td class="pointerCursor" (click)="SelectThisRun(task)">{{task.nPapers}}</td>
             </tr>
-          }
+            }
         </tbody>
       </table>
     </div>

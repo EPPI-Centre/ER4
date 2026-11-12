@@ -97,19 +97,19 @@
         </tr>
       </thead>
       <tbody>
-        @for (row of xTab.rows; track row) {
+          @for (row of xTab.rows; track row.attributeId) {
           <tr>
-            <td class="font-weight-bold">{{row.attributeName}}</td>
-            @for (colAttName of xTab.columnAttNames; track colAttName; let i = $index) {
+              <td class="font-weight-bold">{{row.attributeName}}</td>
+              @for (colAttName of xTab.columnAttNames; track colAttName; let i = $index) {
               <td>
-                <button (click)="xTabItemsList(xTab, row, i)" [disabled]="row.counts[i] == 0"
-                  class="btn btn-link border-0 pt-0 pb-1 pl-1 font-weight-bold">
-                  {{row.counts[i]}}
-                </button>
+                  <button (click)="xTabItemsList(xTab, row, i)" [disabled]="row.counts[i] == 0"
+                          class="btn btn-link border-0 pt-0 pb-1 pl-1 font-weight-bold">
+                      {{row.counts[i]}}
+                  </button>
               </td>
-            }
+              }
           </tr>
-        }
+          }
       </tbody>
     </table>
   </div>

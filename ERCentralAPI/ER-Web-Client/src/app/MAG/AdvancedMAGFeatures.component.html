@@ -211,7 +211,7 @@
                     <table style="width:100%;">
                       <tr>
                         <td style="padding-right: 25px;">
-                          <div ngbDropdown class="col-sm-12 col-lg-6">
+                          <div ngbDropdown display="static"  class="col-sm-12 col-lg-6">
                             <select class="col-12 form-control mb-1" name="SearchMethod"
                               [(ngModel)]="SearchMethod">
                               @for (item of SearchMethods; track item) {
@@ -230,7 +230,7 @@
                     <table style="width:100%;">
                       <tr>
                         <td style="padding-right: 25px;">
-                          <div ngbDropdown class="col-sm-12 col-lg-6">
+                          <div ngbDropdown display="static"  class="col-sm-12 col-lg-6">
                             <select class="col-12 form-control mb-1" name="StudyTypeClassifier"
                               [(ngModel)]="StudyTypeClassifier">
                               @for (item of StudyTypeClassifiers; track item) {
@@ -249,15 +249,14 @@
                     <table style="width:100%;">
                       <tr>
                         <td style="padding-right: 25px;">
-                          <div ngbDropdown class="col-sm-12 col-lg-6">
-                            <select [(ngModel)]="currentClassifierContactModel" class="form-control" name="currentClassifierContactModel">
-                              @for (item of ClassifierContactModelList; track item) {
-                                <option
-                                  [ngValue]="item" [selected]="item == currentClassifierContactModel">
-                                  {{item.modelTitle}}
-                                </option>
-                              }
-                            </select>
+                          <div ngbDropdown display="static"  class="col-sm-12 col-lg-6">
+                              <select [(ngModel)]="currentClassifierContactModel" class="form-control" name="currentClassifierContactModel">
+                                  @for (item of ClassifierContactModelList; track item.modelId) {
+                                  <option [ngValue]="item" [selected]="item == currentClassifierContactModel">
+                                      {{item.modelTitle}}
+                                  </option>
+                                  }
+                              </select>
                           </div>
                         </td>
                       </tr>
@@ -340,25 +339,25 @@
                       </tr>
                     </thead>
                     <tbody>
-                      @for (item of MagSimulationList; track item) {
+                        @for (item of MagSimulationList; track item.magSimulationId) {
                         <tr>
-                          <td>{{item.searchMethod}}</td>
-                          <td>{{item.status}}</td>
-                          <td>{{item.searchMethod}}</td>
-                          <td>{{item.filteredByAttribute}}</td>
-                          <td>{{item.thresholds}}</td>
-                          <td> {{item.networkStatistic}}</td>
-                          <td>{{item.studyTypeClassifier}}</td>
-                          <td>{{item.userClassifierModel}}</td>
-                          <td class="btn btn-link " width="1" (click)="ShowGraph()"> ROC </td>
-                          <td>{{item.status}}</td>
-                          <td class="btn btn-link " width="1" (click)="OpenResultsInReview('MagSimulationTP', item.magSimulationId)">{{item.tp}}</td>
-                          <td width="1">{{item.fp}}</td>
-                          <td class="btn btn-link" width="1" (click)="OpenResultsInReview('MagSimulationFN', item.magSimulationId)">{{item.fn}}</td>
-                          <td width="1">{{item.tn}}</td>
-                          <td><button class="btn btn-danger btn-sm text-white align-content-center" (click)="DeleteSimulation(item)"> <kendo-icon name="trash"></kendo-icon></button></td>
+                            <td>{{item.searchMethod}}</td>
+                            <td>{{item.status}}</td>
+                            <td>{{item.searchMethod}}</td>
+                            <td>{{item.filteredByAttribute}}</td>
+                            <td>{{item.thresholds}}</td>
+                            <td> {{item.networkStatistic}}</td>
+                            <td>{{item.studyTypeClassifier}}</td>
+                            <td>{{item.userClassifierModel}}</td>
+                            <td class="btn btn-link " width="1" (click)="ShowGraph()"> ROC </td>
+                            <td>{{item.status}}</td>
+                            <td class="btn btn-link " width="1" (click)="OpenResultsInReview('MagSimulationTP', item.magSimulationId)">{{item.tp}}</td>
+                            <td width="1">{{item.fp}}</td>
+                            <td class="btn btn-link" width="1" (click)="OpenResultsInReview('MagSimulationFN', item.magSimulationId)">{{item.fn}}</td>
+                            <td width="1">{{item.tn}}</td>
+                            <td><button class="btn btn-danger btn-sm text-white align-content-center" (click)="DeleteSimulation(item)"> <kendo-icon name="trash"></kendo-icon></button></td>
                         </tr>
-                      }
+                        }
                     </tbody>
                   </table>
                 </div>

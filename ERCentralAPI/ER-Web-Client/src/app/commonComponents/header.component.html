@@ -18,16 +18,16 @@
             Help
           </button>
           @if (ShowHelpDropDown && ShowDropDown && ActivePanel=='Help') {
-            <select class="btn btn-outline-primary bt-sm my-auto ml-1 py-0 px-1"
-              id="dropdownBasicHelpPages" style="text-align:left; font-size:small"
-              (change)="RetrieveHelpNew($event)">
+          <select class="btn btn-outline-primary bt-sm my-auto ml-1 py-0 px-1"
+                  id="dropdownBasicHelpPages" style="text-align:left; font-size:small"
+                  (change)="RetrieveHelpNew($event)">
               <option [value]=DisplayFriendlyIndex0Name() [selected]=true>{{DisplayFriendlyIndex0Name()}}</option>
-              @for (item of HelpPages; track item) {
-                <option [ngValue]="item" style="font-size:small">
+              @for (item of HelpPages; track item.helpPage_ID) {
+              <option [ngValue]="item" style="font-size:small">
                   --> {{DisplayFriendlyHelpPageNames(item)}}
-                </option>
+              </option>
               }
-            </select>
+          </select>
           }
           <a class="btn btn-outline-info btn-sm my-auto ml-1 py-0 px-1" [href]="EmailString" target="_top" title="Contact support via email..." style="zoom:0.8;">
             Support...

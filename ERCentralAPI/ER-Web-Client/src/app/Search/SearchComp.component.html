@@ -64,30 +64,33 @@
             </button>
           </div>
           <div class="col-12 col-md-9 pr-1 pl-1">
-            <div ngbDropdown>
-              <button style="min-width: 50px; white-space:normal" class="btn alert-primary col-12 col-md-6 p-2" id="dropdownBasic1" ngbDropdownToggle (click)="isCollapsed=false ">{{selectedSearchDropDown}}</button>
-              <div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="mb-1 {white-space: normal;}">
-                <button (click)="nextDropDownList(1, 'With this code')" class="dropdown-item">With this code</button>
-                <button (click)="nextDropDownList(2, 'Without this code')" class="dropdown-item">Without this code</button>
-                <button (click)="nextDropDownList(3, 'With these internal IDs (comma separated)')" class="dropdown-item">With these internal IDs (comma separated)</button>
-                <button (click)="nextDropDownList(4, 'With these imported IDs (comma separated)')" class="dropdown-item">With these imported IDs (comma separated)</button>
-                <button (click)="nextDropDownList(5, 'That have at least one code from this Coding Tool')" class="dropdown-item">That have at least one code from this Coding Tool</button>
-                <button (click)="nextDropDownList(6, 'That don\'t have any codes from this Coding Tool')" class="dropdown-item">That don't have any codes from this Coding Tool</button>
-                <button (click)="nextDropDownList(7,'Containing this text')" class="dropdown-item">Containing this text</button>
-                <button (click)="nextDropDownList(8,'With at least one document uploaded')" class="dropdown-item">With at least one document uploaded</button>
-                <button (click)="nextDropDownList(9, 'Without any documents uploaded')" class="dropdown-item">Without any documents uploaded</button>
-                <button (click)="nextDropDownList(10,'Without an abstract')" class="dropdown-item">Without an abstract</button>
-                <button (click)="nextDropDownList(11,'From source(s)')" class="dropdown-item">From source(s)</button>
-                <button (click)="nextDropDownList(12,'With linked references')" class="dropdown-item">With linked references</button>
-                <button (click)="nextDropDownList(13,'With duplicate references')" class="dropdown-item">With duplicate references</button>
-                @if (HasScreeningList) {
-                  <button (click)="nextDropDownList(14,'From Current Priority Screening List')" class="dropdown-item">From Current Priority Screening List</button>
-                }
-                @if (ReviewIsMagEnabled) {
-                  <button (click)="nextDropDownList(15,'From OpenAlex Auto-Update')" class="dropdown-item">From OpenAlex Auto-Update</button>
-                }
+              <div ngbDropdown display="static"   class="d-block">
+                  <button style="min-width: 50px; white-space:normal" class="btn alert-primary col-12 col-md-6 p-2" id="dropdownBasic1" ngbDropdownToggle
+                          (click)="isCollapsed=false ">
+                      {{selectedSearchDropDown}}
+                  </button>
+                  <div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="mb-1 dropdown-menu dropdown-menu-end">
+                      <button (click)="nextDropDownList(1, 'With this code')" class="dropdown-item">With this code</button>
+                      <button (click)="nextDropDownList(2, 'Without this code')" class="dropdown-item">Without this code</button>
+                      <button (click)="nextDropDownList(3, 'With these internal IDs (comma separated)')" class="dropdown-item">With these internal IDs (comma separated)</button>
+                      <button (click)="nextDropDownList(4, 'With these imported IDs (comma separated)')" class="dropdown-item">With these imported IDs (comma separated)</button>
+                      <button (click)="nextDropDownList(5, 'That have at least one code from this Coding Tool')" class="dropdown-item">That have at least one code from this Coding Tool</button>
+                      <button (click)="nextDropDownList(6, 'That don\'t have any codes from this Coding Tool')" class="dropdown-item">That don't have any codes from this Coding Tool</button>
+                      <button (click)="nextDropDownList(7,'Containing this text')" class="dropdown-item">Containing this text</button>
+                      <button (click)="nextDropDownList(8,'With at least one document uploaded')" class="dropdown-item">With at least one document uploaded</button>
+                      <button (click)="nextDropDownList(9, 'Without any documents uploaded')" class="dropdown-item">Without any documents uploaded</button>
+                      <button (click)="nextDropDownList(10,'Without an abstract')" class="dropdown-item">Without an abstract</button>
+                      <button (click)="nextDropDownList(11,'From source(s)')" class="dropdown-item">From source(s)</button>
+                      <button (click)="nextDropDownList(12,'With linked references')" class="dropdown-item">With linked references</button>
+                      <button (click)="nextDropDownList(13,'With duplicate references')" class="dropdown-item">With duplicate references</button>
+                      @if (HasScreeningList) {
+                      <button (click)="nextDropDownList(14,'From Current Priority Screening List')" class="dropdown-item">From Current Priority Screening List</button>
+                      }
+                      @if (ReviewIsMagEnabled) {
+                      <button (click)="nextDropDownList(15,'From OpenAlex Auto-Update')" class="dropdown-item">From OpenAlex Auto-Update</button>
+                      }
+                  </div>
               </div>
-            </div>
           </div>
           <div class="col-12 col-md-3 ">
 
@@ -115,13 +118,12 @@
           }
           @if ((selectedSearchDropDown == 'That have at least one code from this Coding Tool'
             ||	selectedSearchDropDown == 'That don\'t have any codes from this Coding Tool') ) {
-            <div
-              ngbDropdown class="col-12 col-md-9 pr-1 pl-1">
+            <div ngbDropdown display="static"  class="col-12 col-md-9 pr-1 pl-1">
               <button class="btn btn-primary col-12 col-md-6 p-2 my-2" id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchCodeSetDropDown?.set_name}}</button>
               <div ngbDropdownMenu aria-labelledby="dropdownBasic2" class="FlatDropdown">
-                @for (item of ReviewSets; track item) {
+                  @for (item of ReviewSets; track item.set_id) {
                   <button (click)="setSearchCodeSetDropDown(item)" class="dropdown-item">{{item.set_name}}</button>
-                }
+                  }
               </div>
             </div>
           }
@@ -196,7 +198,7 @@
                     }
                     <b>In:</b>
                     <!--<h3 class=" font-italic text-center p-0 m-0">IN</h3>-->
-                    <div ngbDropdown class="d-inline-block col-12 p-0 m-0">
+                    <div ngbDropdown display="static"  class="d-inline-block col-12 p-0 m-0">
                       <button class="btn btn-primary col-12 p-1 " id="dropdownBasic2" ngbDropdownToggle>{{selectedSearchTextDropDown}}</button>
                       <div ngbDropdownMenu aria-labelledby="dropdownBasic2">
                         <button (click)="setSearchTextDropDown('Title and abstract')" class="dropdown-item">Title and abstract</button>
@@ -265,7 +267,7 @@
                     <select class="btn-info col-11 col-md-4 form-control mb-1 pr-1 pl-1 p-2 m-2" name="rev2"
                       [disabled]="!HasWriteRights" [(ngModel)]="ContactChoice">
                       <option> </option>
-                      @for (member of Contacts; track member) {
+                      @for (member of Contacts; track member.contactId) {
                         <option
                           [ngValue]="member" [selected]="member == ContactChoice">
                           {{member.contactName}}
@@ -332,14 +334,14 @@
                         <div>
                           <div>
                             <div>
-                              <select class="btn btn-outline-primary mt-3" id="dropdownBasicSources"
-                                [(ngModel)]="selected">
-                                @for (item of ReviewSources; track item) {
-                                  <option [value]="item.source_ID">
-                                    {{DisplayFriendlySourceNames(item)}}
-                                  </option>
-                                }
-                              </select>
+                                <select class="btn btn-outline-primary mt-3" id="dropdownBasicSources"
+                                        [(ngModel)]="selected">
+                                    @for (item of ReviewSources; track item.source_ID) {
+                                    <option [value]="item.source_ID">
+                                        {{DisplayFriendlySourceNames(item)}}
+                                    </option>
+                                    }
+                                </select>
                             </div>
                           </div>
                         </div>
@@ -517,7 +519,7 @@
 
   @if (ShowVisualiseSection) {
     <div id="visualiseSection" class="container-fluid bg-light p-1 m-1">
-      <div ngbDropdown class="card col-12 px-1 ">
+      <div class="card col-12 px-1 ">
         @if (!CanCreateClassifierCodes()) {
           <div class="col-12 alert alert-danger mt-1 mb-1 mr-1 ml-0 pl-1 p-0">
             &nbsp;To represent the classifier result as codes, select a location in a coding tool to the right.

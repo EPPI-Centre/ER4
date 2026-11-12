@@ -72,7 +72,7 @@
           <select #AllocateOptionsDropDown class="form-control" name="AllocateOptions"
             style="min-width: 200px; max-width:720px;" (change)="SetRelevantDropDownValues($event)">
             <!--(click)="isCollapsedAllocateOptions = false; isCollapsedCodingTool = false"-->
-            @for (item of AllocateOptions; track item) {
+            @for (item of AllocateOptions; track item.key) {
               <option [value]="item.key"
                 [selected]="item.value == workAllocationFromWizardCommand.filterType">
                 {{item.value}}
@@ -89,7 +89,7 @@
                   <div class="col-12" style="">
                     Select Coding Tool:
                   </div>
-                  <div ngbDropdown class="col-12 col-sm-10" style="min-width:200px;">
+                  <div ngbDropdown display="static"  class="col-12 col-sm-10" style="min-width:200px;">
                     <button class="btn btn-outline-secondary dropdown-toggle col-12"
                       style="min-width: 350px; max-width:720px;"
                       (click)="isCollapsedAllocateOptions = false;"
@@ -97,12 +97,12 @@
                       {{selectedCodeSetDropDown.name}}
                     </button>
                     <div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool" class="FlatDropdown">
-                      @for (item of CodeSets; track item) {
+                        @for (item of CodeSets; track item.set_id) {
                         <button (click)="setCodeSetDropDown(item)"
-                          class="dropdown-item">
-                          {{item.name}}
+                                class="dropdown-item">
+                            {{item.name}}
                         </button>
-                      }
+                        }
                     </div>
                   </div>
                 </div>
@@ -207,8 +207,8 @@
           2.1. Select the coding tool:
         </div>
         <div class="col-5">
-          <div ngbDropdown class="col-12 col-sm-10">
-            <div ngbDropdown class="col-12 col-sm-10" style="min-width:200px;">
+          <div  class="col-12 col-sm-10">
+            <div ngbDropdown display="static"  class="col-12 col-sm-10" style="min-width:200px;">
               <button class="btn btn-outline-secondary dropdown-toggle col-12"
                 style="min-width: 350px; max-width:720px;"
                 (click)="isCollapsedAllocateOptions = false;"
@@ -216,12 +216,12 @@
                 {{WorkToDoSelectedCodeSet.name}}
               </button>
               <div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool" class="FlatDropdown">
-                @for (item of CodeSets; track item) {
+                  @for (item of CodeSets; track item.set_id) {
                   <button (click)="SetWorkToDoCodeSet(item)"
-                    class="dropdown-item">
-                    {{item.name}}
+                          class="dropdown-item">
+                      {{item.name}}
                   </button>
-                }
+                  }
               </div>
             </div>
           </div>
@@ -405,17 +405,17 @@
           3.1. Select at least {{this.workAllocationFromWizardCommand.peoplePerItem}} reviewer(s):
         </div>
         <div class="col-6 row m-0 p-0 ">
-          @if (Contacts.length > 4) {
+            @if (Contacts.length > 4) {
             <div class="col-12">
-              Select All: <input type="checkbox" class="d-inline mr-1" [ngModel]="AllContactsSelected" (click)="SelectAllMembers($event)" />
+                Select All: <input type="checkbox" class="d-inline mr-1" [ngModel]="AllContactsSelected" (click)="SelectAllMembers($event)" />
             </div>
-          }
-          @for (member of Contacts; track member) {
+            }
+            @for (member of Contacts; track member.contactId) {
             <div class="border border-secondary rounded my-0 mx-1 p-1 " [ngClass]="{'alert-success' : member.IsSelected}">
-              <input type="checkbox" class="d-inline mr-1" [ngModel]="member.IsSelected" (click)="SelectMember(member)" />
-              <div class="d-inline">{{member.contactName}}</div>
+                <input type="checkbox" class="d-inline mr-1" [ngModel]="member.IsSelected" (click)="SelectMember(member)" />
+                <div class="d-inline">{{member.contactName}}</div>
             </div>
-          }
+            }
         </div>
         <div class="col-4 rounded border border-info alert-info small">
           Select the reviewers who will do the coding.
@@ -512,23 +512,23 @@
                   }
                   @if (!DistributeWorkEvenly && EnoughContactsSelected) {
                     <div class="col-12 row m-0 p-0">
-                      <div class="col-12 row m-0 p-0">
-                        @for (member of SelectedContacts; track member) {
-                          <div class="border border-secondary rounded my-0 mx-1 p-1 col small" [ngClass]="{'alert-success' : member.NumberOfItems > 0}">
-                            <div class="d-inline">{{member.contactName}}</div>
-                            @if (member.NumberOfItems == 0 && !AllManualAssignmentsDone) {
-                              <button class=" px-1 py-0 mx-1 my-0 rounded  btn btn-sm btn-outline-primary" (click)="ShowAddManualMember(member)">
-                                Add
-                              </button>
+                        <div class="col-12 row m-0 p-0">
+                            @for (member of SelectedContacts; track member.contactId) {
+                            <div class="border border-secondary rounded my-0 mx-1 p-1 col small" [ngClass]="{'alert-success' : member.NumberOfItems > 0}">
+                                <div class="d-inline">{{member.contactName}}</div>
+                                @if (member.NumberOfItems == 0 && !AllManualAssignmentsDone) {
+                                <button class=" px-1 py-0 mx-1 my-0 rounded  btn btn-sm btn-outline-primary" (click)="ShowAddManualMember(member)">
+                                    Add
+                                </button>
+                                }
+                                @if (member.NumberOfItems > 0) {
+                                <div>
+                                    ({{member.NumberOfItems}})
+                                </div>
+                                }
+                            </div>
                             }
-                            @if (member.NumberOfItems > 0) {
-                              <div>
-                                ({{member.NumberOfItems}})
-                              </div>
-                            }
-                          </div>
-                        }
-                      </div>
+                        </div>
                       <div class="col-12 row mx-2 my-1 p-2 rounded border border-info ">
                         <div class=""> Remaining items: <strong>{{ToBeManuallyAssignedStill}}</strong> (of {{workAllocationFromWizardCommand.peoplePerItem}} * {{workAllocationFromWizardCommand.numberOfItemsToAssign}} = {{workAllocationFromWizardCommand.peoplePerItem * workAllocationFromWizardCommand.numberOfItemsToAssign}})</div>
                         <button class=" px-1 py-0 mx-1 my-0 btn btn-sm btn-outline-primary" (click)="DistributeRemainingManualAssignTable()">
@@ -559,47 +559,47 @@
                         </div>
                       }
                       <div class="col-12 row">
-                        <div class="col">
-                          First batch:<br />
-                          @for (member of ManualAssignTable[0]; track member) {
-                            <div class="border border-secondary rounded my-0 mx-1 p-1 " [ngClass]="{'alert-success' : member.NumberOfItems > 0}">
-                              <div class="d-inline">{{member.contactName}} ({{member.NumberOfItems}} items)</div>
-                              @if (IsLastInManualAssignTable(member)) {
-                                <button class=" px-1 py-0 mx-1 my-0 rounded  btn btn-sm btn-outline-danger" (click)="RemoveLastManualMember()">
-                                  Remove
-                                </button>
+                          <div class="col">
+                              First batch:<br />
+                              @for (member of ManualAssignTable[0]; track member.contactId) {
+                              <div class="border border-secondary rounded my-0 mx-1 p-1 " [ngClass]="{'alert-success' : member.NumberOfItems > 0}">
+                                  <div class="d-inline">{{member.contactName}} ({{member.NumberOfItems}} items)</div>
+                                  @if (IsLastInManualAssignTable(member)) {
+                                  <button class=" px-1 py-0 mx-1 my-0 rounded  btn btn-sm btn-outline-danger" (click)="RemoveLastManualMember()">
+                                      Remove
+                                  </button>
+                                  }
+                              </div>
                               }
-                            </div>
-                          }
-                        </div>
+                          </div>
                         @if (workAllocationFromWizardCommand.peoplePerItem > 1) {
                           <div class="col">
-                            Second batch:<br />
-                            @for (member of ManualAssignTable[1]; track member) {
+                              Second batch:<br />
+                              @for (member of ManualAssignTable[1]; track member.contactId) {
                               <div class="border border-secondary rounded my-0 mx-1 p-1 " [ngClass]="{'alert-success' : member.NumberOfItems > 0}">
-                                <div class="d-inline">{{member.contactName}} ({{member.NumberOfItems}} items)</div>
-                                @if (IsLastInManualAssignTable(member)) {
+                                  <div class="d-inline">{{member.contactName}} ({{member.NumberOfItems}} items)</div>
+                                  @if (IsLastInManualAssignTable(member)) {
                                   <button class=" px-1 py-0 mx-1 my-0 rounded  btn btn-sm btn-outline-danger" (click)="RemoveLastManualMember()">
-                                    Remove
+                                      Remove
                                   </button>
-                                }
+                                  }
                               </div>
-                            }
+                              }
                           </div>
                         }
                         @if (workAllocationFromWizardCommand.peoplePerItem > 2) {
                           <div class="col">
-                            Third batch:<br />
-                            @for (member of ManualAssignTable[2]; track member) {
+                              Third batch:<br />
+                              @for (member of ManualAssignTable[2]; track member.contactId) {
                               <div class="border border-secondary rounded my-0 mx-1 p-1 " [ngClass]="{'alert-success' : member.NumberOfItems > 0}">
-                                <div class="d-inline">{{member.contactName}} ({{member.NumberOfItems}} items)</div>
-                                @if (IsLastInManualAssignTable(member)) {
+                                  <div class="d-inline">{{member.contactName}} ({{member.NumberOfItems}} items)</div>
+                                  @if (IsLastInManualAssignTable(member)) {
                                   <button class=" px-1 py-0 mx-1 my-0 rounded  btn btn-sm btn-outline-danger" (click)="RemoveLastManualMember()">
-                                    Remove
+                                      Remove
                                   </button>
-                                }
+                                  }
                               </div>
-                            }
+                              }
                           </div>
                         }
                       </div>

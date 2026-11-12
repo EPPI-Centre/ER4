@@ -83,124 +83,124 @@
       <b>Matches with OpenAlex records</b>
       <div style="overflow-y: auto; max-height: 45vh;">
         <table width="100%" style="font-family:Arial;color:#424242;overflow-y:scroll;max-height:45vh;" class="table table-bordered table-striped p-0">
-          <tbody>
-            @for (magPaper of _magAdvancedService.MagReferencesPaperList.papers; track magPaper) {
-              <tr class="bg-white">
-                <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">Title: </td>
-                <td style="width:88%;padding:3px" colspan="7">
-                  <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : item && areTheTitlesDifferent(item.title, magPaper.paperTitle)}"> {{magPaper.paperTitle}}</span>
-                </td>
-              </tr>
-              <tr class="bg-white">
-                <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">Author(s): </td>
-                <td style="width:88%;padding:3px" colspan="7">
-                  <span style="padding: 3px 4px;"
-                    [ngClass]="{'font-weight-bold alert-danger' : item && magPaper.authors.replace(',','').replace(' ','').trim() != item.authors.replace(';','').replace(' ','').trim()}">
-                    {{magPaper.authors}}
-                  </span>
-                </td>
-              </tr>
-              <tr class="bg-white">
-                <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">Year: </td>
-                <td style="width:12%;padding:3px" colspan="1">
-                  <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : item && magPaper.year.toString().trim() != item.year}">{{magPaper.year}}</span>
-                </td>
-                <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">Journal: </td>
-                <td style="width:64%;padding:3px" colspan="5">
-                  <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : item && areTheFieldsDifferent(item.parentTitle, magPaper.journal)}">{{magPaper.journal}}</span>
-                </td>
-              </tr>
-              <tr class="bg-white">
-                <td style="width:12%;padding:3px" class="alert-secondary">OA ID:</td>
-                <td style="width:12%;padding:3px" class="bg-white">{{magPaper.paperId}}</td>
-                <td style="width:12%;padding:3px" class="alert-secondary">Volume:</td>
-                <td style="width:12%;padding:3px">
-                  <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : item && areTheFieldsDifferent(item.volume, magPaper.volume)}">{{magPaper.volume}}</span>
-                </td>
-                <td style="width:12%;padding:3px" class="alert-secondary" bg-light>Issue:</td>
-                <td style="width:12%;padding:3px">
-                  <span style="padding: 3px 4px;" [ngClass]="{'alert-danger font-weight-bold' : item && areTheFieldsDifferent(item.issue, magPaper.issue)}">{{magPaper.issue}}</span>
-                </td>
-                <td style="width:12%;padding:3px" class="alert-secondary" bg-light>Pages: </td>
-                <td style="width:16%;padding:3px">
-                  <span style="padding: 3px 4px;" [ngClass]="{'alert-danger font-weight-bold' : item && areThePagesDifferent(item.pages, magPaper.firstPage, magPaper.lastPage)}">
-                    {{GetPages(magPaper)}}
-                  </span>
-                </td>
-              </tr>
-              <tr class="bg-white">
-                <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">PDF Url: </td>
-                <td style="width:88%;padding:3px" colspan="7">
-                  <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : item && areTheTitlesDifferent(item.url, magPaper.pdfLinks)}"> {{magPaper.pdfLinks}}</span>
-                </td>
-              </tr>
-              <tr class="bg-white">
-                <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">DOI: </td>
-                <td style="width:60%;padding:3px" colspan="5">
-                  <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : item && areDOIFieldsDifferent(item.doi, magPaper.doi)}">{{magPaper.doi}}</span>
-                </td>
-                <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">Score: </td>
-                <td style="width:16%;padding:3px" colspan="1" class="alert alert-success" [ngClass]="{'font-weight-bold alert-danger boder border-white' : item && magPaper.autoMatchScore < 0.8}">
-                  {{ChangeToPercent(magPaper.autoMatchScore)}}
-                </td>
-              </tr>
-              @if (showAbstract) {
+            <tbody>
+                @for (magPaper of _magAdvancedService.MagReferencesPaperList.papers; track magPaper.paperId) {
+                <tr class="bg-white">
+                    <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">Title: </td>
+                    <td style="width:88%;padding:3px" colspan="7">
+                        <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : item && areTheTitlesDifferent(item.title, magPaper.paperTitle)}"> {{magPaper.paperTitle}}</span>
+                    </td>
+                </tr>
+                <tr class="bg-white">
+                    <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">Author(s): </td>
+                    <td style="width:88%;padding:3px" colspan="7">
+                        <span style="padding: 3px 4px;"
+                              [ngClass]="{'font-weight-bold alert-danger' : item && magPaper.authors.replace(',','').replace(' ','').trim() != item.authors.replace(';','').replace(' ','').trim()}">
+                            {{magPaper.authors}}
+                        </span>
+                    </td>
+                </tr>
+                <tr class="bg-white">
+                    <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">Year: </td>
+                    <td style="width:12%;padding:3px" colspan="1">
+                        <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : item && magPaper.year.toString().trim() != item.year}">{{magPaper.year}}</span>
+                    </td>
+                    <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">Journal: </td>
+                    <td style="width:64%;padding:3px" colspan="5">
+                        <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : item && areTheFieldsDifferent(item.parentTitle, magPaper.journal)}">{{magPaper.journal}}</span>
+                    </td>
+                </tr>
+                <tr class="bg-white">
+                    <td style="width:12%;padding:3px" class="alert-secondary">OA ID:</td>
+                    <td style="width:12%;padding:3px" class="bg-white">{{magPaper.paperId}}</td>
+                    <td style="width:12%;padding:3px" class="alert-secondary">Volume:</td>
+                    <td style="width:12%;padding:3px">
+                        <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : item && areTheFieldsDifferent(item.volume, magPaper.volume)}">{{magPaper.volume}}</span>
+                    </td>
+                    <td style="width:12%;padding:3px" class="alert-secondary" bg-light>Issue:</td>
+                    <td style="width:12%;padding:3px">
+                        <span style="padding: 3px 4px;" [ngClass]="{'alert-danger font-weight-bold' : item && areTheFieldsDifferent(item.issue, magPaper.issue)}">{{magPaper.issue}}</span>
+                    </td>
+                    <td style="width:12%;padding:3px" class="alert-secondary" bg-light>Pages: </td>
+                    <td style="width:16%;padding:3px">
+                        <span style="padding: 3px 4px;" [ngClass]="{'alert-danger font-weight-bold' : item && areThePagesDifferent(item.pages, magPaper.firstPage, magPaper.lastPage)}">
+                            {{GetPages(magPaper)}}
+                        </span>
+                    </td>
+                </tr>
+                <tr class="bg-white">
+                    <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">PDF Url: </td>
+                    <td style="width:88%;padding:3px" colspan="7">
+                        <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : item && areTheTitlesDifferent(item.url, magPaper.pdfLinks)}"> {{magPaper.pdfLinks}}</span>
+                    </td>
+                </tr>
+                <tr class="bg-white">
+                    <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">DOI: </td>
+                    <td style="width:60%;padding:3px" colspan="5">
+                        <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : item && areDOIFieldsDifferent(item.doi, magPaper.doi)}">{{magPaper.doi}}</span>
+                    </td>
+                    <td style="width:12%;padding:3px" colspan="1" class="alert-secondary">Score: </td>
+                    <td style="width:16%;padding:3px" colspan="1" class="alert alert-success" [ngClass]="{'font-weight-bold alert-danger boder border-white' : item && magPaper.autoMatchScore < 0.8}">
+                        {{ChangeToPercent(magPaper.autoMatchScore)}}
+                    </td>
+                </tr>
+                @if (showAbstract) {
                 <tr>
-                  <td style="width:100%;padding:3px" colspan="8" class="bg-white">{{magPaper.abstract}}</td>
+                    <td style="width:100%;padding:3px" colspan="8" class="bg-white">{{magPaper.abstract}}</td>
                 </tr>
                 <tr>
-                  <td colspan="8" class="p-0 border-0" style="line-height:0em;"></td>
+                    <td colspan="8" class="p-0 border-0" style="line-height:0em;"></td>
                 </tr>
-              }
-              <tr>
-                <td colspan="8" class="p-0 border-0" style="line-height:0em;"></td>
-              </tr>
-              <tr>
-                <td style="width:12%;padding:3px" colspan="1">Status: </td>
-                <td style="width:24%;padding:3px" colspan="2">CurrentMagPaper: {{magPaper.manualTrueMatch}}</td>
-                <td style="width:64%;padding:3px" colspan="5">
-                  <div class="col-12">
-                    Correct Match:&nbsp;   &nbsp;<input (click)="UpdateMagPaper(true, magPaper.paperId)"
-                    type="radio" [value]="true" name="magMatchRadio_{{magPaper.paperId}}"
-                    [(ngModel)]="magPaper.manualTrueMatch" class="ml-3">
-                  </div>
-                  <div class="col-12 ">
-                    Incorrect Match: <input (click)="UpdateMagPaper(false, magPaper.paperId)"
-                    type="radio" [value]="true" name="magMatchRadio_{{magPaper.paperId}}"
-                    [(ngModel)]="magPaper.manualFalseMatch" class="ml-3">
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td colspan="8">
-                  <table>
-                    <tr>
-                      <td style="padding:0px">
-                        <div class="btn btn-sm btn-link text-left" (click)="GetMagPaperRef(magPaper.paperId)">
-                          <span style="font-size:small">View in OpenAlex Browser</span>
+                }
+                <tr>
+                    <td colspan="8" class="p-0 border-0" style="line-height:0em;"></td>
+                </tr>
+                <tr>
+                    <td style="width:12%;padding:3px" colspan="1">Status: </td>
+                    <td style="width:24%;padding:3px" colspan="2">CurrentMagPaper: {{magPaper.manualTrueMatch}}</td>
+                    <td style="width:64%;padding:3px" colspan="5">
+                        <div class="col-12">
+                            Correct Match:&nbsp;   &nbsp;<input (click)="UpdateMagPaper(true, magPaper.paperId)"
+                                                                type="radio" [value]="true" name="magMatchRadio_{{magPaper.paperId}}"
+                                                                [(ngModel)]="magPaper.manualTrueMatch" class="ml-3">
                         </div>
-                      </td>
-                      <td style="padding:0px">
-                        <div class="btn btn-sm btn-link pull-right">
-                          <a href="https://openalex.org/works/W{{magPaper.paperId}}" target="_blank">
-                            <span style="font-size:small">View on the internet</span>
-                          </a>
+                        <div class="col-12 ">
+                            Incorrect Match: <input (click)="UpdateMagPaper(false, magPaper.paperId)"
+                                                    type="radio" [value]="true" name="magMatchRadio_{{magPaper.paperId}}"
+                                                    [(ngModel)]="magPaper.manualFalseMatch" class="ml-3">
                         </div>
-                      </td>
-                      <td style="padding:0px">
-                        <div class="btn btn-sm btn-link text-left" (click)="enrichItemRecord(magPaper.paperId)">
-                          <span style="font-size:small">Enrich record with OpenAlex data</span>
-                        </div>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-              <tr>
-                <td colspan="8" class="p-0 border-0" style="line-height:0em;"></td>
-              </tr>
-            }
-          </tbody>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="8">
+                        <table>
+                            <tr>
+                                <td style="padding:0px">
+                                    <div class="btn btn-sm btn-link text-left" (click)="GetMagPaperRef(magPaper.paperId)">
+                                        <span style="font-size:small">View in OpenAlex Browser</span>
+                                    </div>
+                                </td>
+                                <td style="padding:0px">
+                                    <div class="btn btn-sm btn-link pull-right">
+                                        <a href="https://openalex.org/works/W{{magPaper.paperId}}" target="_blank">
+                                            <span style="font-size:small">View on the internet</span>
+                                        </a>
+                                    </div>
+                                </td>
+                                <td style="padding:0px">
+                                    <div class="btn btn-sm btn-link text-left" (click)="enrichItemRecord(magPaper.paperId)">
+                                        <span style="font-size:small">Enrich record with OpenAlex data</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="8" class="p-0 border-0" style="line-height:0em;"></td>
+                </tr>
+                }
+            </tbody>
         </table>
       </div>
       <br />

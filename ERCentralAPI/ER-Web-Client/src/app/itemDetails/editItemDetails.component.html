@@ -35,7 +35,7 @@
           @if (ItemTypes && ItemTypes.length && ItemTypes.length > 0) {
             <select [(ngModel)]="item.typeId" (change)="TypeChanged()"
               class="">
-              @for (kvp of ItemTypes; track kvp) {
+              @for (kvp of ItemTypes; track kvp.key) {
                 <option [value]="kvp.key">{{kvp.value}}</option>
               }
             </select>
@@ -228,7 +228,7 @@
             <div class="row p-0 m-0">
               <div class="p-1 ml-1 my-auto" style="min-width:90px;">Item state:</div>
               <select (change)="SetItemFlagStatus($event)" id="stateOfeditingItem" class="my-auto">
-                @for (kvp of ItemFlagOptions; track kvp) {
+                @for (kvp of ItemFlagOptions; track kvp.key) {
                   <option [value]="kvp.key" [selected]="kvp.key == item.itemStatus">{{kvp.value}}</option>
                 }
               </select>

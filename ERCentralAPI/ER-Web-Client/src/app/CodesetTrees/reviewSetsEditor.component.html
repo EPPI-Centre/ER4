@@ -131,11 +131,11 @@
                   <label for="Codeset_Type">Coding Tool Type*</label>
                   @if (SetTypes) {
                   <select class="col-md-6 form-control" (change)="CodesetTypeChanged($event)" name="Codeset_Type">
-                    @for (type of SetTypes; track type) {
-                    <option [value]="type.setTypeId" [selected]="type.setTypeId == NewSetSelectedTypeId">
-                      {{type.setTypeName}}
-                    </option>
-                    }
+                      @for (type of SetTypes; track type.setTypeId) {
+                      <option [value]="type.setTypeId" [selected]="type.setTypeId == NewSetSelectedTypeId">
+                          {{type.setTypeName}}
+                      </option>
+                      }
                   </select>
                   }
                 </div>
@@ -174,11 +174,11 @@
                           [(ngModel)]="NewReviewSet.description" name="newSetDescription" rows="3"></textarea>
               </div>
               <div class="form-group col-12 mt-2">
-                <div class="col-12 small alert-info p-1 m-1">
+                <div class="col-12 alert-info p-1 m-1">
                   <div>
-                    <span style="position: relative; bottom: -4px;">Link codes to external vocabularies by adding URIs? &nbsp;</span>
-                    <span class="small brightSwitch">
-                      <kendo-switch name="CanEditExternalURLs" class="small small mt-1"
+                      <span class=" small my-auto">Link codes to external vocabularies by adding URIs? &nbsp;</span>
+                    <span class="brightSwitch" style="zoom:80%;">
+                      <kendo-switch name="CanEditExternalURLs" class="mt-1"
                                     [(ngModel)]="NewReviewSet.userCanEditURLs"
                                     [onLabel]="'No'"
                                     [offLabel]="'Yes'"></kendo-switch>
@@ -247,8 +247,9 @@
                   <div class="col-5">
                     <div>Coding Tool Type: {{CurrentNode.subTypeName}}.</div>
                     <div>
-                      <span style="position: relative; bottom: -4px;">Locked? &nbsp;</span> <span class="small brightSwitch">
-                        <kendo-switch name="CanEditSW" class="small small mt-1"
+                      <span style="position: relative; bottom: -4px;">Locked? &nbsp;</span> <
+                          <span class=" brightSwitch">
+                        <kendo-switch name="CanEditSW" class=" mt-1"
                                       [disabled]="!HasWriteRights"
                                       [(ngModel)]="CurrentNode.allowEditingCodeset"
                                       [onLabel]="'No'"
@@ -303,13 +304,13 @@
                     <textarea class="form-control" id="newSetDescription" [disabled]="!CanEditSelectedNode"
                               [(ngModel)]="CurrentNode.description" name="newSetDescription" rows="3"></textarea>
                   </div>
-                  <div class="form-group col-12 mt-2">
+                  <div class="form-group col-12 mt-2 mb-0">
                     <div class="col-12 small p-1 m-1">
                       @if (IsSiteAdmin) {
                       <div>
                         <span style="position: relative; bottom: -4px;">Allow users to link codes to external vocabularies by adding URIs? &nbsp;</span>
-                        <span class="small brightSwitch">
-                          <kendo-switch name="CanEditExternalURLs" class="small small mt-1"
+                        <span class=" brightSwitch" style="zoom:80%;">
+                          <kendo-switch name="CanEditExternalURLs" class=" mt-1"
                                         [(ngModel)]="CurrentNode.userCanEditURLs"
                                         [onLabel]="'No'"
                                         [offLabel]="'Yes'"></kendo-switch>

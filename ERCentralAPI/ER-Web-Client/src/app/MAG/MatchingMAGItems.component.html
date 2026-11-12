@@ -331,16 +331,16 @@
                 </div>
               }
 
-              <div class="card" style="max-width: 1450px; overflow: auto; text-align: left; max-height: 500px; overflow-y: scroll;">
-                @for (item of SearchTextTopicsResults; track item) {
-                  <div class="list-group">
-                    <div (click)="FOSMAGBrowserNavigate(item.displayName, item.fieldOfStudyId)" class="btn border border-0"
-                      [ngStyle]="{'background-color': 'light-blue', 'color': 'black', 'text-align':'left'}">
-                      {{item.displayName}}
+                <div class="card" style="max-width: 1450px; overflow: auto; text-align: left; max-height: 500px; overflow-y: scroll;">
+                    @for (item of SearchTextTopicsResults; track item.fieldOfStudyId) {
+                    <div class="list-group">
+                        <div (click)="FOSMAGBrowserNavigate(item.displayName, item.fieldOfStudyId)" class="btn border border-0"
+                             [ngStyle]="{'background-color': 'light-blue', 'color': 'black', 'text-align':'left'}">
+                            {{item.displayName}}
+                        </div>
                     </div>
-                  </div>
-                }
-              </div>
+                    }
+                </div>
               @if (SearchTextTopicResultsLength < 0) {
                 <div>
                   no results

@@ -5,7 +5,7 @@
       <div class="row p-0 m-0 col">
         @if (HasPDF) {
           <div class="mb-1 ml-1 mr-0 mt-0 text-success" title="Open the first PDF uploaded to this ref..." style="cursor:pointer;" (click)="OpenFirstPDF()">
-            <kendo-icon name="pdf" style="font-size:1.2em"></kendo-icon>
+              <kendo-icon name="file-pdf" style="font-size:1.2em"></kendo-icon>
           </div>
         }
         <div class="small m-1">Ref. Type:</div>
@@ -329,11 +329,10 @@
       }
       @if (CurrentItemAdditionalData && CurrentItemAdditionalData.duplicates) {
         <div class="col-6 row py-0 pl-1 pr-0 m-0 ">
-          Duplicate IDs: @for (dup of CurrentItemAdditionalData.duplicates; track dup) {
-          <span
-          class="rounded alert-danger ml-1">{{dup.itemId}}</span>
-        }
-      </div>
+            Duplicate IDs: @for (dup of CurrentItemAdditionalData.duplicates; track dup.itemId) {
+            <span class="rounded alert-danger ml-1">{{dup.itemId}}</span>
+            }
+        </div>
     }
     @if (!CurrentItemAdditionalData || !CurrentItemAdditionalData.duplicates) {
       <div class="col-6 row p-0 m-0 ">

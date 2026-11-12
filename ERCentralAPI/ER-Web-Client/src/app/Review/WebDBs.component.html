@@ -13,11 +13,11 @@
       <div class="col-12  p-0 m-0 row ">
         <div class="m-1 font-weight-bold">Pick WebDatabase:</div>
         <select (change)="ShowDBSettingById($event)" class="d-inline mb-1">
-          @for (db of WebDbs; track db) {
+            @for (db of WebDbs; track db.webDBId) {
             <option [value]="db.webDBId" [selected]="CurrentDB && db.webDBId == CurrentDB.webDBId">
-              {{db.webDBName}}
+                {{db.webDBName}}
             </option>
-          }
+            }
         </select>
         <button class="btn btn-outline-primary btn-sm ml-1 mb-1" (click)="Edit()" [disabled]="!CanWrite">Add New...</button>
         <button class="page-link rounded pt-1 pb-1 mb-1 mr-0 ml-auto float-right" style="z-index:91;"
@@ -560,8 +560,8 @@
         <div class="col-12 col-md-3 row m-0 p-0">
           <div class="col-12">
             Is open access:
-            <span class="brightSwitch" style="zoom:75%;">
-              <kendo-switch name="showOptionalFieldsSW" class="small small mt-0"
+            <span class="brightSwitch" style="zoom:80%;">
+              <kendo-switch name="showOptionalFieldsSW" class="mt-0"
                 [(ngModel)]="EditingDB.isOpen"
                 [onLabel]="'Yes'"
               [offLabel]="'No'"></kendo-switch>
@@ -640,16 +640,16 @@
             <!--<input type='checkbox' checked (change)="allFieldsSelectedUnselected($event)" />
             <textarea class="p-1 w-100" type="text" [(ngModel)]="EditingDB.hiddenFields" rows="2"></textarea>-->
             <div class="border-top" style="max-height:35vh;overflow-y:auto;">
-              <table>
-                @for (fields of FieldList; track fields) {
-                  <tr>
-                    <td>
-                      <input type='checkbox' (change)="FieldChangeSelected(fields.fieldNumber, $event)" [disabled]="!fields.enabled" [checked]="fields.selected" />
-                      &nbsp;&nbsp;{{fields.friendlyFieldName}}
-                    </td>
-                  </tr>
-                }
-              </table>
+                <table>
+                    @for (fields of FieldList; track fields.fieldNumber) {
+                    <tr>
+                        <td>
+                            <input type='checkbox' (change)="FieldChangeSelected(fields.fieldNumber, $event)" [disabled]="!fields.enabled" [checked]="fields.selected" />
+                            &nbsp;&nbsp;{{fields.friendlyFieldName}}
+                        </td>
+                    </tr>
+                    }
+                </table>
             </div>
           </div>
         </div>
@@ -705,20 +705,20 @@
               Add Coding Tool:
             </div>
             <div class="d-block my-1 col-8 p-0">
-              <div ngbDropdown class="" style="min-width:200px;">
+              <div ngbDropdown   class="" style="min-width:200px;">
                 <button class="btn btn-outline-secondary dropdown-toggle"
                   style="min-width: 200px; max-width:720px;"
-                  (click)="isCollapsedAddTool = false;" [disabled]="EditingSomething || !CanWrite"
+                   [disabled]="EditingSomething || !CanWrite"
                   id="dropdownBasicCodingTool" ngbDropdownToggle>
                   {{GetCodingToolName()}}
                 </button>
                 <div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool" class="FlatDropdown">
-                  @for (item of AddableCodingTools; track item) {
+                    @for (item of AddableCodingTools; track item.set_id) {
                     <button (click)="SetCodeSetDropDown(item)"
-                      class="dropdown-item">
-                      {{item.name}}
+                            class="dropdown-item">
+                        {{item.name}}
                     </button>
-                  }
+                    }
                 </div>
               </div>
             </div>
@@ -794,16 +794,16 @@
                           No codes are hidden for this Coding Tool.
                         </div>
                       }
-                      <div style="max-height:400px;overflow:auto;background-color:#d8d8e2;" class="col-12 m-1 p-1 rounded ">
-                        @for (missing of MissingAttributes; track missing) {
-                          <div class="row mx-1">
-                            <div class="bg-white rounded border border-info my-1 ml-1 mr-auto px-2 ">
-                              @if (missing.path.length > 0) {
-                                <span>{{missing.path}}\</span>
-                                }<strong>{{missing.name}}</strong> <button class="btn btn-sm btn-outline-primary ml-2 py-0 my-1 small" (click)="RestoreCode(missing)">Restore...</button>
-                              </div>
+                        <div style="max-height:400px;overflow:auto;background-color:#d8d8e2;" class="col-12 m-1 p-1 rounded ">
+                            @for (missing of MissingAttributes; track missing.attributeId) {
+                            <div class="row mx-1">
+                                <div class="bg-white rounded border border-info my-1 ml-1 mr-auto px-2 ">
+                                    @if (missing.path.length > 0) {
+                                    <span>{{missing.path}}\</span>
+                                    }<strong>{{missing.name}}</strong> <button class="btn btn-sm btn-outline-primary ml-2 py-0 my-1 small" (click)="RestoreCode(missing)">Restore...</button>
+                                </div>
                             </div>
-                          }
+                            }
                         </div>
                       </div>
                     }
@@ -898,77 +898,77 @@
               <div class="row col-12 mx-0 px-0 ">
                 @if (EditingMap == null) {
                   <div>
-                    @for (map of CurrentMaps; track map) {
+                      @for (map of CurrentMaps; track map.webDBMapId) {
                       <div class="col-12 px-0 mx-0 row border-dark border rounded small">
-                        <div class="col-12 mx-0 p-1 row">
-                          <table width="100%">
-                            <tr>
-                              <td style="text-align:left">
-                                <div class="mx-0 p-1 border border-primary alert-primary rounded">Name: <strong>{{map.webDBMapName}}</strong></div>
-                              </td>
-                              <td style="text-align:right">
-                                <span>
-                                  <button class="btn btn-sm btn-outline-danger px-1 pt-0 my-auto ml-auto mr-1" title="Delete Map" [disabled]="EditingSomething" (click)="DeleteMap(map)"><kendo-icon name="trash"></kendo-icon></button>
-                                  <button class="btn mr-1 my-auto py-1 px-3 btn-sm btn-outline-success" [disabled]="EditingSomething" (click)="EditMap(map)">Edit</button>
-                                  <button title="Move map up" class="btn btn-sm btn-outline-primary px-1 pt-0 my-auto ml-auto mr-1" [disabled]="EditingSomething || MapCanMoveUp(map) == false" (click)="MoveUp(map)"><kendo-icon name="arrow-up"></kendo-icon></button>
-                                  <button title="Move map down" class="btn btn-sm btn-outline-primary px-1 pt-0 my-auto ml-auto mr-1" [disabled]="EditingSomething || MapCanMoveDown(map) == false" (click)="MoveDown(map)"><kendo-icon name="arrow-down"></kendo-icon></button>
-                                  </span>
-</td>
-                            </tr>
-                          </table>
-                        </div>
-                        @if (CurrentDB.isOpen) {
+                          <div class="col-12 mx-0 p-1 row">
+                              <table width="100%">
+                                  <tr>
+                                      <td style="text-align:left">
+                                          <div class="mx-0 p-1 border border-primary alert-primary rounded">Name: <strong>{{map.webDBMapName}}</strong></div>
+                                      </td>
+                                      <td style="text-align:right">
+                                          <span>
+                                              <button class="btn btn-sm btn-outline-danger px-1 pt-0 my-auto ml-auto mr-1" title="Delete Map" [disabled]="EditingSomething" (click)="DeleteMap(map)"><kendo-icon name="trash"></kendo-icon></button>
+                                              <button class="btn mr-1 my-auto py-1 px-3 btn-sm btn-outline-success" [disabled]="EditingSomething" (click)="EditMap(map)">Edit</button>
+                                              <button title="Move map up" class="btn btn-sm btn-outline-primary px-1 pt-0 my-auto ml-auto mr-1" [disabled]="EditingSomething || MapCanMoveUp(map) == false" (click)="MoveUp(map)"><kendo-icon name="arrow-up"></kendo-icon></button>
+                                              <button title="Move map down" class="btn btn-sm btn-outline-primary px-1 pt-0 my-auto ml-auto mr-1" [disabled]="EditingSomething || MapCanMoveDown(map) == false" (click)="MoveDown(map)"><kendo-icon name="arrow-down"></kendo-icon></button>
+                                          </span>
+                                      </td>
+                                  </tr>
+                              </table>
+                          </div>
+                          @if (CurrentDB.isOpen) {
                           <div class="col-12 mx-0 p-1 row" style="text-align:left">
-                            Public Map URL:
-                            <a href="{{VisitMapURL(map.webDBMapId)}}" target="_blank">{{VisitMapURL(map.webDBMapId)}}</a>
+                              Public Map URL:
+                              <a href="{{VisitMapURL(map.webDBMapId)}}" target="_blank">{{VisitMapURL(map.webDBMapId)}}</a>
                           </div>
-                        }
-                        <div class="row col-12 p-1 mx-0 ">
-                          <div class="col row m-1 p-0 border border-info rounded" style="vertical-align:top">
-                            <div class="col-12 pr-0 pl-1 font-weight-bold">
-                              <kendo-icon name="table-column-insert-left" class="k-color-info"></kendo-icon>&nbsp;Columns:
-                            </div>
-                            <div class="rounded col w-100" [ngClass]="{'font-weight-bold alert-danger' : map.columnsAttributeID == -1}">
-                              @if (map.columnsAttributeID == -1) {
-                                <div>This code no longer exists!</div>
-                              }
-                              Code: {{map.columnsPublicAttributeName}} <br />
-                              Tool: {{map.columnsPublicSetName}}
-                            </div>
+                          }
+                          <div class="row col-12 p-1 mx-0 ">
+                              <div class="col row m-1 p-0 border border-info rounded" style="vertical-align:top">
+                                  <div class="col-12 pr-0 pl-1 font-weight-bold">
+                                      <kendo-icon name="table-column-insert-left" class="k-color-info"></kendo-icon>&nbsp;Columns:
+                                  </div>
+                                  <div class="rounded col w-100" [ngClass]="{'font-weight-bold alert-danger' : map.columnsAttributeID == -1}">
+                                      @if (map.columnsAttributeID == -1) {
+                                      <div>This code no longer exists!</div>
+                                      }
+                                      Code: {{map.columnsPublicAttributeName}} <br />
+                                      Tool: {{map.columnsPublicSetName}}
+                                  </div>
+                              </div>
+                              <div class="col row m-1 p-0 border border-info rounded" style="vertical-align:top">
+                                  <div class="col-12 pr-0 pl-1 font-weight-bold">
+                                      <kendo-icon name="table-row-insert-above" class="k-color-info"></kendo-icon>&nbsp;Rows:
+                                  </div>
+                                  <div class="rounded col w-100" [ngClass]="{'font-weight-bold alert-danger' : map.rowsAttributeID == -1}">
+                                      @if (map.rowsAttributeID == -1) {
+                                      <div>This code no longer exists!</div>
+                                      }
+                                      Code: {{map.rowsPublicAttributeName}} <br />
+                                      Tool: {{map.rowsPublicSetName}}
+                                  </div>
+                              </div>
+                              <div class="col row m-1 p-0 border border-info rounded" style="vertical-align:top">
+                                  <div class="col-12 pr-0 pl-1 font-weight-bold">
+                                      <kendo-icon name="chart-bubble" class="k-color-success"></kendo-icon>&nbsp;Segments:
+                                  </div>
+                                  <div class="rounded col w-100" [ngClass]="{'font-weight-bold alert-danger' : map.segmentsAttributeID == -1}">
+                                      @if (map.segmentsAttributeID == -1) {
+                                      <div>This code no longer exists!</div>
+                                      }
+                                      Code: {{map.segmentsPublicAttributeName}} <br />
+                                      Tool: {{map.segmentsPublicSetName}}
+                                  </div>
+                              </div>
                           </div>
-                          <div class="col row m-1 p-0 border border-info rounded" style="vertical-align:top">
-                            <div class="col-12 pr-0 pl-1 font-weight-bold">
-                              <kendo-icon name="table-row-insert-above" class="k-color-info"></kendo-icon>&nbsp;Rows:
-                            </div>
-                            <div class="rounded col w-100" [ngClass]="{'font-weight-bold alert-danger' : map.rowsAttributeID == -1}">
-                              @if (map.rowsAttributeID == -1) {
-                                <div>This code no longer exists!</div>
-                              }
-                              Code: {{map.rowsPublicAttributeName}} <br />
-                              Tool: {{map.rowsPublicSetName}}
-                            </div>
+                          <div class="m-0 col-12 p-0 ">
+                              <div class="m-1 border border-info rounded">
+                                  <div class="col-12 px-1 font-weight-bold">Map Description:</div>
+                                  <div [innerHTML]="map.webDBMapDescription" class="col-12 alert-info px-1 rounded" style="max-height:200px;overflow-y:auto;"></div>
+                              </div>
                           </div>
-                          <div class="col row m-1 p-0 border border-info rounded" style="vertical-align:top">
-                            <div class="col-12 pr-0 pl-1 font-weight-bold">
-                              <kendo-icon name="chart-bubble" class="k-color-success"></kendo-icon>&nbsp;Segments:
-                            </div>
-                            <div class="rounded col w-100" [ngClass]="{'font-weight-bold alert-danger' : map.segmentsAttributeID == -1}">
-                              @if (map.segmentsAttributeID == -1) {
-                                <div>This code no longer exists!</div>
-                              }
-                              Code: {{map.segmentsPublicAttributeName}} <br />
-                              Tool: {{map.segmentsPublicSetName}}
-                            </div>
-                          </div>
-                        </div>
-                        <div class="m-0 col-12 p-0 ">
-                          <div class="m-1 border border-info rounded">
-                            <div class="col-12 px-1 font-weight-bold">Map Description:</div>
-                            <div [innerHTML]="map.webDBMapDescription" class="col-12 alert-info px-1 rounded" style="max-height:200px;overflow-y:auto;"></div>
-                          </div>
-                        </div>
                       </div>
-                    }
+                      }
                   </div>
                 } @else {
                   @if (EditingMap) {

@@ -84,46 +84,46 @@
             <div class="bg-light m-1" style="overflow-x:auto;">
               <table>
                 <tbody class="h-100">
-                  <tr  class="h-100">
-                    @for (col of EditingReport.columns; track col) {
-                      <td class="align-top h-100">
-                        <div class="my-0 ml-0 mr-1 p-1 h-100 border rounded border"
-                          [ngClass]="{'alert-dark border-secondary': (EditingColumn == null || EditingColumn.reportColumnId !== col.reportColumnId), 'alert-info border-primary': (EditingColumn !== null && EditingColumn.reportColumnId == col.reportColumnId)}">
-                          <div class="row mx-0 px-0 alert-info " style="min-width:195px;">
-                            <button class="btn btn-sm btn-outline-success mx-0 my-auto px-1 py-0" (click)="EditColumn(col)" title="Edit column content"
-                              [disabled]="!HasWriteRights">
-                              <kendo-icon name="pencil" class="k-color-success"></kendo-icon>
-                            </button>
-                            <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="AddCodeToColumn(col, selectedNode)" title="Add selected code to column"
-                              [disabled]="!CanAddNodeToColumn(col, selectedNode) || !HasWriteRights">
-                              <kendo-icon name="plus" class="k-color-success"></kendo-icon>
-                            </button>
-                            <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="MoveColumnLeft(EditingReport, col)" title="Move column to the left"
-                              [disabled]="col.columnOrder == 0 || !HasWriteRights">
-                              <kendo-icon name="arrow-left" class="k-color-success"></kendo-icon>
-                            </button>
-                            <button class="btn btn-sm btn-outline-success my-auto mr-auto ml-0 px-1 py-0" (click)="MoveColumnRight(EditingReport, col)" title="Move column to the right"
-                              [disabled]="col.columnOrder >= EditingReport.columns.length-1 || !HasWriteRights">
-                              <kendo-icon name="arrow-right" class="k-color-success"></kendo-icon>
-                            </button>
-                            Col {{col.columnOrder + 1}}
-                            <button class="btn btn-sm btn-outline-danger my-auto ml-1 px-1 py-0" (click)="DeleteColumn(col, EditingReport)" title="Delete column from report"
-                              [disabled]="!HasWriteRights">
-                              <kendo-icon name="trash"></kendo-icon>
-                            </button>
-                          </div>
-                          <div class="mx-1 d-inline-block"><strong class="mr-1">{{ShortColumnName(col)}}</strong></div>
-                          <div class="m-1 rounded border border-info p-1 bg-white" style="max-height:160px; overflow-y:auto;">
-                            @for (code of col.codes; track code) {
-                              <div class="small my-1 p-1 rounded text-nowrap border border-info">
-                                <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : !code.codeExists}"> {{ShortCodeName(code)}}</span>
-                              </div>
-                            }
-                          </div>
-                        </div>
-                      </td>
-                    }
-                  </tr>
+                    <tr class="h-100">
+                        @for (col of EditingReport.columns; track col.reportColumnId) {
+                        <td class="align-top h-100">
+                            <div class="my-0 ml-0 mr-1 p-1 h-100 border rounded border"
+                                 [ngClass]="{'alert-dark border-secondary': (EditingColumn == null || EditingColumn.reportColumnId !== col.reportColumnId), 'alert-info border-primary': (EditingColumn !== null && EditingColumn.reportColumnId == col.reportColumnId)}">
+                                <div class="row mx-0 px-0 alert-info " style="min-width:195px;">
+                                    <button class="btn btn-sm btn-outline-success mx-0 my-auto px-1 py-0" (click)="EditColumn(col)" title="Edit column content"
+                                            [disabled]="!HasWriteRights">
+                                        <kendo-icon name="pencil" class="k-color-success"></kendo-icon>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="AddCodeToColumn(col, selectedNode)" title="Add selected code to column"
+                                            [disabled]="!CanAddNodeToColumn(col, selectedNode) || !HasWriteRights">
+                                        <kendo-icon name="plus" class="k-color-success"></kendo-icon>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="MoveColumnLeft(EditingReport, col)" title="Move column to the left"
+                                            [disabled]="col.columnOrder == 0 || !HasWriteRights">
+                                        <kendo-icon name="arrow-left" class="k-color-success"></kendo-icon>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success my-auto mr-auto ml-0 px-1 py-0" (click)="MoveColumnRight(EditingReport, col)" title="Move column to the right"
+                                            [disabled]="col.columnOrder >= EditingReport.columns.length-1 || !HasWriteRights">
+                                        <kendo-icon name="arrow-right" class="k-color-success"></kendo-icon>
+                                    </button>
+                                    Col {{col.columnOrder + 1}}
+                                    <button class="btn btn-sm btn-outline-danger my-auto ml-1 px-1 py-0" (click)="DeleteColumn(col, EditingReport)" title="Delete column from report"
+                                            [disabled]="!HasWriteRights">
+                                        <kendo-icon name="trash"></kendo-icon>
+                                    </button>
+                                </div>
+                                <div class="mx-1 d-inline-block"><strong class="mr-1">{{ShortColumnName(col)}}</strong></div>
+                                <div class="m-1 rounded border border-info p-1 bg-white" style="max-height:160px; overflow-y:auto;">
+                                    @for (code of col.codes; track code.reportColumnCodeId) {
+                                    <div class="small my-1 p-1 rounded text-nowrap border border-info">
+                                        <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : !code.codeExists}"> {{ShortCodeName(code)}}</span>
+                                    </div>
+                                    }
+                                </div>
+                            </div>
+                        </td>
+                        }
+                    </tr>
                 </tbody>
               </table>
             </div>
@@ -165,26 +165,26 @@
       </button>
     </div>
     <div class="mx-0 p-1 rounded border border-info bg-white" style="max-height:80vh; overflow:auto;">
-      @if (Reports.length == 0) {
+        @if (Reports.length == 0) {
         <div class="rounded border border-info alert-info">
-          No reports loaded. Click
-          <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 ml-1" (click)="NewReport()" title="Create New Report" [disabled]="!HasWriteRights">
-            New Report
-          </button> to create the first report.
+            No reports loaded. Click
+            <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 ml-1" (click)="NewReport()" title="Create New Report" [disabled]="!HasWriteRights">
+                New Report
+            </button> to create the first report.
         </div>
-      }
-      @for (rpt of Reports; track rpt) {
+        }
+        @for (rpt of Reports; track rpt.reportId) {
         <div class="row ml-1 mr-1 border-bottom border-info">
-          <div class="my-auto">{{rpt.name}}</div>
-          <button class="btn btn-outline-success px-1 ml-auto mr-1 py-0 my-1" (click)="EditReport(rpt)" title="View/Edit report details">
-            <kendo-icon name="pencil" class=" k-color-success"></kendo-icon>
-          </button>
-          <button class="btn btn-sm btn-outline-danger ml-0 mr-1 my-1 px-1 py-0" (click)="DeleteReport(rpt)" title="Delete Report"
-            [disabled]="!HasWriteRights || (EditingReport != null && EditingReport.reportId == rpt.reportId)">
-            <kendo-icon name="trash"></kendo-icon>
-          </button>
+            <div class="my-auto">{{rpt.name}}</div>
+            <button class="btn btn-outline-success px-1 ml-auto mr-1 py-0 my-1" (click)="EditReport(rpt)" title="View/Edit report details">
+                <kendo-icon name="pencil" class=" k-color-success"></kendo-icon>
+            </button>
+            <button class="btn btn-sm btn-outline-danger ml-0 mr-1 my-1 px-1 py-0" (click)="DeleteReport(rpt)" title="Delete Report"
+                    [disabled]="!HasWriteRights || (EditingReport != null && EditingReport.reportId == rpt.reportId)">
+                <kendo-icon name="trash"></kendo-icon>
+            </button>
         </div>
-      }
+        }
     </div>
   </div>
   <div class="col-8 col-lg-9 row m-0 p-0">
@@ -215,49 +215,49 @@
                   </div>
                 </div>
                 <div class="p-1 m-1 border border-dark">
-                  Codes in column:
-                  @for (code of EditingColumn.codes; track code) {
+                    Codes in column:
+                    @for (code of EditingColumn.codes; track code.reportColumnCodeId) {
                     <div class="m-1 border rounded border-info">
-                      @if (EditingColumnCodeId == null || EditingColumnCodeId !== code.reportColumnCodeId) {
+                        @if (EditingColumnCodeId == null || EditingColumnCodeId !== code.reportColumnCodeId) {
                         <div class="row mx-0 px-0">
-                          <div class="mx-1">
-                            <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : !code.codeExists}"> {{code.userDefText}}</span>
-                          </div>
-                          <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="EditCode(code)" title="View/Edit details">
-                            <kendo-icon name="pencil" Class=" k-color-success"></kendo-icon>
-                          </button>
-                          <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" [disabled]="code.codeOrder == 0 || !HasWriteRights" title="Move code up (within this column)"
-                            (click)="MoveColumnCodeUp(EditingColumn, code)">
-                            <kendo-icon name="arrow-up" class="k-color-success"></kendo-icon>
-                          </button>
-                          <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 mr-1" [disabled]="code.codeOrder >= EditingColumn.codes.length -1 || !HasWriteRights" title="Move code down (within this column)"
-                            (click)="MoveColumnCodeDown(EditingColumn, code)">
-                            <kendo-icon name="arrow-down" class=" k-color-success"></kendo-icon>
-                          </button>
-                          <button class="btn btn-sm btn-outline-danger my-auto px-1 py-0 ml-auto" (click)="DeleteColumnCode(code, EditingColumn)" title="Remove code from column"
-                            [disabled]="!HasWriteRights">
-                            <kendo-icon name="trash"></kendo-icon>
-                          </button>
+                            <div class="mx-1">
+                                <span style="padding: 3px 4px;" [ngClass]="{'font-weight-bold alert-danger' : !code.codeExists}"> {{code.userDefText}}</span>
+                            </div>
+                            <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="EditCode(code)" title="View/Edit details">
+                                <kendo-icon name="pencil" Class=" k-color-success"></kendo-icon>
+                            </button>
+                            <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" [disabled]="code.codeOrder == 0 || !HasWriteRights" title="Move code up (within this column)"
+                                    (click)="MoveColumnCodeUp(EditingColumn, code)">
+                                <kendo-icon name="arrow-up" class="k-color-success"></kendo-icon>
+                            </button>
+                            <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 mr-1" [disabled]="code.codeOrder >= EditingColumn.codes.length -1 || !HasWriteRights" title="Move code down (within this column)"
+                                    (click)="MoveColumnCodeDown(EditingColumn, code)">
+                                <kendo-icon name="arrow-down" class=" k-color-success"></kendo-icon>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger my-auto px-1 py-0 ml-auto" (click)="DeleteColumnCode(code, EditingColumn)" title="Remove code from column"
+                                    [disabled]="!HasWriteRights">
+                                <kendo-icon name="trash"></kendo-icon>
+                            </button>
                         </div>
-                      } @else {
+                        } @else {
                         <div class="m-1 p-1">
-                          <div class="row mx-0 px-1">
-                            <div class="mr-1">Display Name: </div>
-                            <input type="text" [disabled]="!HasWriteRights" [(ngModel)]="EditingColumnCodeText" maxlength="200" class="col px-1" />
-                          </div>
-                          <div class="row mx-0 px-1">Code Name: {{code.parentAttributeText}} </div>
-                          <div>Show code names: <input type="checkbox" [(ngModel)]="EditingColumnCodedisplayCode" [disabled]="!HasWriteRights" /></div>
-                          <div>Show infobox text: <input type="checkbox" [(ngModel)]="EditingColumnNamedisplayAdditionalText" [disabled]="!HasWriteRights" /></div>
-                          <div>Show coded text: <input type="checkbox" [(ngModel)]="EditingColumnCodedisplayCodedText" [disabled]="!HasWriteRights" /></div>
-                          <button class="btn btn-sm btn-outline-primary my-auto px-1 py-0 mx-1" (click)="EditCode()">
-                            Done
-                          </button>
+                            <div class="row mx-0 px-1">
+                                <div class="mr-1">Display Name: </div>
+                                <input type="text" [disabled]="!HasWriteRights" [(ngModel)]="EditingColumnCodeText" maxlength="200" class="col px-1" />
+                            </div>
+                            <div class="row mx-0 px-1">Code Name: {{code.parentAttributeText}} </div>
+                            <div>Show code names: <input type="checkbox" [(ngModel)]="EditingColumnCodedisplayCode" [disabled]="!HasWriteRights" /></div>
+                            <div>Show infobox text: <input type="checkbox" [(ngModel)]="EditingColumnNamedisplayAdditionalText" [disabled]="!HasWriteRights" /></div>
+                            <div>Show coded text: <input type="checkbox" [(ngModel)]="EditingColumnCodedisplayCodedText" [disabled]="!HasWriteRights" /></div>
+                            <button class="btn btn-sm btn-outline-primary my-auto px-1 py-0 mx-1" (click)="EditCode()">
+                                Done
+                            </button>
                         </div>
-                      }
-                      <div class="row mx-1 px-0">{{CodeOrSetId(code)}}</div>
-                      <div class="row mx-1 px-0">Full path: {{FullPath(code)}}</div>
+                        }
+                        <div class="row mx-1 px-0">{{CodeOrSetId(code)}}</div>
+                        <div class="row mx-1 px-0">Full path: {{FullPath(code)}}</div>
                     </div>
-                  }
+                    }
                 </div>
               </div>
             </div>

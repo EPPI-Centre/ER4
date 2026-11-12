@@ -92,7 +92,6 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
       return [];
     }
   }
-
   NodeSelected(event: TreeItem) {
     const node: singleNode = event.dataItem;
     if (this.WhatIsSelectable == "SetAttribute" && this.IsMultiSelect == false) {
