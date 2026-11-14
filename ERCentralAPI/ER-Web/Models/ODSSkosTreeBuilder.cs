@@ -5,6 +5,7 @@ using System.IO;
 using VDS.RDF;
 using VDS.RDF.Parsing;
 
+// ******************************* THIS OBJECT PUT TOGETHER BY GPT-6-LUNA ****************************************
 public sealed class VocabularyNode
 {
     public required string Uri { get; init; }

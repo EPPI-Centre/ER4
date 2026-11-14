@@ -248,7 +248,7 @@
                     <div>Coding Tool Type: {{CurrentNode.subTypeName}}.</div>
                     <div>
                       <span style="position: relative; bottom: -4px;">Locked? &nbsp;</span>
-                          <span class=" brightSwitch">
+                          <span class="brightSwitch">
                         <kendo-switch name="CanEditSW" class=" mt-1"
                                       [disabled]="!HasWriteRights"
                                       [(ngModel)]="CurrentNode.allowEditingCodeset"
@@ -312,8 +312,8 @@
                         <span class=" brightSwitch" style="zoom:80%;">
                           <kendo-switch name="CanEditExternalURLs" class=" mt-1"
                                         [(ngModel)]="CurrentNode.userCanEditURLs"
-                                        [onLabel]="'No'"
-                                        [offLabel]="'Yes'"></kendo-switch>
+                                        [onLabel]="'Yes'"
+                                        [offLabel]="'No'"></kendo-switch>
                         </span>
                         <br /><br />
                       </div>

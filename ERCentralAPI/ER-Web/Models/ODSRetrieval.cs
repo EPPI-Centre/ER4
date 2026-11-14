@@ -385,46 +385,143 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
         }
+        //private async Task<string> FetchODSBodyAsync(string apiURL, string token, int currentPage)
+        //{
+        //    using var http = new HttpClient();
+        //    http.DefaultRequestHeaders.Authorization =
+        //        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+        //    var response = await http.GetAsync(apiURL + "&page=" + currentPage.ToString());
+        //    var body = await response.Content.ReadAsStringAsync();
+
+        //    if (!response.IsSuccessStatusCode)
+        //    {
+        //        //System.InvalidOperationException: 'Evidence Repository API call failed: 401 {"detail":"Token is expired."}' - refreshing every 100 pages hopefully fixes this
+        //        // but we could handle explicitly
+        //        throw new InvalidOperationException($"Evidence Repository API call failed: {(int)response.StatusCode} {body}");
+        //    }
+        //    return body;
+        //}
+        // Below is a version of FetchODSBodyAsync() that includes error handling and validation of the response from GPT-6-Luna
         private async Task<string> FetchODSBodyAsync(string apiURL, string token, int currentPage)
         {
-            using var http = new HttpClient();
-            http.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-
-            var response = await http.GetAsync(apiURL + "&page=" + currentPage.ToString());
-            var body = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
+            try
             {
-                //System.InvalidOperationException: 'Evidence Repository API call failed: 401 {"detail":"Token is expired."}' - refreshing every 100 pages hopefully fixes this
-                // but we could handle explicitly
-                throw new InvalidOperationException($"Evidence Repository API call failed: {(int)response.StatusCode} {body}");
+                using var http = new HttpClient();
+                http.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+                using var response = await http.GetAsync(
+                    apiURL + "&page=" + currentPage.ToString());
+
+                string body = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new InvalidOperationException(
+                        $"Evidence Repository API request failed with HTTP " +
+                        $"{(int)response.StatusCode} ({response.ReasonPhrase}) on page {currentPage}.");
+                }
+
+                return body;
             }
-            return body;
+            catch (TaskCanceledException ex)
+            {
+                throw new InvalidOperationException(
+                    $"Evidence Repository API request timed out on page {currentPage}.", ex);
+            }
+            catch (HttpRequestException ex)
+            {
+                throw new InvalidOperationException(
+                    $"Evidence Repository API request could not be completed on page {currentPage}.", ex);
+            }
         }
 
+        //private async Task<string> getODSToken()
+        //{
+        //    string TokenEndpoint = AzureSettings.ODSTokenEndpoint;
+        //    string ClientId = AzureSettings.ODSClientId;
+        //    string ClientSecret = AzureSettings.ODSClientSecret;
+        //    string Scope = "destiny-repository-client-production";
+        //    string BaseUrl = "";
+
+        //    using var http = new HttpClient();
+
+        //    var response = await http.PostAsync(TokenEndpoint, new FormUrlEncodedContent(new Dictionary<string, string>
+        //    {
+        //        ["grant_type"] = "client_credentials",
+        //        ["client_id"] = ClientId,
+        //        ["client_secret"] = ClientSecret,
+        //        //["scope"] = Scope,
+        //    }));
+        //    var body = await response.Content.ReadAsStringAsync();
+        //    if (!response.IsSuccessStatusCode)
+        //        throw new InvalidOperationException($"Token request failed: {(int)response.StatusCode} {body}");
+
+        //    return System.Text.Json.JsonDocument.Parse(body).RootElement.GetProperty("access_token").GetString()!;
+        //}
+        // Below is a version of getODSToken() that includes error handling and validation of the token response from GPT-6-Luna
         private async Task<string> getODSToken()
         {
-            string TokenEndpoint = AzureSettings.ODSTokenEndpoint;
-            string ClientId = AzureSettings.ODSClientId;
-            string ClientSecret = AzureSettings.ODSClientSecret;
-            string Scope = "destiny-repository-client-production";
-            string BaseUrl = "";
+            string tokenEndpoint = AzureSettings.ODSTokenEndpoint;
+            string clientId = AzureSettings.ODSClientId;
+            string clientSecret = AzureSettings.ODSClientSecret;
 
-            using var http = new HttpClient();
-
-            var response = await http.PostAsync(TokenEndpoint, new FormUrlEncodedContent(new Dictionary<string, string>
+            if (!Uri.TryCreate(tokenEndpoint, UriKind.Absolute, out var endpoint) ||
+                endpoint.Scheme != Uri.UriSchemeHttps ||
+                string.IsNullOrWhiteSpace(clientId) ||
+                string.IsNullOrWhiteSpace(clientSecret))
             {
-                ["grant_type"] = "client_credentials",
-                ["client_id"] = ClientId,
-                ["client_secret"] = ClientSecret,
-                //["scope"] = Scope,
-            }));
-            var body = await response.Content.ReadAsStringAsync();
-            if (!response.IsSuccessStatusCode)
-                throw new InvalidOperationException($"Token request failed: {(int)response.StatusCode} {body}");
+                throw new InvalidOperationException("ODS token endpoint or client configuration is invalid.");
+            }
 
-            return System.Text.Json.JsonDocument.Parse(body).RootElement.GetProperty("access_token").GetString()!;
+            try
+            {
+                using var http = new HttpClient();
+                using var content = new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    ["grant_type"] = "client_credentials",
+                    ["client_id"] = clientId,
+                    ["client_secret"] = clientSecret
+                });
+
+                using var response = await http.PostAsync(endpoint, content);
+                string body = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new InvalidOperationException(
+                        $"ODS token request failed with HTTP {(int)response.StatusCode} ({response.ReasonPhrase}).");
+                }
+
+                try
+                {
+                    using var document = System.Text.Json.JsonDocument.Parse(body);
+
+                    if (document.RootElement.ValueKind != System.Text.Json.JsonValueKind.Object ||
+                        !document.RootElement.TryGetProperty("access_token", out var tokenElement) ||
+                        tokenElement.ValueKind != System.Text.Json.JsonValueKind.String ||
+                        string.IsNullOrWhiteSpace(tokenElement.GetString()))
+                    {
+                        throw new InvalidOperationException(
+                            "ODS token response did not contain a valid access_token.");
+                    }
+
+                    return tokenElement.GetString()!;
+                }
+                catch (System.Text.Json.JsonException ex)
+                {
+                    throw new InvalidOperationException("ODS token response was not valid JSON.", ex);
+                }
+            }
+            catch (TaskCanceledException ex)
+            {
+                throw new InvalidOperationException("ODS token request timed out.", ex);
+            }
+            catch (HttpRequestException ex)
+            {
+                throw new InvalidOperationException("ODS token request could not be completed.", ex);
+            }
         }
 
         private static readonly Dictionary<string, string> AnnotationOverrides = new(StringComparer.OrdinalIgnoreCase)
@@ -835,13 +932,6 @@ namespace BusinessLibrary.BusinessClasses
         // based on SaveOutcome from importjsoncommand.cs, but we don't have the notion of an individual data extraction, so the linked data doesn't tell us where the outcomes should go
         private void SaveOutcome(ImportJsonCommand.Outcome o, int ReviewId, int ContactId, Int64 ItemId, string VocabularyUri)
         {
-            //commented out: we try something a bit better below
-            //// If there is > 1 codeset in the json, we don't know where to 'tie' the outcomes, so don't try to import them
-            //if (ReviewSets.Count != 1)
-            //{
-            //    return;
-            //}
-
             ReviewSet rs = this.ReviewSets.GetReviewSetFromExtURL(VocabularyUri);
             if (rs == null) return;
             Int64 NewOutcomeId = 0;
@@ -988,18 +1078,53 @@ namespace BusinessLibrary.BusinessClasses
             }
             return ItemAttributeId;
         }
+        //private async Task<string> FetchVocabulary(string uri)
+        //{
+        //    using var http = new HttpClient();
+        //    var response = await http.GetAsync(uri);
+        //    var body = await response.Content.ReadAsStringAsync();
+
+        //    if (!response.IsSuccessStatusCode)
+        //    {
+        //        // but we could handle explicitly
+        //        throw new InvalidOperationException($"Evidence Repository get vocab call failed: {(int)response.StatusCode} {body}");
+        //    }
+        //    return body;
+        //}
+        // Below is a version of FetchVocabulary that does some basic validation of the URI and handles exceptions more gracefully, providing clearer error messages. (GPT-6-Luna)
         private async Task<string> FetchVocabulary(string uri)
         {
-            using var http = new HttpClient();
-            var response = await http.GetAsync(uri);
-            var body = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
+            if (!Uri.TryCreate(uri, UriKind.Absolute, out var vocabularyUri) ||
+                (vocabularyUri.Scheme != Uri.UriSchemeHttps &&
+                 vocabularyUri.Scheme != Uri.UriSchemeHttp))
             {
-                // but we could handle explicitly
-                throw new InvalidOperationException($"Evidence Repository get vocab call failed: {(int)response.StatusCode} {body}");
+                throw new InvalidOperationException("The vocabulary URI is invalid or uses an unsupported scheme.");
             }
-            return body;
+
+            try
+            {
+                using var http = new HttpClient();
+                using var response = await http.GetAsync(vocabularyUri);
+                string body = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new InvalidOperationException(
+                        $"Evidence Repository vocabulary request failed with HTTP " +
+                        $"{(int)response.StatusCode} ({response.ReasonPhrase}).");
+                }
+
+                return body;
+            }
+            catch (TaskCanceledException ex)
+            {
+                throw new InvalidOperationException("Evidence Repository vocabulary request timed out.", ex);
+            }
+            catch (HttpRequestException ex)
+            {
+                throw new InvalidOperationException(
+                    "Evidence Repository vocabulary request could not be completed.", ex);
+            }
         }
 
         public class Identifier

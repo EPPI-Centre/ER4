@@ -39,11 +39,8 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
   private clearSub: Subscription | null = null;
 
   public modelsList: StringKeyValue[] = [
-    { key: "oldLogReg", value: "Original EPPI Reviewer Classifier (LogReg)" }
-    , { key: "lightgbm", value: "Light Gradient-Boosting Machine" }
-    , { key: "rfc", value: "Random Forest Classifier" }
-    , { key: "xgboost", value: "eXtreme Gradient Boosting" }
-    , { key: "svc", value: "Support Vector Clustering" }
+    { key: "oldLogReg", value: "Logistic Regression (original)" }
+    , { key: "H2O-4B-FT", value: "Fine-tuned H20-Lightning-4B v.1" }
   ];
 
   private _PriorityScreeningSimulationList: PriorityScreeningSimulation[] = [];
@@ -498,7 +495,8 @@ export class ClassifierModel {
 	attributeIdNotOn: number = -1;
 	reviewId: number = 0;
 	reviewName: string = '';
-
+  mlModelName: string = '';
+  mlModelNameFriendly: string = '';
 }
 
 export class BuildModelCommand {

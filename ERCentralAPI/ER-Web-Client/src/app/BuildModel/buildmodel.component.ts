@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
-import { ClassifierService } from '../services/classifier.service';
+import { ClassifierService, ClassifierModel} from '../services/classifier.service';
 import { ReviewSetsService, singleNode, SetAttribute } from '../services/ReviewSets.service';
 //import { BuildModelService, MVCClassifierCommand } from '../services/buildmodel.service';
 import { GridDataResult } from '@progress/kendo-angular-grid';
@@ -11,6 +11,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { StringKeyValue } from '../services/ItemList.service';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
+import { KENDO_DIALOGS } from "@progress/kendo-angular-dialog";
 
 
 @Component({
@@ -53,6 +54,10 @@ export class BuildModelComponent implements OnInit, OnDestroy {
   public DD1: number = 0;
   public DD2: number = 0;
   public DD3: number = 0;
+  public usePrompts: boolean = false;
+
+  public selectedAttribute1: SetAttribute | null = null;
+  public selectedAttribute2: SetAttribute | null = null;
 
   public get modelsList(): StringKeyValue[] {
     return this._classifierService.modelsList;
@@ -244,18 +249,18 @@ export class BuildModelComponent implements OnInit, OnDestroy {
   SetAttrOn(node: singleNode | null | undefined) {
     //alert(JSON.stringify(node));
     if (node != null && node.nodeType == "SetAttribute") {
-      let a = node as SetAttribute;
+      this.selectedAttribute1 = node as SetAttribute;
       this.selectedModelDropDown1 = node.name;
-      this.DD1 = a.attribute_id;
+      this.DD1 = this.selectedAttribute1.attribute_id;
     }
 
   }
   SetAttrNotOn(node: singleNode | null | undefined) {
     //alert(JSON.stringify(node));
     if (node != null && node != undefined && node.nodeType == "SetAttribute") {
-      let a = node as SetAttribute;
+      this.selectedAttribute2 = node as SetAttribute;
       this.selectedModelDropDown2 = node.name;
-      this.DD2 = a.attribute_id;
+      this.DD2 = this.selectedAttribute2.attribute_id;
     }
   }
   SetAttrInference(node: singleNode | null | undefined) {
@@ -279,15 +284,25 @@ export class BuildModelComponent implements OnInit, OnDestroy {
     this.isCollapsed3 = false;
   }
 
-  async BuildModel(title: any) {
+  // async BuildModel(title: any) {
 
-    if (this.DD1 != null && this.DD2 != null && this.modelNameText != '') {
-      await this._classifierService.CreateAsync(title.model, this.DD1, this.DD2, -1);
-    }
-  }
+  //   if (this.DD1 != null && this.DD2 != null && this.modelNameText != '') {
+  //     await this._classifierService.CreateAsync(title.model, this.DD1, this.DD2, -1);
+  //   }
+  // }
 
   BuildModel2(title: any) {
     if (this.DD1 != null && this.DD2 != null && this.DD3 != null && this.modelNameText != '') {
+      if (this.usePrompts) {
+        if (this.selectedAttribute1?.IsCodeWithLlmPrompt || this.selectedAttribute2?.IsCodeWithLlmPrompt){
+
+
+        }
+      }
+
+       {
+        return;
+        }
       this._classifierService.BuildClassifierV2(title.model, this.DD1, this.DD2, this.DD3, this.selectedModel.key);
     }
   }
@@ -308,5 +323,16 @@ export class BuildModelComponent implements OnInit, OnDestroy {
     this.selectedModel = this.modelsList[0];
   }
 
+  public statisticsWindowOpen = false;
+public statisticsHtml = '';
+
+openStatistics(model: ClassifierModel) {
+  this.statisticsHtml = '<!doctype html><html><body>Hello world!</body></html>';
+  this.statisticsWindowOpen = true;
+}
+
+closeStatisticsWindow() {
+  this.statisticsWindowOpen = false;
+}
 
 }

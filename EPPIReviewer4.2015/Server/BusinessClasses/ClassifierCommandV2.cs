@@ -48,7 +48,8 @@ namespace BusinessLibrary.BusinessClasses
 
         private string _returnMessage = "";
 
-        public ClassifierCommandV2(string title, Int64 attributeIdOn, Int64 attributeIdNotOn, Int64 attributeIdClassifyTo, int classiferId, int sourceId, string mlModelName = "oldLogReg")
+        public ClassifierCommandV2(string title, Int64 attributeIdOn, Int64 attributeIdNotOn,
+            Int64 attributeIdClassifyTo, int classiferId, int sourceId, string mlModelName = "oldLogReg")
         {
             _title = title;
             _mlModelName = mlModelName;
@@ -127,15 +128,6 @@ namespace BusinessLibrary.BusinessClasses
         bool OpenAlexAutoUpdate = false;
         bool buildingNewModel = false;
 
-        //dictionary used to translate from strings saved in `tb_CLASSIFIER_MODEL` (and the UI) to strings expected by the datafactory
-        //keys are the former (DB and UI), values the latter (expected by DF)
-        public static Dictionary<string, string> MlModels = new Dictionary<string, string>{
-              { "oldLogReg", "Original EPPI Reviewer Classifier (LogReg)" }
-            , { "lightgbm", "lightgbm"} //AKA "Light Gradient-Boosting Machine"
-            , { "rfc", "RandomForestClassifier" } //AKA
-            , { "xgboost", "xgboost" } //AKA "eXtreme Gradient Boosting"
-            , { "svc", "SVC" } //AKA "Support Vector Clustering"
-        };
 
         protected override void DataPortal_Execute()
         {
@@ -261,20 +253,23 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 else 
                 {
-                    //new models require more data to work well-enough - Sam's code will work with 7 per class, but it's way better with almost twice that...
-                    if (!QueryDbAndSaveTempFileWithLabels(ReviewId, ContactId, NewJobId, 13, 13, 30)) // there wasn't enough data
-                    {
-                        UndoChangesToClassifierRecord(NewJobId, false);
-                        return;
-                    }
-                    //new models require two files - training data and one to apply the model to
-                    LocalFileName = LocalFileName.Replace("Build.tsv", "Apply4Build.tsv");
-                    if (!QueryDbAndSaveTempFileWithoutLabels(ReviewId, ContactId))
-                    {
-                        UndoChangesToClassifierRecord(NewJobId, false);
-                        return;
-                    }
-                    LocalFileName = LocalFileName.Replace("Apply4Build.tsv", "Build.tsv");//set the filename to what it usually is
+                    // Add here: putting options file / user prompts onto blob
+
+                    //// looks like the latest versions of the new models don't need this after all
+                    ////new models require more data to work well-enough - Sam's code will work with 7 per class, but it's way better with almost twice that...
+                    //if (!QueryDbAndSaveTempFileWithLabels(ReviewId, ContactId, NewJobId, 13, 13, 30)) // there wasn't enough data
+                    //{
+                    //    UndoChangesToClassifierRecord(NewJobId, false);
+                    //    return;
+                    //}
+                    ////new models require two files - training data and one to apply the model to
+                    //LocalFileName = LocalFileName.Replace("Build.tsv", "Apply4Build.tsv");
+                    //if (!QueryDbAndSaveTempFileWithoutLabels(ReviewId, ContactId))
+                    //{
+                    //    UndoChangesToClassifierRecord(NewJobId, false);
+                    //    return;
+                    //}
+                    //LocalFileName = LocalFileName.Replace("Apply4Build.tsv", "Build.tsv");//set the filename to what it usually is
                 }
                 Task.Run(() => FireAndForget(ReviewId, NewJobId, ContactId));
             }
@@ -777,7 +772,7 @@ namespace BusinessLibrary.BusinessClasses
             return true;
         }
 
-        // ************************* Now the async stuff starts. All types of calls end above with a call to FireAndForget, which then controlls program flow from here on ******************
+        // ************************* Now the async stuff starts. All types of calls end above with a call to FireAndForget, which then controls program flow from here on ******************
         // ************************* Exceptions need to be caught within local code as there is nothing else than can catch them now, and if not caught, can bring ER down ******************
         private async void FireAndForget(int ReviewId, int LogId, int ContactId)
         {
@@ -799,20 +794,21 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 return;
             }
+            // looks like the latest version of Sam's new model doesn't need this after all
             //but for new classifier system, we upload also a file to apply the new model to
-            if (RunType == "TrainClassifier" && _mlModelName != "oldLogReg")
-            { ///ALERT: this may need SIGNIFICANT revising to make resuming of (new) build jobs work!!
-                LocalFileName = LocalFileName.Replace("Build.tsv", "Apply4Build.tsv");
-                DataFile = DataFile.Replace("DataForTraining.tsv", "DataForTrainingEvaluation.tsv");
-                if (!UploadTempFileToBlob(ReviewId, LogId))
-                {
-                    bool DeleteLocalFile = !AppIsShuttingDown;
-                    UndoChangesToClassifierRecord(LogId, true, DeleteLocalFile);
-                    return;
-                }
-                LocalFileName = LocalFileName.Replace("Apply4Build.tsv", "Build.tsv");//set the filenames back to what it usually is
-                DataFile = DataFile.Replace("DataForTrainingEvaluation.tsv", "DataForTraining.tsv");
-            }
+            //if (RunType == "TrainClassifier" && _mlModelName != "oldLogReg")
+            //{ ///ALERT: this may need SIGNIFICANT revising to make resuming of (new) build jobs work!!
+            //    LocalFileName = LocalFileName.Replace("Build.tsv", "Apply4Build.tsv");
+            //    DataFile = DataFile.Replace("DataForTraining.tsv", "DataForTrainingEvaluation.tsv");
+            //    if (!UploadTempFileToBlob(ReviewId, LogId))
+            //    {
+            //        bool DeleteLocalFile = !AppIsShuttingDown;
+            //        UndoChangesToClassifierRecord(LogId, true, DeleteLocalFile);
+            //        return;
+            //    }
+            //    LocalFileName = LocalFileName.Replace("Apply4Build.tsv", "Build.tsv");//set the filenames back to what it usually is
+            //    DataFile = DataFile.Replace("DataForTrainingEvaluation.tsv", "DataForTraining.tsv");
+            //}
             Dictionary<string, object> parameters = GetAdfParameters(RunType);
 
             if (parameters.Count == 0 && RunType == "TrainClassifier")
@@ -918,7 +914,7 @@ namespace BusinessLibrary.BusinessClasses
             if (jobType == "TrainClassifier" && _mlModelName != "oldLogReg")
             {//completely different parameters are used for the newer classifiers (25/07/2025)
                 string modelName = "N/A";
-                var mdl = MlModels[_mlModelName];
+                var mdl = ClassifierContactModel.MlModels[_mlModelName];
                 if (mdl == null)
                 {//something is wrong, we're trying to train for a model we did not recognise
                     //code calling this method will detect the case where we return no params at all

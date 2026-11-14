@@ -1,4 +1,4 @@
-<HeaderComponent PageTitle="Edit Reference" Context="editref"></HeaderComponent>
+<HeaderComponent [PageTitle]="item?.itemId ? 'Edit reference' : 'New reference'" Context="editref"></HeaderComponent>
 @if (!item) {
   <button class="page-link pt-0 pb-1 mb-1 rounded float-right" style="position:absolute; right: 0; z-index:2000;" (click)="GoBack()">
     Close/back

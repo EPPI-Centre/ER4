@@ -137,6 +137,27 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(RecallProperty);
             }
         }
+        public static readonly PropertyInfo<string> MlModelNameProperty = RegisterProperty<string>(new PropertyInfo<string>("MlModelName", "MlModelName"));
+        public string MlModelName
+        {
+            get
+            {
+                return GetProperty(MlModelNameProperty);
+            }
+        }
+        public static readonly PropertyInfo<string> MlModelNameFriendlyProperty = RegisterProperty<string>(new PropertyInfo<string>("MlModelNameFriendly", "MlModelNameFriendly"));
+        public string MlModelNameFriendly
+        {
+            get
+            {
+                return GetProperty(MlModelNameFriendlyProperty);
+            }
+            set
+            {
+                SetProperty(MlModelNameFriendlyProperty, value);
+            }
+        }
+
 
 
         //protected override void AddAuthorizationRules()
@@ -192,6 +213,9 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(AttributeNotOnProperty, reader.GetString("ATTRIBUTE_NOT_ON"));
             returnValue.LoadProperty<Int64>(AttributeIdOnProperty, reader.GetInt64("ATTRIBUTE_ID_ON"));
             returnValue.LoadProperty<Int64>(AttributeIdNotOnProperty, reader.GetInt64("ATTRIBUTE_ID_NOT_ON"));
+            returnValue.LoadProperty<string>(MlModelNameProperty, reader.GetString("ML_MODEL_NAME"));
+            returnValue.LoadProperty<string>(MlModelNameFriendlyProperty, ClassifierContactModel.MlModels.TryGetValue(returnValue.MlModelName, out var friendlyName) ?
+                friendlyName : "");
             returnValue.MarkOld();
             return returnValue;
         }

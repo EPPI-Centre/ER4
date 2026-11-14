@@ -1,0 +1,2674 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Select Threshold</title>
+  <!-- If you update Plotly, you must also update the Plotly typings -->
+  <script src="https://cdn.plot.ly/plotly-3.1.0.min.js"
+          integrity="sha384-DAxS2fhSGacPW3IdpTjDpu+KotwjM8aHsfrkZRnfYyJIhAHoDav7jAJ+NmYcp6PL"
+          crossorigin="anonymous"
+          defer></script>
+  <!-- prettier-ignore-start -->
+  <style>
+    #plot-loading {
+      position: fixed;
+      z-index: 1000;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      background-color: rgb(255 255 255 / 90%);
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    .loader {
+      --loader-mask: conic-gradient(#0000 10%, #000), linear-gradient(#000 0 0) content-box;
+      aspect-ratio: 1;
+      width: 50px;
+      padding: 8px;
+      border-radius: 50%;
+      background: #25b09b;
+      /* WebKit fallbacks cover older browsers; the checker cannot recognise them. */
+      /* stylelint-disable plugin/no-unsupported-browser-features */
+      /* stylelint-disable defensive-css/require-custom-property-fallback */
+      -webkit-mask: var(--loader-mask);
+      mask: var(--loader-mask);
+      /* stylelint-enable defensive-css/require-custom-property-fallback */
+      -webkit-mask-composite: source-out;
+      mask-composite: subtract;
+      /* stylelint-enable plugin/no-unsupported-browser-features */
+
+      animation: l3 1s infinite linear;
+    }
+
+    @keyframes l3 {
+      to {
+        transform: rotate(1turn);
+      }
+    }
+  </style>
+  <!-- prettier-ignore-end -->
+  <!-- prettier-ignore-start -->
+  <style>
+       /*
+    * Colour tokens. script.js reads these so the charts and the HTML always match.
+    * Red is an actual negative and green an actual positive; the stronger shade is a
+    * correct prediction and the lighter shade is an error. Plotly fills each density
+    * at half opacity, so the matrix cells use the same half-opacity fills.
+    */
+       :root {
+         --ink: #243447;
+         --chart-ink: #344c68;
+         --muted: #68788b;
+         --border: #dfe5ed;
+         --row-line: #e8edf3;
+         --grid: #edf1f5;
+         --header-fill: #edf2f8;
+         --surface: #fff;
+         --page: #f5f7fb;
+         --accent: #3479b8;
+         --guide: #8293a7;
+         --focus: #2b6cbd;
+         --error: #b42332;
+         --tn: salmon;
+         --tn-fill: rgb(250 128 114 / 50%);
+         --fp: pink;
+         --fp-fill: rgb(255 192 203 / 50%);
+         --fn: lightgreen;
+         --fn-fill: rgb(144 238 144 / 50%);
+         --tp: green;
+         --tp-fill: rgb(0 128 0 / 50%);
+       }
+
+       input[type="number"]::-webkit-outer-spin-button,
+       input[type="number"]::-webkit-inner-spin-button {
+         margin: 0;
+         /* Older Safari uses the WebKit fallback, which the checker cannot recognise. */
+         /* stylelint-disable plugin/no-unsupported-browser-features */
+         -webkit-appearance: none;
+         appearance: none;
+         /* stylelint-enable plugin/no-unsupported-browser-features */
+       }
+
+       input[type="number"] {
+         /* Keep the Firefox fallback; the checker groups both spellings together. */
+         /* stylelint-disable plugin/no-unsupported-browser-features */
+         -moz-appearance: textfield;
+         appearance: textfield;
+         /* stylelint-enable plugin/no-unsupported-browser-features */
+       }
+
+       body {
+         margin: 0;
+         font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+         font-size: 0.9375rem;
+         line-height: 1.5;
+         color: var(--ink, #243447);
+         background: var(--page, #f5f7fb);
+       }
+
+       .threshold-page {
+         /*
+      * How much shorter the window is than the page's natural height of about 62.5rem, up
+      * to 23.5rem. Spacing, controls, charts and table rows each give up their share in
+      * step, and the shares add up to 23.5rem. So the page shrinks with the window until it
+      * is 39rem tall, where everything reaches its smallest size together.
+      * "x / 23.5 * deficit" shrinks a size by up to x rem.
+      * Tall windows and the stacked layout keep the full sizes.
+      */
+         --fit-deficit: clamp(0px, 62.5rem - 100vh, 23.5rem);
+         box-sizing: border-box;
+         width: 100%;
+         max-width: 1440px;
+         margin: 0 auto;
+         padding: calc(1.75rem - 1.25 / 23.5 * var(--fit-deficit, 0px)) clamp(1rem, 2.5vw, 2rem) calc(2.5rem - 2 / 23.5 * var(--fit-deficit, 0px));
+       }
+
+       /* Header: title on the left, threshold-independent model scores on the right. */
+
+       .threshold-header {
+         display: flex;
+         flex-wrap: wrap;
+         gap: 1rem 2.5rem;
+         align-items: flex-end;
+         justify-content: space-between;
+         margin-bottom: calc(1.25rem - 0.75 / 23.5 * var(--fit-deficit, 0px));
+       }
+
+       .threshold-heading h1 {
+         margin: 0;
+         font-size: 1.5rem;
+         font-weight: 650;
+         line-height: 1.25;
+         letter-spacing: -0.015em;
+       }
+
+       .threshold-heading p {
+         margin: 0.25rem 0 0;
+         color: var(--muted, #68788b);
+       }
+
+       .model-metrics {
+         display: flex;
+         flex-wrap: wrap;
+         gap: 0.5rem 2rem;
+         margin: 0;
+       }
+
+         .model-metrics div {
+           display: flex;
+           flex-flow: column-reverse nowrap;
+         }
+
+         .model-metrics dt {
+           font-size: 0.8125rem;
+           color: var(--muted, #68788b);
+         }
+
+         .model-metrics dd {
+           margin: 0;
+           font-size: 1.25rem;
+           font-weight: 600;
+           font-variant-numeric: tabular-nums;
+           line-height: 1.2;
+         }
+
+       /* Cards: white panels with a muted border on the grey page. */
+
+       .card {
+         box-sizing: border-box;
+         min-width: 0;
+         padding: calc(1.125rem - 0.5 / 23.5 * var(--fit-deficit, 0px)) 1.25rem calc(1.25rem - 0.5 / 23.5 * var(--fit-deficit, 0px));
+         border: 1px solid var(--border, #dfe5ed);
+         border-radius: 12px;
+         background: var(--surface, #fff);
+       }
+
+         .card h2 {
+           margin: 0 0 calc(0.75rem - 0.375 / 23.5 * var(--fit-deficit, 0px));
+           font-size: 0.9375rem;
+           font-weight: 600;
+           line-height: 1.3;
+         }
+
+       /* Controls: drag the slider, or type an exact threshold or recall. */
+
+       #select-threshold-controls {
+         position: sticky;
+         z-index: 10;
+         top: 0.5rem;
+         padding-top: calc(1.125rem - 0.625 / 23.5 * var(--fit-deficit, 0px));
+         padding-bottom: 0;
+         /* Separates the controls from the charts that scroll beneath them. */
+         box-shadow: 0 4px 14px -10px rgb(36 52 71 / 35%);
+       }
+
+       .controls-main {
+         display: grid;
+         grid-template-columns: minmax(12rem, 1fr) auto;
+         gap: 1rem 2.5rem;
+         align-items: start;
+       }
+
+       .slider-group label,
+       .field label {
+         display: block;
+         margin-bottom: 0.375rem;
+         font-size: 0.8125rem;
+         font-weight: 600;
+         line-height: 1.3;
+       }
+
+       #threshold-slider {
+         cursor: pointer;
+         box-sizing: border-box;
+         width: 100%;
+         height: 1.5rem;
+         margin: calc(0.5rem - 0.5 / 23.5 * var(--fit-deficit, 0px)) 0 0;
+         /* Older browsers fall back to their default slider colour. */
+         /* stylelint-disable-next-line plugin/no-unsupported-browser-features */
+         accent-color: var(--accent, #3479b8);
+       }
+
+       .slider-range {
+         display: flex;
+         flex-wrap: nowrap;
+         justify-content: space-between;
+         font-size: 0.75rem;
+         font-variant-numeric: tabular-nums;
+         color: var(--muted, #68788b);
+       }
+
+       .exact-inputs {
+         display: flex;
+         flex-wrap: nowrap;
+         gap: 0.75rem;
+         align-items: flex-end;
+         padding-left: 2.5rem;
+         border-left: 1px solid var(--border, #dfe5ed);
+       }
+
+       .field input {
+         box-sizing: border-box;
+         width: 8rem;
+         height: 2.5rem;
+         padding: 0 0.75rem;
+         border: 1px solid #c3ccd8;
+         border-radius: 6px;
+         font: inherit;
+         font-variant-numeric: tabular-nums;
+         color: var(--ink, #243447);
+         background: var(--surface, #fff);
+       }
+
+       .input-with-unit {
+         position: relative;
+         display: block;
+       }
+
+         .input-with-unit input {
+           padding-right: 1.75rem;
+         }
+
+       .input-unit {
+         pointer-events: none;
+         position: absolute;
+         top: 50%;
+         right: 0.75rem;
+         transform: translateY(-50%);
+         color: var(--muted, #68788b);
+       }
+
+       #threshold-reset {
+         cursor: pointer;
+         height: 2.5rem;
+         padding: 0 1rem;
+         border: 1px solid #c3ccd8;
+         border-radius: 6px;
+         font: inherit;
+         color: var(--chart-ink, #344c68);
+         background: var(--page, #f5f7fb);
+       }
+
+         #threshold-reset:active {
+           background: var(--border, #dfe5ed);
+         }
+
+         .field input:focus,
+         #threshold-reset:focus,
+         #threshold-slider:focus {
+           outline: 2px solid var(--focus, #2b6cbd);
+           outline-offset: 2px;
+         }
+
+           /*
+    * A mouse click leaves no focus ring; the keyboard still shows one. Safari before 15.4
+    * lacks :focus-visible, drops this rule and keeps the ring, as before.
+    */
+           /* stylelint-disable-next-line plugin/no-unsupported-browser-features */
+           .field input:focus:not(:focus-visible),
+           #threshold-reset:focus:not(:focus-visible),
+           #threshold-slider:focus:not(:focus-visible) {
+             outline: none;
+           }
+
+       .field input[aria-invalid="true"] {
+         border-color: var(--error, #b42332);
+       }
+
+       #threshold-summary {
+         margin: calc(1rem - 0.625 / 23.5 * var(--fit-deficit, 0px)) -1.25rem 0;
+         padding: calc(0.75rem - 0.375 / 23.5 * var(--fit-deficit, 0px)) 1.25rem;
+         border-top: 1px solid var(--row-line, #e8edf3);
+         font-variant-numeric: tabular-nums;
+         color: var(--muted, #68788b);
+       }
+
+         #threshold-summary strong {
+           font-weight: 600;
+           color: var(--ink, #243447);
+         }
+
+       #input-status {
+         margin: -0.25rem 0 0;
+         padding-bottom: 0.75rem;
+         font-size: 0.875rem;
+         color: var(--error, #b42332);
+       }
+
+         #input-status:empty {
+           display: none;
+         }
+
+       /* Panels: distributions on the left, outcomes and gains stacked on the right. */
+
+       .threshold-panels {
+         display: grid;
+         grid-template:
+           "distributions outcomes" auto
+           "distributions gains" 1fr / minmax(0, 1.15fr) minmax(min-content, 1fr);
+         gap: calc(1rem - 0.5 / 23.5 * var(--fit-deficit, 0px)) 1rem;
+         margin-top: calc(1rem - 0.5 / 23.5 * var(--fit-deficit, 0px));
+       }
+
+       .panel-distributions,
+       .panel-gains {
+         display: flex;
+         flex-flow: column nowrap;
+       }
+
+       .panel-distributions {
+         grid-area: distributions;
+       }
+
+       .panel-outcomes {
+         grid-area: outcomes;
+       }
+
+       .panel-gains {
+         position: relative;
+         grid-area: gains;
+       }
+
+       /* The gains heading, with the key to the shaded recall interval at its right end. */
+       .card-heading {
+         display: flex;
+         flex-wrap: wrap;
+         gap: 0.25rem 1rem;
+         align-items: center;
+         justify-content: space-between;
+         margin: 0 0 calc(0.75rem - 0.375 / 23.5 * var(--fit-deficit, 0px));
+       }
+
+         .card-heading h2 {
+           margin: 0;
+         }
+
+       .interval-key {
+         display: flex;
+         flex-wrap: nowrap;
+         gap: 0.375rem;
+         align-items: center;
+         font-size: 0.75rem;
+         color: var(--muted, #68788b);
+         white-space: nowrap;
+       }
+
+         .interval-key[hidden] {
+           display: none;
+         }
+
+       .interval-swatch {
+         width: 0.875rem;
+         height: 0.625rem;
+         border-radius: 2px;
+         background: rgb(52 121 184 / 22%);
+       }
+
+       /* A small round "i": the explanation is out of the way, but plainly there. */
+       .info-button {
+         cursor: pointer;
+         display: inline-grid;
+         place-items: center;
+         width: 1.5rem;
+         height: 1.5rem;
+         margin: -0.25rem -0.25rem -0.25rem 0;
+         padding: 0;
+         border: 0;
+         border-radius: 50%;
+         color: var(--muted, #68788b);
+         background: none;
+       }
+
+         .info-button svg {
+           fill: none;
+           stroke: currentcolor;
+           stroke-linecap: round;
+           stroke-width: 1.4;
+         }
+
+         .info-button .info-dot {
+           fill: currentcolor;
+           stroke: none;
+         }
+
+         .info-button[aria-expanded="true"] {
+           color: var(--accent, #3479b8);
+         }
+
+       @media (hover: hover) {
+         .info-button:hover {
+           color: var(--accent, #3479b8);
+         }
+       }
+
+       .info-button:focus {
+         outline: 2px solid var(--focus, #2b6cbd);
+         outline-offset: 1px;
+       }
+
+         /* stylelint-disable-next-line plugin/no-unsupported-browser-features */
+         .info-button:focus:not(:focus-visible) {
+           outline: none;
+         }
+
+       /*
+    * Opens over the chart, below the key, so it never changes the layout. It sits above
+    * the sticky controls, which it can reach when it opens upwards.
+    */
+       .info-popover {
+         scrollbar-gutter: stable;
+         position: absolute;
+         z-index: 20;
+         top: 2.75rem;
+         right: 1rem;
+         /* Older Safari scrolls normally; the feature checker groups its overflow shorthands. */
+         /* stylelint-disable-next-line plugin/no-unsupported-browser-features */
+         overflow-y: auto;
+         /* Older Safari ignores scroll containment and keeps its native scrolling. */
+         /* stylelint-disable-next-line plugin/no-unsupported-browser-features */
+         overscroll-behavior-y: none;
+         box-sizing: border-box;
+         width: min(24rem, 100% - 2rem);
+         padding: 0.75rem 0.875rem;
+         border: 1px solid var(--border, #dfe5ed);
+         border-radius: 8px;
+         font-size: 0.8125rem;
+         line-height: 1.45;
+         color: var(--chart-ink, #344c68);
+         white-space: normal;
+         background: var(--surface, #fff);
+         box-shadow: 0 8px 24px -12px rgb(36 52 71 / 45%);
+       }
+
+         .info-popover[hidden] {
+           display: none;
+         }
+
+         /* Near the bottom of the window, it opens above the card instead. */
+         .info-popover.is-above {
+           top: auto;
+           bottom: calc(100% + 0.375rem);
+         }
+
+         .info-popover p {
+           margin: 0;
+         }
+
+           .info-popover p + p {
+             margin-top: 0.5rem;
+           }
+
+         .info-popover .info-title {
+           font-weight: 600;
+           color: var(--ink, #243447);
+         }
+
+       /*
+    * Each chart fills a frame whose size comes only from the page layout. The chart is
+    * taken out of the flow, so its drawn size can never push the layout around, and
+    * script.js redraws it whenever the frame changes size.
+    */
+       .plot-frame {
+         position: relative;
+         /* Hides the old drawing for the one frame before a resize redraws it. */
+         /* stylelint-disable-next-line plugin/no-unsupported-browser-features */
+         overflow: hidden;
+         flex: 1 1 auto;
+         min-width: 0;
+       }
+
+       .plot {
+         position: absolute;
+         inset: 0;
+       }
+
+       .plot-frame-distributions {
+         min-height: calc(34rem - var(--fit-deficit, 0px));
+       }
+
+       .plot-frame-gains {
+         min-height: calc(17rem - 8.875 / 23.5 * var(--fit-deficit, 0px));
+       }
+
+       /* Metrics table, in the style of the original Plotly tables. */
+
+       .metrics-table {
+         /* Clips the header fill to the rounded corners; Safari 15 only lacks overflow: clip. */
+         /* stylelint-disable-next-line plugin/no-unsupported-browser-features */
+         overflow: hidden;
+         border-spacing: 0;
+         grid-area: table;
+         align-self: stretch;
+         box-sizing: border-box;
+         width: calc(100% - 1.5rem);
+         margin: 3px 0 3px 1.5rem;
+         border: 1px solid var(--border, #dfe5ed);
+         border-radius: 8px;
+         font-size: 0.8125rem;
+         font-variant-numeric: tabular-nums;
+         line-height: 1.2;
+       }
+
+         .metrics-table th,
+         .metrics-table td {
+           height: calc(1.875rem - 0.625 / 23.5 * var(--fit-deficit, 0px));
+           padding: 0 0.75rem;
+           border-bottom: 1px solid var(--row-line, #e8edf3);
+           text-align: left;
+         }
+
+         .metrics-table thead th {
+           font-weight: 600;
+           color: var(--chart-ink, #344c68);
+           background: var(--header-fill, #edf2f8);
+         }
+
+         .metrics-table th:last-child,
+         .metrics-table td:last-child {
+           text-align: right;
+         }
+
+         .metrics-table tr:last-child td {
+           border-bottom: 0;
+         }
+
+       /* Confusion matrix with explicit Actual and Predicted class labels. */
+
+       /*
+    * One grid holds the matrix and the metrics table side by side. The table shares
+    * the matrix's row and stretches to its height. The 3px inset matches the matrix's
+    * border spacing.
+    */
+       .outcomes-body {
+         display: grid;
+         grid-template: "matrix table" auto / minmax(15rem, 22rem) minmax(15rem, 25.5rem);
+         gap: 0 0.25rem;
+         align-items: center;
+         justify-content: center;
+       }
+
+       .confusion-matrix {
+         table-layout: fixed;
+         border-spacing: 3px;
+         grid-area: matrix;
+         align-self: stretch;
+         width: 100%;
+         font-variant-numeric: tabular-nums;
+       }
+
+       .row-label,
+       .col-label {
+         padding: 0.4375rem 0.25rem;
+         font-size: 0.8125rem;
+         font-weight: 400;
+         color: var(--muted, #68788b);
+       }
+
+       .row-label {
+         text-align: right;
+       }
+
+       .col-label {
+         text-align: center;
+       }
+
+       .corner {
+         width: 5.25rem;
+       }
+
+       .matrix-axis-label,
+       .matrix-class-label {
+         display: block;
+       }
+
+       .matrix-axis-label {
+         font-size: 0.6875rem;
+         font-weight: 600;
+         color: var(--ink, #243447);
+         text-transform: uppercase;
+         letter-spacing: 0.035em;
+       }
+
+       .matrix-class-label {
+         margin-top: 0.125rem;
+       }
+
+       /* Shrinks 3.5 times as much as a metrics row, so two cells keep pace with seven rows. */
+       .cell {
+         height: calc(5.75rem - 2.1875 / 23.5 * var(--fit-deficit, 0px));
+         padding: 0;
+         border: 1.5px solid;
+         border-radius: 6px;
+         color: var(--ink, #243447);
+         text-align: center;
+         vertical-align: middle;
+       }
+
+       .cell-name,
+       .cell-count {
+         display: block;
+       }
+
+       .cell-name {
+         font-size: 0.8125rem;
+         color: var(--chart-ink, #344c68);
+       }
+
+       /* script.js lowers --count-scale when the longest count would not fit its cell. */
+       .cell-count {
+         font-size: calc(1.375rem * var(--count-scale, 1));
+         font-weight: 650;
+         line-height: 1.2;
+       }
+
+       .cell-tn {
+         border-color: var(--tn, salmon);
+         background: var(--tn-fill, rgb(250 128 114 / 50%));
+       }
+
+       .cell-fp {
+         border-color: var(--fp, pink);
+         background: var(--fp-fill, rgb(255 192 203 / 50%));
+       }
+
+       .cell-fn {
+         border-color: var(--fn, lightgreen);
+         background: var(--fn-fill, rgb(144 238 144 / 50%));
+       }
+
+       .cell-tp {
+         border-color: var(--tp, green);
+         background: var(--tp-fill, rgb(0 128 0 / 50%));
+       }
+
+       /* The interval explanation's table of intervals for other numbers of positives. */
+
+       .info-popover .info-table {
+         border-collapse: collapse;
+         width: 100%;
+         margin-top: 0.375rem;
+         font-size: 0.75rem;
+         font-variant-numeric: tabular-nums;
+       }
+
+         .info-popover .info-table th,
+         .info-popover .info-table tbody td {
+           padding: 0.1875rem 0.5rem;
+           border-bottom: 1px solid var(--row-line, #e8edf3);
+           text-align: right;
+         }
+
+         .info-popover .info-table thead th {
+           font-weight: 600;
+           background: var(--header-fill, #edf2f8);
+         }
+
+         .info-popover .info-table th:first-child {
+           font-weight: 400;
+           text-align: left;
+         }
+
+         .info-popover .info-table .is-current th,
+         .info-popover .info-table .is-current td {
+           font-weight: 600;
+           color: var(--ink, #243447);
+           background: rgb(52 121 184 / 8%);
+         }
+
+         .info-popover .info-table tr:last-child th,
+         .info-popover .info-table tr:last-child td {
+           border-bottom: 0;
+         }
+
+       /* Keep the older media-query syntax for Safari 15.1 support. */
+       /* stylelint-disable media-feature-range-notation */
+       /* The right-hand column always keeps the width the matrix and table need side by side.
+      Below this width that would leave the distributions chart too narrow, so the three
+      panels become full-width rows. STACKED_LAYOUT_QUERY in script.js must use the same
+      width. */
+       @media (max-width: 1000px) {
+         /* The stacked layout scrolls anyway, so it keeps its full heights. */
+         .threshold-page {
+           --fit-deficit: 0px;
+         }
+
+         .threshold-panels {
+           grid-template:
+             "distributions" auto
+             "outcomes" auto
+             "gains" auto / minmax(0, 1fr);
+         }
+
+         .plot-frame-distributions {
+           min-height: 30rem;
+         }
+
+         .plot-frame-gains {
+           min-height: 20rem;
+         }
+
+         /* Keep the matrix cells close to square when the panel is full width. */
+         .outcomes-body {
+           grid-template-columns: minmax(15rem, 20rem) minmax(16.5rem, 29rem);
+         }
+
+         .metrics-table {
+           width: calc(100% - 3rem);
+           margin-left: 3rem;
+         }
+       }
+
+       @media (max-width: 760px) {
+         .threshold-page {
+           padding-top: 1.25rem;
+         }
+
+         .controls-main {
+           grid-template-columns: minmax(0, 1fr);
+         }
+
+         .exact-inputs {
+           padding-left: 0;
+           border-left: 0;
+         }
+
+           .exact-inputs .field {
+             flex: 1 1 0;
+             min-width: 0;
+           }
+
+         .field input {
+           width: 100%;
+         }
+
+         .plot-frame-distributions {
+           min-height: 26rem;
+         }
+       }
+
+       /* On phones there is no room for the table beside the matrix, so it goes beneath. */
+       @media (max-width: 600px) {
+         .outcomes-body {
+           grid-template:
+             "matrix" auto
+             "table" auto / minmax(0, 1fr);
+         }
+
+         .metrics-table {
+           width: 100%;
+           margin: 1.25rem 0 0;
+         }
+       }
+       /* stylelint-enable media-feature-range-notation */
+  </style>
+  <!-- prettier-ignore-end -->
+</head>
+<body>
+  <noscript>
+    <div class="no-js-banner" role="alert">
+      ERROR: You have disabled JavaScript in your browser. Enable JavaScript to
+      display the plot.
+    </div>
+  </noscript>
+  <div id="cdn-fail" role="alert" hidden>
+    ERROR: Could not load required dependency Plotly from cdn.plot.ly. This means you
+    are not connected to the internet or your firewall is blocking access.
+  </div>
+  <div id="plot-loading">
+    <div class="loader"></div>
+    <span>Loading data...</span>
+  </div>
+  <main class="threshold-page" aria-labelledby="threshold-title">
+    <header class="threshold-header">
+      <div class="threshold-heading">
+        <h1 id="threshold-title">Select a decision threshold</h1>
+        <p>Scores at or above the threshold are classified as positive.</p>
+      </div>
+      <dl class="model-metrics" aria-label="Model metrics, independent of threshold">
+        <div>
+          <dt>ROC AUC</dt>
+          <dd id="roc-auc-value">–</dd>
+        </div>
+        <div>
+          <dt>Average precision</dt>
+          <dd id="average-precision-value">–</dd>
+        </div>
+      </dl>
+    </header>
+
+    <section id="select-threshold-controls"
+             class="card"
+             aria-label="Threshold controls">
+      <div class="controls-main">
+        <div class="slider-group">
+          <label for="threshold-slider">Decision threshold</label>
+          <input type="range"
+                 id="threshold-slider"
+                 min="0.018380757356853062"
+                 max="0.9947724225364891"
+                 step="9.572467305682706e-05"
+                 value="0.4786233652841353" />
+          <div class="slider-range" aria-hidden="true">
+            <span id="threshold-min"></span>
+            <span id="threshold-max"></span>
+          </div>
+        </div>
+
+        <div class="exact-inputs">
+          <div class="field">
+            <label for="threshold-input">Threshold</label>
+            <input type="number"
+                   id="threshold-input"
+                   min="0.018380757356853062"
+                   max="0.9947724225364891"
+                   step="any"
+                   inputmode="decimal"
+                   aria-describedby="input-status"
+                   required />
+          </div>
+          <div class="field">
+            <label for="recall-input">Recall</label>
+            <span class="input-with-unit">
+              <input type="number"
+                     id="recall-input"
+                     step="any"
+                     min="0"
+                     max="100"
+                     inputmode="decimal"
+                     aria-describedby="input-status"
+                     required />
+              <span class="input-unit" aria-hidden="true">%</span>
+            </span>
+          </div>
+          <button type="button" id="threshold-reset">Reset</button>
+        </div>
+      </div>
+
+      <p id="threshold-summary">
+        Review <strong id="summary-reviewed">–</strong> items
+        <span id="summary-reviewed-share"></span> to find
+        <strong id="summary-found">–</strong> positives
+        <span id="summary-recall"></span>
+      </p>
+      <p id="input-status" role="status"></p>
+    </section>
+
+    <div class="threshold-panels">
+      <section class="card panel-distributions" aria-labelledby="distributions-title">
+        <h2 id="distributions-title">Score distributions</h2>
+        <div class="plot-frame plot-frame-distributions">
+          <div id="distribution-plot" class="plot"></div>
+        </div>
+      </section>
+
+      <section class="card panel-outcomes" aria-labelledby="outcomes-title">
+        <h2 id="outcomes-title">Classification outcomes</h2>
+        <div class="outcomes-body">
+          <table class="confusion-matrix"
+                 aria-label="Confusion matrix: rows are the actual class, columns the predicted class">
+            <thead>
+              <tr>
+                <td class="corner"></td>
+                <th scope="col" class="col-label">
+                  <span class="matrix-axis-label">Predicted</span>
+                  <span class="matrix-class-label">Negative</span>
+                </th>
+                <th scope="col" class="col-label">
+                  <span class="matrix-axis-label">Predicted</span>
+                  <span class="matrix-class-label">Positive</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row" class="row-label">
+                  <span class="matrix-axis-label">Actual</span>
+                  <span class="matrix-class-label">Negative</span>
+                </th>
+                <td class="cell cell-tn" aria-label="True negatives">
+                  <span class="cell-name">TN</span>
+                  <span class="cell-count" id="tn-count">–</span>
+                </td>
+                <td class="cell cell-fp" aria-label="False positives">
+                  <span class="cell-name">FP</span>
+                  <span class="cell-count" id="fp-count">–</span>
+                </td>
+              </tr>
+              <tr>
+                <th scope="row" class="row-label">
+                  <span class="matrix-axis-label">Actual</span>
+                  <span class="matrix-class-label">Positive</span>
+                </th>
+                <td class="cell cell-fn" aria-label="False negatives">
+                  <span class="cell-name">FN</span>
+                  <span class="cell-count" id="fn-count">–</span>
+                </td>
+                <td class="cell cell-tp" aria-label="True positives">
+                  <span class="cell-name">TP</span>
+                  <span class="cell-count" id="tp-count">–</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <table class="metrics-table">
+            <thead>
+              <tr>
+                <th scope="col">Threshold metric</th>
+                <th scope="col">Value</th>
+              </tr>
+            </thead>
+            <tbody id="threshold-metrics"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card panel-gains" aria-labelledby="gains-title">
+        <div class="card-heading">
+          <h2 id="gains-title">Cumulative gain</h2>
+          <div id="interval-key" class="interval-key" hidden>
+            <span class="interval-swatch" aria-hidden="true"></span>
+            <span>95% interval</span>
+            <button type="button"
+                    id="interval-info-button"
+                    class="info-button"
+                    aria-label="About the 95% interval"
+                    aria-expanded="false"
+                    aria-controls="interval-info">
+              <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+                <circle cx="8" cy="8" r="7" />
+                <path d="M8 7.25v4" />
+                <circle class="info-dot" cx="8" cy="4.75" r="0.9" />
+              </svg>
+            </button>
+            <div id="interval-info" class="info-popover" hidden>
+              <p class="info-title">What the shaded band means</p>
+              <p id="interval-info-now"></p>
+              <p>
+                The band shows how far recall could be off by chance alone, treating the
+                <span id="interval-info-positives">–</span> positives here as a random
+                sample: an exact binomial (Clopper–Pearson) interval.
+              </p>
+              <p>
+                The table below demonstrates how the interval changes with number of
+                positives
+              </p>
+              <table class="info-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Positives</th>
+                    <th scope="col">Lower</th>
+                    <th scope="col">Upper</th>
+                  </tr>
+                </thead>
+                <tbody id="interval-info-rows"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="plot-frame plot-frame-gains">
+          <div id="gains-plot" class="plot"></div>
+        </div>
+      </section>
+    </div>
+  </main>
+  <!-- prettier-ignore-start -->
+  <script type="application/json" id="plot-config">
+    {"gainsRecallLower": [0.0, 0.00012658102786701836, 0.0012133490137360308, 0.00310410762155351, 0.005475565879556452, 0.008166166190842514, 0.011087455672254776, 0.014185525898419248, 0.0174248089944806, 0.020780422227004356, 0.024234165472108556, 0.02777225455200654, 0.031383953893483446, 0.03506070865697905, 0.038795570429562824, 0.04258280373709265, 0.04641760839982257, 0.050295918630257286, 0.054214254456096365, 0.05816960972512026, 0.062159366254066095, 0.06618122702871176, 0.07023316352921179, 0.07431337369229706, 0.07842024799636271, 0.08255234182881689, 0.08670835276857532, 0.09088710175489778, 0.0950875173590198, 0.09930862255520753, 0.10354952352186264, 0.10780940010409658, 0.11208749764580184, 0.11638311995805388, 0.12069562323621742, 0.12502441077371185, 0.12936892834839725, 0.13372866017976162, 0.1381031253728396, 0.1424918747790589, 0.14689448821575882, 0.15131057199551948, 0.15573975672412835, 0.16018169533233634, 0.16463606131178604, 0.1691025471298265, 0.1735808628015912, 0.1780707346006876, 0.18257190389247271, 0.1870841260760019, 0.19160716962258748, 0.1961408152004582, 0.20068485487634066, 0.2052390913859232, 0.20980333746614532, 0.21437741524309537, 0.21896115567003302, 0.22355439801068494, 0.22815698936351195, 0.2327687842231247, 0.23738964407544727, 0.2420194370235912, 0.24665803744172576, 0.25130532565451774, 0.25596118763995773, 0.2606255147536153, 0.26529820347256183, 0.26997915515736964, 0.2746682758307553, 0.279365475971566, 0.284070670322942, 0.28878377771358443, 0.2935047208911668, 0.29823342636701194, 0.30296982427123703, 0.3077138482176408, 0.31246543517767067, 0.3172245253628676, 0.32199106211524076, 0.32676499180506335, 0.33154626373563956, 0.33633483005461734, 0.3411306456714678, 0.3459336681807803, 0.35074385779105594, 0.3555611772587056, 0.3603855918269887, 0.3652170691696519, 0.3700555793390437, 0.37490109471850996, 0.37975358997888464, 0.38461304203891694, 0.3894794300294834, 0.39435273526145703, 0.39923294119711444, 0.4041200334249788, 0.4090139996380063, 0.4139148296150438, 0.41882251520548525, 0.42373705031707737, 0.4286584309068322, 0.43358665497501175, 0.4385217225621664, 0.4434636357492163, 0.4484123986605739, 0.453368017470324, 0.45833050041147505, 0.4632998577883212, 0.4682761019919555, 0.4732592475189884, 0.4782493109935384, 0.4832463111925737, 0.48825026907469704, 0.49326120781247285, 0.49827915282842195, 0.5033041318348097, 0.5083361748773801, 0.5133753143831974, 0.5184215852127789, 0.5234750247167229, 0.528535672797046, 0.5336035719734817, 0.5386787674550014, 0.5437613072168549, 0.5488512420834482, 0.5539486258174146, 0.5590535152152594, 0.5641659702100028, 0.5692860539812827, 0.5744138330734203, 0.5795493775220064, 0.5846927609896106, 0.5898440609112853, 0.5950033586505903, 0.6001707396669453, 0.6053462936951923, 0.6105301149383419, 0.6157223022745729, 0.6209229594796742, 0.6261321954662298, 0.6313501245409987, 0.6365768666820897, 0.641812547837709, 0.6470573002484601, 0.6523112627953918, 0.6575745813762495, 0.6628474093126695, 0.6681299077913818, 0.6734222463428603, 0.6787246033612794, 0.684037166670131, 0.6893601341384012, 0.6946937143528606, 0.700038127352751, 0.7053936054340193, 0.7107603940312353, 0.7161387526864924, 0.7215289561159428, 0.7269312953862012, 0.7323460792147147, 0.7377736354103999, 0.7432143124734407, 0.7486684813762559, 0.7541365375513216, 0.7596189031159926, 0.7651160293697908, 0.7706283996061137, 0.7761565322881794, 0.7817009846486592, 0.787262356784294, 0.7928412963314493, 0.7984385038268202, 0.8040547388803858, 0.8096908273166017, 0.8153476694765874, 0.8210262499212005, 0.8267276488358778, 0.8324530555177461, 0.8382037844304998, 0.8439812944524971, 0.8497872121322443, 0.8556233600231475, 0.8614917915261779, 0.8673948341704476, 0.8733351439779183, 0.8793157746003387, 0.8853402664628894, 0.8914127634961848, 0.8975381686916755, 0.9037223555660872, 0.9099724622986486, 0.916297311924146, 0.922708031773984, 0.9292190016490228, 0.935849373294973, 0.9426256488731541, 0.9495863909101037, 0.9567917180822874, 0.9643453316027603, 0.9724581015427943, 0.9817246596448638, 0.9817246596448638], "gainsRecallUpper": [0.01827534035513624, 0.02754189845720562, 0.035654668397239776, 0.0432082819177126, 0.0504136090898963, 0.05737435112684586, 0.064150626705027, 0.0707809983509772, 0.07729196822601608, 0.08370268807585404, 0.09002753770135137, 0.09627764443391285, 0.1024618313083245, 0.10858723650381519, 0.11465973353711054, 0.1206842253996613, 0.12666485602208166, 0.13260516582955234, 0.13850820847382211, 0.14437663997685252, 0.15021278786775577, 0.15601870554750283, 0.16179621556950016, 0.16754694448225396, 0.1732723511641222, 0.17897375007879948, 0.18465233052341257, 0.19030917268339836, 0.19594526111961424, 0.20156149617317973, 0.2071587036685507, 0.21273764321570593, 0.2182990153513408, 0.22384346771182062, 0.22937160039388627, 0.23488397063020916, 0.24038109688400738, 0.24586346244867838, 0.25133151862374414, 0.2567856875265592, 0.2622263645896002, 0.2676539207852852, 0.27306870461379884, 0.27847104388405713, 0.2838612473135076, 0.2892396059687647, 0.2946063945659807, 0.2999618726472491, 0.30530628564713935, 0.3106398658615988, 0.315962833329869, 0.3212753966387206, 0.32657775365713976, 0.33187009220861813, 0.33715259068733056, 0.34242541862375053, 0.3476887372046082, 0.35294269975153986, 0.35818745216229103, 0.3634231333179104, 0.3686498754590013, 0.3738678045337702, 0.37907704052032576, 0.3842776977254271, 0.38946988506165814, 0.3946537063048076, 0.3998292603330547, 0.4049966413494097, 0.4101559390887147, 0.4153072390103893, 0.42045062247799353, 0.4255861669265797, 0.43071394601871726, 0.43583402978999725, 0.4409464847847406, 0.44605137418258545, 0.4511487579165519, 0.4562386927831451, 0.46132123254499857, 0.46639642802651826, 0.47146432720295395, 0.4765249752832771, 0.4815784147872211, 0.48662468561680267, 0.49166382512261986, 0.49669586816519024, 0.501720847171578, 0.5067387921875272, 0.511749730925303, 0.5167536888074262, 0.5217506890064616, 0.5267407524810116, 0.5317238980080445, 0.5367001422116788, 0.541669499588525, 0.5466319825296759, 0.5515876013394261, 0.5565363642507837, 0.5614782774378335, 0.5664133450249882, 0.5713415690931678, 0.5762629496829226, 0.5811774847945148, 0.5860851703849562, 0.5909860003619938, 0.5958799665750212, 0.6007670588028855, 0.6056472647385429, 0.6105205699705166, 0.6153869579610831, 0.6202464100211154, 0.62509890528149, 0.6299444206609564, 0.6347829308303481, 0.6396144081730113, 0.6444388227412944, 0.649256142208944, 0.6540663318192197, 0.6588693543285322, 0.6636651699453826, 0.6684537362643604, 0.6732350081949366, 0.6780089378847592, 0.6827754746371324, 0.6875345648223293, 0.6922861517823592, 0.6970301757287629, 0.7017665736329881, 0.7064952791088333, 0.7112162222864156, 0.715929329677058, 0.720634524028434, 0.7253317241692447, 0.7300208448426304, 0.7347017965274382, 0.7393744852463847, 0.7440388123600423, 0.7486946743454823, 0.7533419625582742, 0.7579805629764088, 0.7626103559245527, 0.7672312157768753, 0.7718430106364881, 0.7764456019893151, 0.781038844329967, 0.7856225847569046, 0.7901966625338547, 0.7947609086140768, 0.7993151451236593, 0.8038591847995418, 0.8083928303774125, 0.8129158739239981, 0.8174280961075273, 0.8219292653993124, 0.8264191371984088, 0.8308974528701735, 0.8353639386882139, 0.8398183046676637, 0.8442602432758717, 0.8486894280044806, 0.8531055117842412, 0.8575081252209411, 0.8618968746271604, 0.8662713398202384, 0.8706310716516028, 0.8749755892262882, 0.8793043767637826, 0.8836168800419462, 0.8879125023541982, 0.8921905998959034, 0.8964504764781374, 0.9006913774447924, 0.9049124826409802, 0.9091128982451022, 0.9132916472314246, 0.9174476581711831, 0.9215797520036373, 0.9256866263077029, 0.9297668364707882, 0.9338187729712882, 0.937840633745934, 0.9418303902748797, 0.9457857455439036, 0.9497040813697427, 0.9535823916001774, 0.9574171962629073, 0.9612044295704372, 0.9649392913430209, 0.9686160461065165, 0.9722277454479935, 0.9757658345278915, 0.9792195777729956, 0.9825751910055194, 0.9858144741015807, 0.9889125443277452, 0.9918338338091575, 0.9945244341204436, 0.9968958923784464, 0.998786650986264, 0.999873418972133, 1.0, 1.0], "gainsThresholds": [null, 0.9851999552308064, 0.984656529947037, 0.9777012904924365, 0.9503298978231345, 0.9420871450458235, 0.9398160944238005, 0.9370662722615748, 0.93069226655454, 0.9191390611694525, 0.9115305250326988, 0.9105119269211476, 0.904071401016337, 0.898984205297993, 0.8974745556740702, 0.8931180362088409, 0.8908080562792984, 0.8874620435457062, 0.8850004964070447, 0.8837726660758264, 0.8711911892510567, 0.868476761392185, 0.8652154570278843, 0.86235244590588, 0.8567690948994346, 0.8542408070116991, 0.848568161498788, 0.8476960832957304, 0.8470873093094936, 0.8443579954142977, 0.8441525469175261, 0.8397461135825202, 0.8327159024628027, 0.8300355796486012, 0.8292051617704566, 0.822114294617555, 0.8179195858910868, 0.8171796142998193, 0.8128720689324967, 0.8123906750235108, 0.8070993070623045, 0.8053997166867718, 0.8053957469096729, 0.8026635669976618, 0.7993492322105646, 0.7936389488483523, 0.7935462070400587, 0.7917842917154386, 0.7882921575466203, 0.7861342449819765, 0.7848107514763044, 0.7829478273879357, 0.7820330078214066, 0.7819727605360122, 0.7807883729479765, 0.7805745628242657, 0.7774340153377786, 0.7764672228209052, 0.7748246135122712, 0.7728990298301327, 0.7727277528692554, 0.7711322109766636, 0.7658810319886888, 0.7644317376413955, 0.7615545652470344, 0.7612413515324925, 0.7594076581009248, 0.7576347701406361, 0.7547289599659426, 0.7529181586776995, 0.7454583350162701, 0.7423566696586372, 0.7409521294085948, 0.7391288695163365, 0.7388014266865298, 0.7384956203518039, 0.7370153105500323, 0.7350688969111386, 0.7326195502375492, 0.7319515947427222, 0.7314913075724434, 0.7314521319093548, 0.7203613663508778, 0.7187498940722866, 0.7169814297309637, 0.7163227991774702, 0.7150597548339267, 0.7090252250264486, 0.7083182707700476, 0.7075157133771762, 0.7054096603175445, 0.7045067474562313, 0.6994418327695947, 0.6991753997045844, 0.6897008209810901, 0.6892181020804278, 0.6874461228311907, 0.686574462545826, 0.6863613339199035, 0.6637938231137765, 0.6633382786525606, 0.6590067361315661, 0.6566669144540694, 0.6550847547655693, 0.6550168499850905, 0.6516511764160411, 0.650172539813851, 0.6473240432120724, 0.6387240139635205, 0.6378893259605871, 0.6339382799844046, 0.6329214370325337, 0.6276340425905321, 0.6255526095870357, 0.6250212259792151, 0.6218534669832423, 0.6200725943521127, 0.616249965019169, 0.615278384378081, 0.6145308957800487, 0.6138638676818375, 0.6112465691127965, 0.6089745146773718, 0.6051092892002794, 0.5970047962155566, 0.5884854421416635, 0.5843524765445092, 0.5839318340249242, 0.5826535058111346, 0.5814288596254827, 0.5807075349353855, 0.5796306360855052, 0.5773110656707144, 0.5765236726249662, 0.5734441830350065, 0.5727626058376318, 0.5725425625225018, 0.5718171741761882, 0.5704724912066752, 0.566685570768406, 0.5658678147181772, 0.5615829344242529, 0.5598642490376466, 0.5572351527924849, 0.5570036644735754, 0.5450577609814409, 0.5383117952230444, 0.5352341447512874, 0.5340410371294784, 0.5263636219170151, 0.5252012752441614, 0.5242538863385182, 0.5201112877011871, 0.5128794613398601, 0.5097282352987658, 0.5043701365461256, 0.4952996974455482, 0.4949862708262614, 0.48388645658291723, 0.4724214126231884, 0.46919557210784113, 0.46621265503304854, 0.44463963286591035, 0.42980921251558446, 0.42861856880307614, 0.42842067221732305, 0.42785732827765754, 0.4268807577298028, 0.4242027826846238, 0.4225213135247538, 0.42169049571437967, 0.41725861117457386, 0.40950321092057984, 0.40031939278710893, 0.39358823572416485, 0.3923187077127237, 0.39194792218845287, 0.3855580976021839, 0.38485737469840026, 0.3831433884279479, 0.3704174517263616, 0.365558374440939, 0.3621131610826369, 0.35918422737075606, 0.3573486042969468, 0.3484567987960421, 0.3473657281009218, 0.34617641390439136, 0.3097805532835338, 0.30894197082580777, 0.29939140602416986, 0.2868978729849238, 0.28434448264245366, 0.27664242131282557, 0.27331260349889425, 0.2502379748330086, 0.24779098075544412, 0.24083313602542092, 0.18082852122334592, 0.16956681024210357, 0.12270136112625649, null], "imageSavepath": "select-threshold-plot", "maxDistributionY": 2.0425843078129895, "maxScore": 0.9851999552308064, "minScore": 0.027953224662535768, "negScores": [0.027953224662535768, 0.040404309716702794, 0.04213101361635659, 0.04674950520224219, 0.05070474628788937, 0.05236051990525028, 0.05361271857419432, 0.05702209595541848, 0.05762991561943209, 0.05995453775154553, 0.06082017566951836, 0.06125465878493234, 0.06190286904628264, 0.06695859184020915, 0.06912851035347185, 0.07807846662005641, 0.07840952244748303, 0.08057662546631537, 0.08411798818565762, 0.08413236957083943, 0.08464685048297908, 0.08533155024341442, 0.0874502098235615, 0.09507735794862658, 0.09518787280311693, 0.09613796072915741, 0.09796250082668208, 0.09869300996158424, 0.10032616755359453, 0.10636244008868265, 0.10699771896859499, 0.10747042095914851, 0.1112277017052793, 0.11243521783740193, 0.1143608364337449, 0.11483235983123133, 0.11780471038988469, 0.11969508348356481, 0.12111410747594106, 0.12162967037759062, 0.12217008987604869, 0.12348690537231402, 0.12600848627783642, 0.128329942666211, 0.12933228151234935, 0.129947595449301, 0.13160506150087437, 0.13268536371949463, 0.13466403757191903, 0.14001209570316156, 0.14070792097340526, 0.14407828351841362, 0.14426296479351744, 0.145670367282773, 0.1468695671468217, 0.1469142364756057, 0.14711995367513994, 0.15127791002556168, 0.15128015582955268, 0.15190770496554273, 0.15279959055371586, 0.1528125858851414, 0.1532563175321919, 0.1542985312221831, 0.15627900282807786, 0.15785830577306262, 0.15839671827244983, 0.15865452337308206, 0.15886945303443, 0.1600485670324843, 0.16163852734391573, 0.16218016501630672, 0.16313259766035249, 0.1684345768297002, 0.1704949350965475, 0.17449483139751695, 0.17467546984506402, 0.17633654572037483, 0.17679791149316543, 0.17727642857629455, 0.17741663568069335, 0.17898823427862445, 0.17951630194328025, 0.1800915973962156, 0.18047391873361776, 0.1829701206139321, 0.1840532563667038, 0.1853271087591185, 0.18625331226123332, 0.18787792536324363, 0.1893286998929965, 0.19137739273460813, 0.19217902420046223, 0.1926519251007934, 0.19437919377852517, 0.19445637938137106, 0.19510776329969268, 0.19553966586226004, 0.19639680633630555, 0.19679828850178713, 0.19960757589565112, 0.2015307933459504, 0.20309318320979292, 0.2042972164197895, 0.20492095152569825, 0.2049356922144404, 0.20666802537773432, 0.20736320713213185, 0.2075358243183053, 0.20785698387203413, 0.2142565159535961, 0.21521399624280033, 0.21618111662611555, 0.21992308856447476, 0.22071043488184877, 0.22179102186941846, 0.22259976510587745, 0.22263767886970828, 0.2232270974091328, 0.22389440709923356, 0.22389584463436712, 0.22481489651517014, 0.22550697718647092, 0.22624714831134707, 0.22659222098881815, 0.2289656485840127, 0.22992703694528477, 0.23083555978599316, 0.2360789080919567, 0.2390343506739336, 0.2402661863797206, 0.24243988796171612, 0.2434392419532711, 0.24411773109937152, 0.244238318683154, 0.24510662261523114, 0.24943606074398503, 0.24996693940495895, 0.25039159839823816, 0.25057026853076947, 0.25187689891521053, 0.25379708196339684, 0.2577120359115557, 0.25951569433444943, 0.26310215094587375, 0.2631499658950327, 0.2635889408449523, 0.2644889246883536, 0.26597577576094966, 0.26605168929713024, 0.2660841884701096, 0.2680266176743678, 0.2697950277582578, 0.27225604325343933, 0.2722876720669694, 0.2726352130126149, 0.27536461595969436, 0.276131116222186, 0.27661264308492556, 0.2782107149673031, 0.2830073358102074, 0.2834599413963129, 0.28388471424781314, 0.28487638687534217, 0.286128275895261, 0.2863573693977556, 0.28744226494328157, 0.28883183093935616, 0.28949342122257393, 0.2895269161927242, 0.2895727428685804, 0.29102986647176, 0.2912750370643534, 0.2917607832112427, 0.2935150761502698, 0.2951915147072933, 0.2958476847086461, 0.2987511777565233, 0.29877998165084635, 0.29896845217898493, 0.2993341117731646, 0.301799943208627, 0.30313383448424186, 0.30509243412767484, 0.3089189140183365, 0.31022445896258855, 0.31098016670185874, 0.311589511276611, 0.31336215570447706, 0.31503683277610856, 0.3171467961517707, 0.31951004562299073, 0.320549697695645, 0.3206255023736576, 0.32223629984805685, 0.3233803912830586, 0.3239328717119165, 0.32433749511390364, 0.3246340144650764, 0.32712547423764254, 0.32845375155624396, 0.3285484669842736, 0.33168606841399956, 0.33224532427670067, 0.3341228907583548, 0.3343469919214689, 0.3354736966061514, 0.33576045831108314, 0.3360943868940463, 0.3397050199811023, 0.34039408891287376, 0.34125195938815583, 0.34155234986935923, 0.3417677676453833, 0.3418509285163327, 0.3423355289730544, 0.34282598323799823, 0.34623558022070655, 0.3467820187043257, 0.35052174301506045, 0.350671504404187, 0.3519989508998703, 0.35205954589698024, 0.35211125279003924, 0.3521856736774012, 0.35295362633373045, 0.3559866442196234, 0.35656529365778, 0.3584582648179375, 0.3592629294708153, 0.35940040871981355, 0.36151716013719315, 0.36326618159448437, 0.36332115158851913, 0.3634319816924092, 0.36421593366587546, 0.36461238676294017, 0.36682401000709364, 0.3698110349447569, 0.3715086533785456, 0.37202756562715955, 0.3733804382746676, 0.37408136991126056, 0.37416074672189464, 0.37431914102657915, 0.3757585878432629, 0.37627768095201425, 0.37714004006452995, 0.3779604820354677, 0.3788789603899884, 0.38157018837137696, 0.3839259885251313, 0.38528595481100214, 0.386278147955157, 0.38879846391089906, 0.3897754412315707, 0.38997143191280503, 0.39091552536008994, 0.39250553931610177, 0.3927183060713432, 0.39296666313404743, 0.3948979059607931, 0.39506321957188556, 0.3981309253896986, 0.40527745770397106, 0.4054218264844924, 0.40630707452768844, 0.40655392376695354, 0.40702846715336916, 0.40925504609633245, 0.41112094387473563, 0.4119687036625458, 0.41681253289660514, 0.4203125227610797, 0.42092785210493827, 0.42156107331282394, 0.4222150332324723, 0.4264683074892393, 0.4281348518581262, 0.4321628091074289, 0.4356768616824998, 0.4360834995708166, 0.43637425173199035, 0.4390733470504264, 0.4443916582595907, 0.4449734894238679, 0.4479685670878979, 0.44804678459287905, 0.44928509733098093, 0.44941841084008416, 0.45108344194093636, 0.453476370795737, 0.45754330659818176, 0.45819940433085565, 0.458510453603013, 0.4634983797093386, 0.4636443271611428, 0.4639877028527167, 0.46456113197422294, 0.46802767513993143, 0.470232371836054, 0.47444396448514287, 0.4769137917277313, 0.4781308969243141, 0.47921164417993506, 0.4807275344042352, 0.4807433436251047, 0.48077249764818086, 0.4852789766189183, 0.4864884712226854, 0.4872041367587271, 0.4901049429945857, 0.49411133260491485, 0.49508600399969854, 0.4965221667715855, 0.4991962965551896, 0.501925784067056, 0.501948656175723, 0.5028569551404775, 0.5046706186359082, 0.5064427061868311, 0.5065529353196758, 0.50794098325572, 0.5091237239063658, 0.5108435774665682, 0.5123187106125225, 0.5134287899173874, 0.5145257214499147, 0.5156523734349772, 0.5216213822762272, 0.5282135348096444, 0.5291514528218939, 0.5293806712328448, 0.5299636134468672, 0.5304481054756779, 0.5317473909200152, 0.5330865226164961, 0.5338015553489178, 0.537120466969122, 0.5397200357756042, 0.5407111397749239, 0.5414793962116552, 0.5426186516233142, 0.5462391042149193, 0.5463841270273778, 0.5469665933221729, 0.5567194810718595, 0.5586260343388804, 0.5596559992095997, 0.5621560353211342, 0.5624601377241716, 0.5657051660348568, 0.5663613371979654, 0.5664654020735034, 0.5713029001333954, 0.5715434967303701, 0.5754129058101788, 0.5757238748160366, 0.5802309145100804, 0.5864603203121065, 0.596753653614138, 0.5971975677693943, 0.6020346234554459, 0.6040141704092882, 0.6133622315083294, 0.6178065271167806, 0.6192207900444006, 0.6194740678635218, 0.621814152564213, 0.6266942750075541, 0.6278656335876054, 0.6288414542684406, 0.6288457327290348, 0.6288977668563783, 0.6294298997932171, 0.6349898760455699, 0.6355331258494199, 0.6463122580418075, 0.6468487269153816, 0.6584099366443549, 0.6596787074509273, 0.682650820479599, 0.6849652830266852, 0.6893379103140862, 0.6981643557058342, 0.7007945074801267, 0.7053465110695221, 0.7089848552183119, 0.7159289469188999, 0.720130828373405, 0.7247144081547706, 0.7262001589662976, 0.7433325972928042, 0.7456099857845578, 0.7881766216772965, 0.8027360999387156, 0.8086286179272888, 0.8140718053381855, 0.8710296260440422, 0.9048947665152369], "posScores": [0.12270136112625649, 0.16956681024210357, 0.18082852122334592, 0.24083313602542092, 0.24779098075544412, 0.2502379748330086, 0.27331260349889425, 0.27664242131282557, 0.28434448264245366, 0.2868978729849238, 0.29939140602416986, 0.30894197082580777, 0.3097805532835338, 0.34617641390439136, 0.3473657281009218, 0.3484567987960421, 0.3573486042969468, 0.35918422737075606, 0.3621131610826369, 0.365558374440939, 0.3704174517263616, 0.3831433884279479, 0.38485737469840026, 0.3855580976021839, 0.39194792218845287, 0.3923187077127237, 0.39358823572416485, 0.40031939278710893, 0.40950321092057984, 0.41725861117457386, 0.42169049571437967, 0.4225213135247538, 0.4242027826846238, 0.4268807577298028, 0.42785732827765754, 0.42842067221732305, 0.42861856880307614, 0.42980921251558446, 0.44463963286591035, 0.46621265503304854, 0.46919557210784113, 0.4724214126231884, 0.48388645658291723, 0.4949862708262614, 0.4952996974455482, 0.5043701365461256, 0.5097282352987658, 0.5128794613398601, 0.5201112877011871, 0.5242538863385182, 0.5252012752441614, 0.5263636219170151, 0.5340410371294784, 0.5352341447512874, 0.5383117952230444, 0.5450577609814409, 0.5570036644735754, 0.5572351527924849, 0.5598642490376466, 0.5615829344242529, 0.5658678147181772, 0.566685570768406, 0.5704724912066752, 0.5718171741761882, 0.5725425625225018, 0.5727626058376318, 0.5734441830350065, 0.5765236726249662, 0.5773110656707144, 0.5796306360855052, 0.5807075349353855, 0.5814288596254827, 0.5826535058111346, 0.5839318340249242, 0.5843524765445092, 0.5884854421416635, 0.5970047962155566, 0.6051092892002794, 0.6089745146773718, 0.6112465691127965, 0.6138638676818375, 0.6145308957800487, 0.615278384378081, 0.616249965019169, 0.6200725943521127, 0.6218534669832423, 0.6250212259792151, 0.6255526095870357, 0.6276340425905321, 0.6329214370325337, 0.6339382799844046, 0.6378893259605871, 0.6387240139635205, 0.6473240432120724, 0.650172539813851, 0.6516511764160411, 0.6550168499850905, 0.6550847547655693, 0.6566669144540694, 0.6590067361315661, 0.6633382786525606, 0.6637938231137765, 0.6863613339199035, 0.686574462545826, 0.6874461228311907, 0.6892181020804278, 0.6897008209810901, 0.6991753997045844, 0.6994418327695947, 0.7045067474562313, 0.7054096603175445, 0.7075157133771762, 0.7083182707700476, 0.7090252250264486, 0.7150597548339267, 0.7163227991774702, 0.7169814297309637, 0.7187498940722866, 0.7203613663508778, 0.7314521319093548, 0.7314913075724434, 0.7319515947427222, 0.7326195502375492, 0.7350688969111386, 0.7370153105500323, 0.7384956203518039, 0.7388014266865298, 0.7391288695163365, 0.7409521294085948, 0.7423566696586372, 0.7454583350162701, 0.7529181586776995, 0.7547289599659426, 0.7576347701406361, 0.7594076581009248, 0.7612413515324925, 0.7615545652470344, 0.7644317376413955, 0.7658810319886888, 0.7711322109766636, 0.7727277528692554, 0.7728990298301327, 0.7748246135122712, 0.7764672228209052, 0.7774340153377786, 0.7805745628242657, 0.7807883729479765, 0.7819727605360122, 0.7820330078214066, 0.7829478273879357, 0.7848107514763044, 0.7861342449819765, 0.7882921575466203, 0.7917842917154386, 0.7935462070400587, 0.7936389488483523, 0.7993492322105646, 0.8026635669976618, 0.8053957469096729, 0.8053997166867718, 0.8070993070623045, 0.8123906750235108, 0.8128720689324967, 0.8171796142998193, 0.8179195858910868, 0.822114294617555, 0.8292051617704566, 0.8300355796486012, 0.8327159024628027, 0.8397461135825202, 0.8441525469175261, 0.8443579954142977, 0.8470873093094936, 0.8476960832957304, 0.848568161498788, 0.8542408070116991, 0.8567690948994346, 0.86235244590588, 0.8652154570278843, 0.868476761392185, 0.8711911892510567, 0.8837726660758264, 0.8850004964070447, 0.8874620435457062, 0.8908080562792984, 0.8931180362088409, 0.8974745556740702, 0.898984205297993, 0.904071401016337, 0.9105119269211476, 0.9115305250326988, 0.9191390611694525, 0.93069226655454, 0.9370662722615748, 0.9398160944238005, 0.9420871450458235, 0.9503298978231345, 0.9777012904924365, 0.984656529947037, 0.9851999552308064], "prAuc": 0.7856493117009342, "rocAuc": 0.8673249999999999, "scoreRange": 0.9572467305682706, "xGains": [0.0, 0.0016666666666666668, 0.0033333333333333335, 0.005, 0.006666666666666667, 0.008333333333333333, 0.01, 0.011666666666666667, 0.013333333333333334, 0.015, 0.016666666666666666, 0.018333333333333333, 0.021666666666666667, 0.023333333333333334, 0.025, 0.02666666666666667, 0.028333333333333332, 0.03, 0.03166666666666667, 0.03333333333333333, 0.035, 0.03833333333333333, 0.04, 0.041666666666666664, 0.043333333333333335, 0.045, 0.04666666666666667, 0.04833333333333333, 0.05, 0.051666666666666666, 0.05333333333333334, 0.055, 0.056666666666666664, 0.058333333333333334, 0.06, 0.06166666666666667, 0.06333333333333334, 0.065, 0.06833333333333333, 0.07, 0.07333333333333333, 0.075, 0.07666666666666666, 0.08, 0.08166666666666667, 0.08333333333333333, 0.085, 0.08666666666666667, 0.08833333333333333, 0.09166666666666666, 0.09333333333333334, 0.095, 0.09666666666666666, 0.09833333333333333, 0.1, 0.10166666666666667, 0.10333333333333333, 0.105, 0.10666666666666667, 0.10833333333333334, 0.11, 0.11166666666666666, 0.11333333333333333, 0.115, 0.11666666666666667, 0.11833333333333333, 0.12, 0.12166666666666667, 0.12333333333333334, 0.125, 0.12833333333333333, 0.13166666666666665, 0.13333333333333333, 0.135, 0.13666666666666666, 0.13833333333333334, 0.14, 0.14166666666666666, 0.14333333333333334, 0.145, 0.14666666666666667, 0.14833333333333334, 0.15333333333333332, 0.15666666666666668, 0.15833333333333333, 0.16, 0.16333333333333333, 0.165, 0.16833333333333333, 0.17, 0.17166666666666666, 0.175, 0.17833333333333334, 0.18, 0.18333333333333332, 0.18666666666666668, 0.18833333333333332, 0.19, 0.19166666666666668, 0.19666666666666666, 0.19833333333333333, 0.20166666666666666, 0.205, 0.20666666666666667, 0.20833333333333334, 0.21, 0.21166666666666667, 0.21333333333333335, 0.21833333333333332, 0.22, 0.225, 0.22666666666666666, 0.23666666666666666, 0.24, 0.24166666666666667, 0.24333333333333335, 0.24666666666666667, 0.25333333333333335, 0.255, 0.25666666666666665, 0.25833333333333336, 0.26166666666666666, 0.2633333333333333, 0.265, 0.27166666666666667, 0.275, 0.2783333333333333, 0.28, 0.2816666666666667, 0.2833333333333333, 0.285, 0.28833333333333333, 0.29, 0.2916666666666667, 0.2966666666666667, 0.29833333333333334, 0.3, 0.3016666666666667, 0.30666666666666664, 0.30833333333333335, 0.31333333333333335, 0.32, 0.32166666666666666, 0.32666666666666666, 0.3283333333333333, 0.33666666666666667, 0.345, 0.34833333333333333, 0.35, 0.365, 0.36666666666666664, 0.36833333333333335, 0.37166666666666665, 0.37833333333333335, 0.38333333333333336, 0.3933333333333333, 0.4033333333333333, 0.4066666666666667, 0.4166666666666667, 0.43, 0.43333333333333335, 0.43666666666666665, 0.46166666666666667, 0.47333333333333333, 0.475, 0.4766666666666667, 0.48, 0.4816666666666667, 0.485, 0.4866666666666667, 0.49, 0.49666666666666665, 0.5033333333333333, 0.515, 0.5216666666666666, 0.5283333333333333, 0.53, 0.54, 0.5433333333333333, 0.5466666666666666, 0.5683333333333334, 0.5733333333333334, 0.5833333333333334, 0.59, 0.5933333333333334, 0.61, 0.6116666666666667, 0.6166666666666667, 0.6716666666666666, 0.6733333333333333, 0.6816666666666666, 0.7083333333333334, 0.715, 0.7233333333333334, 0.73, 0.7616666666666667, 0.7666666666666667, 0.7766666666666666, 0.855, 0.875, 0.9316666666666666, 1.0], "xN": [0.027953224662535768, 0.02970710774624117, 0.03146099082994657, 0.03321487391365197, 0.03496875699735738, 0.03672264008106278, 0.038476523164768184, 0.040230406248473585, 0.04198428933217899, 0.04373817241588439, 0.04549205549958979, 0.04724593858329519, 0.04899982166700059, 0.050753704750705994, 0.052507587834411396, 0.0542614709181168, 0.056015354001822205, 0.05776923708552761, 0.05952312016923301, 0.06127700325293841, 0.0630308863366438, 0.06478476942034922, 0.06653865250405462, 0.06829253558776002, 0.07004641867146542, 0.07180030175517083, 0.07355418483887623, 0.07530806792258163, 0.07706195100628703, 0.07881583408999243, 0.08056971717369783, 0.08232360025740323, 0.08407748334110865, 0.08583136642481404, 0.08758524950851945, 0.08933913259222484, 0.09109301567593026, 0.09284689875963567, 0.09460078184334106, 0.09635466492704645, 0.09810854801075186, 0.09986243109445725, 0.10161631417816266, 0.10337019726186805, 0.10512408034557347, 0.10687796342927888, 0.10863184651298427, 0.11038572959668969, 0.11213961268039507, 0.11389349576410046, 0.11564737884780588, 0.11740126193151129, 0.11915514501521668, 0.1209090280989221, 0.12266291118262748, 0.1244167942663329, 0.12617067735003828, 0.1279245604337437, 0.12967844351744912, 0.1314323266011545, 0.1331862096848599, 0.1349400927685653, 0.1366939758522707, 0.1384478589359761, 0.14020174201968152, 0.1419556251033869, 0.14370950818709233, 0.14546339127079772, 0.14721727435450313, 0.14897115743820852, 0.1507250405219139, 0.15247892360561932, 0.15423280668932474, 0.15598668977303015, 0.15774057285673557, 0.15949445594044093, 0.16124833902414634, 0.16300222210785173, 0.16475610519155715, 0.16650998827526253, 0.16826387135896795, 0.17001775444267336, 0.17177163752637875, 0.17352552061008417, 0.17527940369378955, 0.17703328677749497, 0.17878716986120036, 0.18054105294490577, 0.1822949360286112, 0.18404881911231658, 0.185802702196022, 0.18755658527972738, 0.1893104683634328, 0.19106435144713818, 0.1928182345308436, 0.194572117614549, 0.1963260006982544, 0.1980798837819598, 0.19983376686566517, 0.2015876499493706, 0.20334153303307598, 0.2050954161167814, 0.2068492992004868, 0.2086031822841922, 0.2103570653678976, 0.212110948451603, 0.21386483153530841, 0.21561871461901383, 0.21737259770271922, 0.21912648078642463, 0.22088036387013002, 0.22263424695383544, 0.22438813003754082, 0.22614201312124624, 0.22789589620495165, 0.22964977928865704, 0.23140366237236246, 0.23315754545606784, 0.23491142853977323, 0.23666531162347862, 0.23841919470718403, 0.24017307779088945, 0.24192696087459484, 0.24368084395830025, 0.24543472704200564, 0.24718861012571106, 0.24894249320941644, 0.25069637629312186, 0.25245025937682725, 0.25420414246053263, 0.2559580255442381, 0.25771190862794346, 0.25946579171164885, 0.26121967479535424, 0.2629735578790597, 0.26472744096276507, 0.26648132404647046, 0.2682352071301759, 0.2699890902138813, 0.2717429732975867, 0.27349685638129206, 0.27525073946499745, 0.2770046225487029, 0.2787585056324083, 0.28051238871611367, 0.28226627179981906, 0.2840201548835245, 0.2857740379672299, 0.28752792105093533, 0.28928180413464066, 0.29103568721834605, 0.2927895703020515, 0.2945434533857569, 0.29629733646946227, 0.29805121955316766, 0.2998051026368731, 0.3015589857205785, 0.30331286880428393, 0.30506675188798926, 0.3068206349716947, 0.3085745180554001, 0.31032840113910554, 0.3120822842228109, 0.3138361673065163, 0.3155900503902217, 0.31734393347392714, 0.31909781655763253, 0.320851699641338, 0.3226055827250433, 0.32435946580874875, 0.32611334889245414, 0.3278672319761595, 0.3296211150598649, 0.3313749981435703, 0.33312888122727574, 0.33488276431098113, 0.3366366473946866, 0.3383905304783919, 0.34014441356209735, 0.34189829664580274, 0.3436521797295082, 0.34540606281321357, 0.34715994589691895, 0.34891382898062434, 0.3506677120643298, 0.35242159514803517, 0.35417547823174056, 0.35592936131544595, 0.3576832443991514, 0.3594371274828568, 0.3611910105665622, 0.36294489365026755, 0.364698776733973, 0.3664526598176784, 0.36820654290138377, 0.3699604259850892, 0.37171430906879455, 0.3734681921525, 0.3752220752362054, 0.3769759583199108, 0.37872984140361615, 0.3804837244873216, 0.382237607571027, 0.3839914906547324, 0.3857453737384378, 0.3874992568221432, 0.3892531399058486, 0.39100702298955403, 0.3927609060732594, 0.39451478915696486, 0.3962686722406702, 0.39802255532437564, 0.399776438408081, 0.40153032149178647, 0.40328420457549186, 0.4050380876591972, 0.40679197074290263, 0.408545853826608, 0.41029973691031346, 0.4120536199940188, 0.41380750307772424, 0.4155613861614296, 0.41731526924513507, 0.41906915232884046, 0.42082303541254584, 0.42257691849625123, 0.4243308015799567, 0.42608468466366206, 0.4278385677473675, 0.42959245083107284, 0.4313463339147783, 0.43310021699848367, 0.4348541000821891, 0.43660798316589444, 0.4383618662495999, 0.4401157493333053, 0.44186963241701066, 0.4436235155007161, 0.44537739858442144, 0.4471312816681269, 0.44888516475183227, 0.4506390478355377, 0.4523929309192431, 0.4541468140029485, 0.45590069708665387, 0.4576545801703593, 0.4594084632540647, 0.46116234633777015, 0.4629162294214755, 0.4646701125051809, 0.4664239955888863, 0.46817787867259175, 0.4699317617562971, 0.4716856448400025, 0.4734395279237079, 0.47519341100741336, 0.47694729409111875, 0.4787011771748241, 0.4804550602585295, 0.4822089433422349, 0.48396282642594035, 0.48571670950964574, 0.4874705925933511, 0.4892244756770565, 0.49097835876076196, 0.49273224184446734, 0.49448612492817273, 0.4962400080118781, 0.49799389109558356, 0.49974777417928895, 0.5015016572629944, 0.5032555403466997, 0.5050094234304052, 0.5067633065141106, 0.508517189597816, 0.5102710726815214, 0.5120249557652268, 0.5137788388489322, 0.5155327219326375, 0.517286605016343, 0.5190404881000483, 0.5207943711837538, 0.5225482542674592, 0.5243021373511646, 0.52605602043487, 0.5278099035185754, 0.5295637866022809, 0.5313176696859863, 0.5330715527696916, 0.534825435853397, 0.5365793189371024, 0.5383332020208079, 0.5400870851045133, 0.5418409681882186, 0.5435948512719241, 0.5453487343556295, 0.547102617439335, 0.5488565005230402, 0.5506103836067456, 0.5523642666904511, 0.5541181497741564, 0.5558720328578619, 0.5576259159415673, 0.5593797990252727, 0.5611336821089781, 0.5628875651926835, 0.5646414482763888, 0.5663953313600943, 0.5681492144437996, 0.5699030975275051, 0.5716569806112105, 0.5734108636949159, 0.5751647467786213, 0.5769186298623267, 0.5786725129460322, 0.5804263960297376, 0.5821802791134428, 0.5839341621971483, 0.5856880452808537, 0.5874419283645592, 0.5891958114482645, 0.5909496945319699, 0.5927035776156754, 0.5944574606993807, 0.5962113437830862, 0.5979652268667915, 0.5997191099504969, 0.6014729930342023, 0.6032268761179077, 0.6049807592016132, 0.6067346422853186, 0.6084885253690239, 0.6102424084527294, 0.6119962915364348, 0.6137501746201403, 0.6155040577038455, 0.6172579407875509, 0.6190118238712564, 0.6207657069549618, 0.6225195900386671, 0.6242734731223726, 0.626027356206078, 0.6277812392897834, 0.6295351223734887, 0.6312890054571941, 0.6330428885408996, 0.6347967716246049, 0.6365506547083104, 0.6383045377920158, 0.6400584208757212, 0.6418123039594266, 0.643566187043132, 0.6453200701268375, 0.6470739532105428, 0.6488278362942481, 0.6505817193779536, 0.652335602461659, 0.6540894855453645, 0.6558433686290698, 0.6575972517127752, 0.6593511347964807, 0.661105017880186, 0.6628589009638914, 0.6646127840475968, 0.6663666671313022, 0.6681205502150076, 0.669874433298713, 0.6716283163824184, 0.6733821994661239, 0.6751360825498292, 0.6768899656335347, 0.67864384871724, 0.6803977318009454, 0.6821516148846508, 0.6839054979683562, 0.6856593810520617, 0.6874132641357671, 0.6891671472194724, 0.6909210303031779, 0.6926749133868833, 0.6944287964705887, 0.696182679554294, 0.6979365626379994, 0.6996904457217049, 0.7014443288054103, 0.7031982118891157, 0.7049520949728211, 0.7067059780565265, 0.7084598611402319, 0.7102137442239372, 0.7119676273076427, 0.7137215103913481, 0.7154753934750534, 0.7172292765587589, 0.7189831596424643, 0.7207370427261698, 0.7224909258098751, 0.7242448088935804, 0.725998691977286, 0.7277525750609913, 0.7295064581446966, 0.7312603412284021, 0.7330142243121075, 0.734768107395813, 0.7365219904795183, 0.7382758735632237, 0.7400297566469292, 0.7417836397306344, 0.7435375228143399, 0.7452914058980453, 0.7470452889817507, 0.7487991720654561, 0.7505530551491615, 0.752306938232867, 0.7540608213165724, 0.7558147044002776, 0.7575685874839831, 0.7593224705676885, 0.761076353651394, 0.7628302367350993, 0.7645841198188047, 0.7663380029025102, 0.7680918859862156, 0.769845769069921, 0.7715996521536264, 0.7733535352373317, 0.7751074183210372, 0.7768613014047425, 0.778615184488448, 0.7803690675721534, 0.7821229506558587, 0.7838768337395642, 0.7856307168232696, 0.787384599906975, 0.7891384829906803, 0.7908923660743857, 0.7926462491580912, 0.7944001322417966, 0.7961540153255019, 0.7979078984092074, 0.7996617814929128, 0.8014156645766183, 0.8031695476603236, 0.804923430744029, 0.8066773138277344, 0.8084311969114398, 0.8101850799951452, 0.8119389630788506, 0.813692846162556, 0.8154467292462614, 0.8172006123299668, 0.8189544954136723, 0.8207083784973777, 0.8224622615810829, 0.8242161446647884, 0.8259700277484938, 0.8277239108321993, 0.8294777939159046, 0.83123167699961, 0.8329855600833155, 0.8347394431670209, 0.8364933262507261, 0.8382472093344316, 0.840001092418137, 0.8417549755018425, 0.8435088585855478, 0.8452627416692532, 0.8470166247529587, 0.8487705078366641, 0.8505243909203695, 0.8522782740040749, 0.8540321570877802, 0.8557860401714856, 0.857539923255191, 0.8592938063388965, 0.8610476894226019, 0.8628015725063072, 0.8645554555900127, 0.8663093386737181, 0.8680632217574236, 0.8698171048411288, 0.8715709879248342, 0.8733248710085397, 0.8750787540922451, 0.8768326371759505, 0.8785865202596559, 0.8803404033433613, 0.8820942864270668, 0.883848169510772, 0.8856020525944776, 0.8873559356781829, 0.8891098187618882, 0.8908637018455937, 0.8926175849292991, 0.8943714680130046, 0.8961253510967099, 0.8978792341804153, 0.8996331172641208, 0.9013870003478262, 0.9031408834315314], "xP": [0.12270136112625649, 0.12442635831446558, 0.12615135550267467, 0.1278763526908838, 0.1296013498790929, 0.13132634706730198, 0.13305134425551107, 0.1347763414437202, 0.1365013386319293, 0.13822633582013838, 0.13995133300834747, 0.1416763301965566, 0.1434013273847657, 0.14512632457297478, 0.14685132176118387, 0.148576318949393, 0.1503013161376021, 0.15202631332581118, 0.15375131051402027, 0.1554763077022294, 0.1572013048904385, 0.15892630207864758, 0.16065129926685667, 0.1623762964550658, 0.1641012936432749, 0.16582629083148398, 0.16755128801969307, 0.16927628520790217, 0.1710012823961113, 0.17272627958432038, 0.17445127677252947, 0.17617627396073857, 0.1779012711489477, 0.17962626833715678, 0.18135126552536587, 0.18307626271357497, 0.1848012599017841, 0.18652625708999318, 0.18825125427820227, 0.1899762514664114, 0.19170124865462046, 0.19342624584282958, 0.19515124303103867, 0.19687624021924777, 0.1986012374074569, 0.20032623459566598, 0.20205123178387507, 0.20377622897208417, 0.20550122616029326, 0.20722622334850238, 0.20895122053671147, 0.21067621772492057, 0.2124012149131297, 0.21412621210133878, 0.21585120928954787, 0.21757620647775697, 0.21930120366596606, 0.22102620085417518, 0.22275119804238427, 0.22447619523059337, 0.2262011924188025, 0.22792618960701155, 0.22965118679522067, 0.23137618398342977, 0.23310118117163886, 0.23482617835984798, 0.23655117554805707, 0.23827617273626617, 0.24000116992447526, 0.24172616711268435, 0.24345116430089347, 0.24517616148910257, 0.24690115867731166, 0.24862615586552078, 0.2503511530537299, 0.25207615024193897, 0.2538011474301481, 0.2555261446183572, 0.2572511418065663, 0.25897613899477534, 0.26070113618298446, 0.2624261333711936, 0.26415113055940265, 0.26587612774761177, 0.2676011249358209, 0.26932612212402995, 0.2710511193122391, 0.2727761165004482, 0.27450111368865726, 0.2762261108768664, 0.2779511080650755, 0.27967610525328457, 0.2814011024414937, 0.28312609962970275, 0.2848510968179119, 0.28657609400612094, 0.28830109119433006, 0.2900260883825392, 0.29175108557074825, 0.29347608275895737, 0.2952010799471665, 0.29692607713537555, 0.2986510743235847, 0.3003760715117938, 0.30210106870000286, 0.303826065888212, 0.3055510630764211, 0.30727606026463017, 0.30900105745283923, 0.31072605464104835, 0.3124510518292575, 0.31417604901746654, 0.31590104620567566, 0.3176260433938848, 0.31935104058209385, 0.32107603777030297, 0.3228010349585121, 0.32452603214672116, 0.3262510293349303, 0.3279760265231394, 0.32970102371134846, 0.3314260208995575, 0.33315101808776665, 0.33487601527597577, 0.33660101246418483, 0.33832600965239396, 0.3400510068406031, 0.34177600402881214, 0.34350100121702126, 0.3452259984052304, 0.34695099559343945, 0.34867599278164857, 0.3504009899698577, 0.35212598715806676, 0.3538509843462759, 0.355575981534485, 0.35730097872269406, 0.35902597591090313, 0.36075097309911225, 0.36247597028732137, 0.36420096747553043, 0.36592596466373956, 0.3676509618519487, 0.36937595904015774, 0.37110095622836686, 0.372825953416576, 0.37455095060478505, 0.3762759477929941, 0.3780009449812033, 0.37972594216941236, 0.3814509393576214, 0.3831759365458306, 0.38490093373403966, 0.38662593092224873, 0.3883509281104579, 0.39007592529866697, 0.39180092248687604, 0.3935259196750851, 0.3952509168632943, 0.39697591405150334, 0.3987009112397124, 0.4004259084279215, 0.40215090561613065, 0.4038759028043397, 0.4056008999925488, 0.40732589718075796, 0.409050894368967, 0.4107758915571761, 0.41250088874538526, 0.41422588593359433, 0.4159508831218034, 0.41767588031001257, 0.41940087749822164, 0.4211258746864307, 0.4228508718746399, 0.42457586906284894, 0.426300866251058, 0.4280258634392672, 0.42975086062747625, 0.4314758578156853, 0.4332008550038945, 0.43492585219210356, 0.4366508493803126, 0.4383758465685218, 0.44010084375673086, 0.44182584094493993, 0.443550838133149, 0.44527583532135817, 0.44700083250956724, 0.4487258296977763, 0.45045082688598537, 0.45217582407419454, 0.4539008212624036, 0.4556258184506127, 0.45735081563882185, 0.4590758128270309, 0.46080081001524, 0.46252580720344916, 0.4642508043916582, 0.4659758015798673, 0.46770079876807646, 0.46942579595628553, 0.4711507931444946, 0.47287579033270377, 0.47460078752091284, 0.4763257847091219, 0.4780507818973311, 0.47977577908554014, 0.4815007762737492, 0.4832257734619584, 0.48495077065016745, 0.4866757678383765, 0.4884007650265857, 0.49012576221479476, 0.4918507594030038, 0.4935757565912129, 0.49530075377942206, 0.49702575096763113, 0.4987507481558402, 0.5004757453440493, 0.5022007425322584, 0.5039257397204675, 0.5056507369086766, 0.5073757340968857, 0.5091007312850948, 0.5108257284733039, 0.512550725661513, 0.5142757228497221, 0.5160007200379312, 0.5177257172261404, 0.5194507144143494, 0.5211757116025585, 0.5229007087907677, 0.5246257059789767, 0.5263507031671858, 0.528075700355395, 0.529800697543604, 0.5315256947318131, 0.5332506919200223, 0.5349756891082313, 0.5367006862964404, 0.5384256834846496, 0.5401506806728587, 0.5418756778610677, 0.5436006750492768, 0.545325672237486, 0.547050669425695, 0.5487756666139041, 0.5505006638021132, 0.5522256609903223, 0.5539506581785314, 0.5556756553667405, 0.5574006525549496, 0.5591256497431587, 0.5608506469313678, 0.562575644119577, 0.564300641307786, 0.5660256384959951, 0.5677506356842043, 0.5694756328724133, 0.5712006300606224, 0.5729256272488316, 0.5746506244370406, 0.5763756216252497, 0.5781006188134589, 0.5798256160016679, 0.581550613189877, 0.5832756103780862, 0.5850006075662952, 0.5867256047545043, 0.5884506019427135, 0.5901755991309225, 0.5919005963191316, 0.5936255935073407, 0.5953505906955499, 0.5970755878837589, 0.598800585071968, 0.600525582260177, 0.6022505794483862, 0.6039755766365953, 0.6057005738248044, 0.6074255710130135, 0.6091505682012226, 0.6108755653894317, 0.6126005625776408, 0.6143255597658499, 0.616050556954059, 0.6177755541422681, 0.6195005513304772, 0.6212255485186863, 0.6229505457068955, 0.6246755428951045, 0.6264005400833137, 0.6281255372715228, 0.6298505344597318, 0.631575531647941, 0.6333005288361501, 0.6350255260243591, 0.6367505232125683, 0.6384755204007773, 0.6402005175889864, 0.6419255147771955, 0.6436505119654047, 0.6453755091536137, 0.6471005063418229, 0.6488255035300319, 0.650550500718241, 0.6522754979064501, 0.6540004950946593, 0.6557254922828684, 0.6574504894710775, 0.6591754866592865, 0.6609004838474957, 0.6626254810357047, 0.6643504782239138, 0.666075475412123, 0.667800472600332, 0.6695254697885411, 0.6712504669767502, 0.6729754641649593, 0.6747004613531684, 0.6764254585413776, 0.6781504557295865, 0.6798754529177957, 0.6816004501060048, 0.683325447294214, 0.685050444482423, 0.6867754416706322, 0.6885004388588412, 0.6902254360470503, 0.6919504332352594, 0.6936754304234686, 0.6954004276116776, 0.6971254247998868, 0.6988504219880958, 0.700575419176305, 0.702300416364514, 0.7040254135527232, 0.7057504107409323, 0.7074754079291414, 0.7092004051173504, 0.7109254023055596, 0.7126503994937686, 0.7143753966819777, 0.7161003938701869, 0.7178253910583959, 0.719550388246605, 0.7212753854348141, 0.7230003826230232, 0.7247253798112323, 0.7264503769994415, 0.7281753741876504, 0.7299003713758596, 0.7316253685640687, 0.7333503657522779, 0.7350753629404869, 0.7368003601286961, 0.738525357316905, 0.7402503545051142, 0.7419753516933233, 0.7437003488815325, 0.7454253460697415, 0.7471503432579507, 0.7488753404461597, 0.7506003376343688, 0.7523253348225779, 0.7540503320107871, 0.7557753291989961, 0.7575003263872053, 0.7592253235754143, 0.7609503207636233, 0.7626753179518325, 0.7644003151400416, 0.7661253123282508, 0.7678503095164598, 0.7695753067046689, 0.771300303892878, 0.7730253010810871, 0.7747502982692962, 0.7764752954575054, 0.7782002926457143, 0.7799252898339235, 0.7816502870221326, 0.7833752842103417, 0.7851002813985508, 0.78682527858676, 0.788550275774969, 0.7902752729631781, 0.7920002701513872, 0.7937252673395964, 0.7954502645278054, 0.7971752617160146, 0.7989002589042236, 0.8006252560924327, 0.8023502532806418, 0.804075250468851, 0.80580024765706, 0.8075252448452692, 0.8092502420334782, 0.8109752392216872, 0.8127002364098964, 0.8144252335981055, 0.8161502307863147, 0.8178752279745237, 0.8196002251627328, 0.8213252223509419, 0.823050219539151, 0.8247752167273601, 0.8265002139155693, 0.8282252111037782, 0.8299502082919874, 0.8316752054801965, 0.8334002026684056, 0.8351251998566147, 0.8368501970448239, 0.8385751942330328, 0.840300191421242, 0.8420251886094511, 0.8437501857976603, 0.8454751829858693, 0.8472001801740785, 0.8489251773622875, 0.8506501745504966, 0.8523751717387057, 0.8541001689269149, 0.8558251661151239, 0.8575501633033331, 0.8592751604915421, 0.8610001576797511, 0.8627251548679603, 0.8644501520561694, 0.8661751492443786, 0.8679001464325876, 0.8696251436207967, 0.8713501408090057, 0.8730751379972149, 0.874800135185424, 0.8765251323736332, 0.8782501295618421, 0.8799751267500513, 0.8817001239382604, 0.8834251211264695, 0.8851501183146786, 0.8868751155028878, 0.8886001126910967, 0.8903251098793059, 0.892050107067515, 0.8937751042557242, 0.8955001014439332, 0.8972250986321424, 0.8989500958203513, 0.9006750930085605, 0.9024000901967696, 0.9041250873849788, 0.9058500845731878, 0.907575081761397, 0.909300078949606, 0.911025076137815, 0.9127500733260242, 0.9144750705142333, 0.9162000677024424, 0.9179250648906515, 0.9196500620788606, 0.9213750592670696, 0.9231000564552788, 0.9248250536434879, 0.9265500508316971, 0.928275048019906, 0.9300000452081152, 0.9317250423963243, 0.9334500395845334, 0.9351750367727425, 0.9369000339609517, 0.9386250311491606, 0.9403500283373698, 0.9420750255255789, 0.943800022713788, 0.9455250199019971, 0.9472500170902063, 0.9489750142784152, 0.9507000114666244, 0.9524250086548335, 0.9541500058430427, 0.9558750030312517, 0.9576000002194608, 0.9593249974076699, 0.9610499945958789, 0.9627749917840881, 0.9644999889722972, 0.9662249861605063, 0.9679499833487154, 0.9696749805369245, 0.9713999777251335, 0.9731249749133427, 0.9748499721015518, 0.976574969289761, 0.9782999664779699, 0.9800249636661791, 0.9817499608543881, 0.9834749580425973], "yGains": [0.0, 0.005, 0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05, 0.055, 0.06, 0.065, 0.07, 0.075, 0.08, 0.085, 0.09, 0.095, 0.1, 0.105, 0.11, 0.115, 0.12, 0.125, 0.13, 0.135, 0.14, 0.145, 0.15, 0.155, 0.16, 0.165, 0.17, 0.175, 0.18, 0.185, 0.19, 0.195, 0.2, 0.205, 0.21, 0.215, 0.22, 0.225, 0.23, 0.235, 0.24, 0.245, 0.25, 0.255, 0.26, 0.265, 0.27, 0.275, 0.28, 0.285, 0.29, 0.295, 0.3, 0.305, 0.31, 0.315, 0.32, 0.325, 0.33, 0.335, 0.34, 0.345, 0.35, 0.355, 0.36, 0.365, 0.37, 0.375, 0.38, 0.385, 0.39, 0.395, 0.4, 0.405, 0.41, 0.415, 0.42, 0.425, 0.43, 0.435, 0.44, 0.445, 0.45, 0.455, 0.46, 0.465, 0.47, 0.475, 0.48, 0.485, 0.49, 0.495, 0.5, 0.505, 0.51, 0.515, 0.52, 0.525, 0.53, 0.535, 0.54, 0.545, 0.55, 0.555, 0.56, 0.565, 0.57, 0.575, 0.58, 0.585, 0.59, 0.595, 0.6, 0.605, 0.61, 0.615, 0.62, 0.625, 0.63, 0.635, 0.64, 0.645, 0.65, 0.655, 0.66, 0.665, 0.67, 0.675, 0.68, 0.685, 0.69, 0.695, 0.7, 0.705, 0.71, 0.715, 0.72, 0.725, 0.73, 0.735, 0.74, 0.745, 0.75, 0.755, 0.76, 0.765, 0.77, 0.775, 0.78, 0.785, 0.79, 0.795, 0.8, 0.805, 0.81, 0.815, 0.82, 0.825, 0.83, 0.835, 0.84, 0.845, 0.85, 0.855, 0.86, 0.865, 0.87, 0.875, 0.88, 0.885, 0.89, 0.895, 0.9, 0.905, 0.91, 0.915, 0.92, 0.925, 0.93, 0.935, 0.94, 0.945, 0.95, 0.955, 0.96, 0.965, 0.97, 0.975, 0.98, 0.985, 0.99, 0.995, 1.0, 1.0], "yN": [0.5081005438707002, 0.5248167967039845, 0.5417549538537341, 0.5589057730721895, 0.576259777501472, 0.5938072822934569, 0.6115384213449181, 0.6294431739743094, 0.6475113913686033, 0.6657328226321066, 0.6840971402741584, 0.7025939649791492, 0.7212128895101755, 0.7399435016068768, 0.7587754057484657, 0.7776982436646143, 0.7967017134895364, 0.8157755874681742, 0.8349097281377954, 0.8540941029233259, 0.8733187971002785, 0.8925740250950059, 0.9118501401080816, 0.931137642062729, 0.9504271838961839, 0.9697095762276279, 0.9889757904515544, 1.008216960320207, 1.0274243820926738, 1.0465895133413645, 1.0657039705188027, 1.0847595253986921, 1.1037481005151664, 1.1226617637326524, 1.1414927220861615, 1.1602333150375026, 1.1788760072974138, 1.197413381366389, 1.215838129948371, 1.234143048391271, 1.2523210273066459, 1.2703650455175883, 1.2882681634794337, 1.3060235173116568, 1.32362431357222, 1.3410638248968305, 1.358335386616012, 1.375432394451841, 1.3923483033846435, 1.4090766277671756, 1.425610942750451, 1.441944887071523, 1.458072167238965, 1.4739865631371538, 1.4896819350553205, 1.50515223213244, 1.5203915021939007, 1.535393902941149, 1.5501537144409954, 1.5646653528471555, 1.57892338527316, 1.5929225457228688, 1.6066577519727658, 1.6201241232890122, 1.6333169988519376, 1.646231956751546, 1.6588648334093485, 1.67121174327504, 1.6832690986407666, 1.6950336294113018, 1.706502402665275, 1.7176728418408358, 1.728542745378578, 1.739110304655441, 1.749374121045435, 1.75933322194654, 1.7689870756178971, 1.7783356046772674, 1.7873791981161986, 1.79611872169832, 1.8045555266158728, 1.8126914562897827, 1.8205288512100408, 1.8280705517252227, 1.835319898702893, 1.8422807319962513, 1.8489573866663458, 1.8553546869238389, 1.8614779377690516, 1.8673329143240962, 1.8729258488661353, 1.8782634155858375, 1.8833527131101984, 1.8882012448435896, 1.89281689719531, 1.8972079157759139, 1.9013828796577636, 1.9053506738081583, 1.9091204598150384, 1.912701645036509, 1.9161038503153731, 1.9193368764089591, 1.9224106692925675, 1.9253352845015912, 1.9281208506831389, 1.9307775325323013, 1.9333154932915204, 1.9357448569933613, 1.9380756706276954, 1.9403178664138274, 1.942481224356182, 1.9445753352593602, 1.9466095643742187, 1.948593015841387, 1.9505344980926702, 1.9524424903634208, 1.9543251104611767, 1.9561900839271251, 1.9580447147174564, 1.959895857521916, 1.9617498918263643, 1.9636126978154627, 1.9654896342007184, 1.9673855180479896, 1.9693046066675526, 1.971250581618838, 1.973226534871194, 1.9752349571515555, 1.9772777284998264, 1.979356111043139, 1.981470743991052, 1.9836216408452918, 1.9858081888096497, 1.9880291503786043, 1.9902826670765528, 1.9925662653138936, 1.9948768643209496, 1.9972107861164463, 1.9995637674633457, 2.001930973761885, 2.0043070148269715, 2.006685962495114, 2.0090613700045026, 2.0114262930905724, 2.013773312738606, 2.016094559534051, 2.0183817395508656, 2.0206261617175563, 2.0228187665999817, 2.0249501565393966, 2.027010627083163, 2.028990199644472, 2.0308786553257234, 2.032665569838332, 2.034340349449183, 2.03589226788114, 2.037310504091341, 2.0385841808471743, 2.039702404015131, 2.0406543024727495, 2.041429068548106, 2.0420159988855735, 2.042404535629736, 2.0425843078129895, 2.042545172825087, 2.0422772578359156, 2.0417710010354435, 2.041017192547957, 2.0400070148704574, 2.038732082678778, 2.0371844818387252, 2.0353568074540016, 2.033242200777913, 2.030834384811802, 2.0281276984101493, 2.025117128710392, 2.021798341704781, 2.0181677107720475, 2.0142223429888375, 2.00996010304395, 2.0053796345836647, 2.00048037882265, 1.9952625902631846, 1.9897273493748833, 1.9838765720984957, 1.977713016049978, 1.971240283315277, 1.9644628197419503, 1.9573859106507185, 1.9500156729081721, 1.9423590433212337, 1.9344237633341785, 1.9262183600300646, 1.9177521234601416, 1.9090350803469542, 1.9000779642292902, 1.890892182139674, 1.8814897779274662, 1.8718833923628109, 1.8620862201782618, 1.8521119642257717, 1.841974786946844, 1.83168925937252, 1.8212703078876045, 1.8107331590097853, 1.8000932824490736, 1.789366332725929, 1.7785680896376759, 1.7677143978720529, 1.7568211060739558, 1.7459040056766473, 1.7349787698116204, 1.7240608926122858, 1.7131656292252773, 1.702307936839684, 1.6915024170390314, 1.680763259773066, 1.6701041892368524, 1.6595384119330583, 1.6490785671799384, 1.6387366803125347, 1.6285241188079258, 1.6184515515473528, 1.6085289114088432, 1.5987653613634374, 1.5891692642270292, 1.579748156197614, 1.5705087242852644, 1.561456787719052, 1.5525972833920394, 1.5439342553821143, 1.5354708485633688, 1.5272093062999075, 1.5191509721915941, 1.5112962958194578, 1.5036448424174933, 1.4961953063773754, 1.4889455284734963, 1.4818925166775287, 1.475032470414969, 1.4683608081002384, 1.4618721977727582, 1.4555605906432907, 1.4494192573483506, 1.4434408267002685, 1.437617326711796, 1.4319402276668702, 1.426400487003282, 1.4209885957685775, 1.415694626407389, 1.4105082816367527, 1.4054189441654052, 1.4004157270139852, 1.3954875241949019, 1.3906230615138375, 1.3858109472589466, 1.3810397225489381, 1.3762979111173652, 1.371574068317261, 1.3668568291380259, 1.3621349550348865, 1.3573973793802847, 1.3526332513562627, 1.3478319781171253, 1.342983265062312, 1.3380771540705825, 1.3331040595580554, 1.328054802234564, 1.3229206404448082, 1.3176932989932881, 1.3123649953644776, 1.3069284632625595, 1.3013769734079554, 1.2957043515408766, 1.2899049935952993, 1.283973878019935, 1.2779065752359409, 1.2716992542343246, 1.2653486863291397, 1.2588522460955975, 1.252207909535196, 1.2454142495226523, 1.2384704286021115, 1.2313761892122264, 1.2241318414318418, 1.2167382483495115, 1.2091968091713041, 1.2015094401920383, 1.1936785537652252, 1.185707035416444, 1.1775982192537826, 1.1693558618369528, 1.1609841146739277, 1.1524874955202882, 1.143870858661776, 1.1351393643649406, 1.1262984476838924, 1.1173537868133963, 1.10831127117933, 1.099176969457258, 1.0899570977082698, 1.0806579878183393, 1.0712860564233386, 1.0618477744963017, 1.0523496377668873, 1.0427981381349105, 1.0331997362306482, 1.0235608352642263, 1.013887756294926, 1.004186715038758, 0.9944638003192088, 0.98472495425184, 0.9749759542384511, 0.9652223968309883, 0.9554696835094073, 0.9457230084014105, 0.9359873479555711, 0.9262674525629262, 0.9165678401059145, 0.9068927913975653, 0.897246347458515, 0.8876323085645883, 0.8780542349837936, 0.8685154493085493, 0.8590190402770683, 0.8495678679671815, 0.8401645702364873, 0.8308115702748903, 0.821511085129171, 0.8122651350544849, 0.8030755535445719, 0.7939439978909747, 0.7848719601218397, 0.7758607781727899, 0.7669116471458667, 0.7580256305177794, 0.7492036711652993, 0.7404466020838099, 0.7317551566844098, 0.7231299785656428, 0.7145716306675677, 0.7060806037285288, 0.6976573239782352, 0.6893021600146984, 0.6810154288267786, 0.6727974009385456, 0.664648304666073, 0.6565683294914917, 0.6485576285730191, 0.6406163204228732, 0.6327444897975916, 0.6249421878568484, 0.6172094316574632, 0.6095462030586801, 0.6019524471228783, 0.5944280701025487, 0.5869729371095919, 0.5795868695666032, 0.5722696425419389, 0.5650209820707975, 0.5578405625634857, 0.5507280043993599, 0.5436828718007932, 0.5367046710759461, 0.5297928493121816, 0.5229467935938535, 0.5161658308089389, 0.5094492280988292, 0.5027961939945891, 0.4962058802714006, 0.4896773845408285, 0.4832097535882216, 0.47680198745009644, 0.4704530442140267, 0.46416184551145656, 0.45792728266222665, 0.4517482234185549, 0.4456235192459425, 0.4395520130691242, 0.4335325474028516, 0.4275639727801191, 0.4216451563845571, 0.4157749907890948, 0.40995240269983474, 0.40417636160229176, 0.3984458882068309, 0.39276006259128465, 0.38711803194124744, 0.3815190177924862, 0.37596232268513935, 0.3704473361458472, 0.3649735399215791, 0.35954051239754053, 0.3541479321411028, 0.34879558052398923, 0.34348334338585634, 0.33821121171381957, 0.3329792813241218, 0.32778775154400547, 0.3226369229036372, 0.3175271938595749, 0.3124590565825759, 0.3074330918533666, 0.3024499631201796, 0.2975104097813447, 0.2926152397647756, 0.2877653214838289, 0.28296157525554844, 0.278204964272716, 0.27349648522537856, 0.2688371586704698, 0.26422801924991307, 0.2596701058580397, 0.25516445185839326, 0.2507120754479901, 0.24631397026393106, 0.24197109632298663, 0.23768437137944726, 0.23345466278024868, 0.22928277988927112, 0.2251694671448182, 0.22111539780579825, 0.21712116843311202, 0.2131872941433698, 0.2093142046624391, 0.20550224119656416, 0.20175165412907128, 0.19806260154108, 0.19443514854530095, 0.19086926741306068, 0.18736483846620608, 0.18392165169767763, 0.18053940907732516, 0.17721772749307577, 0.17395614227194323, 0.17075411122058437, 0.16761101912126014, 0.16452618261613494, 0.16149885541087308, 0.15852823372747255, 0.15561346193618533, 0.15275363829718555, 0.14994782074434831, 0.1471950326459988, 0.1444942684807775, 0.14184449937071977, 0.13924467841824328, 0.1366937457988552, 0.13419063356695826, 0.1317342701380659, 0.1293235844169278, 0.12695750954743057, 0.12463498626657489, 0.12235496585125526, 0.12011641265288499, 0.11791830622103727, 0.11575964302312566, 0.11363943777266995, 0.11155672438378442, 0.10951055657417795, 0.10750000814305422, 0.10552417295387342, 0.10358216465489688, 0.1016731161727935, 0.09979617901631033, 0.09795052242811679, 0.09613533242339561, 0.09434981075363218, 0.09259317383332169, 0.0908646516660421, 0.08916348680454579, 0.08748893337724863, 0.085840256210801, 0.08421673007535616, 0.08261763907576705, 0.08104227620830486, 0.07948994309866045, 0.07795994993302827, 0.07645161559004246, 0.07496426797729397, 0.07349724457217945, 0.07204989316294887, 0.07062157278211678, 0.06921165482089205, 0.0678195243100432, 0.06644458134967177, 0.0650862426677458, 0.06374394328499387, 0.0624171382618848, 0.061105304501939114, 0.059807942584559494, 0.058524578599899235, 0.05725476595805521, 0.05599808714502563, 0.054754155398418144, 0.05352261627682493, 0.0523031490980425, 0.0510954682229201, 0.049899324163500625, 0.048714504496272126], "yP": [0.09933939769812575, 0.10166126612179055, 0.10401404897152466, 0.10639818996157298, 0.10881416944578436, 0.1112625043098741, 0.11374374766886532, 0.11625848836678603, 0.11880735027680356, 0.12139099140112847, 0.12401010277119652, 0.12666540714985544, 0.12935765753850972, 0.13208763549342786, 0.1348561492566585, 0.13766403170826014, 0.1405121381477686, 0.14340134391404744, 0.14633254185384179, 0.1493066396504955, 0.15232455702537814, 0.15538722282559828, 0.15849557201253814, 0.16165054256662756, 0.1648530723245612, 0.1681040957658812, 0.1714045407664177, 0.17475532533659233, 0.17815735436293748, 0.1816115163714445, 0.1851186803314645, 0.18867969251887445, 0.19229537345706532, 0.19596651495402734, 0.19969387725336765, 0.20347818631653286, 0.2073201312527914, 0.21122036191268684, 0.21517948665968153, 0.21919807033359825, 0.22327663241821927, 0.2274156454240453, 0.2316155334957291, 0.23587667125213257, 0.24019938286526732, 0.2445839413826304, 0.24903056829561174, 0.2535394333547584, 0.2581106546307489, 0.2627442988179603, 0.2674403817755217, 0.27219886929877235, 0.27701967811205164, 0.28190267707182215, 0.2868476885672194, 0.2918544901032868, 0.29692281605041015, 0.3020523595417824, 0.3072427744992059, 0.31249367776609027, 0.317804651325233, 0.32317524457783237, 0.3286049766592227, 0.3340933387660277, 0.3396397964688457, 0.3452437919841707, 0.3509047463790723, 0.356622061682178, 0.3623951228747478, 0.3682232997361017, 0.37410594851834433, 0.38004241342625456, 0.386032027879351, 0.3920741155344946, 0.3981679910489766, 0.40431296056581667, 0.4105083219049818, 0.41675336444640054, 0.42304736869300963, 0.4293896055045613, 0.4357793349955924, 0.4422158050937264, 0.4486982497574063, 0.45522588685510873, 0.4617979157111904, 0.46841351432660705, 0.47507183628590105, 0.4817720073649873, 0.4885131218574064, 0.4952942386397993, 0.5021143770003618, 0.5089725122569849, 0.5158675711945991, 0.5227984273538896, 0.5297638962061201, 0.5367627302510835, 0.543793614077357, 0.5508551594259657, 0.5579459003001619, 0.565064288165524, 0.5722086872856392, 0.5793773702395085, 0.5865685136673697, 0.5937801942918466, 0.6010103852612461, 0.6082569528614474, 0.6155176536420386, 0.6227901320013495, 0.6300719182735565, 0.6373604273593856, 0.6446529579398357, 0.6519466923100138, 0.6592386968675, 0.6665259232866906, 0.673805210407354, 0.6810732868621252, 0.688326774463899, 0.6955621923701458, 0.7027759620369858, 0.7099644129715114, 0.717123789286317, 0.7242502570555953, 0.7313399124673765, 0.7383887907617128, 0.7453928759396914, 0.7523481112233458, 0.7592504102415949, 0.7660956689125654, 0.772879777987879, 0.7795986362197995, 0.7862481641076612, 0.7928243181756031, 0.79932310572943, 0.8057406000365129, 0.8120729558688454, 0.8183164253459513, 0.8244673740111486, 0.8305222970717939, 0.8364778357315935, 0.8423307935408808, 0.8480781526889105, 0.853717090160769, 0.8592449936804337, 0.864659477360825, 0.8699583969814673, 0.875139864814449, 0.8802022639200328, 0.8851442618341288, 0.8899648235713061, 0.8946632238687835, 0.8992390585990349, 0.903692255281233, 0.9080230826247323, 0.9122321590411339, 0.9163204600651506, 0.9202893246285546, 0.9241404601358092, 0.9278759462946615, 0.9314982376598709, 0.9350101648534554, 0.9384149344302054, 0.941716127362859, 0.9449176961270744, 0.9480239603722687, 0.9510396011704554, 0.9539696538412972, 0.9568194993577968, 0.9595948543432642, 0.9623017596763873, 0.964946567727397, 0.9675359282544695, 0.9700767729954664, 0.972576298996042, 0.9750419507208895, 0.9774814010004532, 0.9799025308707885, 0.9823134083694223, 0.9847222663548978, 0.9871374794223444, 0.989567539991689, 0.9920210336491477, 0.9945066138262727, 0.9970329759041845, 0.9996088308335256, 1.002242878363295, 1.004943779973879, 1.0077201316113997, 1.0105804363219284, 1.0135330768850326, 1.0165862885467998, 1.0197481319525636, 1.0230264663793822, 1.026428923367639, 1.029962880850138, 1.0336354378755421, 1.0374533900212903, 1.0414232055888184, 1.0455510026714299, 1.0498425271821368, 1.0543031319256517, 1.0589377567950011, 1.0637509101694251, 1.0687466515859734, 1.0739285757528112, 1.0792997979674506, 1.084862940998272, 1.0906201234824495, 1.096572949888102, 1.1027225020829259, 1.1090693325459338, 1.1156134592530673, 1.1223543622616294, 1.1292909820124026, 1.136421719362367, 1.1437444373547687, 1.1512564647272836, 1.1589546011528247, 1.1668351242015838, 1.1748937980068481, 1.183125883611135, 1.1915261509634592, 1.200088892532696, 1.2088079384964474, 1.2176766734593487, 1.2266880546494257, 1.235834631536061, 1.2451085668080963, 1.2545016586460216, 1.2640053642175983, 1.2736108243221234, 1.2833088891044944, 1.2930901447565073, 1.3029449411194631, 1.3128634200988611, 1.3228355447992381, 1.3328511292845573, 1.3428998688673293, 1.352971370827766, 1.3630551854625865, 1.3731408373618896, 1.3832178568115001, 1.3932758112176615, 1.4033043364505857, 1.4132931680035032, 1.4232321718642398, 1.4331113749970479, 1.4429209953335305, 1.4526514711728937, 1.4622934898934397, 1.4718380158793418, 1.481276317569016, 1.4905999935341547, 1.4998009975014117, 1.5088716622320133, 1.5178047221781203, 1.5265933348385798, 1.5352311007408084, 1.5437120819798702, 1.5520308192503656, 1.5601823473116083, 1.568162208831491, 1.5759664665597009, 1.5835917137862878, 1.5910350830471651, 1.5982942530437636, 1.6053674537499067, 1.6122534696848894, 1.6189516413377534, 1.6254618647338173, 1.6317845891407345, 1.6379208129173966, 1.643872077515302, 1.649640459648136, 1.6552285616514593, 1.6606395000604717, 1.6658768924399538, 1.6709448425062883, 1.6758479235874357, 1.680591160472332, 1.6851800097068157, 1.6896203383985238, 1.6939184015984208, 1.698080818331611, 1.7021145463548573, 1.7060268557227214, 1.709825301248577, 1.713517693950632, 1.717112071576902, 1.7206166683063795, 1.7240398837267672, 1.7273902511918586, 1.7306764056640531, 1.733907051149518, 1.7370909278352133, 1.740236779038255, 1.7433533180790557, 1.7464491951902001, 1.749532964573169, 1.752613051714755, 1.7556977210744318, 1.7587950442528575, 1.7619128687502812, 1.7650587874218222, 1.768240108734396, 1.7714638279274448, 1.7747365991767217, 1.778064708857081, 1.7814540499964655, 1.7849100980094053, 1.7884378877938913, 1.792041992270927, 1.7957265024410258, 1.799495009026791, 1.8033505857651209, 1.807295774406939, 1.8113325714763184, 1.8154624168347633, 1.819686184090026, 1.8240041728823981, 1.8284161030747392, 1.8329211108658023, 1.8375177468396122, 1.842203975956757, 1.846977179486589, 1.8518341588724172, 1.8567711415148949, 1.8617837884520048, 1.8668672039072838, 1.8720159466712816, 1.877224043274778, 1.8824850029058489, 1.8877918340168038, 1.893137062560952, 1.898512751793459, 1.9039105235650833, 1.9093215810323239, 1.914736732702609, 1.9201464177285799, 1.9255407323611806, 1.9309094574674142, 1.9362420870150119, 1.9415278574230983, 1.9467557776751563, 1.9519146600881994, 1.9569931516300842, 1.9619797656753262, 1.966862914088705, 1.971630939525173, 1.976272147834381, 1.980774840458255, 1.9851273467106798, 1.9893180558293768, 1.9933354486914792, 1.9971681290862315, 2.0008048544404544, 2.0042345658951435, 2.0074464176346214, 2.010429805373061, 2.0131743939070543, 2.015670143646992, 2.0179073360445052, 2.019876597837977, 2.0215689240431676, 2.0229756996214006, 2.024088719763107, 2.0249002087305676, 2.0254028372093975, 2.0255897381246086, 2.0254545208832795, 2.024991284012205, 2.024194626165433, 2.023059655483038, 2.0215819972890245, 2.019757800122833, 2.0175837401053704, 2.0150570236469494, 2.01217538851092, 2.008937103252965, 2.0053409650621727, 2.0013862960359297, 1.9970729379264425, 1.9924012454021867, 1.987372077872932, 1.9819867899319548, 1.9762472204738675, 1.9701556805508649, 1.9637149400343794, 1.956928213152858, 1.9497991429798571, 1.942331784949693, 1.934530589480573, 1.9264003837874677, 1.9179463529688467, 1.9091740204529664, 1.9000892278904824, 1.890698114580848, 1.8810070965203303, 1.8710228451592925, 1.8607522659559919, 1.8502024768131917, 1.8393807864826948, 1.8282946730212104, 1.8169517623790679, 1.8053598072008805, 1.793526665914711, 1.781460282183232, 1.769168664787226, 1.756659868008189, 1.7439419725730754, 1.7310230672202167, 1.717911230941293, 1.7046145159498494, 1.6911409314223322, 1.6774984280530256, 1.663694883459488, 1.6497380884703126, 1.6356357343221584, 1.621395400788166, 1.6070245452549465, 1.592530492760548, 1.5779204270009992, 1.5632013823083342, 1.5483802365984018, 1.5334637052823128, 1.5184583361310182, 1.503370505078395, 1.4882064129442, 1.4729720830545316, 1.4576733597338305, 1.4423159076391765, 1.4269052119045342, 1.4114465790597606, 1.3959451386866788, 1.3804058457721584, 1.364833483716177, 1.3492326679510804, 1.3336078501267836, 1.317963322815495, 1.3023032246886206, 1.2866315461179003, 1.2709521351524486, 1.2552687038232646, 1.2395848347269731, 1.2239039878409157, 1.2082295075223866, 1.1925646296456316, 1.1769124888313545, 1.1612761257246818, 1.145658494279055, 1.1300624690050851, 1.114490852145241, 1.0989463807370838, 1.0834317335298924, 1.0679495377215469, 1.0525023754848901, 1.0370927902549862, 1.0217232927511335, 1.0063963667098266, 0.9911144743073522, 0.9758800612530831, 0.9606955615369974, 0.9455634018173877, 0.930486005437057, 0.9154657960587105, 0.9005052009124919, 0.8856066536508814, 0.8707725968082898, 0.856005483864816, 0.8413077809155487, 0.8266819679487661, 0.8121305397380908, 0.7976560063554258, 0.7832608933129962, 0.7689477413443558, 0.7547191058354826, 0.7405775559184198, 0.7265256732409284, 0.7125660504267155, 0.6987012892416136, 0.6849339984819282, 0.6712667916017668, 0.6577022840968088, 0.6442430906623304, 0.6308918221437644, 0.6176510822982403, 0.6045234643858031, 0.591511547609042, 0.5786178934198989, 0.5658450417123485, 0.5531955069195004, 0.5406717740334922, 0.5282762945662468, 0.5160114824688894, 0.5038797100272252, 0.49188330375028544, 0.48002454026848085, 0.46830564225744786, 0.45672877440310355, 0.44529603942294727, 0.4340094741579962]}
+  </script>
+  <!-- prettier-ignore-end -->
+  <!-- prettier-ignore-start -->
+  <script type="module">/* global Plotly */
+// TODO: Check that the no js message is shown for all
+
+// F4 uses beta = 4 in the F-beta formula.
+const F4_BETA_SQUARED = 4 ** 2;
+
+// Keep the density plots' ranges and threshold lines aligned.
+const SCORE_AXIS_PADDING_FRACTION = 0.05;
+// Leave headroom above the tallest density for the outcome labels.
+const DENSITY_Y_MAX_FACTOR = 1.2;
+
+// Outcome labels sit this far in from the left and right edges of each density panel.
+const OUTCOME_LABEL_INSET_FRACTION = 0.015;
+// Width in pixels reserved for an outcome label; the threshold line hides a label it would cross.
+const OUTCOME_LABEL_WIDTH_PX = 72;
+
+// Gap in pixels between the gains point and its readout.
+const GAINS_READOUT_OFFSET_PX = 10;
+// Approximate readout sizes in pixels, on one line or, on narrow charts, two.
+const GAINS_READOUT_SIZE_PX = {
+  wide: { width: 190, height: 26 },
+  compact: { width: 104, height: 42 },
+};
+// Charts narrower than this show the readout on two lines.
+const GAINS_COMPACT_WIDTH_PX = 480;
+// Approximate pixels taken by the gains chart's axis labels and titles.
+const GAINS_AXES_ALLOWANCE_PX = { x: 64, y: 52 };
+
+// Clear space in pixels kept either side of a confusion-matrix count.
+const CELL_COUNT_INSET_PX = 8;
+
+// Interval ends within this many hundredths of a percent of a rounding step are taken
+// to be on it, so float error never rounds an exact value outwards.
+const PERCENT_ROUNDING_SLACK = 1e-6;
+// How long the interval explanation stays open after the pointer leaves its key.
+const INFO_HIDE_DELAY_MS = 150;
+// Space kept between the explanation and the top or bottom of the viewport.
+const INFO_VIEWPORT_GAP_PX = 8;
+// Fixed examples in the interval table; the current positive count is added in order.
+const INTERVAL_TABLE_SIZES = [10, 100, 1000, 10_000];
+// Share of each tail outside a 95% interval.
+const INTERVAL_TAIL = 0.025;
+// Lanczos approximation of the log gamma function (g = 7, nine coefficients).
+const LANCZOS_G = 7;
+const LANCZOS_COEFFICIENTS = [
+  0.9999999999998099, 676.5203681218851, -1259.1392167224028, 771.3234287776531,
+  -176.6150291621406, 12.507343278686905, -0.13857109526572012, 9.984369578019572e-6,
+  1.5056327351493116e-7,
+];
+// Limits for the incomplete beta continued fraction and the quantile search.
+const BETA_FRACTION_MAX_TERMS = 100_000;
+const BETA_FRACTION_PRECISION = 1e-14;
+const BETA_FRACTION_FLOOR = 1e-300;
+const QUANTILE_STEPS = 60;
+
+// Must match the max-width media query in style.css that stacks the three panels.
+const STACKED_LAYOUT_QUERY = "(max-width: 1000px)";
+// How the moved panels settle into their new places when the layout switches.
+const LAYOUT_ANIMATION_MS = 320;
+const LAYOUT_ANIMATION_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
+const LAYOUT_FADE_FROM_OPACITY = 0.25;
+const LAYOUT_FADE_SHIFT_PX = 14;
+const LAYOUT_FADE_STAGGER_MS = 50;
+
+const PLOT_FONT = {
+  family: "system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
+  size: 12,
+};
+
+/**
+ * @typedef {object} ClassificationMetrics
+ * @property {number} TN - Number of true negatives
+ * @property {number} FP - Number of false positives
+ * @property {number} FN - Number of false negatives
+ * @property {number} TP - Number of true positives
+ * @property {number} accuracy - Overall accuracy
+ * @property {number} TPR - True positive rate (recall)
+ * @property {number} FPR - False positive rate
+ * @property {number} precision - Precision
+ * @property {number} balancedAccuracy - Balanced accuracy
+ * @property {number} F4 - F4 score
+ */
+
+/**
+ * Select-threshold plot configuration.
+ * Loaded from #plot-config JSON, then augmented in initConfig().
+ * Note: Jinja renders this file, so avoid double braces in comments and code.
+ * @typedef {object} SelectThresholdCfg
+ * @property {Map<string, number>} distributionTraceIndex - distribution trace name to index
+ * @property {Map<string, number>} gainsTraceIndex - gains trace name to index
+ * @property {Palette} palette - colours read from the stylesheet
+ * @property {number} minScore - dataset min score
+ * @property {number} maxScore - dataset max score
+ * @property {number} scoreRange - convenience: maxScore - minScore
+ * @property {number[]} scoreAxisRange - [min, max] of the shared score axis
+ * @property {number} maxDistributionY - y-axis max for distribution plots
+ * @property {number[]} xN - negative density: x
+ * @property {number[]} yN - negative density: y
+ * @property {number[]} xP - positive density: x
+ * @property {number[]} yP - positive density: y
+ * @property {number[]} posScores - positive-class scores sorted ascending
+ * @property {number[]} negScores - negative-class scores sorted ascending
+ * @property {number[]} xGains - gains curve x (proportion examined)
+ * @property {number[]} yGains - gains curve y (recall)
+ * @property {number[]} [gainsRecallLower] - pointwise 95% lower recall limits
+ * @property {number[]} [gainsRecallUpper] - pointwise 95% upper recall limits
+ * @property {number[]} gainsThresholds - threshold per gains point
+ * @property {number} rocAuc - ROC AUC of model
+ * @property {number} prAuc - PR AUC of model
+ * @property {number} dp - decimal places for thresholds
+ * @property {number} currentThreshold - threshold currently shown
+ * @property {ClassificationMetrics} [intervalMetrics] - metrics the interval explanation describes
+ * @property {string} imageSavepath - savepath to save image of plot when plotly save button clicked
+ */
+
+/**
+ * Colours shared by the charts and the HTML, read from the stylesheet.
+ * @typedef {object} Palette
+ * @property {string} ink - main text
+ * @property {string} chartInk - threshold line and axis titles
+ * @property {string} muted - tick labels and secondary text
+ * @property {string} border - card and annotation borders
+ * @property {string} grid - chart grid lines
+ * @property {string} surface - card background
+ * @property {string} accent - gains curve and its point
+ * @property {string} accentFill - shaded recall interval
+ * @property {string} guide - dotted guide lines on the gains chart
+ * @property {string} tn - true negatives (correct, negative class)
+ * @property {string} fp - false positives (error, negative class)
+ * @property {string} fn - false negatives (error, positive class)
+ * @property {string} tp - true positives (correct, positive class)
+ */
+
+/**
+ * Select-threshold UI elements.
+ * Resolved once in initUI().
+ * @typedef {object} SelectThresholdUI
+ * @property {HTMLInputElement} recallInput - input for recall percentage
+ * @property {HTMLInputElement} thresholdInput - input for decision threshold
+ * @property {HTMLInputElement} thresholdSlider - range slider for decision threshold
+ * @property {HTMLElement} inputStatus - validation feedback
+ * @property {HTMLButtonElement} resetButton - restore the initial threshold
+ * @property {HTMLElement} distributionPlot - container of the density chart
+ * @property {HTMLElement} gainsPlot - container of the gains chart
+ * @property {Map<string, HTMLElement>} text - elements whose text shows a live value
+ * @property {Map<string, HTMLElement>} metricValues - metric name to its table cell
+ * @property {HTMLTableElement} matrix - confusion matrix table
+ * @property {HTMLElement[]} cellCounts - confusion-matrix counts, in TN, FP, FN, TP order
+ */
+
+/**
+ * TN/FP split of the negative-density trace at a threshold.
+ * @typedef {object} NegativeSplitSegments
+ * @property {number[]} xTN - x values for TN segment
+ * @property {number[]} yTN - y values for TN segment
+ * @property {number[]} xFP - x values for FP segment
+ * @property {number[]} yFP - y values for FP segment
+ */
+
+/**
+ * FN/TP split of the positive-density trace at a threshold.
+ * @typedef {object} PositiveSplitSegments
+ * @property {number[]} xFN - x values for FN segment
+ * @property {number[]} yFN - y values for FN segment
+ * @property {number[]} xTP - x values for TP segment
+ * @property {number[]} yTP - y values for TP segment
+ */
+
+/**
+ * Layout pieces drawn over a chart at a threshold.
+ * @typedef {object} ChartOverlays
+ * @property {object[]} annotations - text labels
+ * @property {object[]} [shapes] - lines
+ */
+
+/**
+ * Size of a chart container in pixels.
+ * @typedef {object} PlotSize
+ * @property {number} width - container width
+ * @property {number} height - container height
+ */
+
+/**
+ * Lines and proportion for the gains plot at a threshold.
+ * @typedef {object} GainsGuideLines
+ * @property {number[]} gainsVx - vertical line x values [proportion, proportion]
+ * @property {number[]} gainsVy - vertical line y values [0, recall]
+ * @property {number[]} gainsHx - horizontal line x values [0, proportion]
+ * @property {number[]} gainsHy - horizontal line y values [recall, recall]
+ * @property {number} proportionAbove - proportion of examples above threshold
+ */
+
+/**
+ * Binary search to find smallest array index i s.t. threshold <= arr[i].
+ * If all elements in arr are < threshold, returns arr.length.
+ * @param {number[]} arr - Sorted array to search
+ * @param {number} threshold - Threshold value
+ * @returns {number} - Array index or arr.length
+ */
+const findSplitIndex = (arr, threshold) => {
+  let lo = 0;
+  let hi = arr.length;
+  while (lo < hi) {
+    const mid = Math.floor((lo + hi) / 2);
+    if (arr[mid] < threshold) {
+      lo = mid + 1;
+    } else {
+      hi = mid;
+    }
+  }
+  return lo;
+};
+
+/**
+ * Computes common binary classification metrics at a given decision threshold.
+ * A score is predicted **positive** if `score >= threshold`,
+ * @param {number} threshold - Classification decision threshold.
+ * @param {number[]} posScores - Scores for positive class (sorted ascending).
+ * @param {number[]} negScores - Scores for negative class (sorted ascending).
+ * @returns {ClassificationMetrics} - Object containing classification metrics.
+ */
+const computeClassificationMetrics = (threshold, posScores, negScores) => {
+  const posSplitIdx = findSplitIndex(posScores, threshold);
+  const negSplitIdx = findSplitIndex(negScores, threshold);
+
+  const FN = posSplitIdx;
+  const TP = posScores.length - posSplitIdx;
+  const TN = negSplitIdx;
+  const FP = negScores.length - negSplitIdx;
+
+  const accuracy = (TP + TN) / (TP + TN + FP + FN);
+  const TPR = TP + FN > 0 ? TP / (TP + FN) : 0; // Recall
+  const FPR = FP + TN > 0 ? FP / (FP + TN) : 0;
+  const precision = TP + FP > 0 ? TP / (TP + FP) : 0;
+  const balancedAccuracy = 0.5 * (TPR + (1 - FPR));
+
+  let F4;
+  if (precision === 0 && TPR === 0) {
+    F4 = 0;
+  } else {
+    F4 =
+      ((1 + F4_BETA_SQUARED) * precision * TPR) / (F4_BETA_SQUARED * precision + TPR);
+  }
+
+  return {
+    TN,
+    FP,
+    FN,
+    TP,
+    accuracy,
+    TPR,
+    FPR,
+    precision,
+    balancedAccuracy,
+    F4,
+  };
+};
+
+/**
+ * Read the chart colours from the stylesheet's custom properties.
+ * @returns {Palette} Colours, falling back to the defaults if a property is missing.
+ */
+const readPalette = () => {
+  const styles = getComputedStyle(document.documentElement);
+  const read = (property, fallback) =>
+    styles.getPropertyValue(property).trim() || fallback;
+  return {
+    ink: read("--ink", "#243447"),
+    chartInk: read("--chart-ink", "#344c68"),
+    muted: read("--muted", "#68788b"),
+    border: read("--border", "#dfe5ed"),
+    grid: read("--grid", "#edf1f5"),
+    surface: read("--surface", "#fff"),
+    accent: read("--accent", "#3479b8"),
+    // Use the uncertainty demo's explicit RGBA colour for Plotly's fill.
+    accentFill: "rgba(52, 121, 184, 0.15)",
+    guide: read("--guide", "#8293a7"),
+    tn: read("--tn", "salmon"),
+    fp: read("--fp", "pink"),
+    fn: read("--fn", "lightgreen"),
+    tp: read("--tp", "green"),
+  };
+};
+
+/**
+ * Format a fraction as a percentage with two decimal places.
+ * That is four significant figures from 10% up, matching the other metrics.
+ * @param {number} fraction - Value between 0 and 1.
+ * @returns {string} Formatted percentage, e.g. "79.04%".
+ */
+const formatPercent = (fraction) => `${(100 * fraction).toFixed(2)}%`;
+
+// Counts from this size up are shown in compact form, e.g. 596,039 as "596K".
+const COMPACT_COUNT_FROM = 1000;
+// Formats a count to exactly three significant figures, e.g. 1,598,380 as "1.60M".
+// Numbers are always written in English, so they read the same for every viewer.
+const compactNumber = new Intl.NumberFormat("en", {
+  notation: "compact",
+  minimumSignificantDigits: 3,
+  maximumSignificantDigits: 3,
+});
+
+/**
+ * Format a count for a confusion-matrix cell, in compact form from a thousand up.
+ * Smaller counts stay whole numbers, since three figures would turn 42 into "42.0".
+ * @param {number} count - Number of items.
+ * @returns {string} Formatted count, e.g. "42", "40.2K" or "1.60M".
+ */
+const formatCount = (count) =>
+  count < COMPACT_COUNT_FROM ? count.toLocaleString("en") : compactNumber.format(count);
+
+/**
+ * Format a count in full, for running text.
+ * @param {number} count - Number of items.
+ * @returns {string} Formatted count, e.g. "1,598,380".
+ */
+const formatFullCount = (count) => count.toLocaleString("en");
+
+// Table counts from this size up are shown in compact form, e.g. 2,000,000 as "2.000M".
+const TABLE_COMPACT_FROM = 100_000;
+// Formats a table count to four significant figures, keeping trailing zeros.
+const tableCompactNumber = new Intl.NumberFormat("en", {
+  notation: "compact",
+  minimumSignificantDigits: 4,
+  maximumSignificantDigits: 4,
+});
+
+/**
+ * Format a count for a table: in full up to 99,999, then compact to four figures.
+ * @param {number} count - Number of items.
+ * @returns {string} Formatted count, e.g. "99,999" or "250.0K".
+ */
+const formatTableCount = (count) => {
+  if (count < TABLE_COMPACT_FROM) return formatFullCount(count);
+  return tableCompactNumber.format(count);
+};
+
+/**
+ * Format an interval's ends as percentages, rounded outwards to two decimal places.
+ * The shown interval then always contains the exact one.
+ * So a lower end just under 100% is never shown as 100.00%, nor an upper end just over 0% as 0.00%.
+ * @param {number} lower - Lower end, from 0 to 1.
+ * @param {number} upper - Upper end, from 0 to 1.
+ * @returns {string[]} The formatted [lower, upper].
+ */
+const formatInterval = (lower, upper) => {
+  // Work in hundredths of a percent, nudged so float error never moves an exact value.
+  let low = Math.floor(10_000 * lower + PERCENT_ROUNDING_SLACK) / 100;
+  let high = Math.ceil(10_000 * upper - PERCENT_ROUNDING_SLACK) / 100;
+  // Even an extremely narrow interval must not imply certainty at either end.
+  if (lower < 1) low = Math.min(low, 99.99);
+  if (upper > 0) high = Math.max(high, 0.01);
+  return [`${low.toFixed(2)}%`, `${high.toFixed(2)}%`];
+};
+
+/**
+ * Map each name to its position in the list.
+ * @param {string[]} names - Names in order.
+ * @returns {Map<string, number>} Name to index.
+ */
+const toIndexMap = (names) =>
+  new Map(names.map((traceName, index) => [traceName, index]));
+
+/**
+ * Shared Plotly settings: only the image export button, shown on hover.
+ * Plotly's own responsive mode waits until resizing pauses before redrawing, which
+ * leaves charts at their old size while a window is dragged. initResponsiveLayout()
+ * redraws them on every frame instead.
+ * @param {string} filename - Base filename for the exported image.
+ * @returns {object} Plotly config object.
+ */
+const createPlotlySettings = (filename) => {
+  return {
+    responsive: false,
+    scrollZoom: false,
+    modeBarButtons: [["toImage"]],
+    displaylogo: false,
+    toImageButtonOptions: {
+      format: "png",
+      filename,
+      // eslint-disable-next-line unicorn/no-null -- Plotly uses null for the current graph size.
+      height: null,
+      // eslint-disable-next-line unicorn/no-null -- Plotly uses null for the current graph size.
+      width: null,
+      scale: 3,
+    },
+  };
+};
+
+/**
+ * Build one filled density segment trace.
+ * @param {object} options - Trace options.
+ * @param {string} options.outcome - Outcome name, e.g. "TN".
+ * @param {string} options.color - Outline colour; Plotly fills beneath at half opacity.
+ * @param {string} options.yaxis - Plotly y-axis id.
+ * @returns {object} Plotly scatter trace.
+ */
+const createDensityTrace = ({ outcome, color, yaxis }) => {
+  return {
+    x: [],
+    y: [],
+    mode: "lines",
+    fill: "tozeroy",
+    line: { color, width: 2 },
+    name: outcome,
+    xaxis: "x",
+    yaxis,
+    hoverinfo: "skip",
+  };
+};
+
+/**
+ * Create the stacked negative/positive score density chart.
+ * Negatives sit above positives and both share the score axis.
+ * @param {SelectThresholdCfg} cfg - Plot config data
+ * @returns {Promise<HTMLElement>} The initialized Plotly figure.
+ */
+const createDistributionPlot = (cfg) => {
+  const { distributionTraceIndex, palette, maxDistributionY, scoreAxisRange } = cfg;
+
+  const traces = {
+    TN: createDensityTrace({ outcome: "TN", color: palette.tn, yaxis: "y2" }),
+    FP: createDensityTrace({ outcome: "FP", color: palette.fp, yaxis: "y2" }),
+    FN: createDensityTrace({ outcome: "FN", color: palette.fn, yaxis: "y" }),
+    TP: createDensityTrace({ outcome: "TP", color: palette.tp, yaxis: "y" }),
+  };
+
+  const data = [];
+  for (const [traceName, trace] of Object.entries(traces)) {
+    data[distributionTraceIndex.get(traceName)] = trace;
+  }
+
+  const scoreAxis = {
+    range: scoreAxisRange,
+    showgrid: true,
+    gridcolor: palette.grid,
+    zeroline: false,
+    showline: false,
+    fixedrange: true,
+  };
+
+  const densityYAxis = {
+    range: [0, maxDistributionY * DENSITY_Y_MAX_FACTOR],
+    showticklabels: false,
+    showgrid: false,
+    // The zero line doubles as each panel's baseline.
+    zeroline: true,
+    zerolinecolor: palette.border,
+    zerolinewidth: 1,
+    fixedrange: true,
+  };
+
+  const layout = {
+    autosize: true,
+    margin: { l: 0, r: 4, t: 24, b: 44 },
+    font: { ...PLOT_FONT, color: palette.muted },
+    showlegend: false,
+    xaxis: {
+      ...scoreAxis,
+      anchor: "y",
+      title: { text: "Model score", standoff: 8, font: { color: palette.chartInk } },
+    },
+    xaxis2: { ...scoreAxis, matches: "x", anchor: "y2", showticklabels: false },
+    yaxis: { ...densityYAxis, domain: [0, 0.44] },
+    yaxis2: { ...densityYAxis, domain: [0.56, 1] },
+    annotations: [],
+    shapes: [],
+    dragmode: false,
+    hovermode: false,
+  };
+
+  return Plotly.newPlot(
+    "distribution-plot",
+    data,
+    layout,
+    createPlotlySettings(`${cfg.imageSavepath}-distributions`),
+  );
+};
+
+/**
+ * Check that the configuration has a recall interval for every gains point.
+ * Older saved configurations have none, and still draw without it.
+ * @param {SelectThresholdCfg} cfg - plot config and data
+ * @returns {boolean} Whether the interval can be shown.
+ */
+const hasRecallInterval = (cfg) => {
+  const count = cfg.xGains.length;
+  return (
+    cfg.gainsRecallLower?.length === count && cfg.gainsRecallUpper?.length === count
+  );
+};
+
+/**
+ * Create the cumulative gain chart with guide lines to the current threshold.
+ * @param {SelectThresholdCfg} cfg - Plot config data
+ * @returns {Promise<HTMLElement>} The initialized Plotly figure.
+ */
+const createGainsPlot = (cfg) => {
+  const { gainsTraceIndex, palette, xGains, yGains, gainsThresholds } = cfg;
+  const hasInterval = hasRecallInterval(cfg);
+  const intervalX = hasInterval ? xGains : [];
+  const intervalStyle = {
+    mode: "lines",
+    line: { width: 0, shape: "hv" },
+    hoverinfo: "skip",
+  };
+
+  const guideLine = {
+    x: [],
+    y: [],
+    mode: "lines",
+    line: { color: palette.guide, width: 1, dash: "dot" },
+    hoverinfo: "skip",
+  };
+
+  const traces = {
+    gainsUpperInterval: {
+      ...intervalStyle,
+      x: intervalX,
+      y: hasInterval ? cfg.gainsRecallUpper : [],
+    },
+    gainsLowerInterval: {
+      ...intervalStyle,
+      x: intervalX,
+      y: hasInterval ? cfg.gainsRecallLower : [],
+      fill: "tonexty",
+      fillcolor: palette.accentFill,
+    },
+    gainsVerticalProportionLine: guideLine,
+    gainsHorizontalRecallLine: { ...guideLine },
+    gainsCurve: {
+      x: xGains,
+      y: yGains,
+      mode: "lines",
+      line: { width: 2.5, color: palette.accent, shape: "hv" },
+      customdata: gainsThresholds,
+      // Plotly replaces %{...} placeholders when rendering hover text.
+      hovertemplate:
+        "Reviewed %{x:.1%}<br>Recall %{y:.1%}<br>Threshold %{customdata:.4f}<extra></extra>",
+      hoverlabel: {
+        bgcolor: palette.surface,
+        bordercolor: palette.accent,
+        font: { ...PLOT_FONT, color: palette.ink },
+      },
+    },
+    gainsMarker: {
+      x: [],
+      y: [],
+      mode: "markers",
+      cliponaxis: false,
+      marker: {
+        size: 12,
+        color: palette.accent,
+        line: { color: palette.surface, width: 2 },
+      },
+      hoverinfo: "skip",
+    },
+  };
+
+  const data = [];
+  for (const [traceName, trace] of Object.entries(traces)) {
+    data[gainsTraceIndex.get(traceName)] = trace;
+  }
+
+  const percentAxis = {
+    // Pad slightly so the two 0% labels do not collide at the origin.
+    range: [-0.02, 1.02],
+    tickformat: ".0%",
+    dtick: 0.2,
+    gridcolor: palette.grid,
+    zeroline: false,
+    showline: false,
+    fixedrange: true,
+    automargin: true,
+  };
+
+  const layout = {
+    autosize: true,
+    // The top margin keeps room for the 100% label, which Plotly hides if it pokes out.
+    margin: { l: 4, r: 12, t: 8, b: 4 },
+    font: { ...PLOT_FONT, color: palette.muted },
+    showlegend: false,
+    xaxis: {
+      ...percentAxis,
+      title: { text: "Items reviewed", standoff: 8, font: { color: palette.chartInk } },
+    },
+    yaxis: {
+      ...percentAxis,
+      title: { text: "Recall", standoff: 8, font: { color: palette.chartInk } },
+    },
+    annotations: [],
+    dragmode: false,
+    hovermode: "closest",
+  };
+
+  return Plotly.newPlot(
+    "gains-plot",
+    data,
+    layout,
+    createPlotlySettings(`${cfg.imageSavepath}-gains`),
+  );
+};
+
+/**
+ * Split negative-density trace into TN/FP segments at a threshold.
+ * @param {number[]} xN - negative density x values
+ * @param {number[]} yN - negative density y values
+ * @param {number} threshold - decision threshold
+ * @returns {NegativeSplitSegments} - TN (left) and FP (right) segments
+ */
+const splitNegativeTraceByClassification = (xN, yN, threshold) => {
+  const idxN = findSplitIndex(xN, threshold);
+
+  if (idxN > 0 && idxN < xN.length) {
+    const xNDiff = xN[idxN] - xN[idxN - 1];
+    const yNDiff = yN[idxN] - yN[idxN - 1];
+    const yInterpolated = yN[idxN] + ((threshold - xN[idxN]) * yNDiff) / xNDiff;
+
+    return {
+      xTN: [...xN.slice(0, idxN), threshold],
+      yTN: [...yN.slice(0, idxN), yInterpolated],
+      xFP: [threshold, ...xN.slice(idxN)],
+      yFP: [yInterpolated, ...yN.slice(idxN)],
+    };
+  }
+
+  if (idxN === xN.length) {
+    return {
+      xTN: [...xN],
+      yTN: [...yN],
+      xFP: [],
+      yFP: [],
+    };
+  }
+
+  return {
+    xTN: [],
+    yTN: [],
+    xFP: [...xN],
+    yFP: [...yN],
+  };
+};
+
+/**
+ * Split positive-density trace into FN/TP segments at a threshold.
+ * @param {number[]} xP - positive density x values
+ * @param {number[]} yP - positive density y values
+ * @param {number} threshold - decision threshold
+ * @returns {PositiveSplitSegments} - FN (left) and TP (right) segments
+ */
+const splitPositiveTraceByClassification = (xP, yP, threshold) => {
+  const idxP = findSplitIndex(xP, threshold);
+
+  if (idxP > 0 && idxP < xP.length) {
+    const xPDiff = xP[idxP] - xP[idxP - 1];
+    const yPDiff = yP[idxP] - yP[idxP - 1];
+    const yInterpolated = yP[idxP] + ((threshold - xP[idxP]) * yPDiff) / xPDiff;
+
+    return {
+      xFN: [...xP.slice(0, idxP), threshold],
+      yFN: [...yP.slice(0, idxP), yInterpolated],
+      xTP: [threshold, ...xP.slice(idxP)],
+      yTP: [yInterpolated, ...yP.slice(idxP)],
+    };
+  }
+
+  if (idxP === xP.length) {
+    return {
+      xFN: [...xP],
+      yFN: [...yP],
+      xTP: [],
+      yTP: [],
+    };
+  }
+
+  return {
+    xFN: [],
+    yFN: [],
+    xTP: [...xP],
+    yTP: [...yP],
+  };
+};
+
+/**
+ * Compute gains-plot guide lines and proportion examined at a threshold.
+ * @param {number} threshold - decision threshold
+ * @param {ClassificationMetrics} metrics - metrics at threshold (for recall/TPR)
+ * @param {number[]} posScores - positive-class scores (sorted ascending)
+ * @param {number[]} negScores - negative-class scores (sorted ascending)
+ * @returns {GainsGuideLines} - vertical/horizontal line coords and examined proportion
+ */
+const computeGainsHozVerLines = (threshold, metrics, posScores, negScores) => {
+  const negIdx = findSplitIndex(negScores, threshold);
+  const posIdx = findSplitIndex(posScores, threshold);
+
+  const numNegAbove = negScores.length - negIdx;
+  const numPosAbove = posScores.length - posIdx;
+  const totalNumScores = negScores.length + posScores.length;
+
+  const proportionAbove = (numNegAbove + numPosAbove) / totalNumScores;
+
+  return {
+    gainsVx: [proportionAbove, proportionAbove],
+    gainsVy: [0, metrics.TPR],
+    gainsHx: [0, proportionAbove],
+    gainsHy: [metrics.TPR, metrics.TPR],
+    proportionAbove,
+  };
+};
+
+/**
+ * Build the dashed threshold lines, panel titles and corner outcome counts.
+ * A corner label is hidden while the threshold line would run through it.
+ * @param {number} threshold - decision threshold
+ * @param {ClassificationMetrics} metrics - metrics at threshold
+ * @param {SelectThresholdCfg} cfg - plot config and data
+ * @param {number} plotWidth - width of the density chart in pixels
+ * @returns {ChartOverlays} Plotly layout annotations and shapes.
+ */
+const createDistributionOverlays = (threshold, metrics, cfg, plotWidth) => {
+  const { palette, scoreAxisRange, posScores, negScores } = cfg;
+  const [axisMin, axisMax] = scoreAxisRange;
+  const position = (threshold - axisMin) / (axisMax - axisMin);
+  const labelZone = OUTCOME_LABEL_INSET_FRACTION + OUTCOME_LABEL_WIDTH_PX / plotWidth;
+  const isLeftLabelVisible = position > labelZone;
+  const isRightLabelVisible = position < 1 - labelZone;
+
+  const outcomeLabel = (outcome, count, yref, isLeft) => {
+    return {
+      text: `${outcome} <b>${count.toLocaleString("en")}</b>`,
+      x: isLeft ? OUTCOME_LABEL_INSET_FRACTION : 1 - OUTCOME_LABEL_INSET_FRACTION,
+      xref: "paper",
+      y: 0.97,
+      yref,
+      xanchor: isLeft ? "left" : "right",
+      yanchor: "top",
+      showarrow: false,
+      visible: isLeft ? isLeftLabelVisible : isRightLabelVisible,
+      font: { size: 13, color: palette.ink },
+    };
+  };
+
+  const panelTitle = (text, yref) => {
+    return {
+      text,
+      x: 0,
+      xref: "paper",
+      y: 1,
+      yref,
+      xanchor: "left",
+      yanchor: "bottom",
+      yshift: 4,
+      showarrow: false,
+      font: { size: 13, color: palette.chartInk },
+    };
+  };
+
+  const scoreNotes = [
+    { scores: negScores, yref: "y2 domain" },
+    { scores: posScores, yref: "y domain" },
+  ]
+    // eslint-disable-next-line unicorn/prefer-at -- Support Safari 15.1, which lacks Array.at.
+    .filter(({ scores }) => scores[0] === scores[scores.length - 1])
+    .map(({ scores, yref }) => {
+      const label = scores.length === 1 ? "One score" : "All scores";
+      return {
+        text: `${label}: ${scores[0].toPrecision(4)}<br>No density estimate`,
+        x: 0.5,
+        xref: "paper",
+        y: 0.5,
+        yref,
+        showarrow: false,
+        font: { size: 12, color: palette.muted },
+      };
+    });
+
+  return {
+    annotations: [
+      panelTitle(
+        `Actual negatives (${negScores.length.toLocaleString("en")})`,
+        "y2 domain",
+      ),
+      panelTitle(
+        `Actual positives (${posScores.length.toLocaleString("en")})`,
+        "y domain",
+      ),
+      outcomeLabel("TN", metrics.TN, "y2 domain", true),
+      outcomeLabel("FP", metrics.FP, "y2 domain", false),
+      outcomeLabel("FN", metrics.FN, "y domain", true),
+      outcomeLabel("TP", metrics.TP, "y domain", false),
+      ...scoreNotes,
+    ],
+    shapes: ["y2 domain", "y domain"].map((yref) => {
+      return {
+        type: "line",
+        xref: "x",
+        yref,
+        x0: threshold,
+        x1: threshold,
+        y0: 0,
+        y1: 1,
+        line: { color: palette.chartInk, width: 1.5, dash: "dash" },
+      };
+    }),
+  };
+};
+
+/**
+ * Lowest the gains curve can be at or beyond a point on the x-axis.
+ * The curve never falls as more items are reviewed.
+ * So its last recorded point before x is a lower bound from x onwards.
+ * @param {SelectThresholdCfg} cfg - plot config with the gains curve
+ * @param {number} x - share of items reviewed
+ * @returns {number} Recall the curve stays at or above from x onwards.
+ */
+const gainsFloorFrom = (cfg, x) => {
+  const { xGains, yGains } = cfg;
+  return yGains[Math.max(0, findSplitIndex(xGains, x) - 1)];
+};
+
+/**
+ * Build the readout for the current point on the gains curve.
+ * It sits below and to the right of the point, in the empty space under the curve.
+ * At the right edge it slides left; near the origin it slides right until it fits.
+ * Either way it never covers the line.
+ * @param {number} proportionAbove - share of items reviewed at the threshold
+ * @param {number} recall - recall at the threshold
+ * @param {SelectThresholdCfg} cfg - plot config and data
+ * @param {PlotSize} plotSize - chart size in pixels
+ * @returns {ChartOverlays} Plotly layout annotations.
+ */
+const createGainsOverlays = (proportionAbove, recall, cfg, plotSize) => {
+  const { palette, xGains, yGains } = cfg;
+  const isCompact = plotSize.width < GAINS_COMPACT_WIDTH_PX;
+  const separator = isCompact ? "<br>" : " · ";
+  const reviewText = `Review ${formatPercent(proportionAbove)}`;
+  const text = `${reviewText}${separator}Recall ${formatPercent(recall)}`;
+
+  // Convert the readout's size in pixels to data units on the 0-1 axes.
+  const areaWidth = Math.max(plotSize.width - GAINS_AXES_ALLOWANCE_PX.x, 1);
+  const areaHeight = Math.max(plotSize.height - GAINS_AXES_ALLOWANCE_PX.y, 1);
+  const boxSize = GAINS_READOUT_SIZE_PX[isCompact ? "compact" : "wide"];
+  const offsetX = GAINS_READOUT_OFFSET_PX / areaWidth;
+  const offsetY = GAINS_READOUT_OFFSET_PX / areaHeight;
+  const boxWidth = boxSize.width / areaWidth;
+  const boxHeight = boxSize.height / areaHeight;
+
+  let readoutLeft = Math.min(proportionAbove + offsetX, 1 - boxWidth);
+  let readoutTop = Math.min(recall, gainsFloorFrom(cfg, readoutLeft)) - offsetY;
+  if (readoutTop < boxHeight) {
+    // Near the origin, move right until the curve is high enough to fit beneath.
+    const index = Math.min(
+      findSplitIndex(yGains, boxHeight + 2 * offsetY) + 1,
+      xGains.length - 1,
+    );
+    readoutLeft = Math.min(Math.max(readoutLeft, xGains[index]), 1 - boxWidth);
+    readoutTop = boxHeight;
+  }
+
+  return {
+    annotations: [
+      {
+        text,
+        align: "left",
+        x: readoutLeft,
+        y: readoutTop,
+        xref: "x",
+        yref: "y",
+        xanchor: "left",
+        yanchor: "top",
+        showarrow: false,
+        font: { size: 12, color: palette.chartInk },
+        bgcolor: palette.surface,
+        bordercolor: palette.border,
+        borderwidth: 1,
+        borderpad: 5,
+      },
+    ],
+  };
+};
+
+/**
+ * Replace every digit with 0, so texts that take the same width compare equal.
+ * @param {string} text - text to reduce
+ * @returns {string} The text's shape, e.g. "5.96M" becomes "0.00M".
+ */
+const textShape = (text) =>
+  Array.from(text, (char) => ("0123456789".includes(char) ? "0" : char)).join("");
+
+/**
+ * Measure the width of an element's text, rather than of the box around it.
+ * @param {HTMLElement} element - element holding the text
+ * @returns {number} Text width in pixels.
+ */
+const measureTextWidth = (element) => {
+  const range = document.createRange();
+  range.selectNodeContents(element);
+  return range.getBoundingClientRect().width;
+};
+
+/**
+ * Show the confusion-matrix counts at one shared size that fits their cells.
+ * The exact count is kept as a tooltip; the density plots and summary show it as well.
+ * Digits are tabular, so a count's width depends only on its shape, such as "0.00M".
+ * So the fit is measured again only when a count changes shape or the cells resize.
+ * @param {SelectThresholdUI} ui - UI elements
+ * @returns {void}
+ */
+const showCellCounts = (ui) => {
+  const { matrix, cellCounts } = ui;
+  for (const count of cellCounts) {
+    const value = Number(count.dataset.value);
+    count.textContent = formatCount(value);
+    count.title = value < COMPACT_COUNT_FROM ? "" : value.toLocaleString("en");
+  }
+
+  const available = cellCounts[0].clientWidth - 2 * CELL_COUNT_INSET_PX;
+  const shapes = cellCounts.map((count) => textShape(count.textContent));
+  const fitKey = `${shapes.join(" ")} ${available}`;
+  if (matrix.dataset.fitKey === fitKey) return;
+  matrix.dataset.fitKey = fitKey;
+
+  matrix.style.setProperty("--count-scale", "1");
+  const widest = Math.max(...cellCounts.map((count) => measureTextWidth(count)));
+  const scale = Math.max(0, Math.min(1, available / widest));
+  matrix.style.setProperty("--count-scale", String(scale));
+};
+
+/**
+ * Update the inputs, summary sentence, confusion matrix and metrics table.
+ * @param {SelectThresholdUI} ui - UI elements
+ * @param {number} threshold - current decision threshold
+ * @param {ClassificationMetrics} metrics - computed metrics at threshold
+ * @param {SelectThresholdCfg} cfg - plot config and data
+ * @param {number} proportionAbove - share of all items at or above the threshold
+ * @returns {void}
+ */
+const updateInputElements = (ui, threshold, metrics, cfg, proportionAbove) => {
+  const { dp, posScores, negScores } = cfg;
+
+  ui.recallInput.value = (100 * metrics.TPR).toFixed(2);
+  // Round inwards at the endpoints so the shown value stays in the input's valid range.
+  const factor = 10 ** dp;
+  let shownThreshold = Number(threshold.toFixed(dp));
+  if (shownThreshold > Number(ui.thresholdInput.max)) {
+    shownThreshold = Math.floor(threshold * factor) / factor;
+  } else if (shownThreshold < Number(ui.thresholdInput.min)) {
+    shownThreshold = Math.ceil(threshold * factor) / factor;
+  }
+  ui.thresholdInput.value = shownThreshold.toFixed(dp);
+  ui.thresholdSlider.value = String(threshold);
+  ui.thresholdSlider.setAttribute("aria-valuetext", threshold.toFixed(dp));
+
+  ui.recallInput.setAttribute("aria-invalid", "false");
+  ui.thresholdInput.setAttribute("aria-invalid", "false");
+  ui.inputStatus.textContent = "";
+
+  ui.recallInput.dataset.committedValue = ui.recallInput.value;
+  ui.thresholdInput.dataset.committedValue = ui.thresholdInput.value;
+
+  const total = posScores.length + negScores.length;
+  const reviewed = metrics.TP + metrics.FP;
+
+  const textUpdates = {
+    "summary-reviewed": `${formatFullCount(reviewed)} of ${formatFullCount(total)}`,
+    "summary-reviewed-share": `(${formatPercent(proportionAbove)})`,
+    "summary-found": `${formatFullCount(metrics.TP)} of ${formatFullCount(posScores.length)}`,
+    "summary-recall": `(${formatPercent(metrics.TPR)} recall).`,
+  };
+  for (const [id, text] of Object.entries(textUpdates)) {
+    ui.text.get(id).textContent = text;
+  }
+
+  const cellValues = [metrics.TN, metrics.FP, metrics.FN, metrics.TP];
+  for (const [index, count] of ui.cellCounts.entries()) {
+    count.dataset.value = String(cellValues[index]);
+  }
+  showCellCounts(ui);
+
+  const metricUpdates = [
+    ["Accuracy", metrics.accuracy],
+    ["Balanced accuracy", metrics.balancedAccuracy],
+    ["Recall", metrics.TPR],
+    ["Precision", metrics.precision],
+    ["Specificity", 1 - metrics.FPR],
+    ["False positive rate", metrics.FPR],
+  ];
+  for (const [metricName, value] of metricUpdates) {
+    ui.metricValues.get(metricName).textContent = formatPercent(value);
+  }
+};
+
+/**
+ * Work out the natural log of the gamma function, for x of at least 1/2.
+ * @param {number} x - Argument.
+ * @returns {number} ln Γ(x).
+ */
+const logGamma = (x) => {
+  const shifted = x - 1;
+  const [first, ...rest] = LANCZOS_COEFFICIENTS;
+  let sum = first;
+  for (const [index, coefficient] of rest.entries()) {
+    sum += coefficient / (shifted + index + 1);
+  }
+  const base = shifted + LANCZOS_G + 0.5;
+  return (
+    0.5 * Math.log(2 * Math.PI) +
+    (shifted + 0.5) * Math.log(base) -
+    base +
+    Math.log(sum)
+  );
+};
+
+/**
+ * Keep a continued fraction term away from zero, so it can be divided by.
+ * @param {number} value - Term.
+ * @returns {number} The term, or a tiny number in its place.
+ */
+const awayFromZero = (value) =>
+  Math.abs(value) < BETA_FRACTION_FLOOR ? BETA_FRACTION_FLOOR : value;
+
+/**
+ * Evaluate the continued fraction for the incomplete beta function by Lentz's method.
+ * @param {number} a - First shape parameter.
+ * @param {number} b - Second shape parameter.
+ * @param {number} x - Point, where the fraction converges quickly.
+ * @returns {number} Value of the continued fraction.
+ */
+const betaContinuedFraction = (a, b, x) => {
+  let c = 1;
+  let d = 1 / awayFromZero(1 - ((a + b) * x) / (a + 1));
+  let result = d;
+  for (let term = 1; term <= BETA_FRACTION_MAX_TERMS; term += 1) {
+    const twice = 2 * term;
+    const even = (term * (b - term) * x) / ((a + twice - 1) * (a + twice));
+    d = 1 / awayFromZero(1 + even * d);
+    c = awayFromZero(1 + even / c);
+    result *= d * c;
+    const odd = -((a + term) * (a + b + term) * x) / ((a + twice) * (a + twice + 1));
+    d = 1 / awayFromZero(1 + odd * d);
+    c = awayFromZero(1 + odd / c);
+    const change = d * c;
+    result *= change;
+    if (Math.abs(change - 1) < BETA_FRACTION_PRECISION) return result;
+  }
+  return result;
+};
+
+/**
+ * Work out the regularized incomplete beta function: the beta distribution's CDF.
+ * @param {number} x - Point from 0 to 1.
+ * @param {number} a - First shape parameter.
+ * @param {number} b - Second shape parameter.
+ * @returns {number} Probability at or below x.
+ */
+const regularizedBeta = (x, a, b) => {
+  if (x <= 0) return 0;
+  if (x >= 1) return 1;
+  const front = Math.exp(
+    logGamma(a + b) - logGamma(a) - logGamma(b) + a * Math.log(x) + b * Math.log1p(-x),
+  );
+  if (x < (a + 1) / (a + b + 2)) return (front * betaContinuedFraction(a, b, x)) / a;
+  return 1 - (front * betaContinuedFraction(b, a, 1 - x)) / b;
+};
+
+/**
+ * Find the beta distribution's quantile by bisection.
+ * @param {number} probability - Probability from 0 to 1.
+ * @param {number} a - First shape parameter.
+ * @param {number} b - Second shape parameter.
+ * @returns {number} The point with that probability at or below it.
+ */
+const betaQuantile = (probability, a, b) => {
+  let low = 0;
+  let high = 1;
+  for (let step = 0; step < QUANTILE_STEPS; step += 1) {
+    const middle = (low + high) / 2;
+    if (regularizedBeta(middle, a, b) < probability) low = middle;
+    else high = middle;
+  }
+  return (low + high) / 2;
+};
+
+/**
+ * Work out the exact (Clopper-Pearson) 95% interval for recall, as the Python side does.
+ * @param {number} found - Positives found.
+ * @param {number} total - All positives.
+ * @returns {number[]} The interval's [lower, upper].
+ */
+const clopperPearson = (found, total) => {
+  let lower = 0;
+  let upper = 1;
+  if (found > 0) lower = betaQuantile(INTERVAL_TAIL, found, total - found + 1);
+  if (found < total) upper = betaQuantile(1 - INTERVAL_TAIL, found + 1, total - found);
+  return [lower, upper];
+};
+
+/**
+ * Fill the interval explanation with the interval at the current threshold.
+ * Its table illustrates other sample sizes using rounded whole-number counts found.
+ * @param {SelectThresholdCfg} cfg - plot config and data
+ * @returns {void}
+ */
+const fillIntervalInfo = (cfg) => {
+  const { intervalMetrics: metrics } = cfg;
+  const positives = cfg.posScores.length;
+  const foundText = `${formatFullCount(metrics.TP)} of ${formatFullCount(positives)}`;
+  const currentInterval = clopperPearson(metrics.TP, positives);
+  const [lower, upper] = formatInterval(...currentInterval);
+  document.querySelector("#interval-info-now").textContent = [
+    `At this threshold, ${foundText} positives are found: recall ${formatPercent(metrics.TPR)},`,
+    `with a 95% confidence interval of ${lower} to ${upper}.`,
+  ].join(" ");
+  const sizes = [...new Set([...INTERVAL_TABLE_SIZES, positives])];
+  sizes.sort((a, b) => a - b);
+  const rows = sizes.map((size) => {
+    const isCurrent = size === positives;
+    let found = Math.round(metrics.TPR * size);
+    if (isCurrent) found = metrics.TP;
+    const row = document.createElement("tr");
+    row.classList.toggle("is-current", isCurrent);
+    const sizeCell = document.createElement("th");
+    sizeCell.scope = "row";
+    sizeCell.textContent = formatTableCount(size);
+    sizeCell.title =
+      `${formatFullCount(size)} positives; ${formatFullCount(found)} found ` +
+      `(${formatPercent(found / size)} recall)`;
+    if (isCurrent) sizeCell.textContent += " (this data)";
+    const interval = isCurrent ? currentInterval : clopperPearson(found, size);
+    const bounds = formatInterval(...interval).map((text) => {
+      const cell = document.createElement("td");
+      cell.textContent = text;
+      return cell;
+    });
+    row.append(sizeCell, ...bounds);
+    return row;
+  });
+  document.querySelector("#interval-info-rows").replaceChildren(...rows);
+};
+
+/**
+ * Keep the interval explanation in step with the threshold.
+ * Its intervals take some work, so they are only worked out while it is open.
+ * @param {ClassificationMetrics} metrics - computed metrics at threshold
+ * @param {SelectThresholdCfg} cfg - plot config and data
+ * @returns {void}
+ */
+const updateIntervalInfo = (metrics, cfg) => {
+  if (!hasRecallInterval(cfg)) return;
+  cfg.intervalMetrics = metrics;
+  if (!document.querySelector("#interval-info").hidden) fillIntervalInfo(cfg);
+};
+
+/**
+ * Recompute traces, annotations and UI for a threshold and apply them.
+ * @param {number} threshold - decision threshold
+ * @param {SelectThresholdCfg} cfg - plot config and data
+ * @param {SelectThresholdUI} ui - UI elements
+ * @returns {Promise<HTMLElement[]>} The updated Plotly figures.
+ */
+const updatePlot = (threshold, cfg, ui) => {
+  const {
+    distributionTraceIndex,
+    gainsTraceIndex,
+    xN,
+    yN,
+    xP,
+    yP,
+    posScores,
+    negScores,
+  } = cfg;
+
+  const { xTN, yTN, xFP, yFP } = splitNegativeTraceByClassification(xN, yN, threshold);
+  const { xFN, yFN, xTP, yTP } = splitPositiveTraceByClassification(xP, yP, threshold);
+
+  const metrics = computeClassificationMetrics(threshold, posScores, negScores);
+
+  const { gainsVx, gainsVy, gainsHx, gainsHy, proportionAbove } =
+    computeGainsHozVerLines(threshold, metrics, posScores, negScores);
+
+  updateInputElements(ui, threshold, metrics, cfg, proportionAbove);
+  updateIntervalInfo(metrics, cfg);
+  cfg.currentThreshold = threshold;
+
+  const distributionUpdates = [
+    { name: "TN", x: xTN, y: yTN },
+    { name: "FP", x: xFP, y: yFP },
+    { name: "FN", x: xFN, y: yFN },
+    { name: "TP", x: xTP, y: yTP },
+  ];
+
+  const gainsUpdates = [
+    { name: "gainsVerticalProportionLine", x: gainsVx, y: gainsVy },
+    { name: "gainsHorizontalRecallLine", x: gainsHx, y: gainsHy },
+    { name: "gainsMarker", x: [proportionAbove], y: [metrics.TPR] },
+  ];
+
+  const plotWidth = Math.max(ui.distributionPlot.clientWidth, 1);
+
+  return Promise.all([
+    Plotly.update(
+      "distribution-plot",
+      {
+        x: distributionUpdates.map((update) => update.x),
+        y: distributionUpdates.map((update) => update.y),
+      },
+      createDistributionOverlays(threshold, metrics, cfg, plotWidth),
+      distributionUpdates.map((update) => distributionTraceIndex.get(update.name)),
+    ),
+    Plotly.update(
+      "gains-plot",
+      {
+        x: gainsUpdates.map((update) => update.x),
+        y: gainsUpdates.map((update) => update.y),
+      },
+      createGainsOverlays(proportionAbove, metrics.TPR, cfg, {
+        width: ui.gainsPlot.clientWidth,
+        height: ui.gainsPlot.clientHeight,
+      }),
+      gainsUpdates.map((update) => gainsTraceIndex.get(update.name)),
+    ),
+  ]);
+};
+
+/**
+ * @param {number} val - The value to clamp.
+ * @param {number} min - Inclusive lower bound.
+ * @param {number} max - Inclusive upper bound.
+ * @returns {number} The clamped value within `[min, max]`.
+ */
+const clip = (val, min, max) => {
+  if (val < min) {
+    return min;
+  }
+
+  if (val > max) {
+    return max;
+  }
+  return val;
+};
+
+/**
+ * Creates threshold from recallPct and calls updatePlot.
+ * posScores is sorted, so recall is proportion of posScores above the threshold.
+ * @param {number} recallPct - desired recall as a percentage
+ * @param {SelectThresholdCfg} cfg - plot config and data
+ * @param {SelectThresholdUI} ui - UI elements
+ */
+const updatePlotWRecall = (recallPct, cfg, ui) => {
+  const { posScores } = cfg;
+
+  const recallFrac = recallPct / 100;
+  const clippedRecallFrac = clip(recallFrac, 0, 1);
+
+  const idx = Math.floor(posScores.length - clippedRecallFrac * posScores.length);
+
+  const threshold =
+    idx === posScores.length ? Number(ui.thresholdSlider.max) : posScores[idx];
+
+  updatePlot(threshold, cfg, ui);
+};
+
+/**
+ * Select an input's existing value without hiding the currently applied setting.
+ * @param {FocusEvent} e - Focus event.
+ * @returns {void}
+ */
+const handleFocus = (e) => {
+  e.target.select();
+};
+
+/**
+ * Limit slider rendering to one update per animation frame.
+ * @param {SelectThresholdCfg} cfg - Plot configuration/data.
+ * @param {SelectThresholdUI} ui - UI elements.
+ * @returns {() => void} Input handler for the threshold slider.
+ */
+const makeHandleSliderInput = (cfg, ui) => {
+  let frame = 0;
+  return () => {
+    cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(() => {
+      updatePlot(ui.thresholdSlider.valueAsNumber, cfg, ui);
+    });
+  };
+};
+
+/**
+ * Apply a numeric field on Enter or change, with inline validation feedback.
+ * Escape restores the last applied value.
+ * @param {SelectThresholdCfg} cfg - Plot configuration/data.
+ * @param {SelectThresholdUI} ui - UI elements.
+ * @param {boolean} isRecall - Whether the field selects a target recall.
+ * @returns {(e: Event | KeyboardEvent) => void} Numeric field event handler.
+ */
+const makeHandleNumberInput = (cfg, ui, isRecall) => {
+  const input = isRecall ? ui.recallInput : ui.thresholdInput;
+  return (e) => {
+    if (e.type === "keydown") {
+      if (e.key === "Escape") {
+        input.value = input.dataset.committedValue;
+        input.setAttribute("aria-invalid", "false");
+        ui.inputStatus.textContent = "";
+        return;
+      }
+      if (e.key !== "Enter") return;
+      e.preventDefault();
+    }
+
+    if (!Number.isFinite(input.valueAsNumber) || !input.checkValidity()) {
+      input.setAttribute("aria-invalid", "true");
+      let message = "Enter a recall between 0 and 100%.";
+      if (!isRecall) {
+        const minimum = Number(input.min).toFixed(cfg.dp);
+        const maximum = Number(input.max).toFixed(cfg.dp);
+        message = `Enter a threshold between ${minimum} and ${maximum}.`;
+      }
+      ui.inputStatus.textContent = message;
+      return;
+    }
+
+    if (isRecall) {
+      updatePlotWRecall(input.valueAsNumber, cfg, ui);
+    } else {
+      updatePlot(input.valueAsNumber, cfg, ui);
+    }
+  };
+};
+
+/**
+ * Initialise and return the select-threshold plot configuration.
+ * @returns {SelectThresholdCfg} - Plot config and data
+ */
+const initConfig = () => {
+  const plotConfig = JSON.parse(document.querySelector("#plot-config").textContent);
+
+  // We cannot pass in Infinity via JSON, so set it here
+  plotConfig.gainsThresholds[0] = Infinity;
+  plotConfig.gainsThresholds[plotConfig.gainsThresholds.length - 1] = -Infinity;
+
+  plotConfig.distributionTraceIndex = toIndexMap(["TN", "FP", "FN", "TP"]);
+  plotConfig.gainsTraceIndex = toIndexMap([
+    "gainsUpperInterval",
+    "gainsLowerInterval",
+    "gainsVerticalProportionLine",
+    "gainsHorizontalRecallLine",
+    "gainsCurve",
+    "gainsMarker",
+  ]);
+
+  plotConfig.scoreAxisRange = [
+    plotConfig.minScore - SCORE_AXIS_PADDING_FRACTION * plotConfig.scoreRange,
+    plotConfig.maxScore + SCORE_AXIS_PADDING_FRACTION * plotConfig.scoreRange,
+  ];
+  plotConfig.palette = readPalette();
+  plotConfig.dp = 4;
+
+  return plotConfig;
+};
+
+/**
+ * Build the metrics table rows once and return their value cells by metric name.
+ * @param {HTMLElement} tableBody - The table body to fill.
+ * @param {string[]} names - Metric names in display order.
+ * @returns {Map<string, HTMLElement>} Metric name to its value cell.
+ */
+const createMetricsRows = (tableBody, names) => {
+  const values = new Map();
+  for (const metricName of names) {
+    const row = document.createElement("tr");
+    const nameCell = document.createElement("td");
+    nameCell.textContent = metricName;
+    const valueCell = document.createElement("td");
+    valueCell.textContent = "–";
+    row.append(nameCell, valueCell);
+    tableBody.append(row);
+    values.set(metricName, valueCell);
+  }
+  return values;
+};
+
+/**
+ * Resolve and return the UI elements.
+ * @returns {SelectThresholdUI} - resolved UI elements
+ */
+const initUI = () => {
+  const textIds = [
+    "summary-reviewed",
+    "summary-reviewed-share",
+    "summary-found",
+    "summary-recall",
+  ];
+  return {
+    recallInput: document.querySelector("#recall-input"),
+    thresholdInput: document.querySelector("#threshold-input"),
+    thresholdSlider: document.querySelector("#threshold-slider"),
+    inputStatus: document.querySelector("#input-status"),
+    resetButton: document.querySelector("#threshold-reset"),
+    distributionPlot: document.querySelector("#distribution-plot"),
+    gainsPlot: document.querySelector("#gains-plot"),
+    text: new Map(textIds.map((id) => [id, document.querySelector(`#${id}`)])),
+    metricValues: createMetricsRows(document.querySelector("#threshold-metrics"), [
+      "Accuracy",
+      "Balanced accuracy",
+      "Recall",
+      "Precision",
+      "Specificity",
+      "False positive rate",
+    ]),
+    matrix: document.querySelector(".confusion-matrix"),
+    cellCounts: [...document.querySelectorAll(".cell-count")],
+  };
+};
+
+/**
+ * Size both charts to their frames and refresh the overlays that depend on size.
+ * @param {SelectThresholdCfg} cfg - Plot configuration/data.
+ * @param {SelectThresholdUI} ui - UI elements.
+ * @returns {Promise<HTMLElement[]>} The resized Plotly figures.
+ */
+const resizePlots = (cfg, ui) => {
+  const { currentThreshold, posScores, negScores } = cfg;
+  const metrics = computeClassificationMetrics(currentThreshold, posScores, negScores);
+  const { proportionAbove } = computeGainsHozVerLines(
+    currentThreshold,
+    metrics,
+    posScores,
+    negScores,
+  );
+  const distributionSize = {
+    width: ui.distributionPlot.clientWidth,
+    height: ui.distributionPlot.clientHeight,
+  };
+  const gainsSize = {
+    width: ui.gainsPlot.clientWidth,
+    height: ui.gainsPlot.clientHeight,
+  };
+
+  return Promise.all([
+    Plotly.relayout("distribution-plot", {
+      ...distributionSize,
+      ...createDistributionOverlays(
+        currentThreshold,
+        metrics,
+        cfg,
+        distributionSize.width,
+      ),
+    }),
+    Plotly.relayout("gains-plot", {
+      ...gainsSize,
+      ...createGainsOverlays(proportionAbove, metrics.TPR, cfg, gainsSize),
+    }),
+  ]);
+};
+
+/**
+ * Redraw the charts whenever their frames resize, so they follow a dragged window.
+ * ResizeObserver runs after layout and before paint, so the redraw lands in the same frame.
+ * A frame's size never depends on its chart, so redrawing cannot trigger another resize.
+ * The confusion-matrix counts are refitted the same way when their cells change width.
+ * @param {SelectThresholdCfg} cfg - Plot configuration/data.
+ * @param {SelectThresholdUI} ui - UI elements.
+ * @returns {void}
+ */
+const initResponsiveLayout = (cfg, ui) => {
+  const observer = new ResizeObserver(() => {
+    resizePlots(cfg, ui);
+  });
+  observer.observe(ui.distributionPlot);
+  observer.observe(ui.gainsPlot);
+
+  const countObserver = new ResizeObserver(() => {
+    showCellCounts(ui);
+  });
+  countObserver.observe(ui.cellCounts[0]);
+};
+
+/**
+ * Settle the moved panels into their new places when the layout switches.
+ * The distributions panel stays put and only changes width, so it is left alone.
+ * The outcomes and gains panels rise and fade in from partly visible, one after the other.
+ * Only opacity and a small shift animate, which the browser runs alongside chart redraws.
+ * Sliding panels across the page stutters instead, because the charts redraw every frame.
+ * Skipped when the viewer prefers reduced motion.
+ * @returns {void}
+ */
+const initLayoutAnimation = () => {
+  const panels = [...document.querySelectorAll(".panel-outcomes, .panel-gains")];
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+  matchMedia(STACKED_LAYOUT_QUERY).addEventListener("change", () => {
+    if (reduceMotion.matches) return;
+    for (const [index, panel] of panels.entries()) {
+      for (const running of panel.getAnimations()) running.cancel();
+      panel.animate(
+        [
+          {
+            opacity: LAYOUT_FADE_FROM_OPACITY,
+            transform: `translateY(${LAYOUT_FADE_SHIFT_PX}px)`,
+          },
+          { opacity: 1, transform: "translateY(0)" },
+        ],
+        {
+          duration: LAYOUT_ANIMATION_MS,
+          delay: index * LAYOUT_FADE_STAGGER_MS,
+          easing: LAYOUT_ANIMATION_EASING,
+          fill: "backwards",
+        },
+      );
+    }
+  });
+};
+
+/**
+ * Attach all event handlers for the select-threshold widget.
+ * @param {SelectThresholdCfg} cfg - Plot configuration/data
+ * @param {SelectThresholdUI} ui - resolved UI elements
+ * @returns {void}
+ */
+const initEventListeners = (cfg, ui) => {
+  ui.thresholdSlider.addEventListener("input", makeHandleSliderInput(cfg, ui));
+
+  const thresholdHandler = makeHandleNumberInput(cfg, ui, false);
+  const recallHandler = makeHandleNumberInput(cfg, ui, true);
+  ui.thresholdInput.addEventListener("keydown", thresholdHandler);
+  ui.thresholdInput.addEventListener("change", thresholdHandler);
+  ui.thresholdInput.addEventListener("focus", handleFocus);
+  ui.recallInput.addEventListener("keydown", recallHandler);
+  ui.recallInput.addEventListener("change", recallHandler);
+  ui.recallInput.addEventListener("focus", handleFocus);
+  ui.resetButton.addEventListener("click", () => {
+    updatePlot(Number(ui.thresholdSlider.defaultValue), cfg, ui);
+  });
+};
+
+/**
+ * Show the key to the shaded recall interval, with its explanation behind the "i" button.
+ * The explanation opens while the pointer is over the key.
+ * A click or tap keeps it open until the button, Escape or the page outside is pressed.
+ * @param {SelectThresholdCfg} cfg - plot config and data
+ * @returns {void}
+ */
+const initIntervalInfo = (cfg) => {
+  if (!hasRecallInterval(cfg)) return;
+  const key = document.querySelector("#interval-key");
+  const button = document.querySelector("#interval-info-button");
+  const popover = document.querySelector("#interval-info");
+  key.hidden = false;
+  document.querySelector("#interval-info-positives").textContent = formatFullCount(
+    cfg.posScores.length,
+  );
+
+  let isPinned = false;
+  let hideTimer = 0;
+  const show = (isShown) => {
+    clearTimeout(hideTimer);
+    if (isShown === !popover.hidden) return;
+    popover.hidden = !isShown;
+    button.setAttribute("aria-expanded", String(isShown));
+    if (!isShown) return;
+    fillIntervalInfo(cfg);
+    // Use the side with more room when the full explanation does not fit below.
+    popover.classList.remove("is-above");
+    popover.style.maxHeight = "";
+    const box = popover.getBoundingClientRect();
+    const roomAbove =
+      key.closest(".card").getBoundingClientRect().top - INFO_VIEWPORT_GAP_PX;
+    const roomBelow = innerHeight - box.top - INFO_VIEWPORT_GAP_PX;
+    const isAbove = box.height > roomBelow && roomAbove > roomBelow;
+    popover.classList.toggle("is-above", isAbove);
+    let available = roomBelow;
+    if (isAbove) {
+      available = popover.getBoundingClientRect().bottom - INFO_VIEWPORT_GAP_PX;
+    }
+    popover.style.maxHeight = `${Math.max(0, Math.floor(available))}px`;
+  };
+  key.addEventListener("mouseenter", () => {
+    show(true);
+  });
+  // A short delay lets the pointer cross the gap between the key and the explanation.
+  key.addEventListener("mouseleave", () => {
+    if (isPinned) return;
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(() => {
+      show(false);
+    }, INFO_HIDE_DELAY_MS);
+  });
+  button.addEventListener("click", () => {
+    isPinned = !isPinned;
+    show(isPinned);
+  });
+  document.addEventListener("click", (clickEvent) => {
+    if (key.contains(clickEvent.target)) return;
+    isPinned = false;
+    show(false);
+  });
+  document.addEventListener("keydown", (keyEvent) => {
+    if (keyEvent.key !== "Escape" || popover.hidden) return;
+    isPinned = false;
+    show(false);
+    button.focus();
+  });
+};
+
+const main = async () => {
+  const loader = document.querySelector("#plot-loading");
+
+  if (!("Plotly" in globalThis)) {
+    document.querySelector("#cdn-fail").hidden = false;
+    loader.hidden = true;
+    return;
+  }
+
+  try {
+    const cfg = initConfig();
+    const ui = initUI();
+    document.querySelector("#roc-auc-value").textContent = cfg.rocAuc.toFixed(4);
+    document.querySelector("#average-precision-value").textContent =
+      cfg.prAuc.toFixed(4);
+    document.querySelector("#threshold-min").textContent = Number(
+      ui.thresholdSlider.min,
+    ).toFixed(cfg.dp);
+    document.querySelector("#threshold-max").textContent = Number(
+      ui.thresholdSlider.max,
+    ).toFixed(cfg.dp);
+
+    await Promise.all([createDistributionPlot(cfg), createGainsPlot(cfg)]);
+    await updatePlot(ui.thresholdSlider.valueAsNumber, cfg, ui);
+    initEventListeners(cfg, ui);
+    initResponsiveLayout(cfg, ui);
+    initLayoutAnimation();
+    initIntervalInfo(cfg);
+  } catch {
+    const message = document.querySelector("#cdn-fail");
+    message.textContent =
+      "The plot could not be displayed. Try reloading or regenerating the HTML file.";
+    message.hidden = false;
+  } finally {
+    loader.hidden = true;
+  }
+};
+
+// eslint-disable-next-line n/no-top-level-await -- This script runs as a browser module.
+await main();</script>
+  <!-- prettier-ignore-end -->
+</body>
+</html>

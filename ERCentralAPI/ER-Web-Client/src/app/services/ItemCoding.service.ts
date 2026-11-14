@@ -1846,6 +1846,8 @@ export interface iItemSet {
   itemAttributesList: ReadOnlyItemAttribute[];
   isSelected: boolean;
   outcomeItemList: OutcomeItemList;//this is stale data that shouldn't be normally used!
+  extURL: string;
+  extType: string;
 }
 
 export class ItemSet {
@@ -1862,6 +1864,8 @@ export class ItemSet {
       this.itemAttributesList = iISet.itemAttributesList;
       this.isSelected = iISet.isSelected;
       this.OutcomeList = [];
+      this.extURL = iISet.extURL;
+      this.extType = iISet.extType;
       if (iISet.outcomeItemList.outcomesList) {
         for (let iO of iISet.outcomeItemList.outcomesList) {
           let RealOutcome: Outcome = new Outcome(iO);
@@ -1882,6 +1886,8 @@ export class ItemSet {
   isSelected: boolean = false;
   //outcomeItemList: OutcomeItemList = new OutcomeItemList();//this is stale data that shouldn't be normally used!
   OutcomeList: Outcome[] = [];
+  extURL: string = "";
+  extType: string = "";
 }
 export class ReadOnlyItemAttribute {
   attributeId: number = 0;
@@ -1971,6 +1977,8 @@ class ReviewSet4ER4Json {
     this.Attributes = new AttributesList4ER4Json(rs.attributes);
     this.OldestKnownId = rs.oldestKnownId;
     this.OriginalSetId = rs.originalSetId;
+    this.ExtURL = rs.extURL;
+    this.ExtType = rs.extType;
   }
   SetName: string;
   ReviewSetId: number;
@@ -1980,6 +1988,8 @@ class ReviewSet4ER4Json {
   Attributes: AttributesList4ER4Json;
   OldestKnownId: number;
   OriginalSetId: number;
+  ExtURL: string;
+  ExtType: string;
 }
 class SetType4ER4Json {
   constructor(type: iSetType) {
@@ -1990,7 +2000,6 @@ class SetType4ER4Json {
   SetTypeName: string;
   SetTypeId: number;
   SetTypeDescription: string;
-
 }
 class AttributesList4ER4Json {
   constructor(atts: SetAttribute[]) {
