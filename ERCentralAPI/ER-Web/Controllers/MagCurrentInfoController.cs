@@ -85,6 +85,39 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [HttpPost("[action]")]
+        public IActionResult SaveMagCurrentInfo([FromBody] MVCMagCurrentInfo magCurrentInfo)
+        {
+            try
+            {
+
+                if (SetCSLAUser4Writing() && User.HasClaim(cl => cl.Type == "isSiteAdmin" && cl.Value == "True"))
+                {
+                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+                    //MagCurrentInfo.UpdateMagCurrentInfoStatic();
+                    DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
+                    MagCurrentInfo newMagCurrentInfo = new MagCurrentInfo();
+                    newMagCurrentInfo.WhenLive = magCurrentInfo.whenLive;
+                    newMagCurrentInfo.MatchingAvailable = magCurrentInfo.matchingAvailable;
+                    newMagCurrentInfo.MakesDeploymentStatus = magCurrentInfo.makesDeploymentStatus;
+                    newMagCurrentInfo.MagFolder = magCurrentInfo.magFolder;
+                    newMagCurrentInfo.MakesEndPoint = magCurrentInfo.makesEndPoint;
+
+                    newMagCurrentInfo = dp.Execute(newMagCurrentInfo);
+                    return Ok(newMagCurrentInfo);
+                }
+                else return Forbid();
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "updating the  MagCurrent Info has an error");
+                return StatusCode(500, e.Message);
+            }
+        }
+
         [HttpPost("[action]")]
         public IActionResult UpdateThisMagCurrentInfo([FromBody] MVCMagCurrentInfo magCurrentInfo)
         {

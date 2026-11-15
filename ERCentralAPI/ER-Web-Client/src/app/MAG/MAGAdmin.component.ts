@@ -42,6 +42,7 @@ export class MAGAdminComp implements OnInit {
     public reviewId: number = 0;
     public newMagEndPoint: string = '';
     public newMagVersion: string = '';
+    public newMagInfoDate: string = '';
 
     // public DoCheckChangedPaperIds() {
 
@@ -93,6 +94,28 @@ export class MAGAdminComp implements OnInit {
         d.getUTCDate() === day
       );
     }
+
+    public addNewMagCurrentInfoDate(): void {
+      const magFolder = this.newMagInfoDate.trim();
+
+      if (!this.isValidDate(magFolder)) {
+        this._confirmationDialogService.showMAGRunMessage(
+          'Enter a valid date in YYYY-MM-DD format.'
+        );
+        return;
+      }
+
+      const mci = new MagCurrentInfo();
+      mci.magFolder = magFolder;
+      mci.makesDeploymentStatus = 'PENDING';
+      mci.matchingAvailable = true;;
+      mci.makesEndPoint = "";
+      mci.whenLive = new Date(magFolder).toISOString();;
+      this._magAdminService.SaveMagCurrentInfo(mci);
+  }
+
+
+
     public UpdateMagInfo() {
 
         if (this.newMagEndPoint != '' && this.newMagVersion != '') {
