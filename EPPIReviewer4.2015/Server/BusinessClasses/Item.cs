@@ -1343,7 +1343,10 @@ namespace BusinessLibrary.BusinessClasses
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-                ShortTitle = SetShortTitle(Authors, Year);
+                if (ShortTitle == "")
+                {
+                    ShortTitle = SetShortTitle(Authors, Year);
+                }
                 using (SqlCommand command = new SqlCommand("st_ItemUpdate", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
