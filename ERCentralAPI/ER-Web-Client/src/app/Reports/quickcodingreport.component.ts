@@ -295,7 +295,7 @@ export class QuickCodingReportComponent implements OnInit, OnDestroy {
         console.log("Save as Json. Encoding");
         const dataURI = "data:text/plain;base64," + encodeBase64(this.JsonReportContent);
         const blob = Helpers.dataURItoBlob(dataURI);
-        console.log("Savign json report...");//, dataURI)
+        console.log("Saving json report...");//, dataURI)
         saveAs(blob, "Report.json");
     }
     
