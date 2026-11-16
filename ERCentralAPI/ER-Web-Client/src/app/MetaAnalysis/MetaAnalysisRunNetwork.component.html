@@ -19,12 +19,12 @@
           <div class="ml-auto mr-1 my-auto">Forest Plot Reference:</div>
         </div>
         <div class="col-8 px-1">
-          <select class="form-control pr-1 pl-1 p-2"
-            [(ngModel)]="CurrentMA.nmaReference">
-            @for (m of References; track m) {
-              <option [ngValue]="m.name" [selected]="CurrentMA.nmaReference == m.name">{{m.name}}</option>
-            }
-          </select>
+            <select class="form-control pr-1 pl-1 p-2"
+                    [(ngModel)]="CurrentMA.nmaReference">
+                @for (m of References; track m.attributeID) {
+                <option [ngValue]="m.name" [selected]="CurrentMA.nmaReference == m.name">{{m.name}}</option>
+                }
+            </select>
         </div>
       </div>
       <div class="col-auto row mx-auto my-1 border-info border bg-white rounded p-1">
@@ -56,13 +56,13 @@
               (all "connections" are done via the intervention and control/comparator fields).
             </div>
           }
-          <div class="row m-1 px-1">
-            @for (o of incompleteOutcomes; track o) {
-              <div class="m-1 rounded border border-warning px-1 alert-warning">
-                {{o.shortTitle}} - {{o.title}}
-              </div>
-            }
-          </div>
+            <div class="row m-1 px-1">
+                @for (o of incompleteOutcomes; track o.outcomeId) {
+                <div class="m-1 rounded border border-warning px-1 alert-warning">
+                    {{o.shortTitle}} - {{o.title}}
+                </div>
+                }
+            </div>
         </div>
       }
       @if (NMAmatrixRows.length > 0 || IntervAndCompNetworks.length > 0) {
@@ -147,17 +147,17 @@
                   </tr>
                 </thead>
                 <tbody>
-                  @for (oo of SelectedOutcomes; track oo) {
+                    @for (oo of SelectedOutcomes; track oo.outcomeId) {
                     <tr>
-                      <td>{{oo.esRounded}}</td>
-                      <td>{{oo.seesRounded}}</td>
-                      <td>{{oo.shortTitle}}</td>
-                      <td>{{oo.title}}</td>
-                      <td>{{oo.timepointDisplayValue}}</td>
-                      <td>{{oo.interventionText}}</td>
-                      <td>{{oo.controlText}}</td>
+                        <td>{{oo.esRounded}}</td>
+                        <td>{{oo.seesRounded}}</td>
+                        <td>{{oo.shortTitle}}</td>
+                        <td>{{oo.title}}</td>
+                        <td>{{oo.timepointDisplayValue}}</td>
+                        <td>{{oo.interventionText}}</td>
+                        <td>{{oo.controlText}}</td>
                     </tr>
-                  }
+                    }
                 </tbody>
               </table>
             </div>

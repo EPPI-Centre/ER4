@@ -24,49 +24,49 @@
 
       </thead>
       <tbody>
-        @if (ShowNewTermPanel) {
+          @if (ShowNewTermPanel) {
           <tr class="border border-primary rounded p-1">
-            <td><input class="form-control" type="text" [(ngModel)]="newReviewTerm" /></td>
-            <td><input class="form-control" type="checkbox" [(ngModel)]="newReviewIncluded" /></td>
-            <td>
-              <button [disabled]="!HasWriteRights || newReviewTerm.trim() == ''" title="Save new term"
-                class="btn btn-sm btn-outline-primary" (click)="InsertNewRow()">
-                <kendo-icon name="save"></kendo-icon>
-              </button>
-            </td>
-            <td>
-              <button class="btn btn-sm btn-outline-danger" title="Cancel" (click)="OpenRowPanel()">
-                <kendo-icon name="x"></kendo-icon>
-              </button>
-            </td>
+              <td><input class="form-control" type="text" [(ngModel)]="newReviewTerm" /></td>
+              <td><input class="form-control" type="checkbox" [(ngModel)]="newReviewIncluded" /></td>
+              <td>
+                  <button [disabled]="!HasWriteRights || newReviewTerm.trim() == ''" title="Save new term"
+                          class="btn btn-sm btn-outline-primary" (click)="InsertNewRow()">
+                      <kendo-icon name="save"></kendo-icon>
+                  </button>
+              </td>
+              <td>
+                  <button class="btn btn-sm btn-outline-danger" title="Cancel" (click)="OpenRowPanel()">
+                      <kendo-icon name="x"></kendo-icon>
+                  </button>
+              </td>
           </tr>
-        }
-        @for (term of TermsList; track term) {
-          <tr>
-            <td>
-              <input class="form-control" type="text" [ngClass]="term.IsValid ? '' : 'alert-danger'"
-                [(ngModel)]="term.reviewerTerm" />
-              </td>
-              <td>
-                <input class="form-control" type="checkbox" [(ngModel)]="term.included" />
-              </td>
-              <td>
-                <button [disabled]="!HasWriteRights" [hidden]="!term.CanSave" title="Save Changes"
-                  class="btn btn-sm btn-outline-primary"
-                  (click)="SaveChanges()">
-                  <kendo-icon name="save"></kendo-icon>
-                </button>
-              </td>
-              <td>
-                <button [disabled]="!HasWriteRights" title="Delete"
-                  class="btn btn-sm btn-outline-danger"
-                  (click)="Remove(term)">
-                  <kendo-icon name="trash"></kendo-icon>
-                </button>
-              </td>
-            </tr>
           }
-        </tbody>
+          @for (term of TermsList; track term.trainingReviewerTermId) {
+          <tr>
+              <td>
+                  <input class="form-control" type="text" [ngClass]="term.IsValid ? '' : 'alert-danger'"
+                         [(ngModel)]="term.reviewerTerm" />
+              </td>
+              <td>
+                  <input class="form-control" type="checkbox" [(ngModel)]="term.included" />
+              </td>
+              <td>
+                  <button [disabled]="!HasWriteRights" [hidden]="!term.CanSave" title="Save Changes"
+                          class="btn btn-sm btn-outline-primary"
+                          (click)="SaveChanges()">
+                      <kendo-icon name="save"></kendo-icon>
+                  </button>
+              </td>
+              <td>
+                  <button [disabled]="!HasWriteRights" title="Delete"
+                          class="btn btn-sm btn-outline-danger"
+                          (click)="Remove(term)">
+                      <kendo-icon name="trash"></kendo-icon>
+                  </button>
+              </td>
+          </tr>
+          }
+      </tbody>
       </table>
     </div>
   </div>

@@ -1740,8 +1740,91 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+USE [Reviewer]
+GO
+/****** Object:  StoredProcedure [dbo].[st_QuickCodingReportCodingData]    Script Date: 14/11/2026 19:03:58 ******/
+declare @cmd nvarchar(max) = N'
+ALTER   PROCEDURE [dbo].[st_QuickCodingReportCodingData] 
+	-- Add the parameters for the stored procedure here
+	(
+		@revID int
+		,@input ITEMS_INPUT_TB READONLY
+		,@SetIds nvarchar(MAX)
+	)
+AS
+BEGIN
+	SET NOCOUNT ON
 
-ALTER procedure [dbo].[st_ItemSetDataList] (
+
+
+	Declare @Sets table (SetID int primary key)
+	Insert into @Sets select [value] from dbo.fn_Split_int(@SetIds, '','') s
+		 inner join TB_REVIEW_SET rs on s.value = rs.SET_ID and REVIEW_ID = @revID
+	
+	--FIRST reader: ordinary coding data
+	SELECT ITEM_SET_ID, ir.ITEM_ID, tis.SET_ID, IS_COMPLETED, tis.CONTACT_ID, IS_LOCKED,
+		CODING_IS_FINAL, SET_NAME, CONTACT_NAME, Ext_URL, Ext_Type
+	FROM @input i
+		Inner JOIN TB_ITEM_REVIEW ir on i.ItemId = ir.ITEM_ID and ir.REVIEW_ID = @revID
+		INNER Join TB_ITEM_SET tis on i.ItemId = tis.ITEM_ID
+		INNER JOIN @Sets ss on tis.SET_ID = ss.SetID
+		INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = tis.SET_ID and TB_REVIEW_SET.REVIEW_ID = @revID
+		INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = tis.CONTACT_ID
+		INNER JOIN TB_SET ON TB_SET.SET_ID = tis.SET_ID
+	WHERE tis.IS_COMPLETED = 1
+
+	--SECOND reader: PDF and Text coding data
+	SELECT  tis.ITEM_SET_ID, ia.ITEM_ATTRIBUTE_ID, id.ITEM_DOCUMENT_ID, id.DOCUMENT_TITLE, p.ITEM_ATTRIBUTE_PDF_ID as [ID]
+			, ''Page '' + CONVERT
+							(varchar(10),PAGE) 
+							+ '':'' + CHAR(10) + ''[¬s]"'' 
+							+ replace(SELECTION_TEXTS, ''¬'', ''"'' + CHAR(10) + ''"'') +''[¬e]"'' 
+				as [TEXT] 
+			, NULL as [TEXT_FROM], NULL as [TEXT_TO]
+			, 1 as IS_FROM_PDF
+			, CASE WHEN ARM_NAME IS NULL THEN '''' ELSE ARM_NAME END AS ARM_NAME
+			, ia.ITEM_ARM_ID
+		from @Sets ss
+		inner join TB_REVIEW_SET rs on ss.SetID = rs.SET_ID
+		inner join TB_ITEM_SET tis on tis.SET_ID = rs.SET_ID 
+		inner join @input ii on tis.ITEM_ID = ii.ItemId
+		inner join TB_ATTRIBUTE_SET tas on tis.SET_ID = tas.SET_ID and tis.IS_COMPLETED = 1 
+		inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID and ii.ItemId = ia.ITEM_ID
+		inner join TB_ITEM_ATTRIBUTE_PDF p on ia.ITEM_ATTRIBUTE_ID = p.ITEM_ATTRIBUTE_ID
+		inner join TB_ITEM_DOCUMENT id on p.ITEM_DOCUMENT_ID = id.ITEM_DOCUMENT_ID
+		LEFT join TB_ITEM_ARM ON TB_ITEM_ARM.ITEM_ARM_ID = IA.ITEM_ARM_ID
+	UNION
+	SELECT tis.ITEM_SET_ID, ia.ITEM_ATTRIBUTE_ID, id.ITEM_DOCUMENT_ID, id.DOCUMENT_TITLE, t.ITEM_ATTRIBUTE_TEXT_ID as [ID]
+			, SUBSTRING(
+					replace(id.DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10)), TEXT_FROM + 1, TEXT_TO - TEXT_FROM
+				 ) 
+				 as [TEXT]
+			, TEXT_FROM, TEXT_TO 
+			, 0 as IS_FROM_PDF
+			, CASE WHEN ARM_NAME IS NULL THEN '''' ELSE ARM_NAME END AS ARM_NAME
+			, ia.ITEM_ARM_ID
+		from @Sets ss
+		inner join TB_REVIEW_SET rs on ss.SetID = rs.SET_ID
+		inner join TB_ITEM_SET tis on tis.SET_ID = rs.SET_ID 
+		inner join @input ii on tis.ITEM_ID = ii.ItemId
+		inner join TB_ATTRIBUTE_SET tas on tis.SET_ID = tas.SET_ID and tis.IS_COMPLETED = 1 
+		inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID and ii.ItemId = ia.ITEM_ID
+		inner join TB_ITEM_ATTRIBUTE_TEXT t on ia.ITEM_ATTRIBUTE_ID = t.ITEM_ATTRIBUTE_ID
+		inner join TB_ITEM_DOCUMENT id on t.ITEM_DOCUMENT_ID = id.ITEM_DOCUMENT_ID
+		LEFT join TB_ITEM_ARM ON TB_ITEM_ARM.ITEM_ARM_ID = IA.ITEM_ARM_ID
+	ORDER by IS_FROM_PDF, [TEXT]	
+			
+	SET nocount off
+END
+'
+
+IF COL_LENGTH('dbo.TB_ITEM_DOCUMENT', 'ITEM_ID_STALE') IS NULL
+BEGIN
+--print 'doing old docs structure'
+EXECUTE sp_executesql @cmd
+--print 'did part 1 of old docs structure'
+
+set @cmd = N'ALTER procedure [dbo].[st_ItemSetDataList] (
 	@REVIEW_ID INT,
 	--@CONTACT_ID INT,
 	@ITEM_ID BIGINT
@@ -1753,31 +1836,181 @@ SET NOCOUNT ON
 	--this was changed on Aug 2013, previous version is commented below.
 	--the new version gets: all completed sets for the item, plus all coded text
 	--the old version was called by ItemSetList and was grabbing what was needed by the current user in DialogCoding:
-	--that's the completed sets, plus the incomplete ones that belong to the user when a completed version isn't present.
+	--that''s the completed sets, plus the incomplete ones that belong to the user when a completed version isn''t present.
 	
 	--25/06/2020 THIS SP is "mirrored" in st_QuickCodingReportCodingData -- changes done here are likely to be necessary there as well...
 
 	--first, grab the completed item set (if any)
 	SELECT ITEM_SET_ID, ITEM_ID, TB_ITEM_SET.SET_ID, IS_COMPLETED, TB_ITEM_SET.CONTACT_ID, IS_LOCKED,
-		CODING_IS_FINAL, SET_NAME, CONTACT_NAME
+		CODING_IS_FINAL, SET_NAME, CONTACT_NAME, Ext_URL, Ext_Type
 	FROM TB_ITEM_SET
 		INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID
 		INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = TB_ITEM_SET.CONTACT_ID
 		INNER JOIN TB_SET ON TB_SET.SET_ID = TB_ITEM_SET.SET_ID
 	WHERE REVIEW_ID = @REVIEW_ID AND ITEM_ID = @ITEM_ID
-		--AND TB_REVIEW_SET.CODING_IS_FINAL = 'true'
-		AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+		--AND TB_REVIEW_SET.CODING_IS_FINAL = ''true''
+		AND TB_ITEM_SET.IS_COMPLETED = ''TRUE''
 	
 	--second, get all data from TB_ITEM_ATTRIBUTE_PDF and TB_ITEM_ATTRIBUTE_TEXT using union and only from completed sets
-	SELECT  tis.ITEM_SET_ID, ia.ITEM_ATTRIBUTE_ID, id.ITEM_DOCUMENT_ID, itd.DOCUMENT_TITLE, p.ITEM_ATTRIBUTE_PDF_ID as [ID]
-			, 'Page ' + CONVERT
+	SELECT  tis.ITEM_SET_ID, ia.ITEM_ATTRIBUTE_ID, id.ITEM_DOCUMENT_ID, id.DOCUMENT_TITLE, p.ITEM_ATTRIBUTE_PDF_ID as [ID]
+			, ''Page '' + CONVERT
 							(varchar(10),PAGE) 
-							+ ':' + CHAR(10) + '[¬s]"' 
-							+ replace(SELECTION_TEXTS, '¬', '"' + CHAR(10) + '"') +'[¬e]"' 
+							+ '':'' + CHAR(10) + ''[¬s]"'' 
+							+ replace(SELECTION_TEXTS, ''¬'', ''"'' + CHAR(10) + ''"'') +''[¬e]"'' 
 				as [TEXT] 
 			, NULL as [TEXT_FROM], NULL as [TEXT_TO]
 			, 1 as IS_FROM_PDF
-			, CASE WHEN ARM_NAME IS NULL THEN '' ELSE ARM_NAME END AS ARM_NAME
+			, CASE WHEN ARM_NAME IS NULL THEN '''' ELSE ARM_NAME END AS ARM_NAME
+			, ia.ITEM_ARM_ID
+		from TB_REVIEW_SET rs
+		inner join TB_ITEM_SET tis on rs.REVIEW_ID = @REVIEW_ID and tis.SET_ID = rs.SET_ID and tis.ITEM_ID = @ITEM_ID
+		inner join TB_ATTRIBUTE_SET tas on tis.SET_ID = tas.SET_ID and tis.IS_COMPLETED = 1 
+		inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID
+		inner join TB_ITEM_ATTRIBUTE_PDF p on ia.ITEM_ATTRIBUTE_ID = p.ITEM_ATTRIBUTE_ID
+		inner join TB_ITEM_DOCUMENT id on p.ITEM_DOCUMENT_ID = id.ITEM_DOCUMENT_ID
+		LEFT join TB_ITEM_ARM ON TB_ITEM_ARM.ITEM_ARM_ID = IA.ITEM_ARM_ID
+	UNION
+	SELECT tis.ITEM_SET_ID, ia.ITEM_ATTRIBUTE_ID, id.ITEM_DOCUMENT_ID, id.DOCUMENT_TITLE, t.ITEM_ATTRIBUTE_TEXT_ID as [ID]
+			, SUBSTRING(
+					replace(id.DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10)), TEXT_FROM + 1, TEXT_TO - TEXT_FROM
+				 ) 
+				 as [TEXT]
+			, TEXT_FROM, TEXT_TO 
+			, 0 as IS_FROM_PDF
+			, CASE WHEN ARM_NAME IS NULL THEN '''' ELSE ARM_NAME END AS ARM_NAME
+			, ia.ITEM_ARM_ID
+		from TB_REVIEW_SET rs
+		inner join TB_ITEM_SET tis on rs.REVIEW_ID = @REVIEW_ID and tis.SET_ID = rs.SET_ID and tis.ITEM_ID = @ITEM_ID
+		inner join TB_ATTRIBUTE_SET tas on tis.SET_ID = tas.SET_ID and tis.IS_COMPLETED = 1 
+		inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID
+		inner join TB_ITEM_ATTRIBUTE_TEXT t on ia.ITEM_ATTRIBUTE_ID = t.ITEM_ATTRIBUTE_ID
+		inner join TB_ITEM_DOCUMENT id on t.ITEM_DOCUMENT_ID = id.ITEM_DOCUMENT_ID
+		LEFT join TB_ITEM_ARM ON TB_ITEM_ARM.ITEM_ARM_ID = IA.ITEM_ARM_ID
+	ORDER by IS_FROM_PDF, [TEXT]	
+	
+SET NOCOUNT OFF
+'
+EXECUTE sp_executesql @cmd
+END
+ELSE BEGIN --block for the new documents structure---------------------------------------------------------------------------------------------
+--print 'new docs block'
+set @cmd  = N'
+ALTER   PROCEDURE [dbo].[st_QuickCodingReportCodingData] 
+	-- Add the parameters for the stored procedure here
+	(
+		@revID int
+		,@input ITEMS_INPUT_TB READONLY
+		,@SetIds nvarchar(MAX)
+	)
+AS
+BEGIN
+	SET NOCOUNT ON
+
+
+
+	Declare @Sets table (SetID int primary key)
+	Insert into @Sets select [value] from dbo.fn_Split_int(@SetIds, '','') s
+		 inner join TB_REVIEW_SET rs on s.value = rs.SET_ID and REVIEW_ID = @revID
+	
+	--FIRST reader: ordinary coding data
+	SELECT ITEM_SET_ID, ir.ITEM_ID, tis.SET_ID, IS_COMPLETED, tis.CONTACT_ID, IS_LOCKED,
+		CODING_IS_FINAL, SET_NAME, CONTACT_NAME, Ext_URL, Ext_Type
+	FROM @input i
+		Inner JOIN TB_ITEM_REVIEW ir on i.ItemId = ir.ITEM_ID and ir.REVIEW_ID = @revID
+		INNER Join TB_ITEM_SET tis on i.ItemId = tis.ITEM_ID
+		INNER JOIN @Sets ss on tis.SET_ID = ss.SetID
+		INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = tis.SET_ID and TB_REVIEW_SET.REVIEW_ID = @revID
+		INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = tis.CONTACT_ID
+		INNER JOIN TB_SET ON TB_SET.SET_ID = tis.SET_ID
+	WHERE tis.IS_COMPLETED = 1
+
+	--SECOND reader: PDF and Text coding data
+	SELECT  tis.ITEM_SET_ID, ia.ITEM_ATTRIBUTE_ID, itd.ITEM_DOCUMENT_ID, itd.DOCUMENT_TITLE, p.ITEM_ATTRIBUTE_PDF_ID as [ID]
+			, ''Page '' + CONVERT
+							(varchar(10),PAGE) 
+							+ '':'' + CHAR(10) + ''[¬s]"'' 
+							+ replace(SELECTION_TEXTS, ''¬'', ''"'' + CHAR(10) + ''"'') +''[¬e]"'' 
+				as [TEXT] 
+			, NULL as [TEXT_FROM], NULL as [TEXT_TO]
+			, 1 as IS_FROM_PDF
+			, CASE WHEN ARM_NAME IS NULL THEN '''' ELSE ARM_NAME END AS ARM_NAME
+			, ia.ITEM_ARM_ID
+		from @Sets ss
+		inner join TB_REVIEW_SET rs on ss.SetID = rs.SET_ID and rs.REVIEW_ID = @revID
+		inner join TB_ITEM_SET tis on tis.SET_ID = rs.SET_ID 
+		inner join @input ii on tis.ITEM_ID = ii.ItemId
+		inner join TB_ATTRIBUTE_SET tas on tis.SET_ID = tas.SET_ID and tis.IS_COMPLETED = 1 
+		inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID and ii.ItemId = ia.ITEM_ID
+		inner join TB_ITEM_ATTRIBUTE_PDF p on ia.ITEM_ATTRIBUTE_ID = p.ITEM_ATTRIBUTE_ID
+		inner join TB_ITEM_TO_DOCUMENT itd on p.ITEM_DOCUMENT_ID = itd.ITEM_DOCUMENT_ID and ia.ITEM_ID = itd.ITEM_ID
+		LEFT join TB_ITEM_ARM ON TB_ITEM_ARM.ITEM_ARM_ID = IA.ITEM_ARM_ID
+	UNION
+	SELECT tis.ITEM_SET_ID, ia.ITEM_ATTRIBUTE_ID, id.ITEM_DOCUMENT_ID, itd.DOCUMENT_TITLE, t.ITEM_ATTRIBUTE_TEXT_ID as [ID]
+			, SUBSTRING(
+					replace(id.DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10)), TEXT_FROM + 1, TEXT_TO - TEXT_FROM
+				 ) 
+				 as [TEXT]
+			, TEXT_FROM, TEXT_TO 
+			, 0 as IS_FROM_PDF
+			, CASE WHEN ARM_NAME IS NULL THEN '''' ELSE ARM_NAME END AS ARM_NAME
+			, ia.ITEM_ARM_ID
+		from @Sets ss
+		inner join TB_REVIEW_SET rs on ss.SetID = rs.SET_ID and rs.REVIEW_ID = @revID
+		inner join TB_ITEM_SET tis on tis.SET_ID = rs.SET_ID 
+		inner join @input ii on tis.ITEM_ID = ii.ItemId
+		inner join TB_ATTRIBUTE_SET tas on tis.SET_ID = tas.SET_ID and tis.IS_COMPLETED = 1 
+		inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID and ii.ItemId = ia.ITEM_ID
+		inner join TB_ITEM_ATTRIBUTE_TEXT t on ia.ITEM_ATTRIBUTE_ID = t.ITEM_ATTRIBUTE_ID
+		inner join TB_ITEM_DOCUMENT id on t.ITEM_DOCUMENT_ID = id.ITEM_DOCUMENT_ID
+		inner join TB_ITEM_TO_DOCUMENT itd on t.ITEM_DOCUMENT_ID = itd.ITEM_DOCUMENT_ID and ia.ITEM_ID = itd.ITEM_ID
+		LEFT join TB_ITEM_ARM ON TB_ITEM_ARM.ITEM_ARM_ID = IA.ITEM_ARM_ID
+	ORDER by IS_FROM_PDF, [TEXT]	
+			
+	SET nocount off
+END
+'
+--print @cmd
+
+EXECUTE sp_executesql @cmd
+--print 'did part1 of new docs block'
+
+set @cmd = N'ALTER procedure [dbo].[st_ItemSetDataList] (
+	@REVIEW_ID INT,
+	--@CONTACT_ID INT,
+	@ITEM_ID BIGINT
+)
+
+As
+
+SET NOCOUNT ON
+	--this was changed on Aug 2013, previous version is commented below.
+	--the new version gets: all completed sets for the item, plus all coded text
+	--the old version was called by ItemSetList and was grabbing what was needed by the current user in DialogCoding:
+	--that''s the completed sets, plus the incomplete ones that belong to the user when a completed version isn''t present.
+	
+	--25/06/2020 THIS SP is "mirrored" in st_QuickCodingReportCodingData -- changes done here are likely to be necessary there as well...
+
+	--first, grab the completed item set (if any)
+	SELECT ITEM_SET_ID, ITEM_ID, TB_ITEM_SET.SET_ID, IS_COMPLETED, TB_ITEM_SET.CONTACT_ID, IS_LOCKED,
+		CODING_IS_FINAL, SET_NAME, CONTACT_NAME, Ext_URL, Ext_Type
+	FROM TB_ITEM_SET
+		INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID
+		INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = TB_ITEM_SET.CONTACT_ID
+		INNER JOIN TB_SET ON TB_SET.SET_ID = TB_ITEM_SET.SET_ID
+	WHERE REVIEW_ID = @REVIEW_ID AND ITEM_ID = @ITEM_ID
+		--AND TB_REVIEW_SET.CODING_IS_FINAL = ''true''
+		AND TB_ITEM_SET.IS_COMPLETED = ''TRUE''
+	
+	--second, get all data from TB_ITEM_ATTRIBUTE_PDF and TB_ITEM_ATTRIBUTE_TEXT using union and only from completed sets
+	SELECT  tis.ITEM_SET_ID, ia.ITEM_ATTRIBUTE_ID, id.ITEM_DOCUMENT_ID, itd.DOCUMENT_TITLE, p.ITEM_ATTRIBUTE_PDF_ID as [ID]
+			, ''Page '' + CONVERT
+							(varchar(10),PAGE) 
+							+ '':'' + CHAR(10) + ''[¬s]"'' 
+							+ replace(SELECTION_TEXTS, ''¬'', ''"'' + CHAR(10) + ''"'') +''[¬e]"'' 
+				as [TEXT] 
+			, NULL as [TEXT_FROM], NULL as [TEXT_TO]
+			, 1 as IS_FROM_PDF
+			, CASE WHEN ARM_NAME IS NULL THEN '''' ELSE ARM_NAME END AS ARM_NAME
 			, ia.ITEM_ARM_ID
 		from TB_REVIEW_SET rs
 		inner join TB_ITEM_SET tis on rs.REVIEW_ID = @REVIEW_ID and tis.SET_ID = rs.SET_ID and tis.ITEM_ID = @ITEM_ID
@@ -1795,7 +2028,7 @@ SET NOCOUNT ON
 				 as [TEXT]
 			, TEXT_FROM, TEXT_TO 
 			, 0 as IS_FROM_PDF
-			, CASE WHEN ARM_NAME IS NULL THEN '' ELSE ARM_NAME END AS ARM_NAME
+			, CASE WHEN ARM_NAME IS NULL THEN '''' ELSE ARM_NAME END AS ARM_NAME
 			, ia.ITEM_ARM_ID
 		from TB_REVIEW_SET rs
 		inner join TB_ITEM_SET tis on rs.REVIEW_ID = @REVIEW_ID and tis.SET_ID = rs.SET_ID and tis.ITEM_ID = @ITEM_ID
@@ -1808,89 +2041,14 @@ SET NOCOUNT ON
 	ORDER by IS_FROM_PDF, [TEXT]	
 	
 SET NOCOUNT OFF
-GO
+'
+--print @cmd
+EXECUTE sp_executesql @cmd
 
-USE [Reviewer]
-GO
-/****** Object:  StoredProcedure [dbo].[st_QuickCodingReportCodingData]    Script Date: 02/10/2026 10:19:41 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-ALTER   PROCEDURE [dbo].[st_QuickCodingReportCodingData] 
-	-- Add the parameters for the stored procedure here
-	(
-		@revID int
-		,@input ITEMS_INPUT_TB READONLY
-		,@SetIds nvarchar(MAX)
-	)
-AS
-BEGIN
-	SET NOCOUNT ON
-
-
-
-	Declare @Sets table (SetID int primary key)
-	Insert into @Sets select [value] from dbo.fn_Split_int(@SetIds, ',') s
-		 inner join TB_REVIEW_SET rs on s.value = rs.SET_ID and REVIEW_ID = @revID
-	
-	--FIRST reader: ordinary coding data
-	SELECT ITEM_SET_ID, ir.ITEM_ID, tis.SET_ID, IS_COMPLETED, tis.CONTACT_ID, IS_LOCKED,
-		CODING_IS_FINAL, SET_NAME, CONTACT_NAME
-	FROM @input i
-		Inner JOIN TB_ITEM_REVIEW ir on i.ItemId = ir.ITEM_ID and ir.REVIEW_ID = @revID
-		INNER Join TB_ITEM_SET tis on i.ItemId = tis.ITEM_ID
-		INNER JOIN @Sets ss on tis.SET_ID = ss.SetID
-		INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = tis.SET_ID and TB_REVIEW_SET.REVIEW_ID = @revID
-		INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = tis.CONTACT_ID
-		INNER JOIN TB_SET ON TB_SET.SET_ID = tis.SET_ID
-	WHERE tis.IS_COMPLETED = 1
-
-	--SECOND reader: PDF and Text coding data
-	SELECT  tis.ITEM_SET_ID, ia.ITEM_ATTRIBUTE_ID, itd.ITEM_DOCUMENT_ID, itd.DOCUMENT_TITLE, p.ITEM_ATTRIBUTE_PDF_ID as [ID]
-			, 'Page ' + CONVERT
-							(varchar(10),PAGE) 
-							+ ':' + CHAR(10) + '[¬s]"' 
-							+ replace(SELECTION_TEXTS, '¬', '"' + CHAR(10) + '"') +'[¬e]"' 
-				as [TEXT] 
-			, NULL as [TEXT_FROM], NULL as [TEXT_TO]
-			, 1 as IS_FROM_PDF
-			, CASE WHEN ARM_NAME IS NULL THEN '' ELSE ARM_NAME END AS ARM_NAME
-			, ia.ITEM_ARM_ID
-		from @Sets ss
-		inner join TB_REVIEW_SET rs on ss.SetID = rs.SET_ID
-		inner join TB_ITEM_SET tis on tis.SET_ID = rs.SET_ID 
-		inner join @input ii on tis.ITEM_ID = ii.ItemId
-		inner join TB_ATTRIBUTE_SET tas on tis.SET_ID = tas.SET_ID and tis.IS_COMPLETED = 1 
-		inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID and ii.ItemId = ia.ITEM_ID
-		inner join TB_ITEM_ATTRIBUTE_PDF p on ia.ITEM_ATTRIBUTE_ID = p.ITEM_ATTRIBUTE_ID
-		inner join TB_ITEM_TO_DOCUMENT itd on p.ITEM_DOCUMENT_ID = itd.ITEM_DOCUMENT_ID and ia.ITEM_ID = itd.ITEM_ID
-		LEFT join TB_ITEM_ARM ON TB_ITEM_ARM.ITEM_ARM_ID = IA.ITEM_ARM_ID
-	UNION
-	SELECT tis.ITEM_SET_ID, ia.ITEM_ATTRIBUTE_ID, id.ITEM_DOCUMENT_ID, itd.DOCUMENT_TITLE, t.ITEM_ATTRIBUTE_TEXT_ID as [ID]
-			, SUBSTRING(
-					replace(id.DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10)), TEXT_FROM + 1, TEXT_TO - TEXT_FROM
-				 ) 
-				 as [TEXT]
-			, TEXT_FROM, TEXT_TO 
-			, 0 as IS_FROM_PDF
-			, CASE WHEN ARM_NAME IS NULL THEN '' ELSE ARM_NAME END AS ARM_NAME
-			, ia.ITEM_ARM_ID
-		from @Sets ss
-		inner join TB_REVIEW_SET rs on ss.SetID = rs.SET_ID
-		inner join TB_ITEM_SET tis on tis.SET_ID = rs.SET_ID 
-		inner join @input ii on tis.ITEM_ID = ii.ItemId
-		inner join TB_ATTRIBUTE_SET tas on tis.SET_ID = tas.SET_ID and tis.IS_COMPLETED = 1 
-		inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID and ii.ItemId = ia.ITEM_ID
-		inner join TB_ITEM_ATTRIBUTE_TEXT t on ia.ITEM_ATTRIBUTE_ID = t.ITEM_ATTRIBUTE_ID
-		inner join TB_ITEM_TO_DOCUMENT itd on itd.ITEM_DOCUMENT_ID = t.ITEM_DOCUMENT_ID and itd.ITEM_ID = ia.ITEM_ID
-		inner join TB_ITEM_DOCUMENT id on t.ITEM_DOCUMENT_ID = id.ITEM_DOCUMENT_ID
-		LEFT join TB_ITEM_ARM ON TB_ITEM_ARM.ITEM_ARM_ID = IA.ITEM_ARM_ID
-	ORDER by IS_FROM_PDF, [TEXT]	
-			
-	SET nocount off
+--print 'did part2 of new docs block'
 END
 GO
+
 
 USE [Reviewer]
 GO
@@ -3225,6 +3383,73 @@ RETURN
 SET NOCOUNT OFF
 GO
 
+USE [Reviewer]
+GO
+/****** Object:  StoredProcedure [dbo].[st_ItemAttributesAllFullTextDetailsList]    Script Date: 11/11/2026 12:15:46 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER procedure [dbo].[st_ItemAttributesAllFullTextDetailsList] 
+(
+	@REVIEW_ID INT,
+	--@CONTACT_ID INT,
+	@ITEM_ID BIGINT
+)
+
+As
+
+SET NOCOUNT ON
+	declare @linkedItems table (item_id bigint)
+	insert into @linkedItems select ITEM_ID_PRIMARY from TB_ITEM_LINK where ITEM_ID_SECONDARY = @ITEM_ID and ITEM_ID_PRIMARY != @ITEM_ID
+	insert into @linkedItems select ITEM_ID_SECONDARY from TB_ITEM_LINK where ITEM_ID_PRIMARY = @ITEM_ID 
+		and ITEM_ID_SECONDARY not in (Select item_id from @linkedItems)
+
+	SELECT  tis.ITEM_SET_ID, ia.ITEM_ATTRIBUTE_ID, id.ITEM_DOCUMENT_ID, itd.DOCUMENT_TITLE, p.ITEM_ATTRIBUTE_PDF_ID as [ID]
+			, 'Page ' + CONVERT
+							(varchar(10),PAGE) 
+							+ ':' + CHAR(10) + '[¬s]"' 
+							+ replace(SELECTION_TEXTS, '¬', '"' + CHAR(10) + '"') +'[¬e]"' 
+				as [TEXT] 
+			, NULL as [TEXT_FROM], NULL as [TEXT_TO]
+			, 1 as IS_FROM_PDF
+			, IA.ITEM_ARM_ID
+			, CASE WHEN ARM_NAME IS NULL THEN '' ELSE ARM_NAME END AS [ARM_NAME]
+		from TB_REVIEW_SET rs
+		inner join TB_ITEM_SET tis on rs.REVIEW_ID = @REVIEW_ID and tis.SET_ID = rs.SET_ID and tis.ITEM_ID = @ITEM_ID
+		inner join TB_ATTRIBUTE_SET tas on tis.SET_ID = tas.SET_ID --and tis.IS_COMPLETED = 1 
+		inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID
+		inner join TB_ITEM_ATTRIBUTE_PDF p on ia.ITEM_ATTRIBUTE_ID = p.ITEM_ATTRIBUTE_ID
+		inner join TB_ITEM_DOCUMENT id on p.ITEM_DOCUMENT_ID = id.ITEM_DOCUMENT_ID
+		inner join TB_ITEM_TO_DOCUMENT itd on id.ITEM_DOCUMENT_ID = itd.ITEM_DOCUMENT_ID 
+			AND (itd.ITEM_ID = tis.ITEM_ID OR (itd.ITEM_ID != tis.ITEM_ID AND itd.ITEM_ID in (select item_id from @linkedItems)))
+		LEFT OUTER JOIN TB_ITEM_ARM ON TB_ITEM_ARM.ITEM_ARM_ID = ia.ITEM_ARM_ID
+	UNION
+	SELECT tis.ITEM_SET_ID, ia.ITEM_ATTRIBUTE_ID, id.ITEM_DOCUMENT_ID, itd.DOCUMENT_TITLE, t.ITEM_ATTRIBUTE_TEXT_ID as [ID]
+			, SUBSTRING(
+					replace(id.DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10)), TEXT_FROM + 1, TEXT_TO - TEXT_FROM
+				 ) 
+				 as [TEXT]
+			, TEXT_FROM, TEXT_TO 
+			, 0 as IS_FROM_PDF
+			, IA.ITEM_ARM_ID
+			, CASE WHEN ARM_NAME IS NULL THEN '' ELSE ARM_NAME END AS [ARM_NAME]
+		from TB_REVIEW_SET rs
+		inner join TB_ITEM_SET tis on rs.REVIEW_ID = @REVIEW_ID and tis.SET_ID = rs.SET_ID and tis.ITEM_ID = @ITEM_ID
+		inner join TB_ATTRIBUTE_SET tas on tis.SET_ID = tas.SET_ID --and tis.IS_COMPLETED = 1 
+		inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ATTRIBUTE_ID = tas.ATTRIBUTE_ID
+		inner join TB_ITEM_ATTRIBUTE_TEXT t on ia.ITEM_ATTRIBUTE_ID = t.ITEM_ATTRIBUTE_ID
+		inner join TB_ITEM_DOCUMENT id on t.ITEM_DOCUMENT_ID = id.ITEM_DOCUMENT_ID
+		inner join TB_ITEM_TO_DOCUMENT itd on id.ITEM_DOCUMENT_ID = itd.ITEM_DOCUMENT_ID 
+			AND (itd.ITEM_ID = tis.ITEM_ID OR (itd.ITEM_ID != tis.ITEM_ID AND itd.ITEM_ID in (select item_id from @linkedItems)))
+		LEFT OUTER JOIN TB_ITEM_ARM ON TB_ITEM_ARM.ITEM_ARM_ID = ia.ITEM_ARM_ID
+	ORDER by IS_FROM_PDF, [TEXT]	
+	
+SET NOCOUNT OFF
+
+GO
+
+
 ----------------Added here for other reasons, nothing to do with deduping docs!-----------------
 USE [Reviewer]
 GO
@@ -3285,5 +3510,54 @@ SET NOCOUNT ON
 	
 SET NOCOUNT OFF
 GO
-
+USE [Reviewer]
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewSetsForCopy]    Script Date: 12/11/2026 09:02:36 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+ALTER   PROCEDURE [dbo].[st_ReviewSetsForCopy]
+	-- Add the parameters for the stored procedure here
+	
+	@REVIEW_ID int,
+	@CONTACT_ID int,
+	@PRIVATE_SETS bit
+	
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	if @PRIVATE_SETS = 1
+	BEGIN
+		SELECT REVIEW_SET_ID, RS.REVIEW_ID, RS.SET_ID, ALLOW_CODING_EDITS, S.SET_TYPE_ID, SET_NAME, SET_TYPE, CODING_IS_FINAL, 
+		SET_ORDER, MAX_DEPTH, S.SET_DESCRIPTION, S.ORIGINAL_SET_ID, s.OLDEST_KNOWN_SET_ID, USER_CAN_EDIT_URLS,
+		S.Ext_URL, S.Ext_Type
+		FROM TB_REVIEW_SET RS
+		INNER JOIN TB_SET S ON S.SET_ID = RS.SET_ID
+		INNER JOIN TB_SET_TYPE ON TB_SET_TYPE.SET_TYPE_ID = S.SET_TYPE_ID
+		INNER JOIN TB_REVIEW_CONTACT rc on RS.REVIEW_ID = rc.REVIEW_ID and rc.CONTACT_ID = @CONTACT_ID
+		inner join TB_CONTACT_REVIEW_ROLE crr on rc.REVIEW_CONTACT_ID = crr.REVIEW_CONTACT_ID and ROLE_NAME = 'AdminUser'
+		WHERE RS.REVIEW_ID != @REVIEW_ID
+		ORDER BY RS.REVIEW_ID, RS.SET_ORDER, RS.SET_ID
+	END
+	ELSE
+	BEGIN
+		SELECT REVIEW_SET_ID, RS.REVIEW_ID, RS.SET_ID, ALLOW_CODING_EDITS, S.SET_TYPE_ID, SET_NAME, SET_TYPE, CODING_IS_FINAL, 
+		SET_ORDER, MAX_DEPTH, S.SET_DESCRIPTION, S.ORIGINAL_SET_ID, s.OLDEST_KNOWN_SET_ID, USER_CAN_EDIT_URLS,
+		S.Ext_URL, S.Ext_Type
+		FROM TB_REVIEW_SET RS
+		INNER JOIN TB_SET S ON S.SET_ID = RS.SET_ID
+		INNER JOIN TB_SET_TYPE ON TB_SET_TYPE.SET_TYPE_ID = S.SET_TYPE_ID
+		inner join sTB_MANAGEMENT_SETTINGS ms on RS.REVIEW_ID = ms.PUBLIC_CODESETS_REVIEW_ID 
+		ORDER BY RS.REVIEW_ID, RS.SET_ORDER, RS.SET_ID
+	END
+END
+GO
 ---------------------------------end of "added for different reasons" insertion ------------------------------

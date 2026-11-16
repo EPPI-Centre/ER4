@@ -52,23 +52,18 @@
           <div class="row col-12">
             <div class="pl-0 mt-2 font-weight-bold mr-1">Report Name:</div>
             <div class="col">
-              <select class="form-control mb-1" style="min-width:190px;"
-                (change)="ChangedReport($event)"
-                [ngClass]="{'font-weight-light alert-warning' : (!ReportStandard.report || ReportStandard.report.name == '[Please select...]' || ReportStandard.report.reportId == undefined )}"
-                [(ngModel)]="ReportStandard.report">
-                <option class="font-weight-light font-italic alert-warning">[Please select...]</option>
-                <!--<option class="font-weight-light font-italic alert-warning"
-                selected
-                [ngValue]="PleaseSelectReport">
-                {{PleaseSelectReport.name}}
-              </option>-->
-              @for (item of Reports; track item) {
-                <option
-                  [ngValue]="item">
-                  {{ item.name }}
-                </option>
-              }
-            </select>
+                <select class="form-control mb-1" style="min-width:190px;"
+                        (change)="ChangedReport($event)"
+                        [ngClass]="{'font-weight-light alert-warning' : (!ReportStandard.report || ReportStandard.report.name == '[Please select...]' || ReportStandard.report.reportId == undefined )}"
+                        [(ngModel)]="ReportStandard.report">
+                    <option class="font-weight-light font-italic alert-warning">[Please select...]</option>
+
+                    @for (item of Reports; track item.reportId) {
+                    <option [ngValue]="item">
+                        {{ item.name }}
+                    </option>
+                    }
+                </select>
           </div>
         </div>
         <div class="row mt-2 mx-0 p-1 border border-dark">
@@ -151,18 +146,17 @@
                               <div class="row col-12">
                                 <div class="pl-0 mt-2 font-weight-bold mr-1">Report Name:</div>
                                 <div class="col">
-                                  <select class="form-control mb-1" style="min-width:190px;"
-                                    (change)="ChangedReport($event)"
-                                    [ngClass]="{'font-weight-light alert-warning' : (!ReportRiskOfBias.report || ReportRiskOfBias.report.name == '[Please select...]' || ReportRiskOfBias.report.reportId == undefined )}"
-                                    [(ngModel)]="ReportRiskOfBias.report">
-                                    <option class="font-weight-light font-italic alert-warning">[Please select...]</option>
-                                    @for (item of ReportCollectionROB; track item) {
-                                      <option
-                                        [ngValue]="item">
-                                        {{ item.name }}
-                                      </option>
-                                    }
-                                  </select>
+                                    <select class="form-control mb-1" style="min-width:190px;"
+                                            (change)="ChangedReport($event)"
+                                            [ngClass]="{'font-weight-light alert-warning' : (!ReportRiskOfBias.report || ReportRiskOfBias.report.name == '[Please select...]' || ReportRiskOfBias.report.reportId == undefined )}"
+                                            [(ngModel)]="ReportRiskOfBias.report">
+                                        <option class="font-weight-light font-italic alert-warning">[Please select...]</option>
+                                        @for (item of ReportCollectionROB; track item.reportId) {
+                                        <option [ngValue]="item">
+                                            {{ item.name }}
+                                        </option>
+                                        }
+                                    </select>
                                 </div>
                               </div>
                               <div class="row col-12 mt-2 mx-0 p-1 border border-dark">
@@ -212,18 +206,17 @@
                                       <div class="row col-12">
                                         <div class="col-sm-auto mt-2 font-weight-bold">Report Name:</div>
                                         <div class="col">
-                                          <select class="form-control mb-1" style="min-width:190px;"
-                                            (change)="ChangedReport($event)"
-                                            [ngClass]="{'font-weight-light alert-warning' : (!ReportOutcomes.report || ReportOutcomes.report.name == '[Please select...]' || ReportOutcomes.report.reportId == undefined )}"
-                                            [(ngModel)]="ReportOutcomes.report">
-                                            <option class="font-weight-light font-italic alert-warning">[Please select...]</option>
-                                            @for (item of ReportCollectionOutcomes; track item) {
-                                              <option
-                                                [ngValue]="item">
-                                                {{ item.name }}
-                                              </option>
-                                            }
-                                          </select>
+                                            <select class="form-control mb-1" style="min-width:190px;"
+                                                    (change)="ChangedReport($event)"
+                                                    [ngClass]="{'font-weight-light alert-warning' : (!ReportOutcomes.report || ReportOutcomes.report.name == '[Please select...]' || ReportOutcomes.report.reportId == undefined )}"
+                                                    [(ngModel)]="ReportOutcomes.report">
+                                                <option class="font-weight-light font-italic alert-warning">[Please select...]</option>
+                                                @for (item of ReportCollectionOutcomes; track item.reportId) {
+                                                <option [ngValue]="item">
+                                                    {{ item.name }}
+                                                </option>
+                                                }
+                                            </select>
                                         </div>
                                         <div class="col"></div>
                                       </div>

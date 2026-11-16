@@ -259,33 +259,27 @@
                               </tr>
                             </thead>
                             <tbody style="width:100%">
-                              @for (item of _basicMAGService.MagRelatedPapersRunList; track item) {
+                                @for (item of _basicMAGService.MagRelatedPapersRunList; track item.magRelatedRunId) {
                                 <tr class="">
-                                  <!--
-                                  <td class="p-0" style="vertical-align:middle">
-                                    <button md-tooltip='ReRun the same Search' (click)="UpdateAutoReRun(item)" class="btn btn-secondary btn-sm text-white align-content-center" style="min-width:60px;">
-                                      {{item.autoReRun}}
-                                    </button>
-                                  </td>
-                                  -->
-                                  <td style="vertical-align:middle">{{item.userDescription}}</td>
-                                  <td style="vertical-align:middle">{{item.mode}}</td>
-                                  <td style="vertical-align:middle">{{FormatDate(item.dateFrom)}}</td>
-                                  <td style="vertical-align:middle">{{FormatDate(item.dateRun)}}</td>
-                                  <td style="vertical-align:middle">
-                                    <input [disabled]="true" class="m-1" type="checkbox" [(ngModel)]="item.allIncluded" />
-                                  </td>
-                                  <td style="vertical-align:middle">{{item.attributeName}}</td>
-                                  <td style="vertical-align:middle">{{item.status}}</td>
-                                  <td class="px-1 py-0 small" style="vertical-align:middle">
-                                    {{item.userStatus == '' ? 'N/A' : item.userStatus }}
-                                  </td>
-                                  <td class="p-0" style="vertical-align:middle"><button [disabled]="!CanDeleteMAGRun(item)" (click)="DoDeleteMagRelatedPapersRun(item)" class="btn btn-danger btn-sm text-white align-content-center"><kendo-icon name="trash"></kendo-icon></button></td>
-                                  <td class="p-0" style="vertical-align:middle"><button (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)" class="btn btn-primary btn-sm text-white align-content-center">Import</button></td>
-                                  <td class="p-0" style="vertical-align:middle"><div (click)="GetItems(item)" class="btn btn-link btn-sm">{{ item.nPapers}}</div></td>
-                                  <!--<td style="vertical-align:middle">{{item.filtered}}</td>-->
+                                    
+                                    <td style="vertical-align:middle">{{item.userDescription}}</td>
+                                    <td style="vertical-align:middle">{{item.mode}}</td>
+                                    <td style="vertical-align:middle">{{FormatDate(item.dateFrom)}}</td>
+                                    <td style="vertical-align:middle">{{FormatDate(item.dateRun)}}</td>
+                                    <td style="vertical-align:middle">
+                                        <input [disabled]="true" class="m-1" type="checkbox" [(ngModel)]="item.allIncluded" />
+                                    </td>
+                                    <td style="vertical-align:middle">{{item.attributeName}}</td>
+                                    <td style="vertical-align:middle">{{item.status}}</td>
+                                    <td class="px-1 py-0 small" style="vertical-align:middle">
+                                        {{item.userStatus == '' ? 'N/A' : item.userStatus }}
+                                    </td>
+                                    <td class="p-0" style="vertical-align:middle"><button [disabled]="!CanDeleteMAGRun(item)" (click)="DoDeleteMagRelatedPapersRun(item)" class="btn btn-danger btn-sm text-white align-content-center"><kendo-icon name="trash"></kendo-icon></button></td>
+                                    <td class="p-0" style="vertical-align:middle"><button (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)" class="btn btn-primary btn-sm text-white align-content-center">Import</button></td>
+                                    <td class="p-0" style="vertical-align:middle"><div (click)="GetItems(item)" class="btn btn-link btn-sm">{{ item.nPapers}}</div></td>
+                                    <!--<td style="vertical-align:middle">{{item.filtered}}</td>-->
                                 </tr>
-                              }
+                                }
                             </tbody>
                           </table>
                         </div>

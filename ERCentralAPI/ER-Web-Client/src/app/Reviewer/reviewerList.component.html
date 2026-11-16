@@ -47,7 +47,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (member of FilteredContacts; track member; let i = $index) {
+          @for (member of FilteredContacts; track member.contactId; let i = $index) {
             <tr class="p-0">
               <td class="p-0 align-middle">
                 <button [disabled]="isCochraneReview" (click)="RemoveReviewer(member)" class="btn btn-outline-danger p-1 m-1" title="Remove from review"><kendo-icon name="trash"></kendo-icon></button>
@@ -56,16 +56,16 @@
               <td class="p-1 align-middle">{{member.email}}</td>
               <td class="p-1 align-middle" style="color:white;"><div [ngStyle]="{'background-color':member.isExpired == 1 ? '#dc3545' : '#28a745'}">{{member.expiry}}</div></td>
               <td class="p-0 align-middle "style="padding-right: 3px; padding-left: 3px">
-                <select #AllocateOptionsDropDown class="form-control form-control-sm my-auto px-0 py-0" name="RoleOptions"
-                  (change)="SetRelevantDropDownValues($event, member)" style="min-width:90px">
-                  <option [ngValue]="false">Please select</option>
-                  @for (item of RoleOptions; track item) {
-                    <option [value]="item.key">
-                      <!--  this sets the selected role....[selected]="item.value == member.role"-->
-                      {{AddCheckMarkIfRole(item.value,member.role,member.contactId).replace('X','✅')}}
-                    </option>
-                  }
-                </select>
+                  <select #AllocateOptionsDropDown class="form-control form-control-sm my-auto px-0 py-0" name="RoleOptions"
+                          (change)="SetRelevantDropDownValues($event, member)" style="min-width:90px">
+                      <option [ngValue]="false">Please select</option>
+                      @for (item of RoleOptions; track item.key) {
+                      <option [value]="item.key">
+                          <!--  this sets the selected role....[selected]="item.value == member.role"-->
+                          {{AddCheckMarkIfRole(item.value,member.role,member.contactId).replace('X','✅')}}
+                      </option>
+                      }
+                  </select>
               </td>
               <!--<td style="width: 15%; padding-right:2px;padding-left:2px">
               <button class="btn btn-sm btn-outline-danger my-auto px-0 py-0"

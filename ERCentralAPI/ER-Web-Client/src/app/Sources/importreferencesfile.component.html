@@ -6,13 +6,13 @@
       <div class="col-7 px-1 mx-0">
         <div class="font-weight-bold">Filter</div>
         @if (ImportFilters) {
-          <select class="form-control my-1" (change)="FilterChanged($event)">
-            @for (filter of ImportFilters; track filter) {
-              <option [value]="filter.filterID" [selected]="filter.filterID == currentFilter.filterID">
+        <select class="form-control my-1" (change)="FilterChanged($event)">
+            @for (filter of ImportFilters; track filter.filterID) {
+            <option [value]="filter.filterID" [selected]="filter.filterID == currentFilter.filterID">
                 {{filter.ruleName}}
-              </option>
+            </option>
             }
-          </select>
+        </select>
         }
         <label>Pick the file to upload:</label>
         <input type="file" #file style="display: none" (change)="onFilesAdded()"

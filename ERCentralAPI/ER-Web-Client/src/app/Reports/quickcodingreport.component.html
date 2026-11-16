@@ -3,14 +3,14 @@
     <div class="row m-0">
       @if (Aim=='') {
         <div style="max-height:300px;overflow:auto"
-                 class="col-12 col-md-9 p-sm-0 align-self-start
+             class="col-12 col-md-9 p-sm-0 align-self-start
                   bg-light">
-          @for (cSet of CodeSets; track cSet) {
+            @for (cSet of CodeSets; track cSet.set_id) {
             <div class="ml-1">
-              <input class="m-2" type="checkbox" [(ngModel)]="cSet.isSelected" />
-              <span>{{cSet.name}}</span>
+                <input class="m-2" type="checkbox" [(ngModel)]="cSet.isSelected" />
+                <span>{{cSet.name}}</span>
             </div>
-          }
+            }
         </div>
       }
       @if (Aim=='QuickQuestionReport') {

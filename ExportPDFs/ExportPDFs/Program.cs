@@ -18,7 +18,7 @@ namespace ExportPDFs
         private static string InclExcl = "incl";
         private static long OnlyThisCode = -1;
         private static bool WhatIf = false;
-        private static List<Int64> ItemIDs = new List<long>();
+        private static List<Int64> ItemIDs = new List<long>();//will be item_document_ids when rebuilding extracted text
         private static bool exportTXT = false;
         private static bool exportBin = false;
         private static ILogger<Program> _logger = null;
@@ -128,8 +128,8 @@ namespace ExportPDFs
             else if (Program.DoWhat == "rebuildtext")
             {
                 Log.Information("Starting re-extraction of full-text from docs. RevId:" + RevId);
-                GetItemIdsWithTextToRebuild();
-                if (ItemIDs.Count > 0) ExtractTextFromItems();
+                GetItemDocumentIdsWithTextToRebuild();
+                if (ItemIDs.Count > 0) ExtractTextFromDocuments();
             }
         }
         private static void GetItemIds()
@@ -190,16 +190,17 @@ namespace ExportPDFs
             }
             Log.Information("Found " + ItemIDs.Count + " items with docs.");
         }
-        private static void GetItemIdsWithTextToRebuild()
+        private static void GetItemDocumentIdsWithTextToRebuild()
         {
-            string que = @"declare @ids table (ITEM_ID bigint)" + Environment.NewLine
-                        + @"insert into @ids select distinct r.item_id from  TB_ITEM_DOCUMENT d
-                            inner join TB_ITEM_REVIEW r on d.ITEM_ID = r.ITEM_ID 
+            string que = @"declare @ids table (ITEM_D_ID bigint)" + Environment.NewLine
+                        + @"insert into @ids select distinct d.ITEM_DOCUMENT_ID from  TB_ITEM_DOCUMENT d
+                            inner join tb_ITEM_TO_DOCUMENT itd on d.ITEM_DOCUMENT_ID = itd.ITEM_DOCUMENT_ID
+                            inner join TB_ITEM_REVIEW r on itd.ITEM_ID = r.ITEM_ID 
 	                            AND DOCUMENT_EXTENSION = '.pdf' 
 								AND REVIEW_ID = " + RevId + Environment.NewLine
                                 +
-                                @"Select distinct(r.ITEM_ID)  from TB_ITEM_DOCUMENT d
-                            inner join @ids r on d.ITEM_ID = r.ITEM_ID and d.DOCUMENT_TEXT = 'Error: could not find/load an appropriate filter!'";
+                                @"Select distinct(r.ITEM_D_ID)  from TB_ITEM_DOCUMENT d
+                                    inner join @ids r on d.ITEM_DOCUMENT_ID = r.ITEM_D_ID and d.DOCUMENT_TEXT = 'Error: could not find/load an appropriate filter!'";
 
                 //"Select distinct(r.ITEM_ID) from TB_ITEM_DOCUMENT d
                 //            inner join TB_ITEM_REVIEW r on d.ITEM_ID = r.ITEM_ID and d.DOCUMENT_TEXT = 'Error: could not find/load an appropriate filter!'
@@ -210,7 +211,7 @@ namespace ExportPDFs
                 {
                     while (reader.Read())// && ItemIDs.Count < 5000)
                     {
-                        long id = (Int64)reader["ITEM_ID"];
+                        long id = (Int64)reader["ITEM_D_ID"];
                         if (!ItemIDs.Contains(id)) ItemIDs.Add(id);
                     }
                 }
@@ -364,7 +365,7 @@ namespace ExportPDFs
             }
         }
 
-        private static void ExtractTextFromItems()
+        private static void ExtractTextFromDocuments()
         {
             using (SqlConnection conn = new SqlConnection(Program.SqlHelper.ER4DB))
             {
@@ -373,10 +374,10 @@ namespace ExportPDFs
                     conn2.Open();
                     Log.Information("processing " + ItemIDs.Count + " items");
                     bool StopCondition = false;
-                    foreach (long itemId in ItemIDs)
+                    foreach (long itemDocId in ItemIDs)
                     {
-                        Log.Information("processing item " + itemId);
-                        string que = @"Select * from TB_ITEM_DOCUMENT where  DOCUMENT_TEXT = 'Error: could not find/load an appropriate filter!' AND DOCUMENT_EXTENSION = '.pdf' and ITEM_ID =" + itemId;
+                        Log.Information("processing doc " + itemDocId);
+                        string que = @"Select * from TB_ITEM_DOCUMENT where  DOCUMENT_TEXT = 'Error: could not find/load an appropriate filter!' AND DOCUMENT_EXTENSION = '.pdf' and ITEM_DOCUMENT_ID = " + itemDocId;
                         using (SqlDataReader reader = SqlHelper.ExecuteQueryNonSP(conn, que))
                         {
                             while (reader.Read())// && ItemIDs.Count < 5000)
@@ -407,7 +408,7 @@ namespace ExportPDFs
                                                 }
                                                 catch (Exception e)
                                                 {
-                                                    Log.Error(e, "error updating text for doc {0} of item {1}", itemDocID, itemId);
+                                                    Log.Error(e, "error updating text for doc {0}", itemDocID);
                                                 }
                                             }
                                         }

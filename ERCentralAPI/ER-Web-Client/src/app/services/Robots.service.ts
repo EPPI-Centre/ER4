@@ -343,7 +343,7 @@ export class RobotsService extends BusyAwareService implements OnDestroy {
         if (result != null) {
           this._currentRobotOpenAiPromptEvaluationDataList = result;
           this.calculateAndStoreConfusionMatrix(result);  
-          console.log('this.FetchRobotOpenAiPromptEvaluationDataList', this._currentRobotOpenAiPromptEvaluationDataList);
+          //console.log('this.FetchRobotOpenAiPromptEvaluationDataList', this._currentRobotOpenAiPromptEvaluationDataList);
         }
       },
         error => {

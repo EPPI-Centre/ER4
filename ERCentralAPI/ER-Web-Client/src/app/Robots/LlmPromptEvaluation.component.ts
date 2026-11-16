@@ -78,8 +78,11 @@ export class LlmPromptEvaluation implements OnInit, OnDestroy {
   public ShowQueue: boolean = false;
 
   public get MaxNCodesInSelectedGoldStandardTrainTest(): number {
-    if (this.NCodesInSelectedGoldStandardTrainTest - 2 > this.maxTrainSize) return this.maxTrainSize;
-    else return this.NCodesInSelectedGoldStandardTrainTest - 2;
+    let retVal = 0;
+    if (this.NCodesInSelectedGoldStandardTrainTest - 2 > this.maxTrainSize) retVal = this.maxTrainSize;
+    else retVal = this.NCodesInSelectedGoldStandardTrainTest - 2;
+    if (retVal <= 5) return 6;
+    return retVal;
   }
 
   public get AllCodeSets(): ReviewSet[] {

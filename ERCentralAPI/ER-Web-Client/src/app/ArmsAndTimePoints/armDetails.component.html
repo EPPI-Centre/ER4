@@ -68,28 +68,28 @@
           </form>
           <!---->
           @if (armsList.length > 0) {
-            <table class="table table-bordered table-sm table-striped text-center">
-              <tr>
-                <th class="text-center">Arm Title</th>
-                <th class="text-center">Actions</th>
-              </tr>
-              @for (arm of armsList; track arm; let key = $index) {
-                <tr>
-                  <td>{{arm.title}}</td>
-                  <td style="white-space:nowrap;">
-                    <button (click)="editTitle=true; setArm(arm, key)"
+        <table class="table table-bordered table-sm table-striped text-center">
+          <tr>
+            <th class="text-center">Arm Title</th>
+            <th class="text-center">Actions</th>
+          </tr>
+          @for (arm of armsList; track arm.itemArmId; let key = $index) {
+          <tr>
+            <td>{{arm.title}}</td>
+            <td style="white-space:nowrap;">
+              <button (click)="editTitle=true; setArm(arm, key)"
                       [disabled]="!HasWriteRights"
                       type="button" rounded="true" size="sm" class="btn btn-outline-info p-1 mx-1">
-                      Edit
-                    </button>
-                    <button type="button" rounded="true" size="sm" class="btn btn-outline-danger p-1 mx-1" title="Delete Arm"
+                Edit
+              </button>
+              <button type="button" rounded="true" size="sm" class="btn btn-outline-danger p-1 mx-1" title="Delete Arm"
                       [disabled]="!HasWriteRights" (click)="removeWarning(key)">
-                      <kendo-icon name="trash"></kendo-icon>
-                    </button>
-                  </td>
-                </tr>
-              }
-            </table>
+                <kendo-icon name="trash"></kendo-icon>
+              </button>
+            </td>
+          </tr>
+          }
+        </table>
           }
         </div>
       }

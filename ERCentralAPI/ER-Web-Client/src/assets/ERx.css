@@ -160,11 +160,20 @@ body {
 .k-loading-image {
     z-index:19;
 }
-.brightSwitch .k-switch-label-off {
-  color: orange;
+.brightSwitch .k-switch-on .k-switch-track {
+  border-color: #999999;
 }
-.brightSwitch .k-switch-off .k-switch-handle{
-    background-color:orange;
+
+.brightSwitch .k-switch-off .k-switch-track {
+  border-color: #ff6358;
+}
+
+.brightSwitch .k-switch-on .k-switch-thumb {
+  border-color: #999999;
+}
+
+.brightSwitch .k-switch-off .k-switch-thumb {
+  border-color: #ff6358;
 }
 
 .recTree .k-treeview-leaf.k-selected {

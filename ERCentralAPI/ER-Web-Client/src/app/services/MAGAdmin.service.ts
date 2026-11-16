@@ -255,6 +255,26 @@ export class MAGAdminService extends BusyAwareService implements OnDestroy {
                 });
     }
 
+    public SaveMagCurrentInfo(thisMagCurrentInfo: MagCurrentInfo ) {
+
+    this._BusyMethods.push("SaveMagCurrentInfo");
+    this._httpC.post<MagCurrentInfo>(this._baseUrl + 'api/MagCurrentInfo/SaveMagCurrentInfo', thisMagCurrentInfo)
+        .subscribe(result => {
+            this.RemoveBusy("SaveMagCurrentInfo");
+            if (result != null) {
+                this.MagCurrentInfo = result;
+            }
+            this.FetchMagCurrentInfo();
+        },
+            error => {
+                this.RemoveBusy("SaveMagCurrentInfo");
+                this.modalService.GenericError(error);
+            },
+            () => {
+                this.RemoveBusy("SaveMagCurrentInfo");
+            });
+    }
+
     public FetchMagCurrentInfo() {
         this._BusyMethods.push("FetchMagCurrentInfo");
         this._httpC.get<MagCurrentInfo>(this._baseUrl + 'api/MagCurrentInfo/GetMagCurrentInfo')

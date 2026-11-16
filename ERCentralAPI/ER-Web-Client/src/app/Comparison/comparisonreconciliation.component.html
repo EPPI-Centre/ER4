@@ -102,348 +102,337 @@
                   </tr>
                 </thead>
                 <tbody>
-                  @for (recon of allItems; track recon; let i = $index) {
-<tr [ngClass]="{'table-success' : i == selectedRow && recon.IsCompleted,
+                    @for (recon of allItems; track recon.Item.itemId; let i = $index) {
+                    <tr [ngClass]="{'table-success' : i == selectedRow && recon.IsCompleted,
                             'bg-comp' : i != selectedRow && recon.IsCompleted,
                             'bg-incomp-sel' : i == selectedRow && !recon.IsCompleted,
                             'bg-incomp' : i != selectedRow && !recon.IsCompleted}"
-                      (click)="ChangePanelItem(recon.Item.itemId, i); ">
-                      <td style="max-width:15px;">
-                        <input type="checkbox" name="name1"
-                          [checked]="recon.IsCompleted" [disabled]="true" />&nbsp;
+                        (click)="ChangePanelItem(recon.Item.itemId, i); ">
+                        <td style="max-width:15px;">
+                            <input type="checkbox" name="name1"
+                                   [checked]="recon.IsCompleted" [disabled]="true" />&nbsp;
                         </td>
                         <td class="p-1" style="max-width:150px;">
-                          @if (ItemList.items[i] != undefined) {
+                            @if (ItemList.items[i] != undefined) {
                             <span (click)="OpenItem(ItemList.items[i].itemId)"
-                              class="btn btn-link mt-1">
-                              {{ItemList.items[i].itemId}}
+                                  class="btn btn-link mt-1">
+                                {{ItemList.items[i].itemId}}
                             </span>
-                          }
-                          <br />
-                          <span class="col-md-12">
-                            {{recon.Item.shortTitle}}
-                          </span>
-                          <br />
-                        </td>
-                        <td class="p-1" style="max-width:475px;">
-                          @if (!recon.IsCompleted && recon.CodesReviewer1.length > 0) {
-                            <div class="col-md-12 m-1 ml-0 pl-0">
-                              <button (click)="Complete(recon, CurrentComparison.contactId1)" [disabled]="!HasWriteRights"
-                                class="btn btn-sm btn-success pull-left">
-                                Complete
-                              </button>
-                              <button (click)="CompleteAndLock(recon, CurrentComparison.contactId1)" [disabled]="!HasWriteRights"
-                                class="btn btn-sm btn-info pull-right">
-                                Complete & Lock
-                              </button>
-                            </div>
-                          }
-                          @if (recon.IsCompleted && recon.CompletedByID == CurrentComparison.contactId1) {
-                            <div>
-                              <button (click)="UnComplete(recon)" [disabled]="!HasWriteRights"
-                                class="btn btn-sm btn-danger">
-                                Un-Complete
-                              </button>
-                            </div>
-                          }
-                          @for (j of reconcilingCodeArrayLength(recon.CodesReviewer1.length); track j) {
-                            <div class="row col-md-12">
-                              <div class="row m-0">
-                                <!--<span [hidden]="!hidemeOne[j+(100*i)]">-->
-                                @if (hidemeOne[j+(100*i)]) {
-                                  <span>
-                                    @for (item of getReconSplitArray(recon.CodesReviewer1[j-1].Fullpath); track item) {
-                                      <span>
-                                        @if (item != '') {
-                                          <button
-                                            class="BackgroundButtonClear btn-sm border-dark bg-white rounded-0 mt-1 px-1 py-0"
-                                            style="text-decoration: none; border-width:1px;">
-                                            {{item}}
-                                          </button>
-                                        }
-                                        <fa-icon [icon]="faArrowRight"></fa-icon>
-                                      </span>
-                                    }
-                                  </span>
-                                }
-                                @if (recon.CodesReviewer1[j-1].ArmID == 0) {
-                                  <button class="btn-sm border-dark bg-white rounded-0 mt-1 px-1  py-0"
-                                    style="text-decoration: none; border-width:1px; cursor:pointer"
-                                    (click)="hidemeOne[j+(100*i)] = !hidemeOne[j+(100*i)]">
-                                    {{recon.CodesReviewer1[j-1].Name}}
-                                  </button>
-                                }
-                              </div>
-                              @if (recon.CodesReviewer1[j-1].InfoBox != '' && hidemeOne[j+(100*i)]) {
-                                <div
-                                  class="col-md-12 small mt-1 p-1 bg-white border border-dark ng-star-inserted">
-                                  <b>[Info Box]</b> {{recon.CodesReviewer1[j-1].InfoBox}}
-                                </div>
-                              }
-                            </div>
-                          }
-                          @if (ItemList.items[i] != undefined && ItemList.items[i].arms != undefined && ItemList.items[i].arms.length > 0 ) {
-                            <div class="col-12 pl-0">
-                              @for (a of ItemList.items[i].arms; track a) {
-                                <div>
-                                  <b class="row col-md-12">{{a.title}}</b>
-                                  @for (jj of reconcilingCodeArrayLength(recon.CodesReviewer1.length); track jj) {
-                                    <div class="col-12">
-                                      @if (recon.CodesReviewer1[jj-1].ArmID == a.itemArmId) {
-                                        <div class="row">
-                                          @for (item of getReconSplitArray(recon.CodesReviewer1[jj-1].Fullpath); track item) {
-                                            <div>
-                                              @if (hidemearms[jj]) {
-                                                <span>
-                                                  <!--<span [hidden]="!hidemearms[jj]">-->
-                                                  @if (item != '') {
-                                                    <span>
-                                                      <button class="BackgroundButtonClear btn-sm border-dark bg-white rounded-0 mt-1 px-1 py-0"
-                                                        style="text-decoration: none; border-width:1px;">
-                                                        {{item}}
-                                                      </button>
-                                                      <fa-icon [icon]="faArrowRight"></fa-icon>
-                                                    </span>
-                                                  }
-                                                </span>
-                                              }
-                                            </div>
-                                          }
-                                          <button class="btn-sm border-dark bg-white rounded-0 mt-1 px-1  py-0"
-                                            style="text-decoration: none; border-width:1px; cursor:pointer"
-                                            (click)="hidemearms[jj] = !hidemearms[jj]">
-                                            {{recon.CodesReviewer1[jj-1].Name}}
-                                          </button>
-                                          <!--<span [hidden]="!hidemearms[jj]"
-                                          *ngIf="recon.CodesReviewer1[jj-1].InfoBox != ''"
-                                          class="col-md-12 small mt-1 p-1 bg-white border border-dark ng-star-inserted">-->
-                                          @if (hidemearms[jj] && recon.CodesReviewer1[jj-1].InfoBox != '') {
-                                            <div
-                                              class="col-md-12 small mt-1 p-1 bg-white border border-dark ">
-                                              <b>[Info Box]</b>{{recon.CodesReviewer1[jj-1].InfoBox}}
-                                            </div>
-                                          }
-                                        </div>
-                                      }
-                                    </div>
-                                  }
-                                </div>
-                              }
-                            </div>
-                          }
-                        </td>
-                        <td class="p-1" style="max-width:475px;">
-                          @if (!recon.IsCompleted &&  recon.CodesReviewer2.length > 0) {
-                            <div class="col-md-12 m-1 ml-0 pl-0">
-                              <button (click)="Complete(recon,CurrentComparison.contactId2)" [disabled]="!HasWriteRights"
-                                class="btn btn-sm btn-success pull-left">
-                                Complete
-                              </button>
-                              <button (click)="CompleteAndLock(recon, CurrentComparison.contactId2)" [disabled]="!HasWriteRights"
-                                class="btn btn-sm btn-info  pull-right">
-                                Complete & Lock
-                              </button>
-                            </div>
-                          }
-                          @if (recon.IsCompleted && recon.CompletedByID == CurrentComparison.contactId2) {
-                            <div>
-                              <button (click)="UnComplete(recon)" [disabled]="!HasWriteRights"
-                                class="btn btn-sm btn-danger">
-                                Un-Complete
-                              </button>
-                            </div>
-                          }
-                          @for (k of reconcilingCodeArrayLength(recon.CodesReviewer2.length); track k) {
-                            <div class="row col-12">
-                              <div class="row m-0">
-                                @if (hidemeTwo[k+(100*i)]) {
-                                  <span>
-                                    @for (item of getReconSplitArray(recon.CodesReviewer2[k-1].Fullpath); track item) {
-                                      <span>
-                                        @if (item != '') {
-                                          <button
-                                            class="BackgroundButtonClear btn-sm border-dark bg-white rounded-0 mt-1 px-1 py-0"
-                                            style="text-decoration: none; border-width:1px;">
-                                            {{item}}
-                                          </button>
-                                        }
-                                        <fa-icon [icon]="faArrowRight"></fa-icon>
-                                      </span>
-                                    }
-                                  </span>
-                                }
-                                @if (recon.CodesReviewer2[k-1].ArmID == 0) {
-                                  <button
-                                    class="btn-sm border-dark bg-white rounded-0 mt-1 px-1  py-0"
-                                    style="text-decoration: none; border-width:1px; cursor:pointer"
-                                    (click)="hidemeTwo[k+(100*i)] = !hidemeTwo[k+(100*i)]">
-                                    {{recon.CodesReviewer2[k-1].Name}}
-                                  </button>
-                                }
-                              </div>
-                              @if (recon.CodesReviewer2[k-1].InfoBox != '' && hidemeTwo[k+(100*i)]) {
-                                <div
-                                  class="col-md-12 small mt-1 p-1 bg-white border border-dark ng-star-inserted">
-                                  <b>[Info Box]</b>{{recon.CodesReviewer2[k-1].InfoBox}}
-                                </div>
-                              }
-                            </div>
-                          }
-                          @if (ItemList.items[i] != undefined && ItemList.items[i].arms != undefined && ItemList.items[i].arms.length > 0  ) {
-                            <div class="col-12 pl-0">
-                              @for (b of ItemList.items[i].arms; track b) {
-                                <div>
-                                  <b class="row col-md-12">{{b.title}}</b>
-                                  @for (kk of reconcilingCodeArrayLength(recon.CodesReviewer2.length); track kk) {
-                                    <div class="col-12">
-                                      @if (recon.CodesReviewer2[kk-1].ArmID == b.itemArmId) {
-                                        <div class="row">
-                                          @for (item of getReconSplitArray(recon.CodesReviewer2[kk-1].Fullpath); track item) {
-                                            <div>
-                                              @if (hidemearmsTwo[kk +(100*i)]) {
-                                                <span>
-                                                  @if (item != '') {
-                                                    <span>
-                                                      <button class="BackgroundButtonClear btn-sm border-dark bg-white rounded-0 mt-1 px-1 py-0"
-                                                        style="text-decoration: none; border-width:1px;">
-                                                        {{item}}
-                                                      </button>
-                                                      <fa-icon [icon]="faArrowRight"></fa-icon>
-                                                    </span>
-                                                  }
-                                                </span>
-                                              }
-                                            </div>
-                                          }
-                                          <button class="btn-sm border-dark bg-white rounded-0 mt-1 px-1  py-0"
-                                            style="text-decoration: none; border-width:1px; cursor:pointer"
-                                            (click)="hidemearmsTwo[kk+(100*i)] = !hidemearmsTwo[kk+(100*i)]">
-                                            {{recon.CodesReviewer2[kk-1].Name}}
-                                          </button>
-                                          @if (hidemearmsTwo[kk+(100*i)] && recon.CodesReviewer2[kk-1].InfoBox != '') {
-                                            <div
-                                              class="col-md-12 small mt-1 p-1 bg-white border border-dark ">
-                                              <b>[Info Box]</b>{{recon.CodesReviewer2[kk-1].InfoBox}}
-                                              <br />
-                                            </div>
-                                          }
-                                        </div>
-                                      }
-                                    </div>
-                                  }
-                                </div>
-                              }
-                            </div>
-                          }
-                        </td>
-                        @if (CurrentComparison.contactName3 != '') {
-                          <td class="p-1" style="max-width:475px;">
-                            @if (!recon.IsCompleted  && recon.CodesReviewer3.length > 0) {
-                              <div class="col-md-12 m-1 ml-0 pl-0">
-                                <button (click)="Complete(recon, CurrentComparison.contactId3)" [disabled]="!HasWriteRights"
-                                  class="btn btn-sm btn-success pull-left">
-                                  Complete
-                                </button>
-                                <button (click)="CompleteAndLock(recon, CurrentComparison.contactId3)" [disabled]="!HasWriteRights"
-                                  class="btn btn-sm btn-info pull-right">
-                                  Complete & Lock
-                                </button>
-                              </div>
                             }
-                            @if (recon.IsCompleted && recon.CompletedByID == CurrentComparison.contactId3) {
-                              <div>
+                            <br />
+                            <span class="col-md-12">
+                                {{recon.Item.shortTitle}}
+                            </span>
+                            <br />
+                        </td>
+                        <td class="p-1" style="max-width:475px;">
+                            @if (!recon.IsCompleted && recon.CodesReviewer1.length > 0) {
+                            <div class="col-md-12 m-1 ml-0 pl-0">
+                                <button (click)="Complete(recon, CurrentComparison.contactId1)" [disabled]="!HasWriteRights"
+                                        class="btn btn-sm btn-success pull-left">
+                                    Complete
+                                </button>
+                                <button (click)="CompleteAndLock(recon, CurrentComparison.contactId1)" [disabled]="!HasWriteRights"
+                                        class="btn btn-sm btn-info pull-right">
+                                    Complete & Lock
+                                </button>
+                            </div>
+                            }
+                            @if (recon.IsCompleted && recon.CompletedByID == CurrentComparison.contactId1) {
+                            <div>
                                 <button (click)="UnComplete(recon)" [disabled]="!HasWriteRights"
-                                  class="btn btn-sm btn-danger">
-                                  Un-Complete
+                                        class="btn btn-sm btn-danger">
+                                    Un-Complete
                                 </button>
-                              </div>
+                            </div>
                             }
-                            @for (l of reconcilingCodeArrayLength(recon.CodesReviewer3.length); track l) {
-                              <div class="row col-md-12">
+                            @for (j of reconcilingCodeArrayLength(recon.CodesReviewer1.length); track j) {
+                            <div class="row col-md-12">
                                 <div class="row m-0">
-                                  @if (hidemeThree[l+(100*i)]) {
+                                    <!--<span [hidden]="!hidemeOne[j+(100*i)]">-->
+                                    @if (hidemeOne[j+(100*i)]) {
                                     <span>
-                                      @for (item of getReconSplitArray(recon.CodesReviewer3[l-1].Fullpath); track item) {
+                                        @for (item of getReconSplitArray(recon.CodesReviewer1[j-1].Fullpath); track item) {
                                         <span>
-                                          @if (item != '') {
-                                            <button
-                                              class="BackgroundButtonClear btn-sm border-dark bg-white rounded-0 mt-1 px-1 py-0"
-                                              style="text-decoration: none; border-width:1px;">
-                                              {{item}}
+                                            @if (item != '') {
+                                            <button class="BackgroundButtonClear btn-sm border-dark bg-white rounded-0 mt-1 px-1 py-0"
+                                                    style="text-decoration: none; border-width:1px;">
+                                                {{item}}
                                             </button>
-                                          }
-                                          <fa-icon [icon]="faArrowRight"></fa-icon>
+                                            }
+                                            <fa-icon [icon]="faArrowRight"></fa-icon>
                                         </span>
-                                      }
+                                        }
                                     </span>
-                                  }
-                                  @if (recon.CodesReviewer3[l-1].ArmID == 0) {
-                                    <button
-                                      class="btn-sm border-dark bg-white rounded-0 mt-1 px-1  py-0"
-                                      style="text-decoration: none; border-width:1px; cursor:pointer"
-                                      (click)="hidemeThree[l+(100*i)] = !hidemeThree[l+(100*i)]">
-                                      {{recon.CodesReviewer3[l-1].Name}}
+                                    }
+                                    @if (recon.CodesReviewer1[j-1].ArmID == 0) {
+                                    <button class="btn-sm border-dark bg-white rounded-0 mt-1 px-1  py-0"
+                                            style="text-decoration: none; border-width:1px; cursor:pointer"
+                                            (click)="hidemeOne[j+(100*i)] = !hidemeOne[j+(100*i)]">
+                                        {{recon.CodesReviewer1[j-1].Name}}
                                     </button>
-                                  }
+                                    }
                                 </div>
-                                @if (recon.CodesReviewer3[l-1].InfoBox != '' && hidemeThree[l+(100*i)]) {
-                                  <div
-                                    class="col-md-12 small mt-1 p-1 bg-white border border-dark ng-star-inserted">
-                                    <b>[Info Box]</b>{{recon.CodesReviewer3[l-1].InfoBox}}
-                                  </div>
+                                @if (recon.CodesReviewer1[j-1].InfoBox != '' && hidemeOne[j+(100*i)]) {
+                                <div class="col-md-12 small mt-1 p-1 bg-white border border-dark ng-star-inserted">
+                                    <b>[Info Box]</b> {{recon.CodesReviewer1[j-1].InfoBox}}
+                                </div>
                                 }
-                              </div>
+                            </div>
                             }
-                            @if (ItemList.items[i] != undefined && ItemList.items[i].arms != undefined && ItemList.items[i].arms.length > 0  ) {
-                              <div class="col-12 pl-0">
-                                @for (c of ItemList.items[i].arms; track c) {
-                                  <div>
-                                    <b class="row col-md-12">{{c.title}}</b>
-                                    @for (zz of reconcilingCodeArrayLength(recon.CodesReviewer3.length); track zz) {
-                                      <div class="col-12">
-                                        @if (recon.CodesReviewer3[zz-1].ArmID == c.itemArmId) {
-                                          <div class="row">
-                                            @for (item of getReconSplitArray(recon.CodesReviewer3[zz-1].Fullpath); track item) {
-                                              <div>
-                                                @if (hidemearmsThree[zz +(100*i)]) {
-                                                  <span>
+                            @if (ItemList.items[i] != undefined && ItemList.items[i].arms != undefined && ItemList.items[i].arms.length > 0 ) {
+                            <div class="col-12 pl-0">
+                                @for (a of ItemList.items[i].arms; track a.itemArmId) {
+                                <div>
+                                    <b class="row col-md-12">{{a.title}}</b>
+                                    @for (jj of reconcilingCodeArrayLength(recon.CodesReviewer1.length); track jj) {
+                                    <div class="col-12">
+                                        @if (recon.CodesReviewer1[jj-1].ArmID == a.itemArmId) {
+                                        <div class="row">
+                                            @for (item of getReconSplitArray(recon.CodesReviewer1[jj-1].Fullpath); track item) {
+                                            <div>
+                                                @if (hidemearms[jj]) {
+                                                <span>
+                                                    <!--<span [hidden]="!hidemearms[jj]">-->
                                                     @if (item != '') {
-                                                      <span>
+                                                    <span>
                                                         <button class="BackgroundButtonClear btn-sm border-dark bg-white rounded-0 mt-1 px-1 py-0"
-                                                          style="text-decoration: none; border-width:1px;">
-                                                          {{item}}
+                                                                style="text-decoration: none; border-width:1px;">
+                                                            {{item}}
                                                         </button>
                                                         <fa-icon [icon]="faArrowRight"></fa-icon>
-                                                      </span>
+                                                    </span>
                                                     }
-                                                  </span>
+                                                </span>
                                                 }
-                                              </div>
+                                            </div>
                                             }
                                             <button class="btn-sm border-dark bg-white rounded-0 mt-1 px-1  py-0"
-                                              style="text-decoration: none; border-width:1px; cursor:pointer"
-                                              (click)="hidemearmsThree[zz+(100*i)] = !hidemearmsThree[zz+(100*i)]">
-                                              {{recon.CodesReviewer3[zz-1].Name}}
+                                                    style="text-decoration: none; border-width:1px; cursor:pointer"
+                                                    (click)="hidemearms[jj] = !hidemearms[jj]">
+                                                {{recon.CodesReviewer1[jj-1].Name}}
+                                            </button>
+                                            <!--<span [hidden]="!hidemearms[jj]"
+                *ngIf="recon.CodesReviewer1[jj-1].InfoBox != ''"
+                class="col-md-12 small mt-1 p-1 bg-white border border-dark ng-star-inserted">-->
+                                            @if (hidemearms[jj] && recon.CodesReviewer1[jj-1].InfoBox != '') {
+                                            <div class="col-md-12 small mt-1 p-1 bg-white border border-dark ">
+                                                <b>[Info Box]</b>{{recon.CodesReviewer1[jj-1].InfoBox}}
+                                            </div>
+                                            }
+                                        </div>
+                                        }
+                                    </div>
+                                    }
+                                </div>
+                                }
+                            </div>
+                            }
+                        </td>
+                        <td class="p-1" style="max-width:475px;">
+                            @if (!recon.IsCompleted &&  recon.CodesReviewer2.length > 0) {
+                            <div class="col-md-12 m-1 ml-0 pl-0">
+                                <button (click)="Complete(recon,CurrentComparison.contactId2)" [disabled]="!HasWriteRights"
+                                        class="btn btn-sm btn-success pull-left">
+                                    Complete
+                                </button>
+                                <button (click)="CompleteAndLock(recon, CurrentComparison.contactId2)" [disabled]="!HasWriteRights"
+                                        class="btn btn-sm btn-info  pull-right">
+                                    Complete & Lock
+                                </button>
+                            </div>
+                            }
+                            @if (recon.IsCompleted && recon.CompletedByID == CurrentComparison.contactId2) {
+                            <div>
+                                <button (click)="UnComplete(recon)" [disabled]="!HasWriteRights"
+                                        class="btn btn-sm btn-danger">
+                                    Un-Complete
+                                </button>
+                            </div>
+                            }
+                            @for (k of reconcilingCodeArrayLength(recon.CodesReviewer2.length); track k) {
+                            <div class="row col-12">
+                                <div class="row m-0">
+                                    @if (hidemeTwo[k+(100*i)]) {
+                                    <span>
+                                        @for (item of getReconSplitArray(recon.CodesReviewer2[k-1].Fullpath); track item) {
+                                        <span>
+                                            @if (item != '') {
+                                            <button class="BackgroundButtonClear btn-sm border-dark bg-white rounded-0 mt-1 px-1 py-0"
+                                                    style="text-decoration: none; border-width:1px;">
+                                                {{item}}
+                                            </button>
+                                            }
+                                            <fa-icon [icon]="faArrowRight"></fa-icon>
+                                        </span>
+                                        }
+                                    </span>
+                                    }
+                                    @if (recon.CodesReviewer2[k-1].ArmID == 0) {
+                                    <button class="btn-sm border-dark bg-white rounded-0 mt-1 px-1  py-0"
+                                            style="text-decoration: none; border-width:1px; cursor:pointer"
+                                            (click)="hidemeTwo[k+(100*i)] = !hidemeTwo[k+(100*i)]">
+                                        {{recon.CodesReviewer2[k-1].Name}}
+                                    </button>
+                                    }
+                                </div>
+                                @if (recon.CodesReviewer2[k-1].InfoBox != '' && hidemeTwo[k+(100*i)]) {
+                                <div class="col-md-12 small mt-1 p-1 bg-white border border-dark ng-star-inserted">
+                                    <b>[Info Box]</b>{{recon.CodesReviewer2[k-1].InfoBox}}
+                                </div>
+                                }
+                            </div>
+                            }
+                            @if (ItemList.items[i] != undefined && ItemList.items[i].arms != undefined && ItemList.items[i].arms.length > 0  ) {
+                            <div class="col-12 pl-0">
+                                @for (b of ItemList.items[i].arms; track b.itemArmId) {
+                                <div>
+                                    <b class="row col-md-12">{{b.title}}</b>
+                                    @for (kk of reconcilingCodeArrayLength(recon.CodesReviewer2.length); track kk) {
+                                    <div class="col-12">
+                                        @if (recon.CodesReviewer2[kk-1].ArmID == b.itemArmId) {
+                                        <div class="row">
+                                            @for (item of getReconSplitArray(recon.CodesReviewer2[kk-1].Fullpath); track item) {
+                                            <div>
+                                                @if (hidemearmsTwo[kk +(100*i)]) {
+                                                <span>
+                                                    @if (item != '') {
+                                                    <span>
+                                                        <button class="BackgroundButtonClear btn-sm border-dark bg-white rounded-0 mt-1 px-1 py-0"
+                                                                style="text-decoration: none; border-width:1px;">
+                                                            {{item}}
+                                                        </button>
+                                                        <fa-icon [icon]="faArrowRight"></fa-icon>
+                                                    </span>
+                                                    }
+                                                </span>
+                                                }
+                                            </div>
+                                            }
+                                            <button class="btn-sm border-dark bg-white rounded-0 mt-1 px-1  py-0"
+                                                    style="text-decoration: none; border-width:1px; cursor:pointer"
+                                                    (click)="hidemearmsTwo[kk+(100*i)] = !hidemearmsTwo[kk+(100*i)]">
+                                                {{recon.CodesReviewer2[kk-1].Name}}
+                                            </button>
+                                            @if (hidemearmsTwo[kk+(100*i)] && recon.CodesReviewer2[kk-1].InfoBox != '') {
+                                            <div class="col-md-12 small mt-1 p-1 bg-white border border-dark ">
+                                                <b>[Info Box]</b>{{recon.CodesReviewer2[kk-1].InfoBox}}
+                                                <br />
+                                            </div>
+                                            }
+                                        </div>
+                                        }
+                                    </div>
+                                    }
+                                </div>
+                                }
+                            </div>
+                            }
+                        </td>
+                        @if (CurrentComparison.contactName3 != '') {
+                        <td class="p-1" style="max-width:475px;">
+                            @if (!recon.IsCompleted  && recon.CodesReviewer3.length > 0) {
+                            <div class="col-md-12 m-1 ml-0 pl-0">
+                                <button (click)="Complete(recon, CurrentComparison.contactId3)" [disabled]="!HasWriteRights"
+                                        class="btn btn-sm btn-success pull-left">
+                                    Complete
+                                </button>
+                                <button (click)="CompleteAndLock(recon, CurrentComparison.contactId3)" [disabled]="!HasWriteRights"
+                                        class="btn btn-sm btn-info pull-right">
+                                    Complete & Lock
+                                </button>
+                            </div>
+                            }
+                            @if (recon.IsCompleted && recon.CompletedByID == CurrentComparison.contactId3) {
+                            <div>
+                                <button (click)="UnComplete(recon)" [disabled]="!HasWriteRights"
+                                        class="btn btn-sm btn-danger">
+                                    Un-Complete
+                                </button>
+                            </div>
+                            }
+                            @for (l of reconcilingCodeArrayLength(recon.CodesReviewer3.length); track l) {
+                            <div class="row col-md-12">
+                                <div class="row m-0">
+                                    @if (hidemeThree[l+(100*i)]) {
+                                    <span>
+                                        @for (item of getReconSplitArray(recon.CodesReviewer3[l-1].Fullpath); track item) {
+                                        <span>
+                                            @if (item != '') {
+                                            <button class="BackgroundButtonClear btn-sm border-dark bg-white rounded-0 mt-1 px-1 py-0"
+                                                    style="text-decoration: none; border-width:1px;">
+                                                {{item}}
+                                            </button>
+                                            }
+                                            <fa-icon [icon]="faArrowRight"></fa-icon>
+                                        </span>
+                                        }
+                                    </span>
+                                    }
+                                    @if (recon.CodesReviewer3[l-1].ArmID == 0) {
+                                    <button class="btn-sm border-dark bg-white rounded-0 mt-1 px-1  py-0"
+                                            style="text-decoration: none; border-width:1px; cursor:pointer"
+                                            (click)="hidemeThree[l+(100*i)] = !hidemeThree[l+(100*i)]">
+                                        {{recon.CodesReviewer3[l-1].Name}}
+                                    </button>
+                                    }
+                                </div>
+                                @if (recon.CodesReviewer3[l-1].InfoBox != '' && hidemeThree[l+(100*i)]) {
+                                <div class="col-md-12 small mt-1 p-1 bg-white border border-dark ng-star-inserted">
+                                    <b>[Info Box]</b>{{recon.CodesReviewer3[l-1].InfoBox}}
+                                </div>
+                                }
+                            </div>
+                            }
+                            @if (ItemList.items[i] != undefined && ItemList.items[i].arms != undefined && ItemList.items[i].arms.length > 0  ) {
+                            <div class="col-12 pl-0">
+                                @for (c of ItemList.items[i].arms; track c.itemArmId) {
+                                <div>
+                                    <b class="row col-md-12">{{c.title}}</b>
+                                    @for (zz of reconcilingCodeArrayLength(recon.CodesReviewer3.length); track zz) {
+                                    <div class="col-12">
+                                        @if (recon.CodesReviewer3[zz-1].ArmID == c.itemArmId) {
+                                        <div class="row">
+                                            @for (item of getReconSplitArray(recon.CodesReviewer3[zz-1].Fullpath); track item) {
+                                            <div>
+                                                @if (hidemearmsThree[zz +(100*i)]) {
+                                                <span>
+                                                    @if (item != '') {
+                                                    <span>
+                                                        <button class="BackgroundButtonClear btn-sm border-dark bg-white rounded-0 mt-1 px-1 py-0"
+                                                                style="text-decoration: none; border-width:1px;">
+                                                            {{item}}
+                                                        </button>
+                                                        <fa-icon [icon]="faArrowRight"></fa-icon>
+                                                    </span>
+                                                    }
+                                                </span>
+                                                }
+                                            </div>
+                                            }
+                                            <button class="btn-sm border-dark bg-white rounded-0 mt-1 px-1  py-0"
+                                                    style="text-decoration: none; border-width:1px; cursor:pointer"
+                                                    (click)="hidemearmsThree[zz+(100*i)] = !hidemearmsThree[zz+(100*i)]">
+                                                {{recon.CodesReviewer3[zz-1].Name}}
                                             </button>
                                             @if (hidemearmsThree[zz+(100*i)] && recon.CodesReviewer3[zz-1].InfoBox != '') {
-                                              <div
-                                                class="col-md-12 small mt-1 p-1 bg-white border border-dark">
+                                            <div class="col-md-12 small mt-1 p-1 bg-white border border-dark">
                                                 <b>[Info box]</b>{{recon.CodesReviewer3[zz-1].InfoBox}}
-                                              </div>
+                                            </div>
                                             }
-                                          </div>
+                                        </div>
                                         }
-                                      </div>
+                                    </div>
                                     }
-                                  </div>
+                                </div>
                                 }
-                              </div>
+                            </div>
                             }
-                          </td>
+                        </td>
                         }
-                      </tr>
+                    </tr>
                     }
-                  </tbody>
+                </tbody>
                 </table>
               }
             </div>

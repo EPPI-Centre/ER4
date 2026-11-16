@@ -40,7 +40,7 @@
             <select #AllocateOptionsDropDown class="form-control" name="AllocateOptions"
               style="min-width: 200px; max-width:720px;" (change)="SetRelevantDropDownValues($event)"
               (click)="isCollapsedAllocateOptions = false; isCollapsedCodingTool = false">
-              @for (item of AllocateOptions; track item) {
+              @for (item of AllocateOptions; track item.key) {
                 <option [value]="item.key"
                   [selected]="item.key == selectedAllocated.key">
                   {{item.value}}
@@ -79,7 +79,7 @@
             <div class="col-12 col-sm-auto mx-1 ml-sm-auto text-sm-right my-auto">
               Select also from:
             </div>
-            <div ngbDropdown class="form-group col-12 col-sm-auto mx-1 mr-sm-auto my-auto" style="min-width:200px;">
+            <div ngbDropdown display="static"  class="form-group col-12 col-sm-auto mx-1 mr-sm-auto my-auto" style="min-width:200px;">
               <button class="btn btn-outline-secondary dropdown-toggle col-12"
                 style="min-width: 200px; max-width:720px;"
                 (click)="isCollapsedAllocateOptions = false; isCollapsedCodingTool = false; isCollapsedCodeStudies = false;"
@@ -87,12 +87,12 @@
                 {{selectedCodeSetDropDown.name}}
               </button>
               <div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool" class="FlatDropdown">
-                @for (item of CodeSets; track item) {
+                  @for (item of CodeSets; track item.set_id) {
                   <button (click)="setCodeSetDropDown(item)"
-                    class="dropdown-item">
-                    {{item.name}}
+                          class="dropdown-item">
+                      {{item.name}}
                   </button>
-                }
+                  }
               </div>
             </div>
           </div>
@@ -161,7 +161,7 @@
               </div>
             }
             @if (NoSuitableCodeSet) {
-              <div ngbDropdown class="alert alert-danger " style="min-width:150px;">
+              <div  class="alert alert-danger " style="min-width:150px;">
                 This review contains no Coding Tools able to receive random allocations. Please use the
                 <span (click)="GoToEditCodesets()" class="btn border-0 p-0 mb-1 btn-link">Edit Coding Tools</span>
                 function to create a new tool (preferably of "Administration" type).
@@ -217,17 +217,17 @@
           <div class="col-12 col-md-3  text-left text-md-right px-1 my-auto" style="min-width:100px;">
             Coding tool to use:
           </div>
-          <div ngbDropdown class="col-12 col-md-9 col-lg-8 col-xl-6" style="min-width:150px;">
+          <div ngbDropdown display="static"  class="col-12 col-md-9 col-lg-8 col-xl-6" style="min-width:150px;">
             <button class="btn btn-outline-primary col-12  p-2 m-0" id="dropdownBasicCodingTool" ngbDropdownToggle>
               {{DropDownBasicCodingTool.name}}
             </button>
             <div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool" class="FlatDropdown">
-              @for (item of CodeSets; track item) {
+                @for (item of CodeSets; track item.set_id) {
                 <button (click)="setCodeSetDropDown2(item);"
-                  class="dropdown-item">
-                  {{item.name}}
+                        class="dropdown-item">
+                    {{item.name}}
                 </button>
-              }
+                }
             </div>
           </div>
         </div>
@@ -235,12 +235,12 @@
           <div class="col-12 col-md-3  text-left text-md-right px-1 my-auto" style="min-width:100px;">
             Reviewer:
           </div>
-          <div ngbDropdown class="col-12 col-md-9 col-lg-8 col-xl-6" style="min-width:150px;">
+          <div ngbDropdown display="static"  class="col-12 col-md-9 col-lg-8 col-xl-6" style="min-width:150px;">
             <button class="btn btn-outline-primary col-12  p-2 m-0" id="dropdownBasicPerson" ngbDropdownToggle>
               {{selectedMemberDropDown.contactName}}
             </button>
             <div ngbDropdownMenu aria-labelledby="dropdownBasicPerson" class="FlatDropdown" >
-              @for (member of Contacts; track member) {
+              @for (member of Contacts; track member.contactId) {
                 <button (click)="SetMemberDropDown(member); "
                   class="dropdown-item">
                   {{member.contactName}}

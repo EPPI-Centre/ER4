@@ -96,28 +96,28 @@
                 <th class="text-center" width="15">Description</th>
                 <th class="text-center" width="5">Actions</th>
               </tr>
-              @for (link of ItemLinks; track link) {
-                <tr>
-                  <td>{{link.itemIdSecondary}}</td>
-                  <td>{{link.shortTitle}}</td>
-                  <td>{{link.description}}</td>
-                  <td style="white-space:nowrap;">
-                    <button (click)="EditLink(link)"
-                      [disabled]="!HasWriteRights"
-                      type="button" rounded="true" size="sm" class="btn btn-outline-info p-1 m-1">
-                      Edit
-                    </button>
-                    <button (click)="ViewLinkedItemDetails(link)"
-                      title="View linked Item details"
-                      type="button" rounded="true" size="sm" class="btn btn-outline-success p-1 m-1">
-                      <kendo-icon name="eye"></kendo-icon>
-                    </button>
-                    <button type="button" rounded="true" size="sm" class="btn btn-outline-danger p-1 m-1" title="Delete Link"
-                      [disabled]="!HasWriteRights" (click)="DeleteLink(link)">
-                      <kendo-icon name="trash"></kendo-icon>
-                    </button>
-                  </td>
-                </tr>
+              @for (link of ItemLinks; track link.itemLinkId) {
+              <tr>
+                <td>{{link.itemIdSecondary}}</td>
+                <td>{{link.shortTitle}}</td>
+                <td>{{link.description}}</td>
+                <td style="white-space:nowrap;">
+                  <button (click)="EditLink(link)"
+                          [disabled]="!HasWriteRights"
+                          type="button" rounded="true" size="sm" class="btn btn-outline-info p-1 m-1">
+                    Edit
+                  </button>
+                  <button (click)="ViewLinkedItemDetails(link)"
+                          title="View linked Item details"
+                          type="button" rounded="true" size="sm" class="btn btn-outline-success p-1 m-1">
+                    <kendo-icon name="eye"></kendo-icon>
+                  </button>
+                  <button type="button" rounded="true" size="sm" class="btn btn-outline-danger p-1 m-1" title="Delete Link"
+                          [disabled]="!HasWriteRights" (click)="DeleteLink(link)">
+                    <kendo-icon name="trash"></kendo-icon>
+                  </button>
+                </td>
+              </tr>
               }
             </table>
           }

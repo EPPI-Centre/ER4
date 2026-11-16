@@ -31,28 +31,27 @@
           </tr>
         </thead>
         <tbody>
-          @for (ItemDocument of ItemDocsService._itemDocs; track ItemDocument) {
+            @for (ItemDocument of ItemDocsService._itemDocs; track ItemDocument.itemDocumentId) {
             <tr>
-              <td class="">{{ ItemDocument.itemDocumentId }}</td>
-              <td class="">{{ ItemDocument.shortTitle }}</td>
-              <td class="">{{ ItemDocument.title }}</td>
-              <td class="p-0 m-0 align-middle">
-                @if (ShowViewButton && ItemDocument.extension.toLowerCase() == '.pdf') {
-                  <button
-                    class="btn btn-outline-success btn-sm mr-1  px-1 py-0" title="View"
-                    (click)="DownloadDoc(ItemDocument.itemDocumentId, true)">
-                    <kendo-icon name="eye"></kendo-icon>
-                  </button>
-                }
-                <button class="btn btn-outline-info btn-sm px-1 py-0" (click)="DownloadDoc(ItemDocument.itemDocumentId, false)">
-                  Download
-                </button>
-                <button class="btn btn-outline-danger btn-sm ml-1 px-1 py-0" title="Delete" (click)="DeleteDoc(ItemDocument.itemDocumentId)">
-                  <kendo-icon name="trash"></kendo-icon>
-                </button>
-              </td>
+                <td class="">{{ ItemDocument.itemDocumentId }}</td>
+                <td class="">{{ ItemDocument.shortTitle }}</td>
+                <td class="">{{ ItemDocument.title }}</td>
+                <td class="p-0 m-0 align-middle">
+                    @if (ShowViewButton && ItemDocument.extension.toLowerCase() == '.pdf') {
+                    <button class="btn btn-outline-success btn-sm mr-1  px-1 py-0" title="View"
+                            (click)="DownloadDoc(ItemDocument.itemDocumentId, true)">
+                        <kendo-icon name="eye"></kendo-icon>
+                    </button>
+                    }
+                    <button class="btn btn-outline-info btn-sm px-1 py-0" (click)="DownloadDoc(ItemDocument.itemDocumentId, false)">
+                        Download
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm ml-1 px-1 py-0" title="Delete" (click)="DeleteDoc(ItemDocument.itemDocumentId)">
+                        <kendo-icon name="trash"></kendo-icon>
+                    </button>
+                </td>
             </tr>
-          }
+            }
         </tbody>
       </table>
     </div>

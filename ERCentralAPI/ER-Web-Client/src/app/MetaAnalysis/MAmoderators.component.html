@@ -12,28 +12,28 @@
           </tr>
         </thead>
         <tbody>
-          @for (mod of Moderators; track mod) {
+            @for (mod of Moderators; track mod.attributeID) {
             <tr>
-              <td>
-                <input type="checkbox" [(ngModel)]="mod.isSelected" />
-              </td>
-              <td>
-                {{mod.name}}
-              </td>
-              <td>
-                <input type="checkbox" [(ngModel)]="mod.isFactor" [disabled]="!mod.isSelected" />
-              </td>
-              <td>
-                <select (change)="ChangingReference($event, mod)" class="py-1" [disabled]="!mod.isSelected || !mod.isFactor">
-                  @for (ref of mod.references; track ref) {
-                    <option [value]="ref.name" [selected]="mod.reference == ref.name" class="py-0">
-                      {{ref.name}}
-                    </option>
-                  }
-                </select>
-              </td>
+                <td>
+                    <input type="checkbox" [(ngModel)]="mod.isSelected" />
+                </td>
+                <td>
+                    {{mod.name}}
+                </td>
+                <td>
+                    <input type="checkbox" [(ngModel)]="mod.isFactor" [disabled]="!mod.isSelected" />
+                </td>
+                <td>
+                    <select (change)="ChangingReference($event, mod)" class="py-1" [disabled]="!mod.isSelected || !mod.isFactor">
+                        @for (ref of mod.references; track ref) {
+                        <option [value]="ref.name" [selected]="mod.reference == ref.name" class="py-0">
+                            {{ref.name}}
+                        </option>
+                        }
+                    </select>
+                </td>
             </tr>
-          }
+            }
         </tbody>
       </table>
     </div>

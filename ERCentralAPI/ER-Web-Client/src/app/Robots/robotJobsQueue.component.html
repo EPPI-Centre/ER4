@@ -11,19 +11,19 @@
           <tr><th>ID</th><th>Size</th><th>State</th><th>Progress</th><th></th></tr>
         </thead>
         <tbody>
-          @for (Job of CurrentQueue; track Job) {
+            @for (Job of CurrentQueue; track Job.robotApiCallId) {
             <tr [ngClass]="JobCSSclass(Job)">
-              <td>{{Job.robotApiCallId}}</td>
-              <td>{{Job.itemIDsList.length}}</td>
-              <td>{{Job.status}}</td>
-              <td>{{JobDescription(Job)}}</td>
-              <td>
-                @if (Job.reviewId > 0) {
-                  <button class="btn btn-sm btn-outline-secondary mr-1 py-0 small" (click)="JobDetails(Job.robotApiCallId)">Details</button>
-                }
-              </td>
+                <td>{{Job.robotApiCallId}}</td>
+                <td>{{Job.itemIDsList.length}}</td>
+                <td>{{Job.status}}</td>
+                <td>{{JobDescription(Job)}}</td>
+                <td>
+                    @if (Job.reviewId > 0) {
+                    <button class="btn btn-sm btn-outline-secondary mr-1 py-0 small" (click)="JobDetails(Job.robotApiCallId)">Details</button>
+                    }
+                </td>
             </tr>
-          }
+            }
         </tbody>
       </table>
       @if (DetailsJobId > 0 && DetailedJob) {

@@ -25,11 +25,11 @@
           }
           <select #CodeTypeSelectCollaborate class="form-control" name="NewCode_TypeCollaborate"
                   [disabled]="!CurrentCodeCanHaveChildren" (change)="ChangeLastSelectedCodeType($event)">
-            @for (type of AllowedChildTypesOfSelectedNode; track type) {
-            <option [value]="type.key" [selected]="type.key == LastSelectedCodeTypeId">
-              {{type.value}}
-            </option>
-            }
+              @for (type of AllowedChildTypesOfSelectedNode; track type.key) {
+              <option [value]="type.key" [selected]="type.key == LastSelectedCodeTypeId">
+                  {{type.value}}
+              </option>
+              }
           </select>
         </div>
       </div>
@@ -103,12 +103,12 @@
       <div class="form-group mb-0">
         <label for="Codeset_TypeCollaborate">Code Type*</label>&nbsp;
         <select #CodeTypeSelectCollaborate class="p-1" name="NewCode_TypeCollaborate" (change)="ChangeLastSelectedCodeType($event)"
-          [disabled]="!CurrentCodeCanHaveChildren">
-          @for (type of AllowedChildTypesOfSelectedNode; track type) {
+                [disabled]="!CurrentCodeCanHaveChildren">
+            @for (type of AllowedChildTypesOfSelectedNode; track type.key) {
             <option [value]="type.key" [selected]="type.key == LastSelectedCodeTypeId">
-              {{type.value}}
+                {{type.value}}
             </option>
-          }
+            }
         </select>
       </div>
     </div>

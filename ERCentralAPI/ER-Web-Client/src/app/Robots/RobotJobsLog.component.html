@@ -27,14 +27,14 @@
               <div class="row" style="vertical-align:top">
                 <div class="col-6">
                   Active robots
-                  <select class="col px-0" [(ngModel)]="SelectedActiveRobot" id="batchRobotList">
-                    <option [ngValue]="false">Please select</option>
-                    @for (r of RobotsList; track r) {
-                      <option [ngValue]="r">
-                        {{r.robotName}}
-                      </option>
-                    }
-                  </select>
+                    <select class="col px-0" [(ngModel)]="SelectedActiveRobot" id="batchRobotList">
+                        <option [ngValue]="false">Please select</option>
+                        @for (r of RobotsList; track r.robotId) {
+                        <option [ngValue]="r">
+                            {{r.robotName}}
+                        </option>
+                        }
+                    </select>
                   @if (SelectedActiveRobot) {
                     <div class="col mx-0 rounded bg-light px-1">
                       <div><span class="font-weight-bold">Description:<br /></span>{{SelectedActiveRobot.description}}</div>
@@ -46,14 +46,14 @@
                 </div>
                 <div class="col-6">
                   Retired robots
-                  <select class="col px-0" [(ngModel)]="SelectedRetiredRobot" id="batchExpiredRobotList">
-                    <option [ngValue]="false">Please select</option>
-                    @for (r of RobotsExpiredList; track r) {
-                      <option [ngValue]="r">
-                        {{r.robotName}}
-                      </option>
-                    }
-                  </select>
+                    <select class="col px-0" [(ngModel)]="SelectedRetiredRobot" id="batchExpiredRobotList">
+                        <option [ngValue]="false">Please select</option>
+                        @for (r of RobotsExpiredList; track r.robotId) {
+                        <option [ngValue]="r">
+                            {{r.robotName}}
+                        </option>
+                        }
+                    </select>
                   @if (SelectedRetiredRobot) {
                     <div class="col mx-0 rounded bg-light px-1">
                       <div><span class="font-weight-bold">Description:<br /></span>{{SelectedRetiredRobot.description}}</div>
@@ -96,7 +96,7 @@
       <div style="height: 100%; display: flex; ">
         <div style="display: flex; flex-direction: row-reverse; min-width: 30px; max-width: 30px; min-height: 18px; ">
           <button class="btn btn-sm btn-outline-success mx-1 align-self-end mt-auto mb-1 py-0 px-1 float-right" (click)="Refresh()">
-            <kendo-icon name="refresh-sm" style="font-weight:bold"></kendo-icon>
+              <kendo-icon name="arrows-rotate" style="font-weight:bold"></kendo-icon>
           </button>
         </div>
       </div>

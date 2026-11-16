@@ -118,16 +118,16 @@
                   No Topic
                 </div>
               }
-              <div class="row">
-                @for (item of _magTopicsService.WPChildTopics; track item) {
-                  <div>
-                    <div (click)="GetParentAndChildRelatedPapers(item)" class="alert-info m-1 px-1 rounded page-link"
-                      [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'WhiteSmoke', 'color': 'black'}">
-                      {{item.displayName}}
+                <div class="row">
+                    @for (item of _magTopicsService.WPChildTopics; track item.fieldOfStudyId) {
+                    <div>
+                        <div (click)="GetParentAndChildRelatedPapers(item)" class="alert-info m-1 px-1 rounded page-link"
+                             [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'WhiteSmoke', 'color': 'black'}">
+                            {{item.displayName}}
+                        </div>
                     </div>
-                  </div>
-                }
-              </div>
+                    }
+                </div>
             </div>
           </div>
         }
@@ -135,19 +135,19 @@
           <div  class="">
             <h5 class="font-weight-light">Parent Topics</h5>
             <div class=" mb-2 card col-12 small table table-border  table-striped">
-              @if (_magTopicsService.WPParentTopics.length == 0) {
+                @if (_magTopicsService.WPParentTopics.length == 0) {
                 <div class="alert alert-light">
-                  No Topic
+                    No Topic
                 </div>
-              }
-              @for (item of _magTopicsService.WPParentTopics; track item) {
+                }
+                @for (item of _magTopicsService.WPParentTopics; track item.fieldOfStudyId) {
                 <div>
-                  <div (click)="GetParentAndChildRelatedPapers(item)" class="alert-info m-1 px-1 rounded page-link"
-                    [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'WhiteSmoke', 'color': 'black'}">
-                    {{item.displayName }}
-                  </div>
+                    <div (click)="GetParentAndChildRelatedPapers(item)" class="alert-info m-1 px-1 rounded page-link"
+                         [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'WhiteSmoke', 'color': 'black'}">
+                        {{item.displayName }}
+                    </div>
                 </div>
-              }
+                }
             </div>
             <h5 class="font-weight-light">Child Topics</h5>
             <div class=" card col-12 small table table-border table-striped">
@@ -156,16 +156,16 @@
                   No Topic
                 </div>
               }
-              <div class="row">
-                @for (item of _magTopicsService.WPChildTopics; track item) {
-                  <div>
-                    <div (click)="GetParentAndChildRelatedPapers(item)" class="alert-info m-1 px-1 rounded page-link"
-                      [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'WhiteSmoke', 'color': 'black'}">
-                      {{item.displayName}}
+                <div class="row">
+                    @for (item of _magTopicsService.WPChildTopics; track item.fieldOfStudyId) {
+                    <div>
+                        <div (click)="GetParentAndChildRelatedPapers(item)" class="alert-info m-1 px-1 rounded page-link"
+                             [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'WhiteSmoke', 'color': 'black'}">
+                            {{item.displayName}}
+                        </div>
                     </div>
-                  </div>
-                }
-              </div>
+                    }
+                </div>
             </div>
           </div>
         }
@@ -184,25 +184,24 @@
                         <tr></tr>
                       </thead>
                       <tbody>
-                        @for (item of _magBrowserService.MAGList.papers; track item) {
+                          @for (item of _magBrowserService.MAGList.papers; track item.paperId) {
                           <tr style="cursor: pointer;">
-                            <td (click)="GetMagPaperRef(item, _magBrowserService.MAGList.papers)" title="Open this paper details">
-                              {{item.shortRecord}}
-                            </td>
-                            <td title="'Select/Unselect reference'">
-                              <button [disabled]="!CanSelectMagItem(item)" class="btn btn-sm btn-outline-default mx-1 my-0 pb-1 px-1 " (click)="InOutReview(item, _magBrowserService.MAGList.papers)">
-                                <kendo-icon [name]="IsCurrentPaperSelected(item.paperId) == true  ? 'minus' : 'plus'"> </kendo-icon>
-                              </button>
-                          </td>
-                          @if (_magBrowserService.MAGList.papers == _magBrowserService.MAGOriginalList.papers && ListType.startsWith('Auto update results')) {
-                            <td title="Model score"
-                              >
-                              {{item.similarityScore.toFixed(3)}}
-                            </td>
+                              <td (click)="GetMagPaperRef(item, _magBrowserService.MAGList.papers)" title="Open this paper details">
+                                  {{item.shortRecord}}
+                              </td>
+                              <td title="'Select/Unselect reference'">
+                                  <button [disabled]="!CanSelectMagItem(item)" class="btn btn-sm btn-outline-default mx-1 my-0 pb-1 px-1 " (click)="InOutReview(item, _magBrowserService.MAGList.papers)">
+                                      <kendo-icon [name]="IsCurrentPaperSelected(item.paperId) == true  ? 'minus' : 'plus'"> </kendo-icon>
+                                  </button>
+                              </td>
+                              @if (_magBrowserService.MAGList.papers == _magBrowserService.MAGOriginalList.papers && ListType.startsWith('Auto update results')) {
+                              <td title="Model score">
+                                  {{item.similarityScore.toFixed(3)}}
+                              </td>
+                              }
+                          </tr>
                           }
-                        </tr>
-                      }
-                    </tbody>
+                      </tbody>
                   </table>
                 </div>
                 @if (IsServiceBusy && _magBrowserService.MAGList && _magBrowserService.MAGList.papers &&
@@ -243,17 +242,17 @@
                   <tr></tr>
                 </thead>
                 <tbody>
-                  @for (item of _magBrowserService.MagCitationsByPaperList.papers; track item) {
+                    @for (item of _magBrowserService.MagCitationsByPaperList.papers; track item.paperId) {
                     <tr style="cursor: pointer;">
-                      <td (click)="GetMagPaperRef(item, _magBrowserService.MagCitationsByPaperList.papers )">{{item.fullRecord}}</td>
-                      <td>
-                        <button [disabled]="!CanSelectMagItem(item)" class="btn btn-sm btn-outline-default mx-1 my-0 pb-1 px-1 " (click)="InOutReview(item, _magBrowserService.MagCitationsByPaperList.papers)">
-                          <kendo-icon [name]="IsCurrentPaperSelected(item.paperId) == true  ? 'minus' : 'plus'"> </kendo-icon>
-                        </button>
-                    </td>
-                  </tr>
-                }
-              </tbody>
+                        <td (click)="GetMagPaperRef(item, _magBrowserService.MagCitationsByPaperList.papers )">{{item.fullRecord}}</td>
+                        <td>
+                            <button [disabled]="!CanSelectMagItem(item)" class="btn btn-sm btn-outline-default mx-1 my-0 pb-1 px-1 " (click)="InOutReview(item, _magBrowserService.MagCitationsByPaperList.papers)">
+                                <kendo-icon [name]="IsCurrentPaperSelected(item.paperId) == true  ? 'minus' : 'plus'"> </kendo-icon>
+                            </button>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
             </table>
           </div>
           <div class="col-12 row mt-1 border-top">
@@ -273,17 +272,17 @@
                 <tr></tr>
               </thead>
               <tbody>
-                @for (item of _magBrowserService.selectedPapers; track item) {
+                  @for (item of _magBrowserService.selectedPapers; track item.paperId) {
                   <tr style="cursor: pointer;">
-                    <td (click)="GetMagPaperRef(item,_magBrowserService.selectedPapers)">{{item.fullRecord}}</td>
-                    <td>
-                      <button [disabled]="!CanSelectMagItem(item)" class="btn btn-sm btn-outline-default mx-1 my-0 pb-1 px-1 " (click)="InOutReview(item, _magBrowserService.selectedPapers)">
-                        <kendo-icon [name]="IsCurrentPaperSelected(item.paperId) == true  ? 'minus' : 'plus'"> </kendo-icon>
-                      </button>
-                  </td>
-                </tr>
-              }
-            </tbody>
+                      <td (click)="GetMagPaperRef(item,_magBrowserService.selectedPapers)">{{item.fullRecord}}</td>
+                      <td>
+                          <button [disabled]="!CanSelectMagItem(item)" class="btn btn-sm btn-outline-default mx-1 my-0 pb-1 px-1 " (click)="InOutReview(item, _magBrowserService.selectedPapers)">
+                              <kendo-icon [name]="IsCurrentPaperSelected(item.paperId) == true  ? 'minus' : 'plus'"> </kendo-icon>
+                          </button>
+                      </td>
+                  </tr>
+                  }
+              </tbody>
           </table>
           <!--<MAGpaginatorComp class="row ml-1 pt-1 mr-1 pr-1 border-top porder-info"></MAGpaginatorComp>-->
         </div>
@@ -299,26 +298,25 @@
               <tr></tr>
             </thead>
             <tbody>
-              @for (item of _magBrowserService.MAGOriginalList.papers; track item) {
+                @for (item of _magBrowserService.MAGOriginalList.papers; track item.paperId) {
                 <tr style="cursor: pointer;">
-                  <td (click)="GetMagPaperRef(item,_magBrowserService.MAGOriginalList.papers)">
-                    {{item.shortRecord}}
-                  </td>
-                  <td>
-                    <button [disabled]="!CanSelectMagItem(item)"
-                      class="btn btn-sm btn-outline-default mx-1 my-0 pb-1 px-1 " (click)="InOutReview(item, _magBrowserService.MAGOriginalList.papers)">
-                      <kendo-icon [name]="IsCurrentPaperSelected(item.paperId) == true  ? 'minus' : 'plus'"> </kendo-icon>
-                    </button>
-                </td>
-                @if (ListType.startsWith('Auto update results')) {
-                  <td title="Model score"
-                    >
-                    {{item.similarityScore.toFixed(3)}}
-                  </td>
+                    <td (click)="GetMagPaperRef(item,_magBrowserService.MAGOriginalList.papers)">
+                        {{item.shortRecord}}
+                    </td>
+                    <td>
+                        <button [disabled]="!CanSelectMagItem(item)"
+                                class="btn btn-sm btn-outline-default mx-1 my-0 pb-1 px-1 " (click)="InOutReview(item, _magBrowserService.MAGOriginalList.papers)">
+                            <kendo-icon [name]="IsCurrentPaperSelected(item.paperId) == true  ? 'minus' : 'plus'"> </kendo-icon>
+                        </button>
+                    </td>
+                    @if (ListType.startsWith('Auto update results')) {
+                    <td title="Model score">
+                        {{item.similarityScore.toFixed(3)}}
+                    </td>
+                    }
+                </tr>
                 }
-              </tr>
-            }
-          </tbody>
+            </tbody>
         </table>
       </div>
       @if (IsServiceBusy && _magBrowserService.MAGOriginalList && _magBrowserService.MAGOriginalList.papers && _magBrowserService.MAGOriginalList.papers.length == 0) {

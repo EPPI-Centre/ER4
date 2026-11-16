@@ -297,12 +297,6 @@ namespace ERxWebClient2.Controllers
         }
 
 
-
-
-
-
-
-
         public class MVCClassifierCommand
 		{
 			public string _title { get; set; } = "";
@@ -314,7 +308,9 @@ namespace ERxWebClient2.Controllers
 			public int _modelId { get; set; }
 			public int _attributeId { get; set; }
 			public int _classifierId { get; set; }
-			public MVCReviewInfo revInfo { get; set; }
+			public string _mlModelNameFriendly { get; set; } = "";
+
+            public MVCReviewInfo revInfo { get; set; }
 
 		}
 

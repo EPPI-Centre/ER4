@@ -852,364 +852,364 @@
       </tr>
     </thead>
     <tbody>
-      @for (oo of Outcomes; track oo) {
+        @for (oo of Outcomes; track oo.outcomeId) {
         <tr>
-          <td style="text-align: center; vertical-align: middle;">
-            <input class="m-auto" type="checkbox" [(ngModel)]="oo.isSelected" [disabled]="!oo.canSelect" />
-          </td>
-          <td>
-            <div class="alert-primary m-1">
-              {{oo.esRounded}}
-            </div>
-          </td>
-          <td>
-            <div class="alert-primary m-1">
-              {{oo.seesRounded}}
-            </div>
-          </td>
-          <!--<td>{{oo.outcomeId}}</td>-->
-          <td>{{oo.shortTitle}}</td>
-          <td>{{oo.title}}</td>
-          <td>{{oo.outcomeDescription}}</td>
-          <td>{{oo.timepointDisplayValue}}</td>
-          <td>{{oo.outcomeTypeName}}</td>
-          <td>{{oo.outcomeText}}</td>
-          <td>{{oo.interventionText}}</td>
-          <td>{{oo.controlText}}</td>
-          <td>{{oo.grp1ArmName}}</td>
-          <td>{{oo.grp2ArmName}}</td>
-          @if (ColumnVisibility.AnswerOutcomeHeaders.length > 0) {
+            <td style="text-align: center; vertical-align: middle;">
+                <input class="m-auto" type="checkbox" [(ngModel)]="oo.isSelected" [disabled]="!oo.canSelect" />
+            </td>
+            <td>
+                <div class="alert-primary m-1">
+                    {{oo.esRounded}}
+                </div>
+            </td>
+            <td>
+                <div class="alert-primary m-1">
+                    {{oo.seesRounded}}
+                </div>
+            </td>
+            <!--<td>{{oo.outcomeId}}</td>-->
+            <td>{{oo.shortTitle}}</td>
+            <td>{{oo.title}}</td>
+            <td>{{oo.outcomeDescription}}</td>
+            <td>{{oo.timepointDisplayValue}}</td>
+            <td>{{oo.outcomeTypeName}}</td>
+            <td>{{oo.outcomeText}}</td>
+            <td>{{oo.interventionText}}</td>
+            <td>{{oo.controlText}}</td>
+            <td>{{oo.grp1ArmName}}</td>
+            <td>{{oo.grp2ArmName}}</td>
+            @if (ColumnVisibility.AnswerOutcomeHeaders.length > 0) {
             <td class="FirstAnswer AnswerColOutcome">{{oo.ao1}}</td>
-          }
-          @if (ColumnVisibility.AnswerOutcomeHeaders.length > 1) {
+            }
+            @if (ColumnVisibility.AnswerOutcomeHeaders.length > 1) {
             <td class="AnswerColOutcome">{{oo.ao2}}</td>
-          }
-          @if (ColumnVisibility.AnswerOutcomeHeaders.length > 2) {
+            }
+            @if (ColumnVisibility.AnswerOutcomeHeaders.length > 2) {
             <td class="AnswerColOutcome">{{oo.ao3}}</td>
-          }
-          @if (ColumnVisibility.AnswerOutcomeHeaders.length > 3) {
+            }
+            @if (ColumnVisibility.AnswerOutcomeHeaders.length > 3) {
             <td class="AnswerColOutcome">{{oo.ao4}}</td>
-          }
-          @if (ColumnVisibility.AnswerOutcomeHeaders.length > 4) {
+            }
+            @if (ColumnVisibility.AnswerOutcomeHeaders.length > 4) {
             <td class="AnswerColOutcome">{{oo.ao5}}</td>
-          }
-          @if (ColumnVisibility.AnswerOutcomeHeaders.length > 5) {
+            }
+            @if (ColumnVisibility.AnswerOutcomeHeaders.length > 5) {
             <td class="AnswerColOutcome">{{oo.ao6}}</td>
-          }
-          @if (ColumnVisibility.AnswerOutcomeHeaders.length > 6) {
+            }
+            @if (ColumnVisibility.AnswerOutcomeHeaders.length > 6) {
             <td class="AnswerColOutcome">{{oo.ao7}}</td>
-          }
-          @if (ColumnVisibility.AnswerOutcomeHeaders.length > 7) {
+            }
+            @if (ColumnVisibility.AnswerOutcomeHeaders.length > 7) {
             <td class="AnswerColOutcome">{{oo.ao8}}</td>
-          }
-          @if (ColumnVisibility.AnswerOutcomeHeaders.length > 8) {
+            }
+            @if (ColumnVisibility.AnswerOutcomeHeaders.length > 8) {
             <td class="AnswerColOutcome">{{oo.ao9}}</td>
-          }
-          @if (ColumnVisibility.AnswerOutcomeHeaders.length > 9) {
+            }
+            @if (ColumnVisibility.AnswerOutcomeHeaders.length > 9) {
             <td class="AnswerColOutcome">{{oo.ao10}}</td>
-          }
-          @if (ColumnVisibility.AnswerOutcomeHeaders.length > 10) {
+            }
+            @if (ColumnVisibility.AnswerOutcomeHeaders.length > 10) {
             <td class="AnswerColOutcome">{{oo.ao11}}</td>
-          }
-          @if (ColumnVisibility.AnswerOutcomeHeaders.length > 11) {
+            }
+            @if (ColumnVisibility.AnswerOutcomeHeaders.length > 11) {
             <td class="AnswerColOutcome">{{oo.ao12}}</td>
-          }
-          @if (ColumnVisibility.AnswerOutcomeHeaders.length > 12) {
+            }
+            @if (ColumnVisibility.AnswerOutcomeHeaders.length > 12) {
             <td class="AnswerColOutcome">{{oo.ao13}}</td>
-          }
-          @if (ColumnVisibility.AnswerOutcomeHeaders.length > 13) {
+            }
+            @if (ColumnVisibility.AnswerOutcomeHeaders.length > 13) {
             <td class="AnswerColOutcome">{{oo.ao14}}</td>
-          }
-          @if (ColumnVisibility.AnswerOutcomeHeaders.length > 14) {
+            }
+            @if (ColumnVisibility.AnswerOutcomeHeaders.length > 14) {
             <td class="AnswerColOutcome">{{oo.ao15}}</td>
-          }
-          @if (ColumnVisibility.AnswerOutcomeHeaders.length > 15) {
+            }
+            @if (ColumnVisibility.AnswerOutcomeHeaders.length > 15) {
             <td class="AnswerColOutcome">{{oo.ao16}}</td>
-          }
-          @if (ColumnVisibility.AnswerOutcomeHeaders.length > 16) {
+            }
+            @if (ColumnVisibility.AnswerOutcomeHeaders.length > 16) {
             <td class="AnswerColOutcome">{{oo.ao17}}</td>
-          }
-          @if (ColumnVisibility.AnswerOutcomeHeaders.length > 17) {
+            }
+            @if (ColumnVisibility.AnswerOutcomeHeaders.length > 17) {
             <td class="AnswerColOutcome">{{oo.ao18}}</td>
-          }
-          @if (ColumnVisibility.AnswerOutcomeHeaders.length > 18) {
+            }
+            @if (ColumnVisibility.AnswerOutcomeHeaders.length > 18) {
             <td class="AnswerColOutcome">{{oo.ao19}}</td>
-          }
-          @if (ColumnVisibility.AnswerOutcomeHeaders.length > 19) {
+            }
+            @if (ColumnVisibility.AnswerOutcomeHeaders.length > 19) {
             <td class="AnswerColOutcome">{{oo.ao20}}</td>
-          }
-          @if (ColumnVisibility.QuestionOutcomeHeaders.length > 0) {
+            }
+            @if (ColumnVisibility.QuestionOutcomeHeaders.length > 0) {
             <td class="FirstQuestion QuestionColOutcome">{{oo.aqo1}}</td>
-          }
-          @if (ColumnVisibility.QuestionOutcomeHeaders.length > 1) {
+            }
+            @if (ColumnVisibility.QuestionOutcomeHeaders.length > 1) {
             <td class="QuestionColOutcome">{{oo.aqo2}}</td>
-          }
-          @if (ColumnVisibility.QuestionOutcomeHeaders.length > 2) {
+            }
+            @if (ColumnVisibility.QuestionOutcomeHeaders.length > 2) {
             <td class="QuestionColOutcome">{{oo.aqo3}}</td>
-          }
-          @if (ColumnVisibility.QuestionOutcomeHeaders.length > 3) {
+            }
+            @if (ColumnVisibility.QuestionOutcomeHeaders.length > 3) {
             <td class="QuestionColOutcome">{{oo.aqo4}}</td>
-          }
-          @if (ColumnVisibility.QuestionOutcomeHeaders.length > 4) {
+            }
+            @if (ColumnVisibility.QuestionOutcomeHeaders.length > 4) {
             <td class="QuestionColOutcome">{{oo.aqo5}}</td>
-          }
-          @if (ColumnVisibility.QuestionOutcomeHeaders.length > 5) {
+            }
+            @if (ColumnVisibility.QuestionOutcomeHeaders.length > 5) {
             <td class="QuestionColOutcome">{{oo.aqo6}}</td>
-          }
-          @if (ColumnVisibility.QuestionOutcomeHeaders.length > 6) {
+            }
+            @if (ColumnVisibility.QuestionOutcomeHeaders.length > 6) {
             <td class="QuestionColOutcome">{{oo.aqo7}}</td>
-          }
-          @if (ColumnVisibility.QuestionOutcomeHeaders.length > 7) {
+            }
+            @if (ColumnVisibility.QuestionOutcomeHeaders.length > 7) {
             <td class="QuestionColOutcome">{{oo.aqo8}}</td>
-          }
-          @if (ColumnVisibility.QuestionOutcomeHeaders.length > 8) {
+            }
+            @if (ColumnVisibility.QuestionOutcomeHeaders.length > 8) {
             <td class="QuestionColOutcome">{{oo.aqo9}}</td>
-          }
-          @if (ColumnVisibility.QuestionOutcomeHeaders.length > 9) {
+            }
+            @if (ColumnVisibility.QuestionOutcomeHeaders.length > 9) {
             <td class="QuestionColOutcome">{{oo.aqo10}}</td>
-          }
-          @if (ColumnVisibility.QuestionOutcomeHeaders.length > 10) {
+            }
+            @if (ColumnVisibility.QuestionOutcomeHeaders.length > 10) {
             <td class="QuestionColOutcome">{{oo.aqo11}}</td>
-          }
-          @if (ColumnVisibility.QuestionOutcomeHeaders.length > 11) {
+            }
+            @if (ColumnVisibility.QuestionOutcomeHeaders.length > 11) {
             <td class="QuestionColOutcome">{{oo.aqo12}}</td>
-          }
-          @if (ColumnVisibility.QuestionOutcomeHeaders.length > 12) {
+            }
+            @if (ColumnVisibility.QuestionOutcomeHeaders.length > 12) {
             <td class="QuestionColOutcome">{{oo.aqo13}}</td>
-          }
-          @if (ColumnVisibility.QuestionOutcomeHeaders.length > 13) {
+            }
+            @if (ColumnVisibility.QuestionOutcomeHeaders.length > 13) {
             <td class="QuestionColOutcome">{{oo.aqo14}}</td>
-          }
-          @if (ColumnVisibility.QuestionOutcomeHeaders.length > 14) {
+            }
+            @if (ColumnVisibility.QuestionOutcomeHeaders.length > 14) {
             <td class="QuestionColOutcome">{{oo.aqo15}}</td>
-          }
-          @if (ColumnVisibility.QuestionOutcomeHeaders.length > 15) {
+            }
+            @if (ColumnVisibility.QuestionOutcomeHeaders.length > 15) {
             <td class="QuestionColOutcome">{{oo.aqo16}}</td>
-          }
-          @if (ColumnVisibility.QuestionOutcomeHeaders.length > 16) {
+            }
+            @if (ColumnVisibility.QuestionOutcomeHeaders.length > 16) {
             <td class="QuestionColOutcome">{{oo.aqo17}}</td>
-          }
-          @if (ColumnVisibility.QuestionOutcomeHeaders.length > 17) {
+            }
+            @if (ColumnVisibility.QuestionOutcomeHeaders.length > 17) {
             <td class="QuestionColOutcome">{{oo.aqo18}}</td>
-          }
-          @if (ColumnVisibility.QuestionOutcomeHeaders.length > 18) {
+            }
+            @if (ColumnVisibility.QuestionOutcomeHeaders.length > 18) {
             <td class="QuestionColOutcome">{{oo.aqo19}}</td>
-          }
-          @if (ColumnVisibility.QuestionOutcomeHeaders.length > 19) {
+            }
+            @if (ColumnVisibility.QuestionOutcomeHeaders.length > 19) {
             <td class="QuestionColOutcome">{{oo.aqo20}}</td>
-          }
-          @if (ColumnVisibility.AnswerHeaders.length > 0) {
+            }
+            @if (ColumnVisibility.AnswerHeaders.length > 0) {
             <td class="FirstAnswer AnswerCol">{{oo.aa1}}</td>
-          }
-          @if (ColumnVisibility.AnswerHeaders.length > 1) {
+            }
+            @if (ColumnVisibility.AnswerHeaders.length > 1) {
             <td class="AnswerCol">{{oo.aa2}}</td>
-          }
-          @if (ColumnVisibility.AnswerHeaders.length > 2) {
+            }
+            @if (ColumnVisibility.AnswerHeaders.length > 2) {
             <td class="AnswerCol">{{oo.aa3}}</td>
-          }
-          @if (ColumnVisibility.AnswerHeaders.length > 3) {
+            }
+            @if (ColumnVisibility.AnswerHeaders.length > 3) {
             <td class="AnswerCol">{{oo.aa4}}</td>
-          }
-          @if (ColumnVisibility.AnswerHeaders.length > 4) {
+            }
+            @if (ColumnVisibility.AnswerHeaders.length > 4) {
             <td class="AnswerCol">{{oo.aa5}}</td>
-          }
-          @if (ColumnVisibility.AnswerHeaders.length > 5) {
+            }
+            @if (ColumnVisibility.AnswerHeaders.length > 5) {
             <td class="AnswerCol">{{oo.aa6}}</td>
-          }
-          @if (ColumnVisibility.AnswerHeaders.length > 6) {
+            }
+            @if (ColumnVisibility.AnswerHeaders.length > 6) {
             <td class="AnswerCol">{{oo.aa7}}</td>
-          }
-          @if (ColumnVisibility.AnswerHeaders.length > 7) {
+            }
+            @if (ColumnVisibility.AnswerHeaders.length > 7) {
             <td class="AnswerCol">{{oo.aa8}}</td>
-          }
-          @if (ColumnVisibility.AnswerHeaders.length > 8) {
+            }
+            @if (ColumnVisibility.AnswerHeaders.length > 8) {
             <td class="AnswerCol">{{oo.aa9}}</td>
-          }
-          @if (ColumnVisibility.AnswerHeaders.length > 9) {
+            }
+            @if (ColumnVisibility.AnswerHeaders.length > 9) {
             <td class="AnswerCol">{{oo.aa10}}</td>
-          }
-          @if (ColumnVisibility.AnswerHeaders.length > 10) {
+            }
+            @if (ColumnVisibility.AnswerHeaders.length > 10) {
             <td class="AnswerCol">{{oo.aa11}}</td>
-          }
-          @if (ColumnVisibility.AnswerHeaders.length > 11) {
+            }
+            @if (ColumnVisibility.AnswerHeaders.length > 11) {
             <td class="AnswerCol">{{oo.aa12}}</td>
-          }
-          @if (ColumnVisibility.AnswerHeaders.length > 12) {
+            }
+            @if (ColumnVisibility.AnswerHeaders.length > 12) {
             <td class="AnswerCol">{{oo.aa13}}</td>
-          }
-          @if (ColumnVisibility.AnswerHeaders.length > 13) {
+            }
+            @if (ColumnVisibility.AnswerHeaders.length > 13) {
             <td class="AnswerCol">{{oo.aa14}}</td>
-          }
-          @if (ColumnVisibility.AnswerHeaders.length > 14) {
+            }
+            @if (ColumnVisibility.AnswerHeaders.length > 14) {
             <td class="AnswerCol">{{oo.aa15}}</td>
-          }
-          @if (ColumnVisibility.AnswerHeaders.length > 15) {
+            }
+            @if (ColumnVisibility.AnswerHeaders.length > 15) {
             <td class="AnswerCol">{{oo.aa16}}</td>
-          }
-          @if (ColumnVisibility.AnswerHeaders.length > 16) {
+            }
+            @if (ColumnVisibility.AnswerHeaders.length > 16) {
             <td class="AnswerCol">{{oo.aa17}}</td>
-          }
-          @if (ColumnVisibility.AnswerHeaders.length > 17) {
+            }
+            @if (ColumnVisibility.AnswerHeaders.length > 17) {
             <td class="AnswerCol">{{oo.aa18}}</td>
-          }
-          @if (ColumnVisibility.AnswerHeaders.length > 18) {
+            }
+            @if (ColumnVisibility.AnswerHeaders.length > 18) {
             <td class="AnswerCol">{{oo.aa19}}</td>
-          }
-          @if (ColumnVisibility.AnswerHeaders.length > 19) {
+            }
+            @if (ColumnVisibility.AnswerHeaders.length > 19) {
             <td class="AnswerCol">{{oo.aa20}}</td>
-          }
-          @if (ColumnVisibility.QuestionHeaders.length > 0) {
+            }
+            @if (ColumnVisibility.QuestionHeaders.length > 0) {
             <td class="FirstQuestion QuestionCol">{{oo.aq1}}</td>
-          }
-          @if (ColumnVisibility.QuestionHeaders.length > 1) {
+            }
+            @if (ColumnVisibility.QuestionHeaders.length > 1) {
             <td class="QuestionCol">{{oo.aq2}}</td>
-          }
-          @if (ColumnVisibility.QuestionHeaders.length > 2) {
+            }
+            @if (ColumnVisibility.QuestionHeaders.length > 2) {
             <td class="QuestionCol">{{oo.aq3}}</td>
-          }
-          @if (ColumnVisibility.QuestionHeaders.length > 3) {
+            }
+            @if (ColumnVisibility.QuestionHeaders.length > 3) {
             <td class="QuestionCol">{{oo.aq4}}</td>
-          }
-          @if (ColumnVisibility.QuestionHeaders.length > 4) {
+            }
+            @if (ColumnVisibility.QuestionHeaders.length > 4) {
             <td class="QuestionCol">{{oo.aq5}}</td>
-          }
-          @if (ColumnVisibility.QuestionHeaders.length > 5) {
+            }
+            @if (ColumnVisibility.QuestionHeaders.length > 5) {
             <td class="QuestionCol">{{oo.aq6}}</td>
-          }
-          @if (ColumnVisibility.QuestionHeaders.length > 6) {
+            }
+            @if (ColumnVisibility.QuestionHeaders.length > 6) {
             <td class="QuestionCol">{{oo.aq7}}</td>
-          }
-          @if (ColumnVisibility.QuestionHeaders.length > 7) {
+            }
+            @if (ColumnVisibility.QuestionHeaders.length > 7) {
             <td class="QuestionCol">{{oo.aq8}}</td>
-          }
-          @if (ColumnVisibility.QuestionHeaders.length > 8) {
+            }
+            @if (ColumnVisibility.QuestionHeaders.length > 8) {
             <td class="QuestionCol">{{oo.aq9}}</td>
-          }
-          @if (ColumnVisibility.QuestionHeaders.length > 9) {
+            }
+            @if (ColumnVisibility.QuestionHeaders.length > 9) {
             <td class="QuestionCol">{{oo.aq10}}</td>
-          }
-          @if (ColumnVisibility.QuestionHeaders.length > 10) {
+            }
+            @if (ColumnVisibility.QuestionHeaders.length > 10) {
             <td class="QuestionCol">{{oo.aq11}}</td>
-          }
-          @if (ColumnVisibility.QuestionHeaders.length > 11) {
+            }
+            @if (ColumnVisibility.QuestionHeaders.length > 11) {
             <td class="QuestionCol">{{oo.aq12}}</td>
-          }
-          @if (ColumnVisibility.QuestionHeaders.length > 12) {
+            }
+            @if (ColumnVisibility.QuestionHeaders.length > 12) {
             <td class="QuestionCol">{{oo.aq13}}</td>
-          }
-          @if (ColumnVisibility.QuestionHeaders.length > 13) {
+            }
+            @if (ColumnVisibility.QuestionHeaders.length > 13) {
             <td class="QuestionCol">{{oo.aq14}}</td>
-          }
-          @if (ColumnVisibility.QuestionHeaders.length > 14) {
+            }
+            @if (ColumnVisibility.QuestionHeaders.length > 14) {
             <td class="QuestionCol">{{oo.aq15}}</td>
-          }
-          @if (ColumnVisibility.QuestionHeaders.length > 15) {
+            }
+            @if (ColumnVisibility.QuestionHeaders.length > 15) {
             <td class="QuestionCol">{{oo.aq16}}</td>
-          }
-          @if (ColumnVisibility.QuestionHeaders.length > 16) {
+            }
+            @if (ColumnVisibility.QuestionHeaders.length > 16) {
             <td class="QuestionCol">{{oo.aq17}}</td>
-          }
-          @if (ColumnVisibility.QuestionHeaders.length > 17) {
+            }
+            @if (ColumnVisibility.QuestionHeaders.length > 17) {
             <td class="QuestionCol">{{oo.aq18}}</td>
-          }
-          @if (ColumnVisibility.QuestionHeaders.length > 18) {
+            }
+            @if (ColumnVisibility.QuestionHeaders.length > 18) {
             <td class="QuestionCol">{{oo.aq19}}</td>
-          }
-          @if (ColumnVisibility.QuestionHeaders.length > 19) {
+            }
+            @if (ColumnVisibility.QuestionHeaders.length > 19) {
             <td class="QuestionCol">{{oo.aq20}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 0) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 0) {
             <td class="FirstClassif ClassifCol">{{oo.occ1}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 1) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 1) {
             <td class="ClassifCol">{{oo.occ2}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 2) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 2) {
             <td class="ClassifCol">{{oo.occ3}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 3) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 3) {
             <td class="ClassifCol">{{oo.occ4}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 4) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 4) {
             <td class="ClassifCol">{{oo.occ5}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 5) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 5) {
             <td class="ClassifCol">{{oo.occ6}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 6) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 6) {
             <td class="ClassifCol">{{oo.occ7}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 7) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 7) {
             <td class="ClassifCol">{{oo.occ8}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 8) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 8) {
             <td class="ClassifCol">{{oo.occ9}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 9) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 9) {
             <td class="ClassifCol">{{oo.occ10}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 10) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 10) {
             <td class="ClassifCol">{{oo.occ11}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 11) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 11) {
             <td class="ClassifCol">{{oo.occ12}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 12) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 12) {
             <td class="ClassifCol">{{oo.occ13}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 13) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 13) {
             <td class="ClassifCol">{{oo.occ14}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 14) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 14) {
             <td class="ClassifCol">{{oo.occ15}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 15) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 15) {
             <td class="ClassifCol">{{oo.occ16}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 16) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 16) {
             <td class="ClassifCol">{{oo.occ17}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 17) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 17) {
             <td class="ClassifCol">{{oo.occ18}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 18) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 18) {
             <td class="ClassifCol">{{oo.occ19}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 19) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 19) {
             <td class="ClassifCol">{{oo.occ20}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 20) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 20) {
             <td class="ClassifCol">{{oo.occ21}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 21) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 21) {
             <td class="ClassifCol">{{oo.occ22}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 22) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 22) {
             <td class="ClassifCol">{{oo.occ23}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 23) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 23) {
             <td class="ClassifCol">{{oo.occ24}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 24) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 24) {
             <td class="ClassifCol">{{oo.occ25}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 25) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 25) {
             <td class="ClassifCol">{{oo.occ26}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 26) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 26) {
             <td class="ClassifCol">{{oo.occ27}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 27) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 27) {
             <td class="ClassifCol">{{oo.occ28}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 28) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 28) {
             <td class="ClassifCol">{{oo.occ29}}</td>
-          }
-          @if (ColumnVisibility.ClassificationHeaders.length > 29) {
+            }
+            @if (ColumnVisibility.ClassificationHeaders.length > 29) {
             <td class="ClassifCol">{{oo.occ30}}</td>
-          }
+            }
         </tr>
-      }
+        }
     </tbody>
   </table>
 </div>

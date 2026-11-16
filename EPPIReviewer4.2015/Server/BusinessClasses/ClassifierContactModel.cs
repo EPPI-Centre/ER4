@@ -165,6 +165,34 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(RecallProperty);
             }
         }
+        public static readonly PropertyInfo<string> MlModelNameProperty = RegisterProperty<string>(new PropertyInfo<string>("MlModelName", "MlModelName"));
+        public string MlModelName
+        {
+            get
+            {
+                return GetProperty(MlModelNameProperty);
+            }
+        }
+        public static readonly PropertyInfo<string> MlModelNameFriendlyProperty = RegisterProperty<string>(new PropertyInfo<string>("MlModelNameFriendly", "MlModelNameFriendly"));
+        public string MlModelNameFriendly
+        {
+            get
+            {
+                return GetProperty(MlModelNameFriendlyProperty);
+            }
+            set
+            {
+                SetProperty(MlModelNameFriendlyProperty, value);
+            }
+        }
+
+        //dictionary used to translate from strings saved in `tb_CLASSIFIER_MODEL` (and the UI) to strings expected by the datafactory
+        //keys are the former (DB and UI), values the latter (expected by DF)
+        // This was in ClassifierCommandV2.cs, but moved here as it made more sense to be in the model object
+        public static Dictionary<string, string> MlModels = new Dictionary<string, string>{
+              { "oldLogReg", "Logistic Regression (original)" }
+            , { "H2O-4B-FT", "Fine-tuned H20-Lightning-4B v.1" }
+        };
 
 
         //protected override void AddAuthorizationRules()
@@ -217,6 +245,10 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<decimal>(AucProperty, reader.GetDecimal("AUC"));
                             LoadProperty<decimal>(PrecisionProperty, reader.GetDecimal("PRECISION"));
                             LoadProperty<decimal>(RecallProperty, reader.GetDecimal("RECALL"));
+                            LoadProperty<string>(MlModelNameProperty, reader.GetString("ML_MODEL_NAME"));
+                            LoadProperty<string>(MlModelNameFriendlyProperty, 
+                                ClassifierContactModel.MlModels.TryGetValue(MlModelName, out var friendlyName) ? friendlyName : "");
+
 
                         }
                     }
@@ -281,6 +313,10 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(AttributeNotOnProperty, reader.GetString("ATTRIBUTE_NOT_ON"));
             returnValue.LoadProperty<Int64>(AttributeIdOnProperty, reader.GetInt64("ATTRIBUTE_ID_ON"));
             returnValue.LoadProperty<Int64>(AttributeIdNotOnProperty, reader.GetInt64("ATTRIBUTE_ID_NOT_ON"));
+            returnValue.LoadProperty<string>(MlModelNameProperty, reader.GetString("ML_MODEL_NAME"));
+            returnValue.LoadProperty<string>(MlModelNameFriendlyProperty,
+                ClassifierContactModel.MlModels.TryGetValue(returnValue.MlModelName, out var friendlyName) ?
+                friendlyName : "");
             returnValue.MarkOld();
             return returnValue;
         }

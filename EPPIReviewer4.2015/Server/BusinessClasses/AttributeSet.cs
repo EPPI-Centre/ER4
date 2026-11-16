@@ -992,8 +992,6 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(AttributeTypeProperty, reader.GetString("ATTRIBUTE_TYPE"));
             returnValue.LoadProperty<string>(AttributeNameProperty, reader.GetString("ATTRIBUTE_NAME"));
             returnValue.LoadProperty<string>(AttributeDescriptionProperty, reader.GetString("ATTRIBUTE_DESC"));
-            returnValue.LoadProperty<string>(ExtURLProperty, reader.GetString("Ext_URL"));
-            returnValue.LoadProperty<string>(ExtTypeProperty, reader.GetString("Ext_Type"));
             returnValue.LoadProperty<bool>(UserCanEditURLsProperty, reader.GetBoolean("USER_CAN_EDIT_URLS"));
             returnValue.LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
             

@@ -144,6 +144,33 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(SetNameProperty, value);
             }
         }
+        public static readonly PropertyInfo<string> ExtURLProperty = RegisterProperty<string>(new PropertyInfo<string>("ExtURL", "Attribute Description", string.Empty));
+        [JsonProperty]
+        public string ExtURL
+        {
+            get
+            {
+                return GetProperty(ExtURLProperty);
+            }
+            set
+            {
+                SetProperty(ExtURLProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> ExtTypeProperty = RegisterProperty<string>(new PropertyInfo<string>("ExtType", "Attribute Description", string.Empty));
+        [JsonProperty]
+        public string ExtType
+        {
+            get
+            {
+                return GetProperty(ExtTypeProperty);
+            }
+            set
+            {
+                SetProperty(ExtTypeProperty, value);
+            }
+        }
 
         public static readonly PropertyInfo<bool> IsCompletedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsCompleted", "IsCompleted", false));
 #if (CSLA_NETCORE)
@@ -391,6 +418,8 @@ namespace BusinessLibrary.BusinessClasses
                             this.LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
                             this.LoadProperty<string>(ContactNameProperty, reader.GetString("CONTACT_NAME"));
                             this.LoadProperty<string>(SetNameProperty, reader.GetString("SET_NAME"));
+                            this.LoadProperty<string>(ExtURLProperty, reader.GetString("Ext_URL"));
+                            this.LoadProperty<string>(ExtTypeProperty, reader.GetString("Ext_Type"));
                             this.ItemAttributes = ReadOnlyItemAttributeList.GetReadOnlyItemAttributeList(this.ItemSetId);
                             this.OutcomeItemList = OutcomeItemList.GetOutcomeItemList(this.ItemSetId);
                             this.MarkOld();
@@ -422,6 +451,8 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
             returnValue.LoadProperty<string>(ContactNameProperty, reader.GetString("CONTACT_NAME"));
             returnValue.LoadProperty<string>(SetNameProperty, reader.GetString("SET_NAME"));
+            returnValue.LoadProperty<string>(ExtURLProperty, reader.GetString("Ext_URL"));
+            returnValue.LoadProperty<string>(ExtTypeProperty, reader.GetString("Ext_Type"));
             returnValue.ItemAttributes = ReadOnlyItemAttributeList.GetReadOnlyItemAttributeList(returnValue.ItemSetId);
             returnValue.OutcomeItemList = OutcomeItemList.GetOutcomeItemList(returnValue.ItemSetId);
             returnValue.MarkOld();

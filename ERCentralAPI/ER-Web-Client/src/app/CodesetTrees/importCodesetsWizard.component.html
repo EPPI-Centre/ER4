@@ -28,16 +28,16 @@
           <div class="col-6">
             <div class="font-weight-bold">Please pick One Option:</div>
             <div>
-              <div class="btn-group-vertical">
-                @for (template of TemplateReviews; track template) {
-                  <button role="group" type="button" class="btn"
-                                    [ngClass]="{'font-weight-bold btn-info' : (SelectedTemplate && SelectedTemplate.templateId && SelectedTemplate.templateId == template.templateId)
+                <div class="btn-group-vertical">
+                    @for (template of TemplateReviews; track template.templateId) {
+                    <button role="group" type="button" class="btn"
+                            [ngClass]="{'font-weight-bold btn-info' : (SelectedTemplate && SelectedTemplate.templateId && SelectedTemplate.templateId == template.templateId)
                                     ,'btn-outline-info' :(!SelectedTemplate || !SelectedTemplate.templateId || SelectedTemplate.templateId != template.templateId)}"
-                    (click)="SelectTemplate(template.templateId)">
-                    {{template.templateName}}
-                  </button>
-                }
-              </div>
+                            (click)="SelectTemplate(template.templateId)">
+                        {{template.templateName}}
+                    </button>
+                    }
+                </div>
             </div>
           </div>
           <div class="col-6">
@@ -120,16 +120,16 @@
                   </tr>
                 </table>
               </div>
-              <div class="col-12" [ngStyle]="{'max-height.px': codingtoolsMaxHeight}" style="overflow-y:auto;">
-                @for (set of getRelevantTools(); track set) {
-                  <button role="group" type="button" class="btn col-12" style="text-align:left"
-                            [ngClass]="{'font-weight-bold btn-info' : (SelectedSet4Copy && SelectedSet4Copy.set_id && SelectedSet4Copy.set_id == set.set_id)
+            <div class="col-12" [ngStyle]="{'max-height.px': codingtoolsMaxHeight}" style="overflow-y:auto;">
+                @for (set of getRelevantTools(); track set.set_id) {
+                <button role="group" type="button" class="btn col-12" style="text-align:left"
+                        [ngClass]="{'font-weight-bold btn-info' : (SelectedSet4Copy && SelectedSet4Copy.set_id && SelectedSet4Copy.set_id == set.set_id)
                                   ,'btn-outline-info' :(!SelectedSet4Copy || !SelectedSet4Copy.set_id || SelectedSet4Copy.set_id != set.set_id)}"
-                    (click)="SelectSet4Copy(set)">
+                        (click)="SelectSet4Copy(set)">
                     {{set.set_name}}
-                  </button>
+                </button>
                 }
-              </div>
+            </div>
             </div>
             <div class="col-12 col-sm-6 col-md-4 mt-0 mb-0 d-flex flex-column align-self-stretch">
               <div class="align-self-start w-100">Coding Tool Preview:</div>

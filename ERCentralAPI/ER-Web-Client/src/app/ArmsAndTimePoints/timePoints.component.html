@@ -94,28 +94,28 @@
           </div>
           <!---->
           @if (timePointsList.length > 0) {
-            <table class="table table-bordered table-sm table-striped text-center">
-              <tr>
+        <table class="table table-bordered table-sm table-striped text-center">
+            <tr>
                 <th class="text-center">Timepoint</th>
                 <th class="text-center" style="">Actions</th>
-              </tr>
-              @for (timepoint of timePointsList; track timepoint) {
-                <tr>
-                  <td style="">{{timepoint.timepointDisplayValue}}</td>
-                  <td style="white-space:nowrap;">
+            </tr>
+            @for (timepoint of timePointsList; track timepoint.itemTimepointId) {
+            <tr>
+                <td style="">{{timepoint.timepointDisplayValue}}</td>
+                <td style="white-space:nowrap;">
                     <button (click)="setTimePointForEdit(timepoint)"
-                      [disabled]="!HasWriteRights"
-                      type="button" rounded="true" size="sm" class="btn btn-outline-info p-1 mx-1">
-                      Edit
+                            [disabled]="!HasWriteRights"
+                            type="button" rounded="true" size="sm" class="btn btn-outline-info p-1 mx-1">
+                        Edit
                     </button>
                     <button type="button" rounded="true" size="sm" class="btn btn-outline-danger p-1 mx-1"
-                      [disabled]="!HasWriteRights" (click)="removeWarning(timepoint)" title="Delete TimePoint">
-                      <kendo-icon name="trash"></kendo-icon>
+                            [disabled]="!HasWriteRights" (click)="removeWarning(timepoint)" title="Delete TimePoint">
+                        <kendo-icon name="trash"></kendo-icon>
                     </button>
-                  </td>
-                </tr>
-              }
-            </table>
+                </td>
+            </tr>
+            }
+        </table>
           }
         </div>
       }

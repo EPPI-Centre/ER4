@@ -14,6 +14,8 @@ using System.Threading;
 using System.Security.Cryptography;
 using Csla.Data;
 using System.Data;
+using Microsoft.CodeAnalysis.Elfie.Diagnostics;
+
 
 
 
@@ -348,12 +350,15 @@ namespace BusinessLibrary.BusinessClasses
                             command.CommandType = CommandType.StoredProcedure;
                             command.Parameters.Add(new SqlParameter("@REV_ID", ReviewId));
                             command.Parameters.Add(new SqlParameter("@DOC_ID", doc.ItemDocumentId));
-                            using (SqlDataReader reader = command.ExecuteReader())
+                            using (SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                             {
                                 if (reader.Read())
                                 {
                                     count++;
-                                    BlobOperations.UploadStream(blobConnection, containerName, FileNamePrefix + doc.FileName, reader.GetStream("DOCUMENT_BINARY"));
+                                    string type = reader.GetString("DOCUMENT_EXTENSION");
+                                    byte[] binContent = ItemDocument.GetDocBytes(type, doc.ItemDocumentId, reader);
+                                    MemoryStream ms = new MemoryStream(binContent);
+                                    BlobOperations.UploadStream(blobConnection, containerName, FileNamePrefix + doc.FileName, ms);
                                     if (count == 10)
                                     {
                                         count = 0;

@@ -296,14 +296,14 @@
 <ng-template #PdfCodingTemplate let-coding="coding">
   @if (LoadPDFCoding && coding.PDFCoding != null) {
     <div>
-      @for (pdft of coding.PDFCoding; track pdft) {
+        @for (pdft of coding.PDFCoding; track pdft.itemAttributePDFId) {
         <div class="small">
-          <span class="font-weight-bold">[Doc: {{PDFNameFromId(pdft.itemDocumentId)}}, Page {{pdft.page}}]</span> @for (ips of pdft.inPageSelections; track ips) {
-          <span class="text-monospace"> {{ips.selTxt}}<br /></span>
+            <span class="font-weight-bold">[Doc: {{PDFNameFromId(pdft.itemDocumentId)}}, Page {{pdft.page}}]</span> @for (ips of pdft.inPageSelections; track ips) {
+            <span class="text-monospace"> {{ips.selTxt}}<br /></span>
+            }
+        </div>
         }
-      </div>
-    }
-  </div>
+    </div>
 }
 </ng-template>
 @if (SelectedNode != null) {
@@ -330,50 +330,50 @@
         }
         @if (SelectedNode.Reviewer1Coding.length > 0 && ReconcilingItem) {
           <ul class="pl-4">
-            @if (CodingWholeStudy(SelectedNode.Reviewer1Coding).length > 0) {
+              @if (CodingWholeStudy(SelectedNode.Reviewer1Coding).length > 0) {
               <li>
-                @for (coding of CodingWholeStudy(SelectedNode.Reviewer1Coding); track coding) {
+                  @for (coding of CodingWholeStudy(SelectedNode.Reviewer1Coding); track coding.ID) {
                   <div class="border-bottom border-secondary">
-                    <div>
-                      <b>{{SelectedNode.attribute_name}}</b>
-                    </div>
-                    @if (coding.InfoBox != '') {
-                      <div class="small mt-1 p-1 bg-white border border-dark" style="white-space: pre-line;">
-                        <b>[Info Box]</b> {{coding.InfoBox}}
-                      </div>
-                    }
-                    <ng-container *ngTemplateOutlet="PdfCodingTemplate; context:{coding : coding}"></ng-container>
-                    @if (CanMoveCodesFromHere(1)) {
                       <div>
-                        <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer1'}"></ng-container>
+                          <b>{{SelectedNode.attribute_name}}</b>
                       </div>
-                    }
+                      @if (coding.InfoBox != '') {
+                      <div class="small mt-1 p-1 bg-white border border-dark" style="white-space: pre-line;">
+                          <b>[Info Box]</b> {{coding.InfoBox}}
+                      </div>
+                      }
+                      <ng-container *ngTemplateOutlet="PdfCodingTemplate; context:{coding : coding}"></ng-container>
+                      @if (CanMoveCodesFromHere(1)) {
+                      <div>
+                          <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer1'}"></ng-container>
+                      </div>
+                      }
                   </div>
-                }
+                  }
               </li>
-            }
-            @for (arm of ReconcilingItem.Item.arms; track arm) {
-              <li [hidden]="CodingByArmId(SelectedNode.Reviewer1Coding, arm.itemArmId).length == 0" >
-                @for (coding of CodingByArmId(SelectedNode.Reviewer1Coding, arm.itemArmId); track coding) {
+              }
+              @for (arm of ReconcilingItem.Item.arms; track arm.itemArmId) {
+              <li [hidden]="CodingByArmId(SelectedNode.Reviewer1Coding, arm.itemArmId).length == 0">
+                  @for (coding of CodingByArmId(SelectedNode.Reviewer1Coding, arm.itemArmId); track coding.ID) {
                   <div class="border-bottom border-secondary">
-                    <div>
-                      <b>{{SelectedNode.attribute_name}} (Arm: {{arm.title}})</b>
-                    </div>
-                    @if (coding.InfoBox != '') {
-                      <div class="small mt-1 p-1 bg-white border border-dark" style="white-space: pre-line;">
-                        <b>[Info Box]</b> {{coding.InfoBox}}
-                      </div>
-                    }
-                    <ng-container *ngTemplateOutlet="PdfCodingTemplate; context:{coding : coding}"></ng-container>
-                    @if (CanMoveCodesFromHere(1)) {
                       <div>
-                        <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer1'}"></ng-container>
+                          <b>{{SelectedNode.attribute_name}} (Arm: {{arm.title}})</b>
                       </div>
-                    }
+                      @if (coding.InfoBox != '') {
+                      <div class="small mt-1 p-1 bg-white border border-dark" style="white-space: pre-line;">
+                          <b>[Info Box]</b> {{coding.InfoBox}}
+                      </div>
+                      }
+                      <ng-container *ngTemplateOutlet="PdfCodingTemplate; context:{coding : coding}"></ng-container>
+                      @if (CanMoveCodesFromHere(1)) {
+                      <div>
+                          <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer1'}"></ng-container>
+                      </div>
+                      }
                   </div>
-                }
+                  }
               </li>
-            }
+              }
           </ul>
         }
       </div>
@@ -392,50 +392,50 @@
           }
           @if (SelectedNode.Reviewer2Coding.length > 0 && ReconcilingItem) {
             <ul class="pl-4">
-              @if (CodingWholeStudy(SelectedNode.Reviewer2Coding).length > 0) {
+                @if (CodingWholeStudy(SelectedNode.Reviewer2Coding).length > 0) {
                 <li>
-                  @for (coding of CodingWholeStudy(SelectedNode.Reviewer2Coding); track coding) {
+                    @for (coding of CodingWholeStudy(SelectedNode.Reviewer2Coding); track coding.ID) {
                     <div class="border-bottom border-secondary">
-                      <div>
-                        <b>{{SelectedNode.attribute_name}}</b>
-                      </div>
-                      @if (coding.InfoBox != '') {
-                        <div class="small mt-1 p-1 bg-white border border-dark" style="white-space: pre-line;">
-                          <b>[Info Box]</b> {{coding.InfoBox}}
-                        </div>
-                      }
-                      <ng-container *ngTemplateOutlet="PdfCodingTemplate; context:{coding : coding}"></ng-container>
-                      @if (CanMoveCodesFromHere(2)) {
                         <div>
-                          <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer2'}"></ng-container>
+                            <b>{{SelectedNode.attribute_name}}</b>
                         </div>
-                      }
+                        @if (coding.InfoBox != '') {
+                        <div class="small mt-1 p-1 bg-white border border-dark" style="white-space: pre-line;">
+                            <b>[Info Box]</b> {{coding.InfoBox}}
+                        </div>
+                        }
+                        <ng-container *ngTemplateOutlet="PdfCodingTemplate; context:{coding : coding}"></ng-container>
+                        @if (CanMoveCodesFromHere(2)) {
+                        <div>
+                            <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer2'}"></ng-container>
+                        </div>
+                        }
                     </div>
-                  }
+                    }
                 </li>
-              }
-              @for (arm of ReconcilingItem.Item.arms; track arm) {
+                }
+                @for (arm of ReconcilingItem.Item.arms; track arm.itemArmId) {
                 <li [hidden]="CodingByArmId(SelectedNode.Reviewer2Coding, arm.itemArmId).length == 0">
-                  @for (coding of CodingByArmId(SelectedNode.Reviewer2Coding, arm.itemArmId); track coding) {
+                    @for (coding of CodingByArmId(SelectedNode.Reviewer2Coding, arm.itemArmId); track coding.ID) {
                     <div class="border-bottom border-secondary">
-                      <div>
-                        <b>{{SelectedNode.attribute_name}} (Arm: {{arm.title}})</b>
-                      </div>
-                      @if (coding.InfoBox != '') {
-                        <div class="small mt-1 p-1 bg-white border border-dark" style="white-space: pre-line;">
-                          <b>[Info Box]</b> {{coding.InfoBox}}
-                        </div>
-                      }
-                      <ng-container *ngTemplateOutlet="PdfCodingTemplate; context:{coding : coding}"></ng-container>
-                      @if (CanMoveCodesFromHere(2)) {
                         <div>
-                          <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer2'}"></ng-container>
+                            <b>{{SelectedNode.attribute_name}} (Arm: {{arm.title}})</b>
                         </div>
-                      }
+                        @if (coding.InfoBox != '') {
+                        <div class="small mt-1 p-1 bg-white border border-dark" style="white-space: pre-line;">
+                            <b>[Info Box]</b> {{coding.InfoBox}}
+                        </div>
+                        }
+                        <ng-container *ngTemplateOutlet="PdfCodingTemplate; context:{coding : coding}"></ng-container>
+                        @if (CanMoveCodesFromHere(2)) {
+                        <div>
+                            <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer2'}"></ng-container>
+                        </div>
+                        }
                     </div>
-                  }
+                    }
                 </li>
-              }
+                }
             </ul>
           }
         </div>
@@ -455,50 +455,50 @@
               }
               @if (SelectedNode.Reviewer3Coding.length > 0 && ReconcilingItem) {
                 <ul class="pl-4">
-                  @if (CodingWholeStudy(SelectedNode.Reviewer3Coding).length > 0) {
+                    @if (CodingWholeStudy(SelectedNode.Reviewer3Coding).length > 0) {
                     <li>
-                      @for (coding of CodingWholeStudy(SelectedNode.Reviewer3Coding); track coding) {
+                        @for (coding of CodingWholeStudy(SelectedNode.Reviewer3Coding); track coding.ID) {
                         <div class="border-bottom border-secondary">
-                          <div>
-                            <b>{{SelectedNode.attribute_name}}</b>
-                          </div>
-                          @if (coding.InfoBox != '') {
-                            <div class="small mt-1 p-1 bg-white border border-dark" style="white-space: pre-line;">
-                              <b>[Info Box]</b> {{coding.InfoBox}}
-                            </div>
-                          }
-                          <ng-container *ngTemplateOutlet="PdfCodingTemplate; context:{coding : coding}"></ng-container>
-                          @if (CanMoveCodesFromHere(3)) {
                             <div>
-                              <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer3'}"></ng-container>
+                                <b>{{SelectedNode.attribute_name}}</b>
                             </div>
-                          }
+                            @if (coding.InfoBox != '') {
+                            <div class="small mt-1 p-1 bg-white border border-dark" style="white-space: pre-line;">
+                                <b>[Info Box]</b> {{coding.InfoBox}}
+                            </div>
+                            }
+                            <ng-container *ngTemplateOutlet="PdfCodingTemplate; context:{coding : coding}"></ng-container>
+                            @if (CanMoveCodesFromHere(3)) {
+                            <div>
+                                <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer3'}"></ng-container>
+                            </div>
+                            }
                         </div>
-                      }
+                        }
                     </li>
-                  }
-                  @for (arm of ReconcilingItem.Item.arms; track arm) {
+                    }
+                    @for (arm of ReconcilingItem.Item.arms; track arm.itemArmId) {
                     <li [hidden]="CodingByArmId(SelectedNode.Reviewer3Coding, arm.itemArmId).length == 0">
-                      @for (coding of CodingByArmId(SelectedNode.Reviewer3Coding, arm.itemArmId); track coding) {
+                        @for (coding of CodingByArmId(SelectedNode.Reviewer3Coding, arm.itemArmId); track coding.ID) {
                         <div class="border-bottom border-secondary">
-                          <div>
-                            <b>{{SelectedNode.attribute_name}} (Arm: {{arm.title}})</b>
-                          </div>
-                          @if (coding.InfoBox != '') {
-                            <div class="small mt-1 p-1 bg-white border border-dark" style="white-space: pre-line;">
-                              <b>[Info Box]</b> {{coding.InfoBox}}
-                            </div>
-                          }
-                          <ng-container *ngTemplateOutlet="PdfCodingTemplate; context:{coding : coding}"></ng-container>
-                          @if (CanMoveCodesFromHere(3)) {
                             <div>
-                              <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer3'}"></ng-container>
+                                <b>{{SelectedNode.attribute_name}} (Arm: {{arm.title}})</b>
                             </div>
-                          }
+                            @if (coding.InfoBox != '') {
+                            <div class="small mt-1 p-1 bg-white border border-dark" style="white-space: pre-line;">
+                                <b>[Info Box]</b> {{coding.InfoBox}}
+                            </div>
+                            }
+                            <ng-container *ngTemplateOutlet="PdfCodingTemplate; context:{coding : coding}"></ng-container>
+                            @if (CanMoveCodesFromHere(3)) {
+                            <div>
+                                <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer3'}"></ng-container>
+                            </div>
+                            }
                         </div>
-                      }
+                        }
                     </li>
-                  }
+                    }
                 </ul>
               }
             </div>

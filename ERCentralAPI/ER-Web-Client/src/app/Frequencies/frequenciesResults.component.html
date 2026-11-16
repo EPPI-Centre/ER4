@@ -32,17 +32,17 @@
         </tr>
       </thead>
       <tbody>
-        @for (freq of FrequenciesData; track freq) {
+          @for (freq of FrequenciesData; track freq.attributeId) {
           <tr>
-            <td>{{freq.attribute}}</td>
-            <td>
-              <b class="btn btn-link border-0 pt-0 pb-1 pl-1 font-weight-bold"
-                (click)="FrequencyGetItemList(freq)">
-                {{freq.itemCount}}
-              </b>
-            </td>
+              <td>{{freq.attribute}}</td>
+              <td>
+                  <b class="btn btn-link border-0 pt-0 pb-1 pl-1 font-weight-bold"
+                     (click)="FrequencyGetItemList(freq)">
+                      {{freq.itemCount}}
+                  </b>
+              </td>
           </tr>
-        }
+          }
       </tbody>
     </table>
   </div>

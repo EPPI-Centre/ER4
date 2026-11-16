@@ -128,26 +128,25 @@
             <div class="form-group row mt-2 border-bottom">
               <label class="col-12 col-sm-5" for="codeSET">{{complete}} the coding in this code set: </label>
               <select class="col-12 col-sm-7 form-control mb-1" (change)="DropdownChange()"
-                name="codeSET" [(ngModel)]="selectedCodeSet">
-                @for (item of CodeSets; track item) {
+                      name="codeSET" [(ngModel)]="selectedCodeSet">
+                  @for (item of CodeSets; track item.set_id) {
                   <option name="codeSET"
-                    [ngValue]="item" [selected]="item == selectedCodeSet">
-                    {{item.name}}
+                          [ngValue]="item" [selected]="item == selectedCodeSet">
+                      {{item.name}}
                   </option>
-                }
+                  }
               </select>
             </div>
             @if (complete == 'Complete') {
               <div class="form-group row border-bottom">
                 <label class="col-12 col-sm-5" for="rev1">Reviewer: </label>
                 <select class="col-12 col-sm-7 form-control mb-1" name="rev1" (change)="DropdownChange()"
-                  [(ngModel)]="selectedReviewer1">
-                  @for (member of Contacts; track member) {
-                    <option
-                      [ngValue]="member" [selected]="member == selectedReviewer1">
-                      {{member.contactName}}
+                        [(ngModel)]="selectedReviewer1">
+                    @for (member of Contacts; track member.contactId) {
+                    <option [ngValue]="member" [selected]="member == selectedReviewer1">
+                        {{member.contactName}}
                     </option>
-                  }
+                    }
                 </select>
               </div>
             }
@@ -216,13 +215,13 @@
             <div class="form-group row mt-2 mx-0 border-bottom">
               <label class="col-12 col-sm-5" for="codeSET">Delete the coding in this code set: </label>
               <select class="col-12 col-sm-7 form-control mb-1" (change)="DropdownDeleteChangeCodingToolSelection()"
-                name="codeSET" [(ngModel)]="selectedCodeSet">
-                @for (item of AllCodeSets; track item) {
+                      name="codeSET" [(ngModel)]="selectedCodeSet">
+                  @for (item of AllCodeSets; track item.set_id) {
                   <option name="codeSET"
-                    [ngValue]="item" [selected]="item == selectedCodeSet">
-                    {{item.name}}
+                          [ngValue]="item" [selected]="item == selectedCodeSet">
+                      {{item.name}}
                   </option>
-                }
+                  }
               </select>
             </div>
           </div>
@@ -325,250 +324,250 @@
   }
 
 
-  <div class="col-12 p-0 mb-1" style="max-height:55vh;overflow:auto;">
-    @if (ScreeningSets.length > 0) {
-      <div class="text-success">Screening Tools:</div>
-    }
-    @for (item of ScreeningSets; track item) {
-      <div>
-        <div class="rounded mt-1 mr-1 mb-1 ml-0 p-1 alert alert-info col-12 d-flex container justify-content-around">
-          <div class="bg-white page-link col-6 mr-1 py-1 pl-2 pr-1 justify-content-start rounded" (click)="ShowDetailsForSetId(item.setId)">
-            @if (item.codingIsFinal) {
-              <img title="Normal Mode: single data entry for all users" src="assets/person.png" class="mr-1" />
-            }
-            @if (!item.codingIsFinal) {
-              <img title="Comparison Mode: independent multi-user entry" src="assets/team.png" class="mr-1" />
-            }
-            <span class="font-weight-bold text-success">
-              {{ item.setName }}
-            </span>
-          </div>
-          <div class="bg-white row col-2 mr-1 px-1 align-content-center justify-content-center rounded" title="Items with completed coding for '{{item.setName}}'">
-            <img class="my-auto mr-1" src="assets/CodingComplete.png" />
-            <span class="mt-1">{{item.numItemsCompleted}}</span>
-          </div>
-          <div class="bg-white row col-2 mr-1 px-1 align-content-center justify-content-center rounded" title="Items with incomplete coding for '{{item.setName}}'">
-            <img class="my-auto mr-1" src="assets/CodingNotComplete.png" />
-            <span class="mt-1">{{item.numItemsIncomplete}}</span>
-          </div>
-        </div>
-        @if (DetailsForSetId == item.setId) {
-          <div class="container pr-0 mb-1">
-            <ng-container *ngTemplateOutlet="CodesetDetails; context:{item : item}"></ng-container>
-          </div>
+    <div class="col-12 p-0 mb-1" style="max-height:55vh;overflow:auto;">
+        @if (ScreeningSets.length > 0) {
+        <div class="text-success">Screening Tools:</div>
         }
-      </div>
-    }
-
-    @if (StandardSets.length > 0) {
-      <div class="">Standard Tools:</div>
-    }
-    @for (item of StandardSets; track item) {
-      <div>
-        <div class="rounded mt-1 mr-1 mb-1 ml-0 p-1 alert alert-info col-12 d-flex container justify-content-around">
-          <div class="bg-white page-link col-6 mr-1 py-1 pl-2 pr-1 rounded" (click)="ShowDetailsForSetId(item.setId)">
-            @if (item.codingIsFinal) {
-              <img title="Normal Mode: single data entry for all users" src="assets/person.png" class="mr-1" />
-            }
-            @if (!item.codingIsFinal) {
-              <img title="Comparison Mode: independent multi-user entry" src="assets/team.png" class="mr-1" />
-            }
-            <span class="font-weight-bold text-dark">
-              {{ item.setName }}
-            </span>
-          </div>
-          <div class="bg-white row col-2 mr-1 px-1 align-content-center justify-content-center rounded" title="Items with completed coding for '{{item.setName}}'">
-            <img class="my-auto mr-1" src="assets/CodingComplete.png" />
-            <span class="mt-1">{{item.numItemsCompleted}}</span>
-          </div>
-          <div class="bg-white row col-2 mr-1 px-1 align-content-center justify-content-center rounded" title="Items with incomplete coding for '{{item.setName}}'">
-            <img class="my-auto mr-1" src="assets/CodingNotComplete.png" />
-            <span class="mt-1">{{item.numItemsIncomplete}}</span>
-          </div>
-        </div>
-        @if (DetailsForSetId == item.setId) {
-          <div class="container pr-0 mb-1">
-            <ng-container *ngTemplateOutlet="CodesetDetails; context:{item : item}"></ng-container>
-          </div>
-        }
-      </div>
-    }
-    @if (AdminSets.length > 0) {
-      <div class="text-primary">Administration Tools:</div>
-    }
-    @for (item of AdminSets; track item) {
-      <div>
-        <div class="rounded mt-1 mr-1 mb-1 ml-0 p-1 alert alert-info col-12 d-flex container justify-content-around">
-          <div class="bg-white page-link col-6 mr-1 py-1 pl-2 pr-1 rounded" (click)="ShowDetailsForSetId(item.setId)">
-            @if (item.codingIsFinal) {
-              <img title="Normal Mode: single data entry for all users" src="assets/person.png" class="mr-1" />
-            }
-            @if (!item.codingIsFinal) {
-              <img title="Comparison Mode: independent multi-user entry" src="assets/team.png" class="mr-1" />
-            }
-            <span class="font-weight-bold text-primary">
-              {{ item.setName }}
-            </span>
-          </div>
-          <div class="bg-white row col-2 mr-1 px-1 align-content-center justify-content-center rounded" title="Items with completed coding for '{{item.setName}}'">
-            <img class="my-auto mr-1" src="assets/CodingComplete.png" />
-            <span class="mt-1">{{item.numItemsCompleted}}</span>
-          </div>
-          <div class="bg-white row col-2 mr-1 px-1 align-content-center justify-content-center rounded" title="Items with incomplete coding for '{{item.setName}}'">
-            <img class="my-auto mr-1" src="assets/CodingNotComplete.png" />
-            <span class="mt-1">{{item.numItemsIncomplete}}</span>
-          </div>
-        </div>
-        @if (DetailsForSetId == item.setId) {
-          <div class="container pr-0 mb-1">
-            <ng-container *ngTemplateOutlet="CodesetDetails; context:{item : item}"></ng-container>
-          </div>
-        }
-      </div>
-    }
-  </div>
-  <ng-template #CodesetDetails let-item="item">
-    @for (singleContact of item.reviewerStatistics; track singleContact) {
-      <div class="rounded mt-0 mr-1 mb-0 ml-0 px-1 py-0 col-12 d-flex container justify-content-around">
-        <div class="bg-white page-link text-dark col-6 mr-1 rounded" (click)="ShowDetailsForSetId(item.setId)">
-          {{singleContact.contactName}}
-        </div>
-        <div class="bg-white row col-2 mr-1 px-1 align-content-center justify-content-center rounded" style="border: 1px solid #dee2e6;" title="Items with completed coding by '{{singleContact.contactName}}'">
-          @if (HasWriteRights) {
-            <img class="thumbnail btn px-0 py-1 mx-0 my-auto" o src="assets/CodingComplete.png" title="Items with completed coding (change to incomplete)"
-              (click)="CompleteCoding(singleContact.ContactName, item.setName, item.setId,singleContact.contactId,  'false')" />
-          }
-          @if (!HasWriteRights) {
-            <img class="thumbnail btn px-0 py-1 mx-0 my-auto" o src="assets/CodingComplete.png" title="Items with completed coding by '{{singleContact.contactName}}'" />
-          }
-          <span class="btn btn-link border-0 my-auto px-1 font-weight-bold" title="List items with completed coding by '{{singleContact.contactName}}'"
-          (click)="CompletedBySetAndContact(singleContact, item.setName)">{{singleContact.numItemsCompleted}}</span>
-        </div>
-        <div class="bg-white row col-2 mr-1 px-1 align-content-center justify-content-center rounded" style="border: 1px solid #dee2e6;" title="Items with incomplete coding by '{{singleContact.contactName}}'">
-          @if (HasWriteRights) {
-            <img class="thumbnail btn px-0 py-1 mx-0 my-auto" src="assets/CodingNotComplete.png" title="Items with incomplete coding (change to complete)"
-              (click)="CompleteCoding(singleContact.ContactName, item.setName, item.setId, singleContact.contactId,  'true')" />
-          }
-          @if (!HasWriteRights) {
-            <img class="thumbnail btn px-0 py-1 mx-0 my-auto" src="assets/CodingNotComplete.png" title="Items with incomplete coding by '{{singleContact.contactName}}'" />
-          }
-          <span class="btn btn-link border-0 my-auto px-1 font-weight-bold" title="List items with incomplete coding by '{{singleContact.contactName}}'"
-          (click)="IncompleteBySetAndContact(singleContact, item.setName)">{{singleContact.numItemsIncomplete}}</span>
-        </div>
-      </div>
-    }
-    @if (HasAdminRights) {
-      <div class="col-12 mx-0 px-0">
-        <div class=" rounded border border-primary alert-info m-2 px-2">
-          <div class="small row mx-0 px-0">
-            <div class="my-auto">Get "all coding" report for this tool</div>
-            <button (click)="GetAndSaveCodingReport(item)" [disabled]="!CanGetAllCodingReport"
-              title="Save as Html (Supports opening in Word)"
-              type="button" class="btn btn-sm btn-outline-primary  ml-1 mr-1 py-0 my-1">
-              <kendo-icon name="save"></kendo-icon>
-            </button>
-            <button (click)="GetAndSaveJsonCodingReport(item)" [disabled]="!CanGetAllCodingReport"
-              title="Save as Json (for data analysis)"
-              type="button" class="btn btn-sm btn-outline-info  ml-1 mr-1 py-0 my-1">
-              <kendo-icon name="data-json"></kendo-icon> Json
-            </button>
-            <button (click)="flipShowAllCodingReportOptions()" class="btn btn-sm btn-outline-info  ml-1 mr-1 py-0 my-1">{{showAllCodingReportOptionsText}}</button>
-          </div>
-          @if (showAllCodingReportOptions) {
-            <div class="row mx-0 px-1 border-top border-primary justify-content-between">
-              <div class="row mx-0">
-                <div class="my-auto mx-1">Only with this code:</div>
-                <input type="checkbox" [(ngModel)]="AllCodingReportWithThisCode" />
-              </div>
-              @if (AllCodingReportWithThisCode) {
-                <div >
-                  Selected code: <span class="px-1 rounded bg-light text-dark">{{CurrenltySelectedNodeString}}</span>
+        @for (item of ScreeningSets; track item.setId) {
+        <div>
+            <div class="rounded mt-1 mr-1 mb-1 ml-0 p-1 alert alert-info col-12 d-flex container justify-content-around">
+                <div class="bg-white page-link col-6 mr-1 py-1 pl-2 pr-1 justify-content-start rounded" (click)="ShowDetailsForSetId(item.setId)">
+                    @if (item.codingIsFinal) {
+                    <img title="Normal Mode: single data entry for all users" src="assets/person.png" class="mr-1" />
+                    }
+                    @if (!item.codingIsFinal) {
+                    <img title="Comparison Mode: independent multi-user entry" src="assets/team.png" class="mr-1" />
+                    }
+                    <span class="font-weight-bold text-success">
+                        {{ item.setName }}
+                    </span>
                 </div>
-              }
+                <div class="bg-white row col-2 mr-1 px-1 align-content-center justify-content-center rounded" title="Items with completed coding for '{{item.setName}}'">
+                    <img class="my-auto mr-1" src="assets/CodingComplete.png" />
+                    <span class="mt-1">{{item.numItemsCompleted}}</span>
+                </div>
+                <div class="bg-white row col-2 mr-1 px-1 align-content-center justify-content-center rounded" title="Items with incomplete coding for '{{item.setName}}'">
+                    <img class="my-auto mr-1" src="assets/CodingNotComplete.png" />
+                    <span class="mt-1">{{item.numItemsIncomplete}}</span>
+                </div>
             </div>
-          }
+            @if (DetailsForSetId == item.setId) {
+            <div class="container pr-0 mb-1">
+                <ng-container *ngTemplateOutlet="CodesetDetails; context:{item : item}"></ng-container>
+            </div>
+            }
         </div>
-        @if (showAllCodingReportOptions) {
-          <div class="rounded border border-info  m-2 px-2">
-            <div class="border-bottom border-info col-12 mx-0 px-0 bg-light">
-              <div class="col-12 px-0 mx-0">
-                <div class="row mx-1 border-bottom">
-                  <div class="col-9 px-0 mx-0">Use the default labels to distinguish coding/no coding:</div>
-                  <div class="col-3 px-0 mx-0"><input [(ngModel)]="AllCodingReportOptions.UseOnlyColourCodingForCompletion" type="checkbox" /></div>
-                  <div class="col-12 px-0 mx-0">
-                    Labels: <b>1</b> for any coding (completed or incomplete), <b>0</b> for no coding, <b>Green</b> cell for completed/agreed coding.
-                  </div>
+        }
+
+        @if (StandardSets.length > 0) {
+        <div class="">Standard Tools:</div>
+        }
+        @for (item of StandardSets; track item.setId) {
+        <div>
+            <div class="rounded mt-1 mr-1 mb-1 ml-0 p-1 alert alert-info col-12 d-flex container justify-content-around">
+                <div class="bg-white page-link col-6 mr-1 py-1 pl-2 pr-1 rounded" (click)="ShowDetailsForSetId(item.setId)">
+                    @if (item.codingIsFinal) {
+                    <img title="Normal Mode: single data entry for all users" src="assets/person.png" class="mr-1" />
+                    }
+                    @if (!item.codingIsFinal) {
+                    <img title="Comparison Mode: independent multi-user entry" src="assets/team.png" class="mr-1" />
+                    }
+                    <span class="font-weight-bold text-dark">
+                        {{ item.setName }}
+                    </span>
                 </div>
-                <div class="row mx-1 border-bottom"   [ngStyle]="{'opacity': colourOnly() ? '0.5' : '1' }">
-                  <div class="col-12 px-0 mx-0">
-                    You can customise the labels to indicate coding status (<b>Completed</b>, <b>Incomplete</b> and <b>No Coding</b>).<br />
-                    Completed/Agreed coding is still visually indicated by a <b>Green</b> cell.
-                  </div>
-                  <div class="col-12 row px-0 mx-0">
-                    <div class="col-4 px-0">
-                      Completed:
-                      <input [(ngModel)]="AllCodingReportOptions.labelForCompletedCoding" class="w-100" maxlength="6"
-                        type="text" [disabled]="AllCodingReportOptions.DisableLabels" style="max-width: 3em;" />
-                      </div>
-                      <div class="col-4 px-0">
-                        Incomplete:
-                        <input [(ngModel)]="AllCodingReportOptions.labelForIncompleteCoding" class="w-100" maxlength="6"
-                          type="text" [disabled]="AllCodingReportOptions.DisableLabels" style="max-width: 3em;" />
-                        </div>
-                        <div class="col-4 px-0">
-                          No Coding
-                          <input [(ngModel)]="AllCodingReportOptions.labelForNoCoding" class="w-100" maxlength="6"
-                            type="text" [disabled]="AllCodingReportOptions.DisableLabels" style="max-width: 3em;" />
-                          </div>
-                        </div>
-                      </div>
-                      @if (AllCodingReportOptions.LabelsAreNumbers) {
+                <div class="bg-white row col-2 mr-1 px-1 align-content-center justify-content-center rounded" title="Items with completed coding for '{{item.setName}}'">
+                    <img class="my-auto mr-1" src="assets/CodingComplete.png" />
+                    <span class="mt-1">{{item.numItemsCompleted}}</span>
+                </div>
+                <div class="bg-white row col-2 mr-1 px-1 align-content-center justify-content-center rounded" title="Items with incomplete coding for '{{item.setName}}'">
+                    <img class="my-auto mr-1" src="assets/CodingNotComplete.png" />
+                    <span class="mt-1">{{item.numItemsIncomplete}}</span>
+                </div>
+            </div>
+            @if (DetailsForSetId == item.setId) {
+            <div class="container pr-0 mb-1">
+                <ng-container *ngTemplateOutlet="CodesetDetails; context:{item : item}"></ng-container>
+            </div>
+            }
+        </div>
+        }
+        @if (AdminSets.length > 0) {
+        <div class="text-primary">Administration Tools:</div>
+        }
+        @for (item of AdminSets; track item.setId) {
+        <div>
+            <div class="rounded mt-1 mr-1 mb-1 ml-0 p-1 alert alert-info col-12 d-flex container justify-content-around">
+                <div class="bg-white page-link col-6 mr-1 py-1 pl-2 pr-1 rounded" (click)="ShowDetailsForSetId(item.setId)">
+                    @if (item.codingIsFinal) {
+                    <img title="Normal Mode: single data entry for all users" src="assets/person.png" class="mr-1" />
+                    }
+                    @if (!item.codingIsFinal) {
+                    <img title="Comparison Mode: independent multi-user entry" src="assets/team.png" class="mr-1" />
+                    }
+                    <span class="font-weight-bold text-primary">
+                        {{ item.setName }}
+                    </span>
+                </div>
+                <div class="bg-white row col-2 mr-1 px-1 align-content-center justify-content-center rounded" title="Items with completed coding for '{{item.setName}}'">
+                    <img class="my-auto mr-1" src="assets/CodingComplete.png" />
+                    <span class="mt-1">{{item.numItemsCompleted}}</span>
+                </div>
+                <div class="bg-white row col-2 mr-1 px-1 align-content-center justify-content-center rounded" title="Items with incomplete coding for '{{item.setName}}'">
+                    <img class="my-auto mr-1" src="assets/CodingNotComplete.png" />
+                    <span class="mt-1">{{item.numItemsIncomplete}}</span>
+                </div>
+            </div>
+            @if (DetailsForSetId == item.setId) {
+            <div class="container pr-0 mb-1">
+                <ng-container *ngTemplateOutlet="CodesetDetails; context:{item : item}"></ng-container>
+            </div>
+            }
+        </div>
+        }
+    </div>
+    <ng-template #CodesetDetails let-item="item">
+        @for (singleContact of item.reviewerStatistics; track singleContact.contactId) {
+        <div class="rounded mt-0 mr-1 mb-0 ml-0 px-1 py-0 col-12 d-flex container justify-content-around">
+            <div class="bg-white page-link text-dark col-6 mr-1 rounded" (click)="ShowDetailsForSetId(item.setId)">
+                {{singleContact.contactName}}
+            </div>
+            <div class="bg-white row col-2 mr-1 px-1 align-content-center justify-content-center rounded" style="border: 1px solid #dee2e6;" title="Items with completed coding by '{{singleContact.contactName}}'">
+                @if (HasWriteRights) {
+                <img class="thumbnail btn px-0 py-1 mx-0 my-auto" o src="assets/CodingComplete.png" title="Items with completed coding (change to incomplete)"
+                     (click)="CompleteCoding(singleContact.ContactName, item.setName, item.setId,singleContact.contactId,  'false')" />
+                }
+                @if (!HasWriteRights) {
+                <img class="thumbnail btn px-0 py-1 mx-0 my-auto" o src="assets/CodingComplete.png" title="Items with completed coding by '{{singleContact.contactName}}'" />
+                }
+                <span class="btn btn-link border-0 my-auto px-1 font-weight-bold" title="List items with completed coding by '{{singleContact.contactName}}'"
+                      (click)="CompletedBySetAndContact(singleContact, item.setName)">{{singleContact.numItemsCompleted}}</span>
+            </div>
+            <div class="bg-white row col-2 mr-1 px-1 align-content-center justify-content-center rounded" style="border: 1px solid #dee2e6;" title="Items with incomplete coding by '{{singleContact.contactName}}'">
+                @if (HasWriteRights) {
+                <img class="thumbnail btn px-0 py-1 mx-0 my-auto" src="assets/CodingNotComplete.png" title="Items with incomplete coding (change to complete)"
+                     (click)="CompleteCoding(singleContact.ContactName, item.setName, item.setId, singleContact.contactId,  'true')" />
+                }
+                @if (!HasWriteRights) {
+                <img class="thumbnail btn px-0 py-1 mx-0 my-auto" src="assets/CodingNotComplete.png" title="Items with incomplete coding by '{{singleContact.contactName}}'" />
+                }
+                <span class="btn btn-link border-0 my-auto px-1 font-weight-bold" title="List items with incomplete coding by '{{singleContact.contactName}}'"
+                      (click)="IncompleteBySetAndContact(singleContact, item.setName)">{{singleContact.numItemsIncomplete}}</span>
+            </div>
+        </div>
+        }
+        @if (HasAdminRights) {
+        <div class="col-12 mx-0 px-0">
+            <div class=" rounded border border-primary alert-info m-2 px-2">
+                <div class="small row mx-0 px-0">
+                    <div class="my-auto">Get "all coding" report for this tool</div>
+                    <button (click)="GetAndSaveCodingReport(item)" [disabled]="!CanGetAllCodingReport"
+                            title="Save as Html (Supports opening in Word)"
+                            type="button" class="btn btn-sm btn-outline-primary  ml-1 mr-1 py-0 my-1">
+                        <kendo-icon name="save"></kendo-icon>
+                    </button>
+                    <button (click)="GetAndSaveJsonCodingReport(item)" [disabled]="!CanGetAllCodingReport"
+                            title="Save as Json (for data analysis)"
+                            type="button" class="btn btn-sm btn-outline-info  ml-1 mr-1 py-0 my-1">
+                        <kendo-icon name="data-json"></kendo-icon> Json
+                    </button>
+                    <button (click)="flipShowAllCodingReportOptions()" class="btn btn-sm btn-outline-info  ml-1 mr-1 py-0 my-1">{{showAllCodingReportOptionsText}}</button>
+                </div>
+                @if (showAllCodingReportOptions) {
+                <div class="row mx-0 px-1 border-top border-primary justify-content-between">
+                    <div class="row mx-0">
+                        <div class="my-auto mx-1">Only with this code:</div>
+                        <input type="checkbox" [(ngModel)]="AllCodingReportWithThisCode" />
+                    </div>
+                    @if (AllCodingReportWithThisCode) {
+                    <div>
+                        Selected code: <span class="px-1 rounded bg-light text-dark">{{CurrenltySelectedNodeString}}</span>
+                    </div>
+                    }
+                </div>
+                }
+            </div>
+            @if (showAllCodingReportOptions) {
+            <div class="rounded border border-info  m-2 px-2">
+                <div class="border-bottom border-info col-12 mx-0 px-0 bg-light">
+                    <div class="col-12 px-0 mx-0">
                         <div class="row mx-1 border-bottom">
-                          <div class="col-9 px-0 mx-0">Save labels as numbers (not strings) for machine readability:</div>
-                          <div class="col-3 px-0 mx-0"><input [(ngModel)]="AllCodingReportOptions.saveLabelsAsNumbers" type="checkbox" /></div>
+                            <div class="col-9 px-0 mx-0">Use the default labels to distinguish coding/no coding:</div>
+                            <div class="col-3 px-0 mx-0"><input [(ngModel)]="AllCodingReportOptions.UseOnlyColourCodingForCompletion" type="checkbox" /></div>
+                            <div class="col-12 px-0 mx-0">
+                                Labels: <b>1</b> for any coding (completed or incomplete), <b>0</b> for no coding, <b>Green</b> cell for completed/agreed coding.
+                            </div>
                         </div>
-                      }
-                      <div class="row mx-1 border-bottom">
-                        <div class="col-9 px-0">
-                          Separator used between lines: this is used within a single cell to separate PDF-text selections and Arms (if shown).
+                        <div class="row mx-1 border-bottom" [ngStyle]="{'opacity': colourOnly() ? '0.5' : '1' }">
+                            <div class="col-12 px-0 mx-0">
+                                You can customise the labels to indicate coding status (<b>Completed</b>, <b>Incomplete</b> and <b>No Coding</b>).<br />
+                                Completed/Agreed coding is still visually indicated by a <b>Green</b> cell.
+                            </div>
+                            <div class="col-12 row px-0 mx-0">
+                                <div class="col-4 px-0">
+                                    Completed:
+                                    <input [(ngModel)]="AllCodingReportOptions.labelForCompletedCoding" class="w-100" maxlength="6"
+                                           type="text" [disabled]="AllCodingReportOptions.DisableLabels" style="max-width: 3em;" />
+                                </div>
+                                <div class="col-4 px-0">
+                                    Incomplete:
+                                    <input [(ngModel)]="AllCodingReportOptions.labelForIncompleteCoding" class="w-100" maxlength="6"
+                                           type="text" [disabled]="AllCodingReportOptions.DisableLabels" style="max-width: 3em;" />
+                                </div>
+                                <div class="col-4 px-0">
+                                    No Coding
+                                    <input [(ngModel)]="AllCodingReportOptions.labelForNoCoding" class="w-100" maxlength="6"
+                                           type="text" [disabled]="AllCodingReportOptions.DisableLabels" style="max-width: 3em;" />
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-3 px-0">
-                          <input [(ngModel)]="AllCodingReportOptions.linesSeparator" type="text" maxlength="16"
-                            style="max-width: 8em;" />
-                          </div>
+                        @if (AllCodingReportOptions.LabelsAreNumbers) {
+                        <div class="row mx-1 border-bottom">
+                            <div class="col-9 px-0 mx-0">Save labels as numbers (not strings) for machine readability:</div>
+                            <div class="col-3 px-0 mx-0"><input [(ngModel)]="AllCodingReportOptions.saveLabelsAsNumbers" type="checkbox" /></div>
+                        </div>
+                        }
+                        <div class="row mx-1 border-bottom">
+                            <div class="col-9 px-0">
+                                Separator used between lines: this is used within a single cell to separate PDF-text selections and Arms (if shown).
+                            </div>
+                            <div class="col-3 px-0">
+                                <input [(ngModel)]="AllCodingReportOptions.linesSeparator" type="text" maxlength="16"
+                                       style="max-width: 8em;" />
+                            </div>
                         </div>
                         <div class="row mx-1 border-bottom">
-                          <div class="col-4 px-0">
-                            Show Full Title:
-                            <input [(ngModel)]="AllCodingReportOptions.showFullTitle" type="checkbox" />
-                          </div>
-                          <div class="col-4 px-0">
-                            Include Sheets for Arms:
-                            <input [(ngModel)]="AllCodingReportOptions.includeArms" type="checkbox" />
-                          </div>
-                          <div class="col-4 px-0">
-                            Include Outcomes Sheet:
-                            <input [(ngModel)]="AllCodingReportOptions.includeOutcomes" type="checkbox" />
-                          </div>
+                            <div class="col-4 px-0">
+                                Show Full Title:
+                                <input [(ngModel)]="AllCodingReportOptions.showFullTitle" type="checkbox" />
+                            </div>
+                            <div class="col-4 px-0">
+                                Include Sheets for Arms:
+                                <input [(ngModel)]="AllCodingReportOptions.includeArms" type="checkbox" />
+                            </div>
+                            <div class="col-4 px-0">
+                                Include Outcomes Sheet:
+                                <input [(ngModel)]="AllCodingReportOptions.includeOutcomes" type="checkbox" />
+                            </div>
                         </div>
-                      </div>
-                      <div class="border-bottom border-info col-12 mx-0 px-0 alert-info">
+                    </div>
+                    <div class="border-bottom border-info col-12 mx-0 px-0 alert-info">
                         <button (click)="GetAndSaveXLSCodingReport(item)" [disabled]="!CanGetAllCodingReport"
-                          title="Save as Excel"
-                          type="button" class="btn btn-sm btn-outline-info  ml-1 mr-1 py-0 my-1">
-                          <kendo-icon name="excel"></kendo-icon> Excel
+                                title="Save as Excel"
+                                type="button" class="btn btn-sm btn-outline-info  ml-1 mr-1 py-0 my-1">
+                            <kendo-icon name="excel"></kendo-icon> Excel
                         </button>
                         <button (click)="flipShowAllCodingReportOptions()"
-                          title="Close"
-                          type="button" class="btn btn-sm btn-outline-dark ml-1 mr-1 py-0 my-1">
-                          Close
+                                title="Close"
+                                type="button" class="btn btn-sm btn-outline-dark ml-1 mr-1 py-0 my-1">
+                            Close
                         </button>
-                      </div>
                     </div>
-                  </div>
-                }
-              </div>
+                </div>
+            </div>
             }
-          </ng-template>
+        </div>
+        }
+    </ng-template>
         </div>
 

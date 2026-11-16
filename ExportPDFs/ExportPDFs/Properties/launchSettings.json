@@ -2,7 +2,11 @@
   "profiles": {
     "ExportPDFs": {
       "commandName": "Project",
-      "commandLineArgs": "revid:7 exportbin onlythiscode:1095 incl"
+      "commandLineArgs": "revid:7 rebuildtext "
+    },
+    "RebuildTxt": {
+      "commandName": "Project",
+      "commandLineArgs": "revid:7 rebuildtext "
     }
   }
 }

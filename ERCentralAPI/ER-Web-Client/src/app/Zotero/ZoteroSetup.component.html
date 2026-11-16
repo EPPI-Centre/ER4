@@ -393,36 +393,36 @@
                   </tr>
                 </thead>
                 <tbody>
-                  @for (item of groupMeta; track item; let i = $index) {
+                    @for (item of groupMeta; track item.id; let i = $index) {
                     <tr class="" [ngClass]="{'font-weight-bold': item.groupBeingSynced == true}">
-                      <td>
-                        {{item.id}}
-                      </td>
-                      <td class="">{{item.data.name}}</td>
-                      <td>
-                        @switch (item.groupBeingSynced) {
-                          @case (true) {
+                        <td>
+                            {{item.id}}
+                        </td>
+                        <td class="">{{item.data.name}}</td>
+                        <td>
+                            @switch (item.groupBeingSynced) {
+                            @case (true) {
                             <div class="mx-auto row">
-                              <div class="mx-auto alert-info border border-info rounded px-2">Active</div>
+                                <div class="mx-auto alert-info border border-info rounded px-2">Active</div>
                             </div>
-                          }
-                          @case (false) {
+                            }
+                            @case (false) {
                             <div class="mx-auto row">
-                              <button class="btn btn-success p-1 mx-auto" (click)="changeGroupBeingSynced(item)"
-                                [disabled]="HasWriteRights == false || CurrentUserOwnsTheApiKey == false">
-                                Select
-                              </button>
+                                <button class="btn btn-success p-1 mx-auto" (click)="changeGroupBeingSynced(item)"
+                                        [disabled]="HasWriteRights == false || CurrentUserOwnsTheApiKey == false">
+                                    Select
+                                </button>
                             </div>
-                          }
-                          @default {
+                            }
+                            @default {
                             <div>
-                              <h4>uh?</h4>
+                                <h4>uh?</h4>
                             </div>
-                          }
-                        }
-                      </td>
+                            }
+                            }
+                        </td>
                     </tr>
-                  }
+                    }
                 </tbody>
               </table>
             </div>
