@@ -48,7 +48,7 @@ export class ItemDocsService extends BusyAwareService {
     if (this.currentItemId == 0) return;
     let body = JSON.stringify({ Value: this.currentItemId });
     this._BusyMethods.push("Refresh");
-    this._httpC.post<ItemDocument[]>(this._baseUrl + 'api/ItemDocumentList/GetDocuments', body).subscribe(
+    lastValueFrom(this._httpC.post<ItemDocument[]>(this._baseUrl + 'api/ItemDocumentList/GetDocuments', body)).then(
       (res) => {
         this._itemDocs = res;
         this.RemoveBusy("Refresh");
