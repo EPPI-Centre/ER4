@@ -119,23 +119,26 @@ export class ItemDocListComp implements OnInit, OnDestroy {
       itemID: this.itemID
     };
   }
-  public DeleteDoc(DocId: number) {
-    this.ItemDocsService.DeleteDocWarning(DocId, this.itemID).then(
+  public DeleteDoc(Doc: ItemDocument) {
+    this.ItemDocsService.DeleteDocWarning(Doc.itemDocumentId, this.itemID).then(
+      //to check for coding that will disappear, we pass the current item ID
       //errors are handled within the service (will return -1 if anything went wrong...)
       (result) => {
-        if (result >= 0) this.DoDeleteDoc(DocId, result);
+        if (result >= 0) this.DoDeleteDoc(Doc, result);
       }
     );
   }
-  private DoDeleteDoc(DocId: number, Numcodings: number) {
-    if (this.itemID > 0) {
+  private DoDeleteDoc(Doc: ItemDocument, Numcodings: number) {
+    if (Doc.itemId > 0) {
+      //to actually delete a doc, it's easier on the SQL side to provide the itemId on which this doc has been uploaded.
+      //The itemId can be different from the current item, when we're dealing with linked items.
       if (Numcodings > 0) {
         this.confirmationDialogService.confirm('Please confirm', 'Deleting a Document is a permanent operation.' +
           '<br/><b>This document has been coded ' + Numcodings + ' time(s)</b>.<br/> All codings associated with this document will be premanently deleted!', false, '')
           .then(
             (confirmed: any) => {
               if (confirmed) {
-                this.ItemDocsService.DeleteItemDoc(DocId, this.itemID);
+                this.ItemDocsService.DeleteItemDoc(Doc.itemDocumentId, Doc.itemId);
               } else {
                 console.log('User cancelled the confirm delete doc dialog');
               }
@@ -150,7 +153,7 @@ export class ItemDocListComp implements OnInit, OnDestroy {
             (confirmed: any) => {
               console.log('User confirmed delete doc dialog');
               if (confirmed) {
-                this.ItemDocsService.DeleteItemDoc(DocId, this.itemID);
+                this.ItemDocsService.DeleteItemDoc(Doc.itemDocumentId, Doc.itemId);
               } else {
                 //alert('did not confirm');
               }
