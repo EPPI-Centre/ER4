@@ -1,15 +1,11 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewService } from '../services/review.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { ModalService } from '../services/modal.service';
-import { iRobotOpenAiQueueBatchJobCommand, iRobotOpenAiTaskReadOnly, iRobotSettings, RobotsService } from '../services/Robots.service';
-import { Item, ItemListService } from '../services/ItemList.service';
-import { ReviewInfoService } from '../services/ReviewInfo.service';
-import { ReviewSet, ReviewSetsService } from '../services/ReviewSets.service';
+import { iRobotOpenAiTaskReadOnly, iRobotSettings, RobotsService } from '../services/Robots.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
-import { Helpers } from '../helpers/HelperMethods';
+import { SVGIcon, arrowRotateCwIcon } from '@progress/kendo-svg-icons';
 
 @Component({
     selector: 'robotJobsQueue',
@@ -33,6 +29,9 @@ export class robotJobsQueue implements OnInit, OnDestroy {
   @Input() ShowQueue: boolean = true;
   @Output() PleaseCloseMe = new EventEmitter();
   public DetailsJobId: number = -1;
+  //svg icons
+  public refresh: SVGIcon = arrowRotateCwIcon;
+  //end of svg icons
 
   ngOnInit() {
     this.robotsService.GetCurrentQueue().then(() => {

@@ -205,8 +205,14 @@ namespace BusinessLibrary.BusinessClasses
         public static string pubMedStudyTypesPipelineName { get { return AzureContReviewSettings["pubMedStudyTypesPipelineName"]; } }
         public static string pubMedStudyDesignsPipelineName { get { return AzureContReviewSettings["pubMedStudyDesignsPipelineName"]; } }
         public static string pipelineName { get { return AzureContReviewSettings["pipelineName"]; } }
+        public static string ml_pipeline_id { get { return AzureContReviewSettings["ml_pipeline_id"]; } }
+        public static string sa_account_name { get { return AzureContReviewSettings["sa_account_name"]; } }
+        public static string sa_secret_scope_name { get { return AzureContReviewSettings["sa_secret_scope_name"]; } }
+        public static string sa_secret_scope_key { get { return AzureContReviewSettings["sa_secret_scope_key"]; } }
+        public static string db_database_schema_version { get { return AzureContReviewSettings["db_database_schema_version"]; } }
+        public static string exp_experiments_container { get { return AzureContReviewSettings["exp_experiments_container"]; } }
 
-        
+
 
         public static string MagDataLakeDataLakeAccount { get { return AzureMagSettings["MagDataLakeDataLakeAccount"]; } }
         public static string MagDataLakeStorageAccount { get { return AzureMagSettings["MagDataLakeStorageAccount"]; } }
@@ -217,12 +223,6 @@ namespace BusinessLibrary.BusinessClasses
         public static string MAGStorageAccountKey { get { return AzureMagSettings["MAGStorageAccountKey"]; } }
         public static string databricks_cluster_id { get { return AzureMagSettings["databricks_cluster_id"]; } }
         public static string DynamicAnnotation { get { return AzureMagSettings["DynamicAnnotation"]; } }
-        public static string ml_pipeline_id { get { return AzureMagSettings["ml_pipeline_id"]; } }
-        public static string sa_account_name { get { return AzureMagSettings["sa_account_name"]; } }
-        public static string sa_secret_scope_name { get { return AzureMagSettings["sa_secret_scope_name"]; } }
-        public static string sa_secret_scope_key { get { return AzureMagSettings["sa_secret_scope_key"]; } }
-        public static string db_database_schema_version { get { return AzureMagSettings["db_database_schema_version"]; } }
-        public static string exp_experiments_container { get { return AzureMagSettings["exp_experiments_container"]; } }
         public static string exp_run_suffix { get { return AzureMagSettings["exp_run_suffix"]; } }
         public static string AzureSearchMAGApiKey { get { return AzureMagSettings["AzureSearchMAGApi-key"]; } }
         public static string OpenAlexEndpoint { get { return AzureMagSettings["OpenAlexEndpoint"]; } }

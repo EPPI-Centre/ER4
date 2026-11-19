@@ -272,6 +272,8 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@SET_ORDER", _reviewSetIndex));
                     command.Parameters.Add(new SqlParameter("@SET_DESCRIPTION", "Topics auto-generated from OpenAlex"));
                     command.Parameters.Add(new SqlParameter("@ORIGINAL_SET_ID", 0));
+                    command.Parameters.Add(new SqlParameter("@Ext_URL", DBNull.Value));
+                    command.Parameters.Add(new SqlParameter("@Ext_Type", DBNull.Value));
 
                     SqlParameter par = new SqlParameter("@NEW_REVIEW_SET_ID", System.Data.SqlDbType.Int);
                     par.Value = 0;
