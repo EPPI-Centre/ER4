@@ -275,6 +275,8 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@SET_ORDER", 0));
                     command.Parameters.Add(new SqlParameter("@SET_DESCRIPTION", cs.SetDescription));
                     command.Parameters.Add(new SqlParameter("@ORIGINAL_SET_ID", cs.SetId));
+                    command.Parameters.Add(new SqlParameter("@Ext_URL", cs.ExtURL == "" ? DBNull.Value : cs.ExtURL));
+                    command.Parameters.Add(new SqlParameter("@Ext_Type", cs.ExtType == "" ? DBNull.Value : cs.ExtType));
                     if (cs.OldestKnownId != null && cs.OldestKnownId > 0)
                     {
                         command.Parameters.Add(new SqlParameter("@OLDEST_KNOWN_SET_ID", cs.OldestKnownId));
@@ -931,6 +933,8 @@ namespace BusinessLibrary.BusinessClasses
             public Attributes Attributes { get; set; }
             public int OriginalSetId { get; set; }
             public int OldestKnownId { get; set; }
+            public string ExtURL { get; set; } = "";
+            public string ExtType { get; set; } = "";
         }
 
         public class Settype

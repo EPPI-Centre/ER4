@@ -164,9 +164,9 @@
                                                                 type="radio" [value]="true" name="magMatchRadio_{{magPaper.paperId}}"
                                                                 [(ngModel)]="magPaper.manualTrueMatch" class="ml-3">
                         </div>
-                        <div class="col-12 ">
+                        <div class="col-12 ">nm
                             Incorrect Match: <input (click)="UpdateMagPaper(false, magPaper.paperId)"
-                                                    type="radio" [value]="true" name="magMatchRadio_{{magPaper.paperId}}"
+                                                    type="radio" [value]="true" name="magNoMatchRadio_{{magPaper.paperId}}"
                                                     [(ngModel)]="magPaper.manualFalseMatch" class="ml-3">
                         </div>
                     </td>

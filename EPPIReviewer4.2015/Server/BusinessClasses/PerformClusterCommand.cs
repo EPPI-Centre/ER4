@@ -160,6 +160,8 @@ namespace BusinessLibrary.BusinessClasses
                 command2.Parameters.Add(new SqlParameter("@NEW_SET_ID", 0));
                 command2.Parameters.Add(new SqlParameter("@NEW_REVIEW_SET_ID", 0));
                 command2.Parameters.Add(new SqlParameter("@SET_ORDER", _reviewSetIndex));
+                command2.Parameters.Add(new SqlParameter("@Ext_URL", DBNull.Value));
+                command2.Parameters.Add(new SqlParameter("@Ext_Type", DBNull.Value));
                 command2.Parameters["@NEW_SET_ID"].Direction = System.Data.ParameterDirection.Output;
                 command2.Parameters["@NEW_REVIEW_SET_ID"].Direction = System.Data.ParameterDirection.Output;
                 command2.ExecuteNonQuery();
