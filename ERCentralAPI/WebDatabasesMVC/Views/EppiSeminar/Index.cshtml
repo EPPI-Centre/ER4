@@ -71,12 +71,12 @@
     var detailsHTML = "";
 
     // slider settings
-    var qualityMin = 0;
-    var qualityMax = 5;
-    var strengthMin = 0;
-    var strengthMax = 5;
-    var volumeMin = 1;
-    var volumeMax = 5;
+    //var qualityMin = 0;
+    //var qualityMax = 5;
+    //var strengthMin = 0;
+    //var strengthMax = 5;
+    //var volumeMin = 1;
+    //var volumeMax = 5;
 
     // checkbox settings
     var cbOutcomes = "";
@@ -206,7 +206,24 @@
         detailsHTML += "<p><b>Session details</b><br>" + documentData.items.items[ItemIndexValue].abstract + "</p>";
         detailsHTML += "</p>";
         detailsHTML += "<p>";
-        detailsHTML += "<button onclick='location.href='" + recordingLinkData + "' target='_blank'>Recording link</button>";
+        if (seminarCompleteData == 0) {
+            if ((meetingLinkData == "undefined") || (meetingLinkData == "")) {
+                detailsHTML += "Meeting details not available";
+            }
+            else {
+                detailsHTML += "<a href='" + meetingLinkData + "' target='_blank'>Meeting link</a>";
+            }
+        }
+        else {
+            if ((recordingLinkData == "undefined") || (recordingLinkData == "")) {
+                detailsHTML += "Recording not availaable";
+            }
+            else {
+                detailsHTML += "<a href='" + recordingLinkData + "' target='_blank'>Recording link</a>";
+            }
+
+        }
+        //detailsHTML += "<button onclick='location.href='" + recordingLinkData + "' target='_blank'>Recording link</button>";
         detailsHTML += "<p>";
 
         element.innerHTML = detailsHTML;
@@ -221,12 +238,12 @@
         // on a search we want to clear all of the filters
         // as the search is on everything.
 
-        qualityMin = 0;
-        qualityMax = 5;
-        strengthMin = 0;
-        strengthMax = 5;
-        volumeMin = 1;
-        volumeMax = 5;
+        //qualityMin = 0;
+        //qualityMax = 5;
+        //strengthMin = 0;
+        //strengthMax = 5;
+        //volumeMin = 1;
+        //volumeMax = 5;
         cbYears = "";
         cbKeywords = "";
 
@@ -238,14 +255,14 @@
 
 
         // move the sliders back to the starting positions
-        var qualitySlider = $("#qualitySlider").getKendoRangeSlider();
+        /*var qualitySlider = $("#qualitySlider").getKendoRangeSlider();
         qualitySlider.value([qualityMin, qualityMax]);
         var strengthSlider = $("#strengthSlider").getKendoRangeSlider();
         strengthSlider.value([strengthMin, strengthMax]);
         var qualitySlider = $("#qualitySlider").getKendoRangeSlider();
         qualitySlider.value([qualityMin, qualityMax]);
         var volumeSlider = $("#volumeSlider").getKendoRangeSlider();
-        volumeSlider.value([volumeMin, volumeMax]);
+        volumeSlider.value([volumeMin, volumeMax]);*/
 
         // uncheck all of the check boxes.
         uncheckAllCheckboxes();
@@ -258,36 +275,39 @@
 
     }
 
+    function clearAll() {
+        cbOutcomes = "";
+        cbKeywords = "";
+        uncheckAllCheckboxes();
+        updateByFilter();
+    }
+
 
     function uncheckAllCheckboxes() {
-        var element = document.getElementById("cbAirPollution");
+        var element = document.getElementById("cbSectionA0");
         element.checked = false;
-        element = document.getElementById("cbNoise");
+        element = document.getElementById("cbSectionA1");
         element.checked = false;
-        element = document.getElementById("cbFoodEnvironment");
+        element = document.getElementById("cbSectionA2");
         element.checked = false;
-        element = document.getElementById("cbGreenspaceGardensAndNature");
+        element = document.getElementById("cbSectionA3");
         element.checked = false;
-        element = document.getElementById("cbTransportInfrastructure");
+        element = document.getElementById("cbSectionA4");
         element.checked = false;
-        element = document.getElementById("cbWalkabilityAndLandUse");
+        element = document.getElementById("cbSectionA5");
         element.checked = false;
-        element = document.getElementById("cbNeighbourhoodDisorder");
+        element = document.getElementById("cbSectionA6");
         element.checked = false;
-        element = document.getElementById("cbLight");
+        element = document.getElementById("cbSectionA7");
         element.checked = false;
-        element = document.getElementById("cbRetailEnvironment");
+        element = document.getElementById("cbSectionB0");
         element.checked = false;
-        element = document.getElementById("cbHousing");
+        element = document.getElementById("cbSectionB1");
         element.checked = false;
-        element = document.getElementById("cbPhysicalHealth");
+        element = document.getElementById("cbSectionB2");
         element.checked = false;
-        element = document.getElementById("cbHealthRiskFactors");
-        element.checked = false;
-        element = document.getElementById("cbHealthBehaviours");
-        element.checked = false;
-        element = document.getElementById("cbMentalHealthAndWellBeing");
-        element.checked = false;        
+        element = document.getElementById("cbSectionB3");
+        element.checked = false; 
     }
 
 
@@ -554,13 +574,13 @@
         itemCounter = 0;
 
         // disable slider div
-        var element = document.getElementById("filterDiv");
-        element.classList.add("disabledFilterDiv");
+        //var element = document.getElementById("filterDiv");
+        //element.classList.add("disabledFilterDiv");
         // disable checkbox div
-        var element1 = document.getElementById("sectionAFilterDiv");
-        element1.classList.add("disabledFilterDiv");
-        var element2 = document.getElementById("sectionBFilterDiv");
-        element2.classList.add("disabledFilterDiv");
+        //var element1 = document.getElementById("sectionAFilterDiv");
+        //element1.classList.add("disabledFilterDiv");
+        //var element2 = document.getElementById("sectionBFilterDiv");
+        //element2.classList.add("disabledFilterDiv");
         
         updateByFilter();
 
@@ -584,13 +604,13 @@
         itemCounter = 0;
 
         // disable slider div
-        var element = document.getElementById("filterDiv");
-        element.classList.add("disabledFilterDiv");
+        //var element = document.getElementById("filterDiv");
+        //element.classList.add("disabledFilterDiv");
         // disable checkbox div
-        var element1 = document.getElementById("sectionAFilterDiv");
-        element1.classList.add("disabledFilterDiv");
-        var element2 = document.getElementById("sectionBFilterDiv");
-        element2.classList.add("disabledFilterDiv");
+        //var element1 = document.getElementById("sectionAFilterDiv");
+        //element1.classList.add("disabledFilterDiv");
+        //var element2 = document.getElementById("sectionBFilterDiv");
+        //element2.classList.add("disabledFilterDiv");
         
         updateByFilter();
 
@@ -744,7 +764,7 @@
     function updateByFilter() {
         // reset the itemList
         itemList.length = 0;
-        sessionStorage.setItem("itemList", "");
+        //sessionStorage.setItem("itemList", "");
 
         for (var i = 0; i < documentData.items.totalItemCount; i++) {
             // build cards one at a time from the array of data... (this is fast enough)
@@ -1043,7 +1063,7 @@
                 // start with keywords...
                 if (cbKeywords.includes(keywordValue) || (cbKeywords == ""))
                 {
-                    // check for outcomes
+                    // check for years
                     if (cbYears.includes(yearValue) || (cbYears == "")) 
                     {                           
 
@@ -1070,7 +1090,11 @@
                             visualHTML += "<b>" + studyTitle + "</b><br>";
                             visualHTML += year + "<br>";
                             visualHTML += studyAuthors + "<br>";
-                            visualHTML += "<button type='button' class='btn-sm btn-primary' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>More details</button>";
+                            visualHTML += "<button type='button' class='btn btn-primary' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>Details</button>";
+                            if ((recordingLink != "") || (recordingLink != "undefined")) {
+                                visualHTML += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp"
+                                visualHTML += "<a href='" + recordingLink + "><button type='button' class='btn btn-primary' target='_blank'>Watch</a></button>";
+                            }
                             visualHTML += "</td>";
                             visualHTML += "</tr>";
 
@@ -1100,7 +1124,7 @@
                             visualHTML += "<b>" + studyTitle + "</b><br>";
                             visualHTML += year + "<br>";
                             visualHTML += studyAuthors + "<br>";
-                            visualHTML += "<button type='button' class='btn-sm btn-primary' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>More details</button>";
+                            visualHTML += "<button type='button' class='btn-sm btn-primary' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>Details</button>";
                             visualHTML += "</td>";
                             visualHTML += "</tr>";
 
@@ -1130,7 +1154,7 @@
                             visualHTML += "<b>" + studyTitle + "</b><br>";
                             visualHTML += year + "<br>";
                             visualHTML += studyAuthors + "<br>";
-                            visualHTML += "<button type='button' class='btn-sm btn-primary' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>More details</button>";
+                            visualHTML += "<button type='button' class='btn-sm btn-primary' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>Details</button>";
                             visualHTML += "</td>";
                             visualHTML += "</tr>";
 
@@ -1160,7 +1184,7 @@
                             visualHTML += "<b>" + studyTitle + "</b><br>";
                             visualHTML += year + "<br>";
                             visualHTML += studyAuthors + "<br>";
-                            visualHTML += "<button type='button' class='btn-sm btn-primary' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>More details</button>";
+                            visualHTML += "<button type='button' class='btn-sm btn-primary' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>Details</button>";
                             visualHTML += "</td>";
                             visualHTML += "</tr>";
 
@@ -1213,272 +1237,146 @@
                 // there are search terms so see if the container should be created
                 // str.toLowerCase().includes(substr.toLowerCase())
                 if ((studyTitle.toLowerCase().includes(searchFor.toLowerCase())) || (studyAbstract.toLowerCase().includes(searchFor.toLowerCase()))) 
-                {
-                             if (itemCounter == 0) {
-                                visualHTML += "<div class='row' width='100%'>";
-                            }
+                {                          
 
+                        if (itemCounter == 0) {
+                            visualHTML += "<div class='row' width='100%'>";
+                        }
+                            
+                            
+                        if (itemCounter == 0) {
+                            itemList.push(documentData.items.items[i].itemId);
+                            visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px; min-height: 150px;>";
 
-                            if (itemCounter == 0) {
-                                visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px; min-height: 150px;>";
+                            //-----------------------------------------------------
+                            topColour = returnTopColour (keywordValue);
+                            year = returnYear (yearValue);
+                            visualHTML += "<div class='card' >";
+                                                                
+                            visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
 
-                                //-----------------------------------------------------
-                                topColour = returnTopColour (exposureValue);
-                                outcomeIcon = returnOutcomeIcon (outcomeValue);
-                                visualHTML += "<div class='card' >";
+                            visualHTML += "<table width='100%'>";
+                            visualHTML += "<tr>";
 
-                                visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
+                            visualHTML += "<td width='100%' colspan='2' style='padding: 0px 5px 0px 0px;'>";                            
+                            visualHTML += "<b>" + studyTitle + "</b><br>";
+                            visualHTML += year + "<br>";
+                            visualHTML += studyAuthors + "<br>";
+                            visualHTML += "<button type='button' class='btn-sm btn-primary' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>Details</button>";
+                            visualHTML += "</td>";
+                            visualHTML += "</tr>";
 
-                                visualHTML += "<table width='100%'>";
-                                visualHTML += "<tr>";
-
-                                visualHTML += "<td width='100%' colspan='2' style='padding: 0px 5px 0px 0px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
-                                visualHTML += outcomeIcon + "&nbsp;&nbsp;";
-                                visualHTML += "<b>" + studyTitle + "</b>";
-                                visualHTML += "<br>";
-                                if (studyAbstract.length > 150) {
-                                    studyAbstract = studyAbstract.substring(0, 150) + '...';
-                                }
-                                visualHTML += studyAbstract;
-                                visualHTML += "</td>";
-                                visualHTML += "</tr>";
-
-                                visualHTML += "<tr>";
-                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px;cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
-                                visualHTML += "<h5><b>Quality</b></h5>"
-                                visualHTML += "</td>";
-                                visualHTML += "<td>";
-                                visualHTML += evidenceQualityIcon;
-                                visualHTML += "</td>";
-                                visualHTML += "</tr>";
-
-                                visualHTML += "<tr>";
-                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
-                                visualHTML += "<h5><b>Strength</b></h5>"
-                                visualHTML += "</td>";
-                                visualHTML += "<td>";
-                                visualHTML += evidenceStrengthIcon;
-                                visualHTML += "</td>";
-                                visualHTML += "</tr>";
-
-                                visualHTML += "<tr>";
-                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
-                                visualHTML += "<h5><b>Volume</b></h5>"
-                                visualHTML += "</td>";
-                                visualHTML += "<td>";
-                                visualHTML += evidenceVolumeIcon;
-                                visualHTML += "</td>";
-                                visualHTML += "</tr>";
-
-                                visualHTML += "</table>";
-
-                                visualHTML += "</div>";
-                                visualHTML += "</div>";
-                                //-------------------------------------------------------
-
-                            }
-
-                            if (itemCounter == 1) {
-
-                                visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px; min-height: 150px;>";
-
-                                //-----------------------------------------------------
-                                topColour = returnTopColour (exposureValue);
-                                outcomeIcon = returnOutcomeIcon (outcomeValue);
-                                visualHTML += "<div class='card' >";
-
-                                visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
-
-                                visualHTML += "<table width='100%'>";
-                                visualHTML += "<tr>";
-
-                                visualHTML += "<td width='100%' colspan='2' style='padding: 0px 5px 0px 0px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
-                                visualHTML += outcomeIcon + "&nbsp;&nbsp;";
-                                visualHTML += "<b>" + studyTitle + "</b>";
-                                visualHTML += "<br>";
-                                if (studyAbstract.length > 150) {
-                                    studyAbstract = studyAbstract.substring(0, 150) + '...';
-                                }
-                                visualHTML += studyAbstract;
-                                visualHTML += "</td>";
-                                visualHTML += "</tr>";
-
-                                visualHTML += "<tr>";
-                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px;cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
-                                visualHTML += "<h5><b>Quality</b></h5>"
-                                visualHTML += "</td>";
-                                visualHTML += "<td>";
-                                visualHTML += evidenceQualityIcon;
-                                visualHTML += "</td>";
-                                visualHTML += "</tr>";
-
-                                visualHTML += "<tr>";
-                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
-                                visualHTML += "<h5><b>Strength</b></h5>"
-                                visualHTML += "</td>";
-                                visualHTML += "<td>";
-                                visualHTML += evidenceStrengthIcon;
-                                visualHTML += "</td>";
-                                visualHTML += "</tr>";
-
-                                visualHTML += "<tr>";
-                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
-                                visualHTML += "<h5><b>Volume</b></h5>"
-                                visualHTML += "</td>";
-                                visualHTML += "<td>";
-                                visualHTML += evidenceVolumeIcon;
-                                visualHTML += "</td>";
-                                visualHTML += "</tr>";
-
-                                visualHTML += "</table>";
-
-                                visualHTML += "</div>";
-                                visualHTML += "</div>";
-                                //-------------------------------------------------------
-
-                            }
-
-                            if (itemCounter == 2) {
-
-                                visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px; min-height: 150px;>";
-
-                                //-----------------------------------------------------
-                                topColour = returnTopColour (exposureValue);
-                                outcomeIcon = returnOutcomeIcon (outcomeValue);
-                                visualHTML += "<div class='card' >";
-
-                                visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
-
-                                visualHTML += "<table width='100%'>";
-                                visualHTML += "<tr>";
-
-                                visualHTML += "<td width='100%' colspan='2' style='padding: 0px 5px 0px 0px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
-                                visualHTML += outcomeIcon + "&nbsp;&nbsp;";
-                                visualHTML += "<b>" + studyTitle + "</b>";
-                                visualHTML += "<br>";
-                                if (studyAbstract.length > 150) {
-                                    studyAbstract = studyAbstract.substring(0, 150) + '...';
-                                }
-                                visualHTML += studyAbstract;
-                                visualHTML += "</td>";
-                                visualHTML += "</tr>";
-
-                                visualHTML += "<tr>";
-                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px;cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
-                                visualHTML += "<h5><b>Quality</b></h5>"
-                                visualHTML += "</td>";
-                                visualHTML += "<td>";
-                                visualHTML += evidenceQualityIcon;
-                                visualHTML += "</td>";
-                                visualHTML += "</tr>";
-
-                                visualHTML += "<tr>";
-                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
-                                visualHTML += "<h5><b>Strength</b></h5>"
-                                visualHTML += "</td>";
-                                visualHTML += "<td>";
-                                visualHTML += evidenceStrengthIcon;
-                                visualHTML += "</td>";
-                                visualHTML += "</tr>";
-
-                                visualHTML += "<tr>";
-                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
-                                visualHTML += "<h5><b>Volume</b></h5>"
-                                visualHTML += "</td>";
-                                visualHTML += "<td>";
-                                visualHTML += evidenceVolumeIcon;
-                                visualHTML += "</td>";
-                                visualHTML += "</tr>";
-
-                                visualHTML += "</table>";
-
-                                visualHTML += "</div>";
-                                visualHTML += "</div>";
-                                //-------------------------------------------------------
-
-                            }
-
-                            if (itemCounter == 3) {
-
-                                visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px; min-height: 150px;>";
-
-                                //-----------------------------------------------------
-                                topColour = returnTopColour (exposureValue);
-                                outcomeIcon = returnOutcomeIcon (outcomeValue);
-                                visualHTML += "<div class='card' >";
-
-                                visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
-
-                                visualHTML += "<table width='100%'>";
-                                visualHTML += "<tr>";
-
-                                visualHTML += "<td width='100%' colspan='2' style='padding: 0px 5px 0px 0px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
-                                visualHTML += outcomeIcon + "&nbsp;&nbsp;";
-                                visualHTML += "<b>" + studyTitle + "</b>";
-                                visualHTML += "<br>";
-                                if (studyAbstract.length > 150) {
-                                    studyAbstract = studyAbstract.substring(0, 150) + '...';
-                                }
-                                visualHTML += studyAbstract;
-                                visualHTML += "</td>";
-                                visualHTML += "</tr>";
-
-                                visualHTML += "<tr>";
-                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px;cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
-                                visualHTML += "<h5><b>Quality</b></h5>"
-                                visualHTML += "</td>";
-                                visualHTML += "<td>";
-                                visualHTML += evidenceQualityIcon;
-                                visualHTML += "</td>";
-                                visualHTML += "</tr>";
-
-                                visualHTML += "<tr>";
-                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
-                                visualHTML += "<h5><b>Strength</b></h5>"
-                                visualHTML += "</td>";
-                                visualHTML += "<td>";
-                                visualHTML += evidenceStrengthIcon;
-                                visualHTML += "</td>";
-                                visualHTML += "</tr>";
-
-                                visualHTML += "<tr>";
-                                visualHTML += "<td width='33%' style='padding: 5px 5px 0px 5px; cursor: pointer;' onclick='javascript:GoToHbeItemDetails(" + itemId + ")'>";
-                                visualHTML += "<h5><b>Volume</b></h5>"
-                                visualHTML += "</td>";
-                                visualHTML += "<td>";
-                                visualHTML += evidenceVolumeIcon;
-                                visualHTML += "</td>";
-                                visualHTML += "</tr>";
-
-                                visualHTML += "</table>";
-
-                                visualHTML += "</div>";
-                                visualHTML += "</div>";
-                                //-------------------------------------------------------
-
-                            }
+                            visualHTML += "</table>";
 
                             visualHTML += "</div>";
+                            visualHTML += "</div>";
+                            //-------------------------------------------------------
 
-                            if (itemCounter == 3) {
-                                itemCounter = 0;
-                                visualHTML += "</div>";
-                            }
-                            else {
-                                itemCounter +=1;
-                            }
+                        }
+
+                        if (itemCounter == 1) {
+                            itemList.push(documentData.items.items[i].itemId);
+                            visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px; min-height: 150px;>";
+
+                            //-----------------------------------------------------
+                            topColour = returnTopColour (keywordValue);
+                            year = returnYear (yearValue);
+                            visualHTML += "<div class='card' >";
+
+                            visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
+
+                            visualHTML += "<table width='100%'>";
+                            visualHTML += "<tr>";
+
+                            visualHTML += "<td width='100%' colspan='2' style='padding: 0px 5px 0px 0px;'>";                            
+                            visualHTML += "<b>" + studyTitle + "</b><br>";
+                            visualHTML += year + "<br>";
+                            visualHTML += studyAuthors + "<br>";
+                            visualHTML += "<button type='button' class='btn-sm btn-primary' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>Details</button>";
+                            visualHTML += "</td>";
+                            visualHTML += "</tr>";
+
+                            visualHTML += "</table>";
 
                             visualHTML += "</div>";
+                            visualHTML += "</div>";
+                            //-------------------------------------------------------
 
-                            if (itemCounter == 3) {
-                                itemCounter = 0;
-                                visualHTML += "</div>";
-                            }
-                            else {
-                                itemCounter +=1;
-                            }
-                }
+                        }
 
+                        if (itemCounter == 2) {
+                            itemList.push(documentData.items.items[i].itemId);
+                            visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px; min-height: 150px;>";
+
+                            //-----------------------------------------------------
+                            topColour = returnTopColour (keywordValue);
+                            year = returnYear (yearValue);
+                            visualHTML += "<div class='card' >";
+
+                            visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
+
+                            visualHTML += "<table width='100%'>";
+                            visualHTML += "<tr>";
+
+                            visualHTML += "<td width='100%' colspan='2' style='padding: 0px 5px 0px 0px;'>";                            
+                            visualHTML += "<b>" + studyTitle + "</b><br>";
+                            visualHTML += year + "<br>";
+                            visualHTML += studyAuthors + "<br>";
+                            visualHTML += "<button type='button' class='btn-sm btn-primary' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>Details</button>";
+                            visualHTML += "</td>";
+                            visualHTML += "</tr>";
+
+                            visualHTML += "</table>";
+
+                            visualHTML += "</div>";
+                            visualHTML += "</div>";
+                            //-------------------------------------------------------
+
+                        }
+
+                        if (itemCounter == 3) {
+                            itemList.push(documentData.items.items[i].itemId);
+                            visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px; min-height: 150px;>";
+
+                            //-----------------------------------------------------
+                            topColour = returnTopColour (keywordValue);
+                            year = returnYear (yearValue);
+                            visualHTML += "<div class='card' >";
+
+                            visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
+
+                            visualHTML += "<table width='100%'>";
+                            visualHTML += "<tr>";
+
+                            visualHTML += "<td width='100%' colspan='2' style='padding: 0px 5px 0px 0px;'>";                            
+                            visualHTML += "<b>" + studyTitle + "</b><br>";
+                            visualHTML += year + "<br>";
+                            visualHTML += studyAuthors + "<br>";
+                            visualHTML += "<button type='button' class='btn-sm btn-primary' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>Details</button>";
+                            visualHTML += "</td>";
+                            visualHTML += "</tr>";
+
+                            visualHTML += "</table>";
+
+                            visualHTML += "</div>";
+                            visualHTML += "</div>";
+                            //-------------------------------------------------------
+
+                        }
+
+                        visualHTML += "</div>";
+
+                        if (itemCounter == 3) {
+                            itemCounter = 0;
+                            visualHTML += "</div>";
+                        }
+                        else {
+                            itemCounter +=1;
+                        }
+
+                    }
+               
+                
                 globalCounter += 1;
                 if (globalCounter == documentData.items.totalItemCount) {
                     let resultsDiv = $("#visualsEppiSeminarDiv");
@@ -1580,6 +1478,7 @@
                                         <button type="button" id="costLegend" class="fas fa-lg fa-question-circle" style="border-style:none;background-color:white" onclick="filterToggle('advancedFilterHelpDiv')"></button>
                                     </td>
                                     <td style="width: 50%; vertical-align:top; text-align:right; border-bottom: solid; border-color: black;  border-width: 1px; padding: 13px 10px 5px 10px;">
+                                        <!--<button class="btn btn-primary btn-sm btn-border" onclick="clearAll()">Clear all</button>-->
                                         <a class="btn btn-primary btn-sm btn-border" href="~/EppiSeminar">Clear all</a>
                                     </td>
                                 </tr>
@@ -1620,35 +1519,35 @@
                                         <ul class="fieldlist">
                                             <li>
                                                 <input type="checkbox" id="cbSectionA0" onclick="cbSectionAChange('cbSectionA0', '0')" />
-                                                <label>&nbsp;&nbsp;&nbsp;Public Engagement & Co-production</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#9a6cd6"></span>
+                                                <label>&nbsp;&nbsp;&nbsp;Public Engagement & Co-production</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#f8cbc7"></span>
                                             </li>
                                             <li>
                                                 <input type="checkbox" id="cbSectionA1" onclick="cbSectionAChange('cbSectionA1', '1')" />
-                                                <label>&nbsp;&nbsp;&nbsp;Searching & Screening</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#a4d2f7"></span>
+                                                <label>&nbsp;&nbsp;&nbsp;Searching & Screening</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#BC9DE4"></span>
                                             </li>
                                             <li>
                                                 <input type="checkbox" id="cbSectionA2" onclick="cbSectionAChange('cbSectionA2', '2')" />
-                                                <label>&nbsp;&nbsp;&nbsp;Evidence Scoping & Mapping</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#d6c69a"></span>
+                                                <label>&nbsp;&nbsp;&nbsp;Evidence Scoping & Mapping</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#a4d2f7"></span>
                                             </li>
                                             <li>
                                                 <input type="checkbox" id="cbSectionA3" onclick="cbSectionAChange('cbSectionA3', '3')" />
-                                                <label>&nbsp;&nbsp;&nbsp;Synthesis</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#6cd69a"></span>
+                                                <label>&nbsp;&nbsp;&nbsp;Synthesis</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#d6c69a"></span>
                                             </li>
                                             <li>
                                                 <input type="checkbox" id="cbSectionA4" onclick="cbSectionAChange('cbSectionA4', '4')" />
-                                                <label>&nbsp;&nbsp;&nbsp;Appraisal & Risk of Bias</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#ffb558"></span>
+                                                <label>&nbsp;&nbsp;&nbsp;Appraisal & Risk of Bias</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#6cd69a"></span>
                                             </li>
                                             <li>
                                                 <input type="checkbox" id="cbSectionA5" onclick="cbSectionAChange('cbSectionA5', '5')" />
-                                                <label>&nbsp;&nbsp;&nbsp;Evidence Use</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#d69a6c"></span>
+                                                <label>&nbsp;&nbsp;&nbsp;Evidence Use</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#ffb558"></span>
                                             </li>
                                             <li>
                                                 <input type="checkbox" id="cbSectionA6" onclick="cbSectionAChange('cbSectionA6', '6')" />
-                                                <label>&nbsp;&nbsp;&nbsp;Equity</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#6c9ad6"></span>
+                                                <label>&nbsp;&nbsp;&nbsp;Equity</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#E4BC9D"></span>
                                             </li>
                                             <li>
                                                 <input type="checkbox" id="cbSectionA7" onclick="cbSectionAChange('cbSectionA7', '7')" />
-                                                <label>&nbsp;&nbsp;&nbsp;AI & Review Technology</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#9ad69a"></span>
+                                                <label>&nbsp;&nbsp;&nbsp;AI & Review Technology</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#9DBCE4"></span>
                                             </li>
                                         </ul>
                                     </td>
@@ -1656,7 +1555,6 @@
                             </table>
                             <br />
                         </div>
-
                         <div class="text-body pb-2" style="cursor: pointer;width: 95%;" onclick="filterToggle('yearFilterDiv')">
                             <table width="100%">
                                 <tr>
@@ -1977,4 +1875,5 @@
         </div>
     </div>
 </div>
+<!-- EppiSeminar Home -->
 
