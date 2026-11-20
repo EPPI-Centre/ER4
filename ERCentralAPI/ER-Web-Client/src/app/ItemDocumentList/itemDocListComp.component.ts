@@ -1,8 +1,7 @@
 import { Component, OnInit, Input, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { ItemDocsService } from '../services/itemdocs.service';
+import { ItemDocsService, ItemDocument } from '../services/itemdocs.service';
 import { FileRestrictions, SelectEvent, ClearEvent, UploadEvent, RemoveEvent } from '@progress/kendo-angular-upload';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ItemCodingService } from '../services/ItemCoding.service';
@@ -12,7 +11,6 @@ import { ConfigService } from '../services/config.service';
 @Component({
     selector: 'ItemDocListComp',
     templateUrl: './ItemDocListComp.component.html',
-    providers: [],
     changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
@@ -171,27 +169,7 @@ export class ItemDocListComp implements OnInit, OnDestroy {
 
 
 
-export class ItemDocumentList {
 
-  ItemDocuments: ItemDocument[] = [];
-}
-
-
-export class ItemDocument {
-
-  public itemDocumentId: number = 0;
-  public itemId: number = 0;
-  public shortTitle: string = '';
-  public extension: string = '';
-  public title: string = '';
-  public text: string = "";
-  public binaryExists: boolean = false;
-  public textFrom: number = 0;
-  public textTo: number = 0;
-  public freeNotesStream: string = "";
-  public freeNotesXML: string = '';
-
-}
 
 
 

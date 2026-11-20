@@ -10,7 +10,6 @@ import { ReadOnlySource } from './sources.service';
 import { EventEmitterService } from './EventEmitter.service';
 import { iTimePoint } from './ArmTimepointLinkList.service';
 import { ConfigService } from './config.service';
-import { LastValueFromConfig } from 'rxjs/internal/lastValueFrom';
 import { saveAs, encodeBase64 } from '@progress/kendo-file-saver';
 
 
@@ -1445,35 +1444,6 @@ export class Criteria {
 }
 
 
-
-export class ItemDocumentList {
-
-  ItemDocuments: ItemDocument[] = [];
-}
-export class ItemDocument {
-
-  public itemDocumentId: number = 0;
-  public itemId: number = 0;
-  public shortTitle: string = '';
-  public extension: string = '';
-  public title: string = '';
-  public text: string = "";
-  public binaryExists: boolean = false;
-  public textFrom: number = 0;
-  public textTo: number = 0;
-  public freeNotesStream: string = "";
-  public freeNotesXML: string = '';
-  public isBusy: boolean = false;
-  public isChild: boolean = false;
-  public isDeleted: boolean = false;
-  public isDirty: boolean = false;
-  public isNew: boolean = false;
-  public isSavable: boolean = false;
-  public isSelfBusy: boolean = false;
-  public isSelfDirty: boolean = false;
-  public isSelfValid: boolean = false;
-  public isValid: boolean = false;
-}
 export interface iAdditionalItemDetails {
   itemID: number;
   duplicates: iItemDuplicatesReadOnly[];
