@@ -5,20 +5,20 @@
 }
 @if (ShowUpload && showUpload) {
   <div class="row ml-2 bg-white mr-1 p-0">
-    <kendo-upload class="" [autoUpload]="true"
-      [saveUrl]="uploadSaveUrl"
-      [restrictions]="uploadRestrictions"
-      (upload)="uploadEventHandler($event)"
-      (complete)="completeEventHandler()">
-    </kendo-upload>
+      <kendo-upload class="" [autoUpload]="true"
+                    [saveUrl]="uploadSaveUrl"
+                    [restrictions]="uploadRestrictions"
+                    (error)="error($event)"
+                    (upload)="uploadEventHandler($event)"
+                    (complete)="completeEventHandler()">
+      </kendo-upload>
     <div class="">
       <button class="btn btn-outline-info btn-sm  m-2" (click)="ShowUpload = false">Cancel</button>
     </div>
   </div>
 }
 @if (ItemDocsService._itemDocs && ItemDocsService._itemDocs.length > 0) {
-  <div class="row ml-2 border-info mr-1"
-    >
+  <div class="row ml-2 border-info mr-1">
     <div class="col-12 p-0"><b>Documents:</b></div>
     <div class="col-12 p-0" style="max-height: 200px; overflow:auto;">
       <table class="table table-bordered table-striped table-sm " >

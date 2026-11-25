@@ -3210,8 +3210,8 @@ BEGIN
   left join TB_ZOTERO_ITEM_REVIEW zir on zir.ITEM_REVIEW_ID = ir.ITEM_REVIEW_ID 
   where zir.ITEM_REVIEW_ID is null
 
- insert into TB_ZOTERO_ITEM_DOCUMENT (ItemDocumentId, DocZoteroKey)
-  select d.ITEM_DOCUMENT_ID, dak.ZOTEROKEY
+ insert into TB_ZOTERO_ITEM_DOCUMENT (ItemDocumentId, DocZoteroKey, ITEM_REVIEW_ID )
+  select d.ITEM_DOCUMENT_ID, dak.ZOTEROKEY, ir.ITEM_REVIEW_ID
   from @docsAndKeys dak 
   inner join TB_ITEM_REVIEW ir on dak.ERId = ir.ITEM_ID and ir.REVIEW_ID = @revID
   inner join TB_ITEM_TO_DOCUMENT itd on itd.ITEM_ID = ir.ITEM_ID
