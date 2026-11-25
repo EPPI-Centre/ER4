@@ -265,10 +265,10 @@ export class MAGKeepUpToDate implements OnInit {
           this.MAGRelatedRunsService.currentlyApplyingModelToThisRunId = this.CurrentMagAutoUpdateRun.magAutoUpdateRunId;
           
           this._classifierService.Apply("[Apply to OpenAlex Auto Update]",
-             -1, StudyTypeClassifierId, this.CurrentMagAutoUpdateRun.magAutoUpdateRunId).then(async res => {
+             -1, StudyTypeClassifierId, this.CurrentMagAutoUpdateRun.magAutoUpdateRunId, "").then(async res => {
                 if (res) {
                     this.NotificationService.show({
-                        content: 'Model is being applied, should be ready within 15m (will check every 30s).',
+                        content: 'Model is being applied, should be ready within 15m (will auto-check every 30s).',
                         animation: { type: 'slide', duration: 400 },
                         position: { horizontal: 'center', vertical: 'top' },
                         type: { style: "info", icon: true },
@@ -300,8 +300,8 @@ export class MAGKeepUpToDate implements OnInit {
             this.MAGRelatedRunsService.currentlyApplyedModelToRunId = this.CurrentMagAutoUpdateRun.userClassifierModelId.toString();
             this.MAGRelatedRunsService.currentlyApplyingModelToThisRunId = this.CurrentMagAutoUpdateRun.magAutoUpdateRunId;
           
-          this._classifierService.Apply("[Apply to OpenAlex Auto Update]",
-            -1, this.SelectedClassifierContactModel.modelId, this.CurrentMagAutoUpdateRun.magAutoUpdateRunId).then(async res => {
+          this._classifierService.Apply("[Apply to OpenAlex Auto Update]", // will need to set mlModelname
+            -1, this.SelectedClassifierContactModel.modelId, this.CurrentMagAutoUpdateRun.magAutoUpdateRunId, "").then(async res => {
                 if (res) {
                     this.NotificationService.show({
                         content: 'Model is being applied, should be ready within 15m (will check every 30s).',

@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Client;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using static BusinessLibrary.BusinessClasses.MagMakesHelpers;
 
 namespace ERxWebClient2.Controllers
 {
@@ -61,6 +63,8 @@ namespace ERxWebClient2.Controllers
 							, MVCcmd._attributeIdClassifyTo
 							, MVCcmd._classifierId
 							, MVCcmd._sourceId
+							, MVCcmd._mlModelName
+							, MVCcmd._prompts
 						);
 					cmd.RevInfo = MVCcmd.revInfo.ToCSLAReviewInfo();
 
@@ -97,11 +101,12 @@ namespace ERxWebClient2.Controllers
 							, MVCcmd._attributeIdOn
 							, MVCcmd._attributeIdNotOn
 							, MVCcmd._attributeIdClassifyTo
-							, MVCcmd._classifierId
-							, MVCcmd._sourceId
+                            , MVCcmd._classifierId
+                            , MVCcmd._sourceId
 							, MVCcmd._mlModelName
+							, MVCcmd._prompts
 						);
-                    cmd.RevInfo = MVCcmd.revInfo.ToCSLAReviewInfo();
+                     cmd.RevInfo = MVCcmd.revInfo.ToCSLAReviewInfo();
 
                     DataPortal<ClassifierCommandV2> dp = new DataPortal<ClassifierCommandV2>();
 
@@ -139,6 +144,7 @@ namespace ERxWebClient2.Controllers
 							, MVCcmd._attributeIdClassifyTo
 							, MVCcmd._classifierId
 							, MVCcmd._sourceId
+							, MVCcmd._mlModelName
 						);
 
 					cmd.RevInfo = MVCcmd.revInfo.ToCSLAReviewInfo();
@@ -177,7 +183,8 @@ namespace ERxWebClient2.Controllers
 					       -1,
 					       -1,
 					      _model._modelId,
-					       -1);
+					       -1,
+						   "");
 				if (SetCSLAUser4Writing()) 
 				{
                     DataPortal<ClassifierCommandV2> dp = new DataPortal<ClassifierCommandV2>();
@@ -234,6 +241,7 @@ namespace ERxWebClient2.Controllers
                             , -1
                             , -1
                             , -1
+							, ""
                         );
                     cmd.RevInfo = MVCcmd.revInfo.ToCSLAReviewInfo();
 
@@ -272,6 +280,7 @@ namespace ERxWebClient2.Controllers
                             , -1
                             , -1
                             , -1
+							, ""
                         );
                     cmd.RevInfo = MVCcmd.revInfo.ToCSLAReviewInfo();
 
@@ -300,7 +309,7 @@ namespace ERxWebClient2.Controllers
         public class MVCClassifierCommand
 		{
 			public string _title { get; set; } = "";
-			public string _mlModelName { get; set; } = "oldLogReg";
+			public string _mlModelName { get; set; } = "";
             public int _attributeIdOn { get; set; }
 			public int _attributeIdNotOn { get; set; }
             public int _attributeIdClassifyTo { get; set; }
@@ -309,6 +318,7 @@ namespace ERxWebClient2.Controllers
 			public int _attributeId { get; set; }
 			public int _classifierId { get; set; }
 			public string _mlModelNameFriendly { get; set; } = "";
+			public string _prompts { get; set; } = "";
 
             public MVCReviewInfo revInfo { get; set; }
 

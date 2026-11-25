@@ -157,6 +157,30 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(MlModelNameFriendlyProperty, value);
             }
         }
+        public static readonly PropertyInfo<string> ModelPerformanceProperty = RegisterProperty<string>(new PropertyInfo<string>("ModelPerformance", "ModelPerformance", ""));
+        public string ModelPerformance
+        {
+            get
+            {
+                return GetProperty(ModelPerformanceProperty);
+            }
+            set
+            {
+                SetProperty(ModelPerformanceProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<bool> UsedPromptsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("UsedPrompts", "UsedPrompts"));
+        public bool UsedPrompts
+        {
+            get
+            {
+                return GetProperty(UsedPromptsProperty);
+            }
+            set
+            {
+                SetProperty(UsedPromptsProperty, value);
+            }
+        }
 
 
 
@@ -214,6 +238,8 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<Int64>(AttributeIdOnProperty, reader.GetInt64("ATTRIBUTE_ID_ON"));
             returnValue.LoadProperty<Int64>(AttributeIdNotOnProperty, reader.GetInt64("ATTRIBUTE_ID_NOT_ON"));
             returnValue.LoadProperty<string>(MlModelNameProperty, reader.GetString("ML_MODEL_NAME"));
+            returnValue.LoadProperty<bool>(UsedPromptsProperty, reader.GetBoolean("USED_PROMPTS"));
+            returnValue.LoadProperty<string>(ModelPerformanceProperty, reader.GetString("MODEL_PERFORMANCE"));
             returnValue.LoadProperty<string>(MlModelNameFriendlyProperty, ClassifierContactModel.MlModels.TryGetValue(returnValue.MlModelName, out var friendlyName) ?
                 friendlyName : "");
             returnValue.MarkOld();

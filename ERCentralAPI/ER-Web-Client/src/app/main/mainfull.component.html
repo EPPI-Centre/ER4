@@ -109,32 +109,36 @@
             <div class="containsAtoolbar">
               <kendo-toolbar class="" style="background-color: #f5f6fa;">
                 <kendo-toolbar-splitbutton [text]="'Import Items'" (buttonClick)="GoToSources()"
-                  [data]="ImportOrNewDDData"
-                style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-splitbutton>
+                                           [data]="ImportOrNewDDData"
+                                           style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-splitbutton>
                 <!--<kendo-toolbar-button [text]="'Build Model'" (click)="BuildModel()"></kendo-toolbar-button>-->
                 <kendo-toolbar-button [text]="'Cluster'" [title]="'Automatically generate codes'" [selected]="RefsTabActivePanel == 'Cluster'"
-                (click)="ShowHideClusterCommand()"></kendo-toolbar-button>
+                                      (click)="ShowHideClusterCommand()"></kendo-toolbar-button>
                 <kendo-toolbar-splitbutton [text]="'Coding Report'" (buttonClick)="ShowHideQuickReport()"
-                  [data]="QuickReportsDDData"
-                  [buttonClass]="ReportSplitButtonStyle('ShowHideQuickReport')"
-                style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-splitbutton>
+                                           [data]="QuickReportsDDData"
+                                           [buttonClass]="ReportSplitButtonStyle('ShowHideQuickReport')"
+                                           style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-splitbutton>
                 <kendo-toolbar-button [svgIcon]="deleteIcn" [disabled]="!HasSelectedItems || !HasWriteRights"
-                  (click)="DeleteRelevantItems()">
+                                      (click)="DeleteRelevantItems()">
                 </kendo-toolbar-button>
                 <kendo-toolbar-button [text]="'In/Exclude'" [selected]="RefsTabActivePanel == 'IncludeExclude'"
-                  [disabled]="!HasWriteRights"
-                  (click)="AllocateRelevantItems()">
+                                      [disabled]="!HasWriteRights"
+                                      (click)="AllocateRelevantItems()">
                 </kendo-toolbar-button>
                 <kendo-toolbar-splitbutton [text]="'Export to RIS'"
-                  (buttonClick)="ToRis()"
-                  [disabled]="!HasSelectedItems"
-                  [data]="ExportReferencesDDData"
-                  style="border-color: #04070b;background-color: #e1e4eb;">
+                                           (buttonClick)="ToRis()"
+                                           [disabled]="!HasSelectedItems"
+                                           [data]="ExportReferencesDDData"
+                                           style="border-color: #04070b;background-color: #e1e4eb;">
 
                 </kendo-toolbar-splitbutton>
 
                 <kendo-toolbar-button [text]="'Run Reports'" [selected]="RefsTabActivePanel == 'RunReports'"
-                  (click)="RunConfigurableReports()">
+                                      (click)="RunConfigurableReports()">
+                </kendo-toolbar-button>
+
+                <kendo-toolbar-button [text]="'Get PDFs (bulk)'" [disabled]="!HasSelectedItems"
+                                      (click)="CheckRunGetPdfs()">
                 </kendo-toolbar-button>
               </kendo-toolbar>
 

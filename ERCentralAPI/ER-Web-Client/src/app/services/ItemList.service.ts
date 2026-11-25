@@ -1264,6 +1264,27 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
       );
   }
 
+  GetPdfs(ItemIds: Item[]) {
+
+    this._BusyMethods.push("GetPdfs");
+    let Ids = ItemIds.map(x => x.itemId);
+
+
+    lastValueFrom(this._httpC.post<any>(this._baseUrl + 'api/ItemList/GetPdfs', Ids)
+    ).then(
+      list => {
+        //this.Refresh();
+        this.RemoveBusy("GetPdfs");
+      }, error => {
+        this.ModalService.GenericError(error);
+        this.RemoveBusy("GetPdfs");
+      }
+    ).catch(caught => {
+      this.ModalService.GenericError(caught);
+      this.RemoveBusy("GetPdfs");
+    });
+  }
+
   //public Save() {
   //    if (this._ItemList.items.length > 0) {
   //        localStorage.setItem('ItemsList', JSON.stringify(this._ItemList));

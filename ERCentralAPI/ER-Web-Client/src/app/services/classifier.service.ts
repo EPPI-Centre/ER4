@@ -234,7 +234,7 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
         });
   }
 
-  BuildClassifierV2(title: string, attrOn: number, attrNotOn: number, attrInference: number, MLModelName: string, classifierId: number = -1): Promise<void> {
+  BuildClassifierV2(title: string, attrOn: number, attrNotOn: number, attrInference: number, MLModelName: string, classifierId: number = -1, prompts: string = ''): Promise<void> {
 
     let MVCcmd: MVCClassifierCommand = new MVCClassifierCommand();
 
@@ -246,6 +246,7 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
     MVCcmd._mlModelName = MLModelName;
     MVCcmd.revInfo = this._reviewInfoService.ReviewInfo;
     MVCcmd._classifierId = classifierId;
+    MVCcmd._prompts = prompts;
 
     this._BusyMethods.push("BuildClassifierV2");
     return lastValueFrom(this._httpC.post<MVCClassifierCommand>(this._baseUrl + 'api/Classifier/BuildClassifierV2',
@@ -269,7 +270,7 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
   }
 
 	
-  Apply(modeltitle: string, AttributeId: number, ModelId: number, SourceId: number): Promise<string | boolean> {
+  Apply(modeltitle: string, AttributeId: number, ModelId: number, SourceId: number, mlModelname: string): Promise<string | boolean> {
     let MVCcmd: MVCClassifierCommand = new MVCClassifierCommand();
     MVCcmd._title = modeltitle;
     if (ModelId > 0) {//the model is a custom one
@@ -286,6 +287,7 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
     MVCcmd._attributeIdClassifyTo = AttributeId;
     MVCcmd._classifierId = ModelId;
     MVCcmd._sourceId = SourceId;
+    MVCcmd._mlModelName = mlModelname;
     MVCcmd.revInfo = this._reviewInfoService.ReviewInfo;
 
     this._BusyMethods.push("Apply");
@@ -497,6 +499,8 @@ export class ClassifierModel {
 	reviewName: string = '';
   mlModelName: string = '';
   mlModelNameFriendly: string = '';
+  modelPerformance: string = '';
+  usedPrompts: boolean = false;
 }
 
 export class BuildModelCommand {
@@ -521,7 +525,8 @@ export class MVCClassifierCommand {
   public _classifierId: number = 0;
   public _mlModelName: string = "oldLogReg";
 	public returnMessage: string = '';
-	public revInfo: ReviewInfo = new ReviewInfo();
+  public revInfo: ReviewInfo = new ReviewInfo();
+  public _prompts: string = '';
 }
 
 

@@ -23,6 +23,8 @@ import 'hammerjs';
 import { SearchFromOpenAlexImport } from './SearchFromOpenAlexImport.component';
 import { RobotsService } from '../services/Robots.service';
 import { SVGIcon, arrowRotateCwIcon, trashIcon } from '@progress/kendo-svg-icons';
+import { KENDO_DIALOGS } from "@progress/kendo-angular-dialog";
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
     selector: 'SearchComp',
@@ -47,7 +49,8 @@ export class SearchComp implements OnInit, OnDestroy {
     private confirmationDialogService: ConfirmationDialogService,
     private _reviewInfoService: ReviewInfoService,
     private _reviewerIdentityServ: ReviewerIdentityService,
-    private _robotsService: RobotsService
+    private _robotsService: RobotsService,
+    private sanitizer: DomSanitizer,
   ) {
 
   }
@@ -93,6 +96,7 @@ export class SearchComp implements OnInit, OnDestroy {
   public modelNum: number = 0;
   public modelTitle: string = '';
   public ModelId = -1;
+  public mlModelname = "";
   public AttributeId = 0;
   public SourceId = 0;
   public selected?: ReadOnlySource;
@@ -168,6 +172,19 @@ export class SearchComp implements OnInit, OnDestroy {
   public get ReviewIsMagEnabled(): boolean {
     if (this._reviewInfoService.ReviewInfo.magEnabled) return true;
     return false;
+  }
+
+  public statisticsWindowOpen = false;
+  public statisticsHtml: SafeHtml = '';
+
+  openStatistics(model: ClassifierModel) {
+    this.statisticsHtml =
+      this.sanitizer.bypassSecurityTrustHtml(model.modelPerformance);
+    this.statisticsWindowOpen = true;
+  }
+
+  closeStatisticsWindow() {
+    this.statisticsWindowOpen = false;
   }
 
   public ContactChoice: Contact = new Contact();
@@ -310,6 +327,7 @@ export class SearchComp implements OnInit, OnDestroy {
       this.ModelSelected = true;
       this.modelTitle = e.selectedRows[0].dataItem.modelTitle;
       this.ModelId = e.selectedRows[0].dataItem.modelId;
+      this.mlModelname = e.selectedRows[0].dataItem.mlModelName;
       if (this.modelTitle.indexOf('(in progress...)') != -1 || (this.modelTitle.indexOf('fail') != -1 && e.selectedRows[0].dataItem.precision <= 0)) {
         this.modelIsInProgress = true;
         //alert('model is in progress');
@@ -323,6 +341,7 @@ export class SearchComp implements OnInit, OnDestroy {
       //console.log("selected:", e.selectedRows);
       this.modelTitle = '';
       this.ModelId = 0;
+      this.mlModelname = "";
       this.ModelSelected = false;
 
       //alert('model has been DESELECTED that is in fact a custom model');
@@ -689,22 +708,6 @@ export class SearchComp implements OnInit, OnDestroy {
       .catch(() => { });
   }
 
-  public openRebuildConfirmationDialog(model: ClassifierModel) {
-    this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to rebuild this model ?', false, '')
-      .then(
-        (confirmed: any) => {
-          //console.log('User confirmed:', confirmed);
-          if (confirmed) {
-            this.RebuildModel(model);
-          }
-          else {
-            //alert('pressed cancel close dialog');
-          };
-        }
-      )
-      .catch(() => { });
-  }
-
   
 
   hasError(searchText: string) {
@@ -760,7 +763,7 @@ export class SearchComp implements OnInit, OnDestroy {
         //return;
       }
       //alert(this.modelTitle + ' ModelTitle ' + this.AttributeId + ' ATTID ' + this.ModelId + ' MODELID ' + this.SourceId + ' sourceID ');
-      let res = await this.classifierService.Apply(this.modelTitle, this.AttributeId, this.ModelId, this.SourceId);
+      let res = await this.classifierService.Apply(this.modelTitle, this.AttributeId, this.ModelId, this.SourceId, this.mlModelname);
 
       if (res != false) {//we get "false" if an error happened...
         if (res == "Successful upload of data" || res == "The data will be submitted and scored. Please monitor the list of search results for output.") {
@@ -814,16 +817,6 @@ export class SearchComp implements OnInit, OnDestroy {
   SelectModel(model: string) {
     this.ModelSelected = true;
     //alert('you selected model: ' + model);
-  }
-
-  async RebuildModel(model: ClassifierModel) {
-
-    if (model.modelId > 0) {
-      if (model.attributeIdOn !== undefined && model.attributeIdNotOn !== undefined) {
-        await this.classifierService.CreateAsync(model.modelTitle, model.attributeIdOn, model.attributeIdNotOn, model.modelId);
-      }
-    }
-
   }
 
   public data: Array<any> = [{
@@ -1452,15 +1445,6 @@ export class SearchComp implements OnInit, OnDestroy {
     if (this.CanWriteName() && this.searchN.trim() != '') {
       return true;
     } else return false;
-  }
-
-  ModelNameEdit(modelId: string, modelTitle: string) {
-    // I am using the same popup as the search edit so the variable names are 'search related' //
-    this.CurrentSearchNameEditing = true;
-    this.searchN = modelTitle;
-    this.searchId = modelId;
-    this.popUpTitle = "Edit model name (model ID: " + modelId + ")";
-    window.scrollTo(0, 0);
   }
 
 
