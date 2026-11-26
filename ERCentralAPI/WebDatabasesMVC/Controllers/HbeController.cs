@@ -149,9 +149,9 @@ namespace WebDatabasesMVC.Controllers
             catch (Exception e)
             {
 
-                _logger.LogError(e, "logging on FAIR");
+                _logger.LogError(e, "logging on HBE");
                 //Program.Logger.LogException(e, "logging on");
-                return Redirect("~/Fair");
+                return Redirect("~/Hbe");
             }
         }
 

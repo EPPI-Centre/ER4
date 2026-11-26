@@ -288,6 +288,7 @@ namespace WebDatabasesMVC.Controllers
             await HttpContext.SignOutAsync("CookieAuthentication");
             await HttpContext.SignOutAsync("VawgAuthentication");
             await HttpContext.SignOutAsync("HbeAuthentication");
+            await HttpContext.SignOutAsync("EppiSeminarAuthentication");
             await HttpContext.SignOutAsync();
         }
         private void SetImages(int WebDbID, SqlDataReader reader, ClaimsIdentity innerIdentity)

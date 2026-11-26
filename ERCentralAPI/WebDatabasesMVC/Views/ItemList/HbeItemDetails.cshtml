@@ -46,7 +46,9 @@
         if ($(window).outerWidth() <= 325) {
             $("#smallPhoneButton").show();
         }
-
+        
+        var itemListCsv = sessionStorage.getItem("itemList")
+        const itemList = itemListCsv.split("\n").map(row => row.split(","));
 
         if (sessionStorage.getItem("ColourThemeSet") == "Yes") {
             var colourTheme = sessionStorage.getItem("ColourTheme")

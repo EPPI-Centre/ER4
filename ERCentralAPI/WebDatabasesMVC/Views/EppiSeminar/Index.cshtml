@@ -1,0 +1,1892 @@
+﻿<!-- EppiSeminar Home -->
+@model WebDbWithRevInfo;
+@using WebDatabasesMVC.ViewModels;
+@using Microsoft.AspNetCore.Html;
+@using System.IO;
+@using System.Security.Claims;
+@using Newtonsoft.Json;
+@using Newtonsoft.Json.Serialization;
+
+@{
+    Claim WebDbIDclaim = User.FindFirst("WebDbID");
+    string imgPath1 = "";
+    string imgPath2 = "";
+    bool smallPhone = false;
+
+    //string imgMapPath1 = "";
+    if (WebDbIDclaim != null)
+    {
+        var service = Context.RequestServices.GetService(typeof(Microsoft.AspNetCore.Hosting.IWebHostEnvironment)) as Microsoft.AspNetCore.Hosting.IWebHostEnvironment;
+        string absolutePath = service.WebRootPath + "\\HeaderImages\\";
+        if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-1.jpg")) imgPath1 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-1.jpg");
+        else if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-1.png")) imgPath1 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-1.png");
+        if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-2.jpg")) imgPath2 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-2.jpg");
+        else if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-2.png")) imgPath2 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-2.png");
+        //if (System.IO.File.Exists(absolutePath + "ImgMap-" + WebDbIDclaim.Value + "-1.jpg")) imgMapPath1 = Url.Content("~/HeaderImages/ImgMap-" + WebDbIDclaim.Value + "-1.jpg");
+        //else if (System.IO.File.Exists(absolutePath + "ImgMap-" + WebDbIDclaim.Value + "-1.png")) imgMapPath1 = Url.Content("~/HeaderImages/ImgMap-" + WebDbIDclaim.Value + "-1.png");
+    }
+}
+
+
+<style>
+    .fieldlist {
+        margin: 0 0 -1em;
+        padding: 0;
+        color: black;
+    }
+
+    .fieldlist li {
+        list-style: none;
+        padding-bottom: 1em;
+        color:black;
+      
+    }
+
+    .disabledFilterDiv {
+        pointer-events: none;
+        opacity: 0.4;
+    }
+
+</style>
+
+
+<script>
+
+
+
+    // declare some global variables
+    var documentData;
+    
+    // this is what we fill and then access when applying filters...
+    var SavedCodingData = [];
+
+    // this is and array of itemIds we pass to the details page
+    // (so we can step through items)
+    var itemList = [];
+
+    var visualHTML = "";
+    var globalCounter = 0;
+    var itemCounter = 0;
+    var attributeIdFilter = 0;
+    var detailsHTML = "";
+
+    // slider settings
+    //var qualityMin = 0;
+    //var qualityMax = 5;
+    //var strengthMin = 0;
+    //var strengthMax = 5;
+    //var volumeMin = 1;
+    //var volumeMax = 5;
+
+    // checkbox settings
+    var cbOutcomes = "";
+    var cbKeywords = "";
+
+    var searchFor = "";
+
+    // default colours blueish tints of #68b4f2
+    var topColourBlue = "#a4d2f7";
+    var topColourRed = "#f8cbc7";
+    var topColourGreen = "#9ad68c";
+    var topColourOrange = "#ffd29a";
+    var topColourPurple = "#ada9e4";
+    var botColour = "#d1e8fb";
+    //var offIcons = "#68b4f2";
+    var offIcons = "#e9ecef";
+    var headerSectionColour = "background: linear-gradient(to right, #0099ff 0%, #3366cc 100%);";
+
+
+    var keywordColour0 = "#f8cbc7";
+    var keywordColour1 = "#BC9DE4";
+    var keywordColour2 = "#a4d2f7";
+    var keywordColour3 = "#d6c69a";
+    var keywordColour4 = "#6cd69a";
+    var keywordColour5 = "#ffb558";
+    var keywordColour6 = "#E4BC9D";
+    var keywordColour7 = "#9DBCE4";
+    var keywordColour8 = "#9ad69a";
+    var keywordColour9 = "#ada9e4";
+
+    var physicalHealth = "<span class=\"fa fa-lg fa-heartbeat\"></span>";
+    var healthRisk = "<span class=\"fa fa-lg fa-exclamation-triangle\"></span>";
+    var healthBehaviours = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 416 512\" width=\"24\" height=\"24\"><path d=\"M272 96c26.51 0 48-21.49 48-48S298.51 0 272 0s-48 21.49-48 48 21.49 48 48 48zM113.69 317.47l-14.8 34.52H32c-17.67 0-32 14.33-32 32s14.33 32 32 32h77.45c19.25 0 36.58-11.44 44.11-29.09l8.79-20.52-10.67-6.3c-17.32-10.23-30.06-25.37-37.99-42.61zM384 223.99h-44.03l-26.06-53.25c-12.5-25.55-35.45-44.23-61.78-50.94l-71.08-21.14c-28.3-6.8-57.77-.55-80.84 17.14l-39.67 30.41c-14.03 10.75-16.69 30.83-5.92 44.86s30.84 16.66 44.86 5.92l39.69-30.41c7.67-5.89 17.44-8 25.27-6.14l14.7 4.37-37.46 87.39c-12.62 29.48-1.31 64.01 26.3 80.31l84.98 50.17-27.47 87.73c-5.28 16.86 4.11 34.81 20.97 40.09 3.19 1 6.41 1.48 9.58 1.48 13.61 0 26.23-8.77 30.52-22.45l31.64-101.06c5.91-20.77-2.89-43.08-21.64-54.39l-61.24-36.14 31.31-78.28 20.27 41.43c8 16.34 24.92 26.89 43.11 26.89H384c17.67 0 32-14.33 32-32s-14.33-31.99-32-31.99z\" /></svg>";
+    var mentalHealth = "<span class=\"fa fa-lg fa-smile\"></span>";
+
+
+    //var qualityslider;
+    var loadingDiv;
+
+    $(document).ready(function () {
+
+     loadingDiv = $("#loadingDiv");
+        const descrPanel = $("#WebDBDescription");
+        if (sessionStorage.getItem("HideShowDescription") == "Yes") {
+            $("#ExpandDescription").hide();
+            $("#ReduceDescription").hide();
+            $("#WebDBDescriptionBody").hide();
+            $("#ShowHideDescriptionDivIcon")[0].className = "fa fa-plus";
+        }
+        else {
+            if (descrPanel && descrPanel.height() > 300) {
+                //ExpandDescription ReduceDescription
+                $("#ExpandDescription").show();
+                $("#ReduceDescription").hide();
+                $("#HideDescriptionDiv").show();
+                $("#ShowDescriptionDiv").hide();
+                descrPanel.css("max-height", "250px");
+            } else {
+                $("#ExpandDescription").hide();
+                $("#ReduceDescription").hide();
+            }
+        }
+
+
+        // reset variables on document load
+        visualHTML = "";
+        globalCounter = 0;
+        //qualityMin = 0;
+        //qualityMax = 5;
+        //strengthMin = 0;
+        //strengthMax = 5;
+        //volumeMin = 1;
+        //volumeMax = 5;
+        cbYears = "";
+        cbKeywords = "";
+        searchFor = "";
+
+        sessionStorage.setItem("itemList", "");
+
+        $("#smallPhoneButton").hide();
+        if ($(window).outerWidth() <= 325) {
+            $("#smallPhoneButton").show();
+        }
+
+ 
+
+        GetDocumentAndCodingData();
+
+        //BuildSliderFilters();
+
+    });
+
+    function GoToEppiSeminarItemDetails(ItemId) {
+
+        let pars = { itemID: ItemId, itemIds: attributeIdFilter };
+        postwith(pathRoot + "ItemList/EppiSeminarItemDetails", pars);
+
+    };
+
+
+    function enableSearch() {
+        if (document.getElementById("SearchString").value === "") {
+            document.getElementById('searchButton').disabled = true;
+        } else {
+            document.getElementById('searchButton').disabled = false;
+        }
+    }
+
+
+    function getItemDetails(ItemIndexValue, seminarCompleteData, meetingLinkData, recordingLinkData) {
+
+        var element = document.getElementById("seminarDetailsDiv");
+        var abstract = documentData.items.items[ItemIndexValue].abstract;
+        const SeminarIndex = abstract.indexOf("seminar:");
+        const SpeakerIndex = abstract.indexOf("About the speaker(s):");
+
+        var seminarText = (abstract.slice(SeminarIndex + 9, SpeakerIndex)).trim();
+        var speakerText = (abstract.slice(SpeakerIndex + 22)).trim();
+        seminarText = seminarText.replace(/\r\n|\r|\n/g, "<br>");
+        speakerText = speakerText.replace(/\r\n|\r|\n/g, "<br>");
+
+        detailsHTML = "";
+        if (seminarCompleteData == 1) {
+            if ((recordingLinkData == "undefined") || (recordingLinkData == "")) {
+                detailsHTML += "Recording not availaable";
+            }
+            else {
+                detailsHTML += "<a href='" + recordingLinkData + "><button type='button' class='btn btn-sm btn-secondary btn-round' target='_blank'>Watch</a></button>";
+            }
+        }
+        detailsHTML += "<p>";
+        detailsHTML += "<p><h4><b>" + documentData.items.items[ItemIndexValue].title + "</b></h4></p>";
+        detailsHTML += "<p><b>Presenters: </b>" + documentData.items.items[ItemIndexValue].authors + "</p>";
+        detailsHTML += "<p><b>Date of seminar: </b>" + documentData.items.items[ItemIndexValue].comments + "</p>";     
+        detailsHTML += "<p><b>About the seminar</b><br>";
+        detailsHTML += seminarText  + "</p>";
+        detailsHTML += "<p><b>About the speaker(s)</b><br>";
+        detailsHTML += speakerText  + "</p>";
+
+        if (seminarCompleteData == 1) {
+            if ((recordingLinkData == "undefined") || (recordingLinkData == "")) {
+                detailsHTML += "Recording not availaable";
+            }
+            else {
+                detailsHTML += "<a href='" + recordingLinkData + "><button type='button' class='btn btn-sm btn-secondary btn-round' target='_blank'>Watch</a></button>";
+            }
+        }
+        //detailsHTML += "<button onclick='location.href='" + recordingLinkData + "' target='_blank'>Recording link</button>";
+        detailsHTML += "<p>";
+
+        element.innerHTML = detailsHTML;
+    }
+
+
+    function searchRecords(searchString) 
+    {
+        console.log("search", searchString.value);
+        searchFor = searchString.value;
+
+        // on a search we want to clear all of the filters
+        // as the search is on everything.
+
+        //qualityMin = 0;
+        //qualityMax = 5;
+        //strengthMin = 0;
+        //strengthMax = 5;
+        //volumeMin = 1;
+        //volumeMax = 5;
+        cbYears = "";
+        cbKeywords = "";
+
+        visualHTML = "";
+        globalCounter = 0;
+
+        //itemData(documentData, "success");
+        updateByFilter();
+
+
+        // move the sliders back to the starting positions
+        /*var qualitySlider = $("#qualitySlider").getKendoRangeSlider();
+        qualitySlider.value([qualityMin, qualityMax]);
+        var strengthSlider = $("#strengthSlider").getKendoRangeSlider();
+        strengthSlider.value([strengthMin, strengthMax]);
+        var qualitySlider = $("#qualitySlider").getKendoRangeSlider();
+        qualitySlider.value([qualityMin, qualityMax]);
+        var volumeSlider = $("#volumeSlider").getKendoRangeSlider();
+        volumeSlider.value([volumeMin, volumeMax]);*/
+
+        // uncheck all of the check boxes.
+        uncheckAllCheckboxes();
+        
+        //$.post("../ItemList/GetFreqListJSon"
+        //    , { attId: attributeIdFilter, attName: 'test' }
+        //    , function (data, result) { itemData(data, result); }
+        //);
+
+
+    }
+
+    function clearAll() {
+        cbOutcomes = "";
+        cbKeywords = "";
+        uncheckAllCheckboxes();
+        updateByFilter();
+    }
+
+
+    function uncheckAllCheckboxes() {
+        var element = document.getElementById("cbSectionA0");
+        element.checked = false;
+        element = document.getElementById("cbSectionA1");
+        element.checked = false;
+        element = document.getElementById("cbSectionA2");
+        element.checked = false;
+        element = document.getElementById("cbSectionA3");
+        element.checked = false;
+        element = document.getElementById("cbSectionA4");
+        element.checked = false;
+        element = document.getElementById("cbSectionA5");
+        element.checked = false;
+        element = document.getElementById("cbSectionA6");
+        element.checked = false;
+        element = document.getElementById("cbSectionA7");
+        element.checked = false;
+        element = document.getElementById("cbSectionB0");
+        element.checked = false;
+        element = document.getElementById("cbSectionB1");
+        element.checked = false;
+        element = document.getElementById("cbSectionB2");
+        element.checked = false;
+        element = document.getElementById("cbSectionB3");
+        element.checked = false; 
+    }
+
+
+
+
+    function changeColour(value) {
+        var element = document.getElementById("headerDiv");
+        switch (value) {
+
+            case '1': // blueish Tints of #68b4f2
+                topColour = "#a4d2f7";
+                botColour = "#d1e8fb";
+                offIcons = "#68b4f2";
+                headerSectionColour = "linear-gradient(to right, #0099ff 0%, #3366cc 100%)";
+                break;
+
+            case '2': // reddish like YEF
+                topColour = "#f8cbc7";
+                botColour = "#fbe2e0";
+                offIcons = "#f0847b";
+                headerSectionColour = "linear-gradient(to right, #ff6666 0%, #ff0000 100%)";
+                break;
+
+            case '3': // greenish Tints of #57bc40
+                topColour = "#9ad68c";
+                botColour = "#cceac5";
+                offIcons = "#57bc40";
+                headerSectionColour = "linear-gradient(to right, #33cc33 0%, #009900 100%)";
+                break;
+
+            case '4': // orangish Tints of #ffb558
+                topColour = "#ffd29a";
+                botColour = "#ffe8cc";
+                offIcons = "#ffb558";
+                headerSectionColour = "linear-gradient(to right, #ffcc00 0%, #ff9900 100%)";
+                break;
+
+            case '5': // purplish Tints of #7770d3
+                topColour = "#ada9e4";
+                botColour = "#d6d4f1";
+                offIcons = "#7770d3";
+                headerSectionColour = "linear-gradient(to right, #9966ff 0%, #6600ff 100%)";
+                break;
+
+            default:
+                break;           
+        }
+
+        element.style["background"] = headerSectionColour;
+        sessionStorage.setItem("ColourThemeSet", "Yes");
+        sessionStorage.setItem("ColourTheme", value);
+
+        var element = document.getElementById("SearchString");
+        element.value = "";
+        searchFor = "";
+        visualHTML = "";
+        globalCounter = 0;
+
+        //itemData(documentData, "success");
+        updateByFilter();
+
+        //$.post("../ItemList/GetFreqListJSon"
+        //    , { attId: attributeIdFilter, attName: 'test' }
+        //    , function (data, result) { itemData(data, result); }
+        //);
+    }
+
+   
+
+    /*
+    function BuildSliderFilters() {
+
+        $("#qualitySlider").kendoRangeSlider({
+            change: qualityRangeSliderOnChange,
+            min: 0,
+            max: 5,
+            smallStep: 1,
+            largeStep: 1
+        });
+
+        $("#strengthSlider").kendoRangeSlider({
+            change: strengthRangeSliderOnChange,
+            min: 0,
+            max: 5,
+            smallStep: 1,
+            largeStep: 1
+        });
+
+        $("#volumeSlider").kendoRangeSlider({
+            change: volumeRangeSliderOnChange,
+            min: 1,
+            max: 5,
+            smallStep: 1,
+            largeStep: 1
+        });
+
+    }
+
+    function qualityRangeSliderOnSlide(e) {
+        console.log("Slide :: new slide values are: " + e.value.toString().replace(",", " - "));
+        let pos = e.value.toString().indexOf(',');
+        qualityMin = e.value.toString().substring(0,pos);
+        qualityMax = e.value.toString().substring(pos+1);
+
+        var element = document.getElementById("SearchString");
+        element.value = "";
+        searchFor = "";
+        visualHTML = "";
+        globalCounter = 0;
+        itemCounter = 0;
+
+        // disable slider div      
+        var element = document.getElementById("filterDiv");
+        element.classList.add("disabledFilterDiv");
+        
+        updateByFilter();
+
+    }
+
+    function qualityRangeSliderOnChange(e) {
+        console.log("Change :: new values are: " + e.value.toString().replace(",", " - "));
+        let pos = e.value.toString().indexOf(',');
+        qualityMin = e.value.toString().substring(0, pos);
+        qualityMax = e.value.toString().substring(pos+1);
+
+        var element = document.getElementById("SearchString");
+        element.value = "";
+        searchFor = "";
+        visualHTML = "";
+        globalCounter = 0;
+        itemCounter = 0;
+
+        // disable slider div
+        var element = document.getElementById("filterDiv");
+        element.classList.add("disabledFilterDiv");
+        // disable checkbox div
+        var element1 = document.getElementById("sectionAFilterDiv");
+        element1.classList.add("disabledFilterDiv");
+        var element2 = document.getElementById("exposuresFilterDiv");
+        element2.classList.add("disabledFilterDiv");
+
+        updateByFilter();
+
+    }
+
+    function strengthRangeSliderOnSlide(e) {
+        console.log("Slide :: new slide values are: " + e.value.toString().replace(",", " - "));
+        let pos = e.value.toString().indexOf(',');
+        strengthMin = e.value.toString().substring(0, pos);
+        strengthMax = e.value.toString().substring(pos+1);
+
+        var element = document.getElementById("SearchString");
+        element.value = "";
+        searchFor = "";
+        visualHTML = "";
+        globalCounter = 0;
+        itemCounter = 0;
+
+        // disable slider div
+        var element = document.getElementById("filterDiv");
+        element.classList.add("disabledFilterDiv");
+
+        updateByFilter();
+
+    }
+
+    function strengthRangeSliderOnChange(e) {
+        console.log("Change :: new values are: " + e.value.toString().replace(",", " - "));
+        let pos = e.value.toString().indexOf(',');
+        strengthMin = e.value.toString().substring(0, pos);
+        strengthMax = e.value.toString().substring(pos+1);
+
+        var element = document.getElementById("SearchString");
+        element.value = "";
+        searchFor = "";
+        visualHTML = "";
+        globalCounter = 0;
+        itemCounter = 0;
+
+        // disable slider div
+        var element = document.getElementById("filterDiv");
+        element.classList.add("disabledFilterDiv");
+        // disable checkbox div
+        var element1 = document.getElementById("sectionAFilterDiv");
+        element1.classList.add("disabledFilterDiv");
+        var element2 = document.getElementById("exposuresFilterDiv");
+        element2.classList.add("disabledFilterDiv");
+
+        updateByFilter();
+
+    }
+
+    function volumeRangeSliderOnSlide(e) {
+        console.log("Slide :: new slide values are: " + e.value.toString().replace(",", " - "));
+        let pos = e.value.toString().indexOf(',');
+        volumeMin = e.value.toString().substring(0, pos);
+        volumeMax = e.value.toString().substring(pos+1);
+
+        var element = document.getElementById("SearchString");
+        element.value = "";
+        searchFor = "";
+        visualHTML = "";
+        globalCounter = 0;
+        itemCounter = 0;
+
+        // disable slider div
+        var element = document.getElementById("filterDiv");
+        element.classList.add("disabledFilterDiv");
+
+        updateByFilter();
+
+    }
+
+    function volumeRangeSliderOnChange(e) {
+        console.log("Change :: new values are: " + e.value.toString().replace(",", " - "));
+        let pos = e.value.toString().indexOf(',');
+        volumeMin = e.value.toString().substring(0, pos);
+        volumeMax = e.value.toString().substring(pos+1);
+
+        var element = document.getElementById("SearchString");
+        element.value = "";
+        searchFor = "";
+        visualHTML = "";
+        globalCounter = 0;
+        itemCounter = 0;
+
+        // disable slider div
+        var element = document.getElementById("filterDiv");
+        element.classList.add("disabledFilterDiv");
+        // disable checkbox div
+        var element1 = document.getElementById("sectionAFilterDiv");
+        element1.classList.add("disabledFilterDiv");
+        var element2 = document.getElementById("exposuresFilterDiv");
+        element2.classList.add("disabledFilterDiv");
+
+        updateByFilter();
+
+    }
+    */
+    function filterToggle(divName) {
+        var x = document.getElementById(divName);
+        if (x.style.display === "none") {
+            x.style.display = "block";
+        } else {
+            x.style.display = "none";
+        }
+    }
+
+    function cbSectionBChange(cbName, value) {
+        var x = document.getElementById(cbName);
+        if (x.checked == true) {
+            cbYears += value;
+        }
+        else {
+            cbYears = cbYears.replace(value, '');
+        }
+        console.log("cbYears", cbYears);
+
+        var element = document.getElementById("SearchString");
+        element.value = "";
+        searchFor = "";
+        visualHTML = "";
+        globalCounter = 0;
+        itemCounter = 0;
+
+        // disable slider div
+        //var element = document.getElementById("filterDiv");
+        //element.classList.add("disabledFilterDiv");
+        // disable checkbox div
+        //var element1 = document.getElementById("sectionAFilterDiv");
+        //element1.classList.add("disabledFilterDiv");
+        //var element2 = document.getElementById("sectionBFilterDiv");
+        //element2.classList.add("disabledFilterDiv");
+        
+        updateByFilter();
+
+    }
+
+    function cbSectionAChange(cbName, value) {
+        var x = document.getElementById(cbName);
+        if (x.checked === true) {
+            cbKeywords += value;            
+        }
+        else {
+            cbKeywords = cbKeywords.replace(value, '');
+        }
+        console.log("cbKeywords", cbKeywords);
+
+        var element = document.getElementById("SearchString");
+        element.value = "";
+        searchFor = "";
+        visualHTML = "";
+        globalCounter = 0;
+        itemCounter = 0;
+
+        // disable slider div
+        //var element = document.getElementById("filterDiv");
+        //element.classList.add("disabledFilterDiv");
+        // disable checkbox div
+        //var element1 = document.getElementById("sectionAFilterDiv");
+        //element1.classList.add("disabledFilterDiv");
+        //var element2 = document.getElementById("sectionBFilterDiv");
+        //element2.classList.add("disabledFilterDiv");
+        
+        updateByFilter();
+
+    }
+
+
+    function ToggleDescrPanelSize() {
+        const descrPanel = $("#WebDBDescription");
+        if (descrPanel) {
+            if (descrPanel.css("max-height") == "250px") {
+                descrPanel.css("max-height", "");
+            }
+            else {
+                descrPanel.css("max-height", "250px");
+            }
+            $("#ExpandDescription").toggle();
+            $("#ReduceDescription").toggle();
+        }
+    }
+
+    function HideShowDescriptionDiv() {
+        const descrPanel = $("#WebDBDescription");
+        const descrShowHideIcon = $("#ShowHideDescriptionDivIcon");
+        if (descrPanel) {
+            descrPanel.css("max-height", "250px");
+            if (descrShowHideIcon[0].className == "fa fa-plus") {
+                $("#ExpandDescription").show();
+                $("#ReduceDescription").hide();
+                $("#WebDBDescriptionBody").show();
+                $("#ShowHideDescriptionDivIcon")[0].className = "fa fa-minus";
+                sessionStorage.setItem("HideShowDescription", "No");
+            }
+            else {
+                $("#ExpandDescription").hide();
+                $("#ReduceDescription").hide();
+                $("#WebDBDescriptionBody").hide();
+                $("#ShowHideDescriptionDivIcon")[0].className = "fa fa-plus";
+                sessionStorage.setItem("HideShowDescription", "Yes");
+            }
+        }
+    }
+
+
+    function HideShowPublicationDiv() {
+        if ("#publicationDiv") {
+            if (HideShowPublicationDivIcon.className == "fa fa-plus") {
+                $("#publicationDiv").show();
+                HideShowPublicationDivIcon.className = "fa fa-minus";
+                $("#publicationDiv").css("max-height", "1000px");
+                $("#YearFreq").show();
+                $("#YearFreqTable").show();
+                if (YearFreqTable.disabled == false) {
+                    $("#BarByYearChartVisible").show();
+                }
+            }
+            else {
+                $("#publicationDiv").hide();
+                HideShowPublicationDivIcon.className = "fa fa-plus";
+                $("#publicationDiv").css("max-height", "0px");
+                $("#YearFreq").hide();
+                $("#YearFreqTable").hide();
+                $("#BarByYearChartVisible").hide();
+            }
+        }
+    }
+
+
+    function GetDocumentAndCodingData() {      
+        @{
+            var jdata = @Html.Raw(JsonConvert.SerializeObject(Model, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }));
+        };
+        var ListData = @jdata;
+        console.log("webDbData", ListData);
+        loadingDiv.show();
+        attributeIdFilter = ListData.webDb.attributeIdFilter;
+        $.post(pathRoot + "ItemList/GetFreqListJSon"
+            , { attId: attributeIdFilter, attName: 'test' }
+            , function (data, result) { itemData(data, result); }
+        ).fail((response) => {handleFreqsError(response); loadingDiv.hide(); });
+    }
+
+
+    async function itemData(data, result) {
+        if (result == "success") {
+            var CurrentDelay = 80;//milliseconds!
+            var DelayIncrement = 100; //100 milliseconds;
+            const delayCommand = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+            documentData = data;
+            console.log("documentData", documentData, result);
+            
+            var IterationsWithoutError = 1;
+            
+            // step through each item and get the coding data one at a time (this is what takes so long!!!!)
+            for (var i = 0; i < documentData.items.totalItemCount; i++) {
+                loadingDiv.html("Loading: " + (i+1).toString() + " of " + documentData.items.totalItemCount.toString());
+                    await $.ajax({
+                        url: pathRoot + "Coding/FetchItemCodingJSON",
+                        type: 'POST',
+                        data: { ItemId: documentData.items.items[i].itemId },
+                        datatype: 'json'
+                    }) 
+                    .done(function (data, result) {
+                        //console.log("Is this success?", result);
+
+                        // when you have the data for this item, add it to the array
+                        if (result === "success") buildArrayOfCodingData(data, result, i);
+                    })
+                    .catch(async function (jqErr, textStatus, errorThrown) { 
+                        console.log("catch block, error on:", jqErr, textStatus, errorThrown, i);
+                        if (jqErr.status == 429){
+                            const waitfor = jqErr.getResponseHeader("retry-after");
+                            if (!waitfor) waitfor = 1;
+                            var possibleNewDelay = (1000 * waitfor)/(IterationsWithoutError);
+                            if (possibleNewDelay > DelayIncrement) DelayIncrement = possibleNewDelay;
+                            CurrentDelay = CurrentDelay + DelayIncrement;
+                            console.log("New per call delay:", CurrentDelay);
+                            IterationsWithoutError = 1;
+                            i = i - 1;
+                            await delayCommand((1000 * waitfor) - CurrentDelay);//wait for the amount of time we're told to, minus the amount we'll wait anyway before looping
+                        }
+                        else {
+                            loadingDiv.hide();
+                            alert("Unexpected error - data failed to load, please try again. \r\nError status code is: "  + jqErr.status.toString()
+                                + ". \r\nError message is: " + jqErr.statusText);
+                            throw(jqErr);
+                        }
+                        
+                    });
+                await delayCommand(CurrentDelay);
+                IterationsWithoutError++;
+            }
+
+            loadingDiv.hide();
+        }
+        else {
+            console.log("error", "unable to get data");
+        }
+    }
+
+    function buildArrayOfCodingData(codingData, result, i) {
+        if (result == "success") {
+            // build up the array of data...
+            SavedCodingData.push(codingData);
+            
+            // build each card as we go along...
+            buildCard(SavedCodingData[i], result, i);
+        }
+    }
+
+    // whenever we change any of the filters we call this....
+    function updateByFilter() {
+        // reset the itemList
+        itemList.length = 0;
+        //sessionStorage.setItem("itemList", "");
+
+        for (var i = 0; i < documentData.items.totalItemCount; i++) {
+            // build cards one at a time from the array of data... (this is fast enough)
+            buildCard(SavedCodingData[i], "success", i);
+        }
+    }
+
+
+    function returnTopColour(keywordValue) {
+        switch (keywordValue)
+        {
+            case "0":
+                topColour = keywordColour0;
+                break;
+            case "1":
+                topColour = keywordColour1;
+                break;
+            case "2":
+                topColour = keywordColour2;
+                break;
+            case "3":
+                topColour = keywordColour3;
+                break;
+            case "4":
+                topColour = keywordColour4;
+                break;
+            case "5":
+                topColour = keywordColour5;
+                break;
+            case "6":
+                topColour = keywordColour6;
+                break;
+            case "7":
+                topColour = keywordColour7;
+                break;
+            case "8":
+                topColour = keywordColour8;
+                break;
+            default:
+                topColour = keywordColour9;
+                break;
+        }
+        return topColour;
+    }
+
+    function returnYear(yearValue) {
+        switch (yearValue)
+        {
+            case "0":
+                year = "2026";
+                break;
+            case "1":
+                year = "2025";
+                break;
+            case "2":
+                year = "2024";
+                break;
+            case "3":
+                year = "2023";
+                break;
+            default:
+                year = "2022";
+                break;
+        }
+        return year;
+    }
+
+    function buildCard(codingData, result, i) {
+        if (result == "success") 
+        {
+            //console.log("codingData", codingData, result);         
+
+            var studyTitle = documentData.items.items[i].shortTitle;
+            var studyAbstract = documentData.items.items[i].abstract;
+            var itemId = documentData.items.items[i].itemId;
+            var studyAuthors = documentData.items.items[i].authors;
+          
+
+            //var evidenceVolumeValue = "?";
+            //var evidenceVolumeIcon = "";
+            //var evidenceQualityValue = "?";
+            //var evidenceQualityIcon = "";
+            //var evidenceStrengthValue = "?";
+            //var evidenceStrengthIcon = "";
+            var keywordValue = "?";
+            var yearValue = "?"
+            var seminarComplete = "0";
+            let meetingLink;
+            let recordingLink;
+
+            //var volumeOnIcon = "<i class='fas fa-sm fa-file-alt'></i>&nbsp;&nbsp;";
+            //var volumeOffIcon = "<i class='fas fa-sm fa-file-alt' style='color:" + offIcons + "'></i>&nbsp;&nbsp;";
+            //var strengthOnIcon = "<i class='fas fa-sm fa-wifi'></i>&nbsp;&nbsp;"
+            //var strengthOffIcon = "<i class='fas fa-sm fa-wifi' style='color:" + offIcons + "'></i>&nbsp;&nbsp;";
+            //var qualityOnIcon = "<i class='fas fa-sm fa-search-plus'></i>&nbsp;&nbsp;";
+            //var qualityOffIcon = "<i class='fas fa-sm fa-search-plus' style='color:" + offIcons + "'></i>&nbsp;&nbsp;";
+            
+            // the itemAttributesList entries are in the order the codes are assigned so we need to loop through all of them to
+            // be sure we look at all of them
+
+            for (var k = 0; k < codingData.itemSetList[0].itemAttributesList.length; k++) 
+            {
+                switch (codingData.itemSetList[0].itemAttributesList[k].attributeId) 
+                {
+                    // Evidence volume (1-5)
+                    /*
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[0].attributeId:
+                        evidenceVolumeValue = "1";
+                        evidenceVolumeIcon = volumeOnIcon + volumeOffIcon + volumeOffIcon + volumeOffIcon + volumeOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[1].attributeId:
+                        evidenceVolumeValue = "2";
+                        evidenceVolumeIcon = volumeOnIcon + volumeOnIcon + volumeOffIcon + volumeOffIcon + volumeOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[2].attributeId:
+                        evidenceVolumeValue = "3";
+                        evidenceVolumeIcon = volumeOnIcon + volumeOnIcon + volumeOnIcon + volumeOffIcon + volumeOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[3].attributeId:
+                        evidenceVolumeValue = "4";
+                        evidenceVolumeIcon = volumeOnIcon + volumeOnIcon + volumeOnIcon + volumeOnIcon + volumeOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[4].attributeId:
+                        evidenceVolumeValue = "5";
+                        evidenceVolumeIcon = volumeOnIcon + volumeOnIcon + volumeOnIcon + volumeOnIcon + volumeOnIcon;
+                        break;                   
+
+                    // Evidence quality (0-5 in 1/2 steps)
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[0].attributeId:
+                        evidenceQualityValue = "0";
+                        evidenceQualityIcon = qualityOffIcon + qualityOffIcon + qualityOffIcon + qualityOffIcon + qualityOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[1].attributeId:
+                        evidenceQualityValue = "0.5";
+                        evidenceQualityIcon = qualityOnIcon + qualityOffIcon + qualityOffIcon + qualityOffIcon + qualityOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[2].attributeId:
+                        evidenceQualityValue = "1";
+                        evidenceQualityIcon = qualityOnIcon + qualityOffIcon + qualityOffIcon + qualityOffIcon + qualityOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[3].attributeId:
+                        evidenceQualityValue = "1.5";
+                        evidenceQualityIcon = qualityOnIcon + qualityOnIcon + qualityOffIcon + qualityOffIcon + qualityOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[4].attributeId:
+                        evidenceQualityValue = "2";
+                        evidenceQualityIcon = qualityOnIcon + qualityOnIcon + qualityOffIcon + qualityOffIcon + qualityOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[5].attributeId:
+                        evidenceQualityValue = "2.5";
+                        evidenceQualityIcon = qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOffIcon + qualityOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[6].attributeId:
+                        evidenceQualityValue = "3";
+                        evidenceQualityIcon = qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOffIcon + qualityOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[7].attributeId:
+                        evidenceQualityValue = "3.5";
+                        evidenceQualityIcon = qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[8].attributeId:
+                        evidenceQualityValue = "4";
+                        evidenceQualityIcon = qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[9].attributeId:
+                        evidenceQualityValue = "4.5";
+                        evidenceQualityIcon = qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOnIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[10].attributeId:
+                        evidenceQualityValue = "5";
+                        evidenceQualityIcon = qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOnIcon + qualityOnIcon;
+                        break;
+
+                    // Evidence strength (0-5 in 1/2 steps)
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[0].attributeId:
+                        evidenceStrengthValue = "0";
+                        evidenceStrengthIcon = strengthOffIcon + strengthOffIcon + strengthOffIcon + strengthOffIcon + strengthOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[1].attributeId:
+                        evidenceStrengthValue = "0.5";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOffIcon + strengthOffIcon + strengthOffIcon + strengthOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[2].attributeId:
+                        evidenceStrengthValue = "1";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOffIcon + strengthOffIcon + strengthOffIcon + strengthOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[3].attributeId:
+                        evidenceStrengthValue = "1.5";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOnIcon + strengthOffIcon + strengthOffIcon + strengthOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[4].attributeId:
+                        evidenceStrengthValue = "2";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOnIcon + strengthOffIcon + strengthOffIcon + strengthOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[5].attributeId:
+                        evidenceStrengthValue = "2.5";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOffIcon + strengthOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[6].attributeId:
+                        evidenceStrengthValue = "3";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOffIcon + strengthOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[7].attributeId:
+                        evidenceStrengthValue = "3.5";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[8].attributeId:
+                        evidenceStrengthValue = "4";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOffIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[9].attributeId:
+                        evidenceStrengthValue = "4.5";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOnIcon;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[10].attributeId:
+                        evidenceStrengthValue = "5";
+                        evidenceStrengthIcon = strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOnIcon + strengthOnIcon;
+                        break;  
+                    */
+
+                    // Checkbox Section A
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[0].attributeId:
+                        // cbSectonA0
+                        keywordValue = "0";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[1].attributeId:
+                        // cbSectonA1
+                        keywordValue = "1";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[2].attributeId:
+                        // cbSectonA2
+                        keywordValue = "2";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[3].attributeId:
+                        // cbSectonA3
+                        keywordValue = "3";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[4].attributeId:
+                        // cbSectonA4
+                        keywordValue = "4";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[5].attributeId:
+                        // cbSectonA5
+                        keywordValue = "5";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[6].attributeId:
+                        // cbSectonA6
+                        keywordValue = "6";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[0].attributes.attributesList[7].attributeId:
+                        // cbSectonA7
+                        keywordValue = "7";
+                        break;
+
+
+                    // Checkbox Section B
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[0].attributeId:
+                        // cbSectonB0
+                        yearValue = "0";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[1].attributeId:
+                        // cbSectonB1
+                        yearValue = "1";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[2].attributeId:
+                        // cbSectonB2
+                        yearValue = "2";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[1].attributes.attributesList[3].attributeId:
+                        // cbSectonB3
+                        yearValue = "3";
+                        break;
+
+
+                    // links to meetings and recordings
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[0].attributeId:
+                        // has the seminar occured
+                        seminarComplete = "1";
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[1].attributeId:
+                        // meeting link
+                        meetingLink = codingData.itemSetList[0].itemAttributesList[2].additionalText;
+                        break;
+                    case codingData.reviewSets[0].attributes.attributesList[2].attributes.attributesList[2].attributeId:
+                        // cbSectonB2
+                        recordingLink = codingData.itemSetList[0].itemAttributesList[3].additionalText;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            if (searchFor == "")
+            {
+                // for checkbox filtering the selected items are included unless nothing is selected which mean everthing is included....
+                // start with keywords...
+                if (cbKeywords.includes(keywordValue) || (cbKeywords == ""))
+                {
+                    // check for years
+                    if (cbYears.includes(yearValue) || (cbYears == "")) 
+                    {                           
+
+                        if (itemCounter == 0) {
+                            visualHTML += "<div class='row' width='100%'>";
+                        }
+                            
+                            
+                        if (itemCounter == 0) {
+                            itemList.push(documentData.items.items[i].itemId);
+                            visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px; min-height: 150px;>";
+
+                            //-----------------------------------------------------
+                            topColour = returnTopColour (keywordValue);
+                            year = returnYear (yearValue);
+                            visualHTML += "<div class='card' >";
+                                                                
+                            visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
+
+                            visualHTML += "<table width='100%'>";
+                            visualHTML += "<tr>";
+
+                            visualHTML += "<td width='100%' colspan='2' style='padding: 0px 5px 0px 0px;'>";                            
+                            visualHTML += "<b>" + studyTitle + "</b><br>";
+                            visualHTML += year + "<br>";
+                            visualHTML += studyAuthors + "<br>";
+                            visualHTML += "<button type='button' class='btn btn-sm btn-primary btn-round' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>Details</button>";
+                            if ((recordingLink != "") || (recordingLink != "undefined")) {
+                                visualHTML += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp"
+                                visualHTML += "<a href='" + recordingLink + "><button type='button' class='btn btn-sm btn-secondary btn-round' target='_blank'>Watch</a></button>";
+                            }
+                            visualHTML += "</td>";
+                            visualHTML += "</tr>";
+
+                            visualHTML += "</table>";
+
+                            visualHTML += "</div>";
+                            visualHTML += "</div>";
+                            //-------------------------------------------------------
+
+                        }
+
+                        if (itemCounter == 1) {
+                            itemList.push(documentData.items.items[i].itemId);
+                            visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px; min-height: 150px;>";
+
+                            //-----------------------------------------------------
+                            topColour = returnTopColour (keywordValue);
+                            year = returnYear (yearValue);
+                            visualHTML += "<div class='card' >";
+
+                            visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
+
+                            visualHTML += "<table width='100%'>";
+                            visualHTML += "<tr>";
+
+                            visualHTML += "<td width='100%' colspan='2' style='padding: 0px 5px 0px 0px;'>";                            
+                            visualHTML += "<b>" + studyTitle + "</b><br>";
+                            visualHTML += year + "<br>";
+                            visualHTML += studyAuthors + "<br>";
+                            visualHTML += "<button type='button' class='btn btn-sm btn-primary btn-round' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>Details</button>";
+                            if ((recordingLink != "") || (recordingLink != "undefined")) {
+                                visualHTML += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp"
+                                visualHTML += "<a href='" + recordingLink + "><button type='button' class='btn btn-sm btn-secondary btn-round' target='_blank'>Watch</a></button>";
+                            }
+                            visualHTML += "</td>";
+                            visualHTML += "</tr>";
+
+                            visualHTML += "</table>";
+
+                            visualHTML += "</div>";
+                            visualHTML += "</div>";
+                            //-------------------------------------------------------
+
+                        }
+
+                        if (itemCounter == 2) {
+                            itemList.push(documentData.items.items[i].itemId);
+                            visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px; min-height: 150px;>";
+
+                            //-----------------------------------------------------
+                            topColour = returnTopColour (keywordValue);
+                            year = returnYear (yearValue);
+                            visualHTML += "<div class='card' >";
+
+                            visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
+
+                            visualHTML += "<table width='100%'>";
+                            visualHTML += "<tr>";
+
+                            visualHTML += "<td width='100%' colspan='2' style='padding: 0px 5px 0px 0px;'>";                            
+                            visualHTML += "<b>" + studyTitle + "</b><br>";
+                            visualHTML += year + "<br>";
+                            visualHTML += studyAuthors + "<br>";
+                            visualHTML += "<button type='button' class='btn btn-sm btn-primary btn-round' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>Details</button>";
+                            if ((recordingLink != "") || (recordingLink != "undefined")) {
+                                visualHTML += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp"
+                                visualHTML += "<a href='" + recordingLink + "><button type='button' class='btn btn-sm btn-secondary btn-round' target='_blank'>Watch</a></button>";
+                            }
+                            visualHTML += "</td>";
+                            visualHTML += "</tr>";
+
+                            visualHTML += "</table>";
+
+                            visualHTML += "</div>";
+                            visualHTML += "</div>";
+                            //-------------------------------------------------------
+
+                        }
+
+                        if (itemCounter == 3) {
+                            itemList.push(documentData.items.items[i].itemId);
+                            visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px; min-height: 150px;>";
+
+                            //-----------------------------------------------------
+                            topColour = returnTopColour (keywordValue);
+                            year = returnYear (yearValue);
+                            visualHTML += "<div class='card' >";
+
+                            visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
+
+                            visualHTML += "<table width='100%'>";
+                            visualHTML += "<tr>";
+
+                            visualHTML += "<td width='100%' colspan='2' style='padding: 0px 5px 0px 0px;'>";                            
+                            visualHTML += "<b>" + studyTitle + "</b><br>";
+                            visualHTML += year + "<br>";
+                            visualHTML += studyAuthors + "<br>";
+                            visualHTML += "<button type='button' class='btn btn-sm btn-primary btn-round' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>Details</button>";
+                            if ((recordingLink != "") || (recordingLink != "undefined")) {
+                                visualHTML += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp"
+                                visualHTML += "<a href='" + recordingLink + "><button type='button' class='btn btn-sm btn-secondary btn-round' target='_blank'>Watch</a></button>";
+                            }
+                            visualHTML += "</td>";
+                            visualHTML += "</tr>";
+
+                            visualHTML += "</table>";
+
+                            visualHTML += "</div>";
+                            visualHTML += "</div>";
+                            //-------------------------------------------------------
+
+                        }
+
+                        visualHTML += "</div>";
+
+                        if (itemCounter == 3) {
+                            itemCounter = 0;
+                            visualHTML += "</div>";
+                        }
+                        else {
+                            itemCounter +=1;
+                        }
+
+                    }
+                }
+                
+                globalCounter += 1;
+                if (globalCounter == documentData.items.totalItemCount) 
+                {
+                    var test = itemList;
+                    var ItemListCsv = itemList.join(",");
+                    sessionStorage.setItem("itemList", ItemListCsv);
+                    let resultsDiv = $("#visualsEppiSeminarDiv");
+                    resultsDiv.html(visualHTML);
+                    globalCounter = 0;
+                    itemCounter = 0;
+
+                    // enable controls
+                    var element = document.getElementById("filterDiv");
+                    element.classList.remove("disabledFilterDiv");
+                    // disable checkbox div
+                    var element1 = document.getElementById("sectionAFilterDiv");
+                    element1.classList.remove("disabledFilterDiv");
+                    var element2 = document.getElementById("sectionBFilterDiv");
+                    element2.classList.remove("disabledFilterDiv");
+                }
+            }
+            
+            
+            if (searchFor != "") 
+            {
+                // there are search terms so see if the container should be created
+                // str.toLowerCase().includes(substr.toLowerCase())
+                if ((studyTitle.toLowerCase().includes(searchFor.toLowerCase())) || (studyAbstract.toLowerCase().includes(searchFor.toLowerCase()))) 
+                {                          
+
+                        if (itemCounter == 0) {
+                            visualHTML += "<div class='row' width='100%'>";
+                        }
+                            
+                            
+                        if (itemCounter == 0) {
+                            itemList.push(documentData.items.items[i].itemId);
+                            visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px; min-height: 150px;>";
+
+                            //-----------------------------------------------------
+                            topColour = returnTopColour (keywordValue);
+                            year = returnYear (yearValue);
+                            visualHTML += "<div class='card' >";
+                                                                
+                            visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
+
+                            visualHTML += "<table width='100%'>";
+                            visualHTML += "<tr>";
+
+                            visualHTML += "<td width='100%' colspan='2' style='padding: 0px 5px 0px 0px;'>";                            
+                            visualHTML += "<b>" + studyTitle + "</b><br>";
+                            visualHTML += year + "<br>";
+                            visualHTML += studyAuthors + "<br>";
+                            visualHTML += "<button type='button' class='btn-sm btn-primary' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>Details</button>";
+                            visualHTML += "</td>";
+                            visualHTML += "</tr>";
+
+                            visualHTML += "</table>";
+
+                            visualHTML += "</div>";
+                            visualHTML += "</div>";
+                            //-------------------------------------------------------
+
+                        }
+
+                        if (itemCounter == 1) {
+                            itemList.push(documentData.items.items[i].itemId);
+                            visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px; min-height: 150px;>";
+
+                            //-----------------------------------------------------
+                            topColour = returnTopColour (keywordValue);
+                            year = returnYear (yearValue);
+                            visualHTML += "<div class='card' >";
+
+                            visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
+
+                            visualHTML += "<table width='100%'>";
+                            visualHTML += "<tr>";
+
+                            visualHTML += "<td width='100%' colspan='2' style='padding: 0px 5px 0px 0px;'>";                            
+                            visualHTML += "<b>" + studyTitle + "</b><br>";
+                            visualHTML += year + "<br>";
+                            visualHTML += studyAuthors + "<br>";
+                            visualHTML += "<button type='button' class='btn-sm btn-primary' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>Details</button>";
+                            visualHTML += "</td>";
+                            visualHTML += "</tr>";
+
+                            visualHTML += "</table>";
+
+                            visualHTML += "</div>";
+                            visualHTML += "</div>";
+                            //-------------------------------------------------------
+
+                        }
+
+                        if (itemCounter == 2) {
+                            itemList.push(documentData.items.items[i].itemId);
+                            visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px; min-height: 150px;>";
+
+                            //-----------------------------------------------------
+                            topColour = returnTopColour (keywordValue);
+                            year = returnYear (yearValue);
+                            visualHTML += "<div class='card' >";
+
+                            visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
+
+                            visualHTML += "<table width='100%'>";
+                            visualHTML += "<tr>";
+
+                            visualHTML += "<td width='100%' colspan='2' style='padding: 0px 5px 0px 0px;'>";                            
+                            visualHTML += "<b>" + studyTitle + "</b><br>";
+                            visualHTML += year + "<br>";
+                            visualHTML += studyAuthors + "<br>";
+                            visualHTML += "<button type='button' class='btn-sm btn-primary' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>Details</button>";
+                            visualHTML += "</td>";
+                            visualHTML += "</tr>";
+
+                            visualHTML += "</table>";
+
+                            visualHTML += "</div>";
+                            visualHTML += "</div>";
+                            //-------------------------------------------------------
+
+                        }
+
+                        if (itemCounter == 3) {
+                            itemList.push(documentData.items.items[i].itemId);
+                            visualHTML += "<div class='col-12 col-sm-10 col-md-6 col-lg-3' max-height: 150px; min-height: 150px;>";
+
+                            //-----------------------------------------------------
+                            topColour = returnTopColour (keywordValue);
+                            year = returnYear (yearValue);
+                            visualHTML += "<div class='card' >";
+
+                            visualHTML += "<div class='card-header' style='background-color: " + topColour + "; '>";
+
+                            visualHTML += "<table width='100%'>";
+                            visualHTML += "<tr>";
+
+                            visualHTML += "<td width='100%' colspan='2' style='padding: 0px 5px 0px 0px;'>";                            
+                            visualHTML += "<b>" + studyTitle + "</b><br>";
+                            visualHTML += year + "<br>";
+                            visualHTML += studyAuthors + "<br>";
+                            visualHTML += "<button type='button' class='btn-sm btn-primary' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>Details</button>";
+                            visualHTML += "</td>";
+                            visualHTML += "</tr>";
+
+                            visualHTML += "</table>";
+
+                            visualHTML += "</div>";
+                            visualHTML += "</div>";
+                            //-------------------------------------------------------
+
+                        }
+
+                        visualHTML += "</div>";
+
+                        if (itemCounter == 3) {
+                            itemCounter = 0;
+                            visualHTML += "</div>";
+                        }
+                        else {
+                            itemCounter +=1;
+                        }
+
+                    }
+               
+                
+                globalCounter += 1;
+                if (globalCounter == documentData.items.totalItemCount) {
+                    let resultsDiv = $("#visualsEppiSeminarDiv");
+                    resultsDiv.html(visualHTML);
+                    globalCounter = 0;
+                    searchFor = "";
+                    itemCounter = 0;
+                }
+            }
+
+        }
+        else {
+            console.log("error", "unable to get data");
+        }
+    }
+
+
+
+
+
+</script>
+
+@{
+    Layout = "~/Views/Shared/_EppiSeminarLayout.cshtml";
+}
+
+
+<!-- Side bar coding tools area -->
+<div class="sidebar sidebar-style-2">
+    <div class="sidebar-wrapper scrollbar scrollbar-inner">
+        <div class="sidebar-content">
+
+            <ul class="nav nav-primary">
+                <li class="nav-section">
+                    <span class="sidebar-mini-icon">
+                        <i class="fa fa-ellipsis-h"></i>
+                    </span>
+
+                    <div style="padding-left:10px">
+                        <!-- this button should be invisible if the screen is > 325px wide -->
+                        <button id="smallPhoneButton" class="navbar-toggler sidenav-toggler ml-auto" type="button" data-toggle="collapse"
+                                data-target="collapse" aria-expanded="false" aria-label="Toggle navigation" style="padding-left:0px">
+                            <span class="navbar-toggler-icon">
+                                <i class="icon-menu"></i>
+                            </span>
+                        </button>
+
+                        
+                        <!--<table width="100%">
+                            <tr>
+                                <td style="padding: 0px 0px 0px 0px;">
+                                    <button type="button" id="blue" class="btn btn-icon btn-xs btn-round" style="background-color:#a4d2f7" onclick="changeColour('1')" > </button>
+                                </td>
+                                <td style="padding: 0px 0px 0px 0px;">
+                                    <button type="button" id="red" class="btn btn-icon btn-xs btn-round" style="background-color:#f8cbc7" onclick="changeColour('2')"> </button>
+                                </td>
+                                <td style="padding: 0px 0px 0px 0px;">
+                                    <button type="button" id="green" class="btn btn-icon btn-xs btn-round" style="background-color:#9ad68c" onclick="changeColour('3')"> </button>
+                                </td>
+                                <td style="padding: 0px 0px 0px 0px;">
+                                    <button type="button" id="orange" class="btn btn-icon btn-xs btn-round" style="background-color:#ffd29a" onclick="changeColour('4')"> </button>
+                                </td>
+                                <td style="padding: 0px 0px 0px 0px;">
+                                    <button type="button" id="purple" class="btn btn-icon btn-xs btn-round" style="background-color:#ada9e4" onclick="changeColour('5')"> </button>
+                                </td>
+                            </tr>
+                        </table>-->
+
+
+                        <div id="filterDiv" class="text-body pb-2" style="width: 95%">
+                            <table width="100%">
+                                <tr>
+                                    <td style="vertical-align:middle; border-bottom: solid; border-color: black;  border-width: 3px; padding: 10px 10px 15px 10px; width:95%">
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend border rounded my-auto">
+                                                    <button type="button" id="searchButton" onclick="searchRecords(SearchString)" class="btn btn-search pr-1 py-2 px-2" disabled>
+                                                        <span style="color:#0b52ad"><i class="fas fa-search search-icon"></i></span>
+                                                    </button>
+                                                </div>
+                                                <input type="text" placeholder="Search records..." onkeyup="enableSearch()" style="background-color:white" class="form-control" maxlength="4000" name="SearchString" id="SearchString">
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+
+
+                            <!--Filtering controls-->
+                        <div id="filterDiv2" class="text-body pb-2" style="width: 95%">
+                            <table width="100%">
+                                <tr>                             
+                                    <td style="width: 40%; vertical-align:middle; border-bottom: solid; border-color: black;  border-width: 1px; padding: 13px 10px 5px 5px;">
+                                        <h3 class="text-body pb-2"><b>Filter by:</b></h3>
+                                    </td>
+                                    <td style="width: 10%; vertical-align:top; text-align:left;  border-bottom: solid; border-color: black;  border-width: 1px; padding: 15px 10px 5px 5px;">
+                                        <button type="button" id="costLegend" class="fas fa-lg fa-question-circle" style="border-style:none;background-color:white" onclick="filterToggle('advancedFilterHelpDiv')"></button>
+                                    </td>
+                                    <td style="width: 50%; vertical-align:top; text-align:right; border-bottom: solid; border-color: black;  border-width: 1px; padding: 13px 10px 5px 10px;">
+                                        <!--<button class="btn btn-primary btn-sm btn-border" onclick="clearAll()">Clear all</button>-->
+                                        <a class="btn btn-primary btn-sm btn-border" href="~/EppiSeminar">Clear all</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="advancedFilterHelpDiv" style="width: 95%; display:none">
+                            <table width="100%">
+                                <tr>
+                                    <td style="padding: 0px 0px 0px 10px;">
+                                        <label>
+                                            You can select topics to help identify relevant seminars.<br />
+                                            Selections <b>within</b> a section use<br />
+                                            the <b>OR</b> operator.<br />
+                                            Selections <b>across</b> sections use <br />
+                                            the <b>AND</b> operator.<br />
+                                        </label>
+                                    </td>
+                                </tr>
+                            </table>
+                            <br />
+                        </div>
+                        <div class="text-body pb-2" style="cursor: pointer;width: 95%;" onclick="filterToggle('keywordsFilterDiv')">
+                            <table width="100%">
+                                <tr>
+                                    <td width="80%"><h5><b>KEYWORDS</b></h5></td>
+                                    <td width="20%">
+                                        <svg width="10" height="5" viewBox="0 0 10 5" class="ml-4" fill="none">
+                                            <path fill="#000" d="M0 0l5 5 5-5H0z"></path>
+                                        </svg>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="sectionAFilterDiv" style="width: 95%;">
+                            <table width="100%">
+                                <tr>
+                                    <td style="padding: 0px 0px 0px 10px;">
+                                        <ul class="fieldlist">
+                                            <li>
+                                                <input type="checkbox" id="cbSectionA0" onclick="cbSectionAChange('cbSectionA0', '0')" />
+                                                <label>&nbsp;&nbsp;&nbsp;Public Engagement & Co-production</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#f8cbc7"></span>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" id="cbSectionA1" onclick="cbSectionAChange('cbSectionA1', '1')" />
+                                                <label>&nbsp;&nbsp;&nbsp;Searching & Screening</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#BC9DE4"></span>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" id="cbSectionA2" onclick="cbSectionAChange('cbSectionA2', '2')" />
+                                                <label>&nbsp;&nbsp;&nbsp;Evidence Scoping & Mapping</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#a4d2f7"></span>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" id="cbSectionA3" onclick="cbSectionAChange('cbSectionA3', '3')" />
+                                                <label>&nbsp;&nbsp;&nbsp;Synthesis</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#d6c69a"></span>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" id="cbSectionA4" onclick="cbSectionAChange('cbSectionA4', '4')" />
+                                                <label>&nbsp;&nbsp;&nbsp;Appraisal & Risk of Bias</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#6cd69a"></span>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" id="cbSectionA5" onclick="cbSectionAChange('cbSectionA5', '5')" />
+                                                <label>&nbsp;&nbsp;&nbsp;Evidence Use</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#ffb558"></span>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" id="cbSectionA6" onclick="cbSectionAChange('cbSectionA6', '6')" />
+                                                <label>&nbsp;&nbsp;&nbsp;Equity</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#E4BC9D"></span>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" id="cbSectionA7" onclick="cbSectionAChange('cbSectionA7', '7')" />
+                                                <label>&nbsp;&nbsp;&nbsp;AI & Review Technology</label>&nbsp;&nbsp;<span class="fa fa-square-full" style="color:#9DBCE4"></span>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </table>
+                            <br />
+                        </div>
+                        <div class="text-body pb-2" style="cursor: pointer;width: 95%;" onclick="filterToggle('yearFilterDiv')">
+                            <table width="100%">
+                                <tr>
+                                    <td width="80%" style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 5px 0px;">
+                                        <h5><b>YEAR</b></h5>
+                                    </td>
+                                    <td width="20%" style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 5px 0px;">
+                                        <svg width="10" height="5" viewBox="0 0 10 5" class="ml-4" fill="none">
+                                            <path fill="#000" d="M0 0l5 5 5-5H0z"></path>
+                                        </svg>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="sectionBFilterDiv" style="width: 95%;">
+                            <table width="100%">
+                                <tr>
+                                    <td style="padding: 0px 0px 0px 10px;">
+                                        <ul class="fieldlist">
+                                            <li>
+                                                <input type="checkbox" id="cbSectionB0" onclick="cbSectionBChange('cbSectionB0', '0')" />
+                                                <label>&nbsp;&nbsp;&nbsp;2026</label>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" id="cbSectionB1" onclick="cbSectionBChange('cbSectionB1', '1')" />
+                                                <label>&nbsp;&nbsp;&nbsp;2025</label>
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" id="cbSectionB2" onclick="cbSectionBChange('cbSectionB2', '2')" />
+                                                <label>&nbsp;&nbsp;&nbsp;2024</label>                                                
+                                            </li>
+                                            <li>
+                                                <input type="checkbox" id="cbSectionB3" onclick="cbSectionBChange('cbSectionB3', '3')" />
+                                                <label>&nbsp;&nbsp;&nbsp;2023</label>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </table>
+                            <br />
+                        </div>
+
+
+
+                        <!--<div id="filterDiv5" class="text-body pb-2" style="width: 95%">
+                            <table width="100%">
+                                <tr>
+                                    <td style="border-top: solid; border-color: black;  border-width: 1px; padding: 10px 10px 0px 10px;">
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+
+                        <div id="filterDiv3" class="text-body pb-2" style="width: 95%">
+                            <table width="100%">
+                                <tr>
+                                    <td style="padding: 0px 10px 0px 10px;">   
+                                    </td>
+                                </tr>
+                            
+                                <tr>
+                                    <td style="padding: 10px 10px 10px 15px;">
+                                        <label><b>EVIDENCE QUALITY</b></label>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <button type="button" id="qualityLegend" class="fas fa-lg fa-question-circle" style="border-style:none;background-color:white" onclick="filterToggle('evidenceHelpDiv')"> </button><br />
+                                        <div id="qualitySlider" class="humidity">
+                                            <input />
+                                            <input />
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="evidenceHelpDiv" style="width: 95%; display:none">
+                            <table width="100%">
+                                <tr>
+                                    <td style="padding: 0px 0px 0px 10px;">
+                                        <label>
+                                            <b>Evidence quality</b><br />
+                                            &nbsp;&nbsp;&nbsp;0:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Not rated<br />
+                                            &nbsp;&nbsp;&nbsp;1:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Critically low<br />
+                                            &nbsp;&nbsp;&nbsp;2:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Low<br />
+                                            &nbsp;&nbsp;&nbsp;3:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Moderate<br />
+                                            &nbsp;&nbsp;&nbsp;4:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;High<br />
+                                            &nbsp;&nbsp;&nbsp;5:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Very high<br />
+                                        </label>
+                                    </td>
+                                </tr>
+                            </table>
+                            <br />
+                        </div>
+                        <div id="filterDiv4" class="text-body pb-2" style="width: 95%">
+                            <table width="100%">
+                                <tr>
+                                    <td style="padding: 10px 10px 10px 15px;">
+                                        <label><b>EVIDENCE STRENGTH</b></label>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <button type="button" id="strenghtLegend" class="fas fa-lg fa-question-circle" style="border-style:none;background-color:white" onclick="filterToggle('qualityHelpDiv')"></button><br />
+                                        <div id="strengthSlider" class="humidity">
+                                            <input />
+                                            <input />
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="qualityHelpDiv" style="width: 95%; display:none">
+                            <table width="100%">
+                                <tr>
+                                    <td style="padding: 0px 0px 0px 10px;">
+                                        <label>
+                                            <b>Evidence strength</b><br />
+                                            &nbsp;&nbsp;&nbsp;0:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Not rated<br />
+                                            &nbsp;&nbsp;&nbsp;1:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Critically low<br />
+                                            &nbsp;&nbsp;&nbsp;2:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Low<br />
+                                            &nbsp;&nbsp;&nbsp;3:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Moderate<br />
+                                            &nbsp;&nbsp;&nbsp;4:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;High<br />
+                                            &nbsp;&nbsp;&nbsp;5:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Very high<br />
+                                        </label>
+                                    </td>
+                                </tr>
+                            </table>
+                            <br />
+                        </div>
+                        <div id="filterDiv6" class="text-body pb-2" style="width: 95%">
+                            <table width="100%">
+                                <tr>
+                                    <td style="padding: 10px 10px 10px 15px;">
+                                        <label><b>EVIDENCE VOLUME</b></label>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <button type="button" id="volumeLegend" class="fas fa-lg fa-question-circle" style="border-style:none;background-color:white" onclick="filterToggle('volumeHelpDiv')"></button><br />
+                                        <div id="volumeSlider" class="humidity">
+                                            <input />
+                                            <input />
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="volumeHelpDiv" style="width: 95%; display:none">
+                            <table width="100%">
+                                <tr>
+                                    <td style="padding: 0px 0px 0px 10px;">
+                                        <label>
+                                            <b>Evidence volume</b><br />
+                                            &nbsp;&nbsp;&nbsp;1:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Critically low<br />
+                                            &nbsp;&nbsp;&nbsp;2:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Low<br />
+                                            &nbsp;&nbsp;&nbsp;3:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Moderate<br />
+                                            &nbsp;&nbsp;&nbsp;4:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;High<br />
+                                            &nbsp;&nbsp;&nbsp;5:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Very high<br />
+                                        </label>
+                                    </td>
+                                </tr>
+                            </table>
+                            <br />
+                        </div>-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    </div>
+                </li>
+
+            </ul>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="main-panel">
+    <div class="content">
+
+        <!-- header area -->
+        <!--//<div class="panel-header bg-primary-gradient">-->
+        <div id="headerDiv" class="panel-header" style="background: linear-gradient(to left, #101D5E 0%, #3f3d78 100%);">
+            <div class="page-inner py-5">
+                <div class="row">
+                    <div class="col-8 col-md-7 px-1">
+                        <h2 class="text-white pb-2 fw-bold">@Model.WebDb.WebDBName</h2>
+                        <h3 class="text-white op-9 mb-2">@Model.WebDb.Subtitle</h5>
+                    </div>
+                    <div class="col-auto col-md-5 px-1 row mx-0">
+                        @if (@imgPath1 != "")
+                        {
+                            if (Model.WebDb.HeaderImage1Url == "")
+                            {
+                                <img src=@imgPath1 style="max-height: 60px; object-fit: cover;" class="pb-2 ml-auto" />
+                            }
+                            else if (Model.WebDb.HeaderImage1Url.ToLower().StartsWith("http://") || Model.WebDb.HeaderImage1Url.ToLower().StartsWith("https://"))
+                            {
+                                <a href="@(new HtmlString(Model.WebDb.HeaderImage1Url))" class="ml-auto" target="_blank" title="Header Image1">
+                                    <img src=@imgPath1 style="max-height: 60px; object-fit: cover;" class="pb-2 " />
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="@(new HtmlString("https://" + Model.WebDb.HeaderImage1Url))" class="ml-auto" target="_blank" title="Header Image1">
+                                    <img src=@imgPath1 style="max-height: 60px; object-fit: cover;" class="pb-2" />
+                                </a>
+                            }
+                        }
+                        @if (@imgPath2 != "")
+                        {
+                            if (Model.WebDb.HeaderImage2Url == "")
+                            {
+                                <img src=@imgPath2 style="max-height: 60px; object-fit: cover;" class="pb-2 ml-auto" />
+                            }
+                            else if (Model.WebDb.HeaderImage2Url.ToLower().StartsWith("http://") || Model.WebDb.HeaderImage2Url.ToLower().StartsWith("https://"))
+                            {
+                                <a href="@(new HtmlString(Model.WebDb.HeaderImage2Url))" class="ml-auto" target="_blank" title="Header Image2">
+                                    <img src=@imgPath2 style="max-height: 60px; object-fit: cover;" class="pb-2 " />
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="@(new HtmlString("https://" + Model.WebDb.HeaderImage2Url))" class="ml-auto" target="_blank" title="Header Image2">
+                                    <img src=@imgPath2 style="max-height: 60px; object-fit: cover;" class="pb-2" />
+                                </a>
+                            }
+                        }
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Everything below header -->
+        <div class="page-inner px-2 mt--5">
+            <div class="row mx-0 mt--2">
+                <div class="col-12">
+
+                    <!-- Description card -->
+                    <div class="card mb-2">
+                        <div class="card-header">
+                            <table width="100%">
+                                <tr>
+                                    <td>
+                                        <div class="card-title">Introduction</div>
+                                    </td>
+                                    <td style="text-align:right;padding-top:5px">
+                                        <div id="ExpandDescription" class="btn btn-primary btn-sm btn-round"
+                                             onclick="ToggleDescrPanelSize()">
+                                            <div class="flaticon-down-arrow-1">
+                                                &nbsp;&nbsp;View more&nbsp;
+                                            </div>
+                                        </div>
+                                        <div id="ReduceDescription" class="btn btn-primary btn-sm btn-round"
+                                             onclick="ToggleDescrPanelSize()">
+                                            <div class="flaticon-up-arrow-1">
+                                                &nbsp;&nbsp;View less&nbsp;
+                                            </div>
+                                        </div>
+                                        <div id="ShowHideDescriptionDivButton" class="btn btn-primary btn-sm"
+                                             onclick="HideShowDescriptionDiv()">
+                                            <div id="ShowHideDescriptionDivIcon" class="fa fa-minus">
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+
+                        </div>
+                        <div class="card-body" id="WebDBDescriptionBody" tooltip="">
+                            <div class="card-category" id="WebDBDescription" style="overflow-y:auto;">
+                                @(new HtmlString(Model.WebDb.WebDBDescription))
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Large modal -->
+                    <!--<button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-lg">Large modal</button>-->
+
+                    <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header" id="modalHeader">
+                            <h4 class="modal-title" id="exampleModalLabel"><b>Seminar details</b></h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+                          <div class="modal-body" id="seminarDetailsDiv">
+                           
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                          </div>
+                        </div>
+                        </div>
+                    </div>
+
+
+                    <div id="loadingDiv" class="text-center font-weight-bold ">Loading...</div>
+                    <div id="visualsEppiSeminarDiv"></div>
+
+
+                </div>
+
+
+                <div class="col-auto col-lg">
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- EppiSeminar Home -->
+

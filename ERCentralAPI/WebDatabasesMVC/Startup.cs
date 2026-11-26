@@ -51,6 +51,11 @@ namespace WebDatabasesMVC
                 {
                     config.Cookie.Name = "WebDbErLoginCookieHbe";
                     config.LoginPath = "/Hbe/Login";
+                })
+                .AddCookie("EppiSeminarAuthentication", config =>
+                {
+                    config.Cookie.Name = "WebDbErLoginCookieEppiSeminar";
+                    config.LoginPath = "/EppiSeminar/Login";
                 });
             //Rate Limiting: first, get the values we want from Configuration
             var RateLimitingSettings = Configuration.GetSection("RateLimiting")?.GetChildren();
