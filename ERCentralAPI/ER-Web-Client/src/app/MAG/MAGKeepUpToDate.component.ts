@@ -301,7 +301,7 @@ export class MAGKeepUpToDate implements OnInit {
             this.MAGRelatedRunsService.currentlyApplyingModelToThisRunId = this.CurrentMagAutoUpdateRun.magAutoUpdateRunId;
           
           this._classifierService.Apply("[Apply to OpenAlex Auto Update]", // will need to set mlModelname
-            -1, this.SelectedClassifierContactModel.modelId, this.CurrentMagAutoUpdateRun.magAutoUpdateRunId, "").then(async res => {
+            -1, this.SelectedClassifierContactModel.modelId, this.CurrentMagAutoUpdateRun.magAutoUpdateRunId, this.SelectedClassifierContactModel.mlModelName).then(async res => {
                 if (res) {
                     this.NotificationService.show({
                         content: 'Model is being applied, should be ready within 15m (will check every 30s).',

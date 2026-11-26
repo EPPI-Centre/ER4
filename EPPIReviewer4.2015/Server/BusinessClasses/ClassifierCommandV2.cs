@@ -45,7 +45,7 @@ namespace BusinessLibrary.BusinessClasses
         public ClassifierCommandV2() { }
         // variables for training the classifier
         private string _title = "";
-        private string _mlModelName = "oldLogReg";
+        private string _mlModelName = "";
         private Int64 _attributeIdOn;
         private Int64 _attributeIdNotOn;
         private Int64 _attributeIdClassifyTo;
@@ -399,6 +399,10 @@ namespace BusinessLibrary.BusinessClasses
                         return;
                     }
                 }
+                else
+                {
+                    ModelReviewId = ReviewId;
+                }
                 //end of 27/09/2021 addition
 
                 NewJobId = CanRunCheckAndMarkAsStarting(ReviewId, ContactId, "Apply", ModelReviewId, "Apply model");
@@ -407,7 +411,7 @@ namespace BusinessLibrary.BusinessClasses
                     return;
                 }
                 // setting RemoteFileNames now that we know the right review id for the model
-                SetRemoteFileNames(ReviewId, ContactId, modelFolder, "DataForScoring.tsv");
+                SetRemoteFileNames(ModelReviewId, ContactId, modelFolder, "DataForScoring.tsv");
                 if (!OpenAlexAutoUpdate)
                 {
                     if (!QueryDbAndSaveTempFileWithoutLabels(ReviewId, NewJobId))
@@ -492,42 +496,48 @@ namespace BusinessLibrary.BusinessClasses
         private void SetRemoteFileNames(int ReviewId, int ContactId, string rootFolder, string DataFileName)
         {
             BatchGuid = Guid.NewGuid().ToString();
-            if (rootFolder == "user_models/" && _mlModelName == "oldLogReg") //original system
+            if (rootFolder == "user_models/")
             {
                 RemoteFolder = rootFolder + DataFactoryHelper.NameBase + "ReviewId" + ReviewId.ToString() + "ModelId" + _classifierId + "/";
                 string RemoteModelFolder = rootFolder + DataFactoryHelper.NameBase + "ReviewId" + ModelReviewId.ToString() + "ModelId" + _classifierId + "/";
-                DataFile = RemoteFolder + DataFileName;
-                VecFile = RemoteModelFolder + "Vectors.pkl";
-                ClfFile = RemoteModelFolder + "Clf.pkl";
-                ScoresFile = RemoteFolder + "ScoresFile.tsv";
-            }
-            else if (rootFolder == "user_models/") //must be the new decision model
-            {
-                RemoteFolder = rootFolder + DataFactoryHelper.NameBase + "ReviewId" + ReviewId.ToString() + "ModelId" + _classifierId + "/";
-                string RemoteModelFolder = rootFolder + DataFactoryHelper.NameBase + "ReviewId" + ModelReviewId.ToString() + "ModelId" + _classifierId + "/";
-
-                if (RunType == "ApplyClassifier")
-                {
-                    PromptsFile = RemoteFolder + "output/prompt.json";
-                    DataFile = RemoteFolder + ContactId.ToString() + "_" + BatchGuid + "/" + "input/" + DataFileName;
-                    VecFile = "";
-                    ClfFile = "";
-                    ScoresFile = RemoteFolder + ContactId.ToString() + "_" + BatchGuid + "/output/"; // actually wants a folder
-                }
-                else
-                {   // building a model
-                    if (_prompts != "")
+                if (_mlModelName == "oldLogReg") //original system
+                {   // scoring a logreg model
+                    if (RunType == "ApplyClassifier")
                     {
-                        PromptsFile = RemoteFolder + "input/prompts.txt";
+                        DataFile = RemoteFolder + ContactId.ToString() + "_" + BatchGuid + "/" + DataFileName;
+                        VecFile = RemoteModelFolder + "Vectors.pkl";
+                        ClfFile = RemoteModelFolder + "Clf.pkl";
+                        ScoresFile = RemoteFolder + ContactId.ToString() + "_" + BatchGuid + "/" + "ScoresFile.tsv";
                     }
                     else
-                    {
-                        PromptsFile = ""; // probably unnecessary
+                    {   // building a logreg model
+                        DataFile = RemoteFolder + DataFileName;
+                        VecFile = RemoteModelFolder + "Vectors.pkl";
+                        ClfFile = RemoteModelFolder + "Clf.pkl";
+                        ScoresFile = RemoteFolder + "ScoresFile.tsv";
                     }
-                    DataFile = RemoteFolder + "input/" + DataFileName;
-                    VecFile = RemoteModelFolder + "output/Vectors.pkl";
-                    ClfFile = RemoteModelFolder + "output/Clf.pkl";
-                    ScoresFile = RemoteFolder + "output/ScoresFile.tsv";
+                }
+                else // decision model
+                {   // scoring a decision model
+                    if (RunType == "ApplyClassifier")
+                    {
+                        PromptsFile = RemoteFolder + "output/prompt.json";
+                        DataFile = RemoteFolder + ContactId.ToString() + "_" + BatchGuid + "/" + "input/" + DataFileName;
+                        VecFile = "";
+                        ClfFile = "";
+                        ScoresFile = RemoteFolder + ContactId.ToString() + "_" + BatchGuid + "/output/"; // actually wants a folder not a file, as there are multiple output files. This folder MUST be empty or it complains
+                    }
+                    else
+                    {   // building a decision model
+                        if (_prompts != "")
+                        {
+                            PromptsFile = RemoteFolder + "input/prompts.txt";
+                        }
+                        DataFile = RemoteFolder + "input/" + DataFileName;
+                        VecFile = RemoteModelFolder + "output/Vectors.pkl";
+                        ClfFile = RemoteModelFolder + "output/Clf.pkl";
+                        ScoresFile = RemoteFolder + "output/ScoresFile.tsv";
+                    }
                 }
             }
             else if (rootFolder == "priority_screening_simulation/")
@@ -827,7 +837,16 @@ namespace BusinessLibrary.BusinessClasses
                 using (System.IO.StreamWriter file = new System.IO.StreamWriter(LocalFileName, false))
                 {
                     //file.WriteLine("\"ITEM_ID\",\"LABEL\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\",\"REVIEW_ID\"");
-                    file.WriteLine("PaperId\tPaperTitle\tAbstract\tIncl");
+                    string LabelSt = "99";
+                    if (RunType == "ApplyClassifier" && _mlModelName != "oldLogReg" && _classifierId > 0)
+                    {
+                        file.WriteLine("PaperId\tPaperTitle\tAbstract");
+                        LabelSt = "";
+                    }
+                    else
+                    {
+                        file.WriteLine("PaperId\tPaperTitle\tAbstract\tIncl");
+                    }
                     int count = 0;
                     int batchSize = 100;//max number of terms in a query is 100. Max page size is 200, but we're restricted by max N of Ids we can ask for
                     bool isFirstPaper = true;
@@ -849,6 +868,8 @@ namespace BusinessLibrary.BusinessClasses
                         //"resp" can be null, if the communication failed, would trigger an exception logged via the catch
                         foreach (MagMakesHelpers.OaPaper pm in resp.results)
                         {
+                            
+
                             if (isFirstPaper)
                             {
                                 isFirstPaper = false;
@@ -856,7 +877,7 @@ namespace BusinessLibrary.BusinessClasses
                                 {//we spoof the first paper if and only if both title and abstract are empty, otherwise the file can't be parsed by the ML side 
                                     file.WriteLine(pm.id.Replace("https://openalex.org/W", "") + "\t" +
                                             "and" + "\t" + //"and" is a stopword, so equivalent to the empty field
-                                            "and" + "\t" +
+                                            "and" + LabelSt == "" ? "" : "\t" +
                                             "99");
                                     continue;
                                 }
@@ -864,7 +885,7 @@ namespace BusinessLibrary.BusinessClasses
                             WriteDataLineInFileToUpload(pm.id.Replace("https://openalex.org/W", "")
                                 , MagMakesHelpers.CleanText(pm.title)
                                 , MagMakesHelpers.CleanText(MagMakesHelpers.ReconstructInvertedAbstract(pm.abstract_inverted_index))
-                                , "99", file);
+                                , LabelSt == "" ? "" : "99", file);
 
                             //file.WriteLine(pm.id.Replace("https://openalex.org/W", "") + "\t" +
                             //                MagMakesHelpers.CleanText(pm.title) + "\t" +
@@ -1084,7 +1105,7 @@ namespace BusinessLibrary.BusinessClasses
                 };
                 return parameters;
             }
-            else if (jobType == "ApplyClassifier" && _mlModelName != "oldLogReg")
+            else if (jobType == "ApplyClassifier" && _mlModelName != "oldLogReg" && _classifierId > 0) // H2O decision model
             {
                 Dictionary<string, object> parameters = new Dictionary<string, object>
                 {
@@ -1101,7 +1122,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             else
             {
-                Dictionary<string, object> parameters = new Dictionary<string, object>
+                Dictionary<string, object> parameters = new Dictionary<string, object> // most classifiers
                 {
                     {"DataFile", DataFile },
                     {"ScoresFile", ScoresFile },
@@ -1367,7 +1388,7 @@ namespace BusinessLibrary.BusinessClasses
         private DataTable LoadResultsIntoDatatable(int ReviewId)
         {
             MemoryStream ms;
-            if (RunType == "ApplyClassifier" && _mlModelName != "oldLogReg")
+            if (RunType == "ApplyClassifier" && _mlModelName != "oldLogReg" && _classifierId > 0)
             {
                 ms = BlobOperations.DownloadBlobAsMemoryStream(blobConnection, "eppi-reviewer-data", ScoresFile + "predictions.csv");
             }
@@ -1554,6 +1575,8 @@ namespace BusinessLibrary.BusinessClasses
             if (RemoteFolder != "") resumeInfo.Add(new KeyValuePair<string, object>("RemoteFolder", RemoteFolder));
             if (OpenAlexAutoUpdate == true) resumeInfo.Add(new KeyValuePair<string, object>("OpenAlexAutoUpdate", OpenAlexAutoUpdate));
             if (buildingNewModel == true) resumeInfo.Add(new KeyValuePair<string, object>("buildingNewModel", buildingNewModel));
+            if (_mlModelName != "") resumeInfo.Add(new KeyValuePair<string, object>("_mlModelName", _mlModelName));
+            if (_prompts != "") resumeInfo.Add(new KeyValuePair<string, object>("_prompts", _prompts));
             return resumeInfo;
         }
 
@@ -1818,6 +1841,12 @@ namespace BusinessLibrary.BusinessClasses
                     case "buildingNewModel":
                         buildingNewModel = kvp.Value.ToString() == "True" ? true : false;
                         break;
+                    case "_mlModelName":
+                        _mlModelName = kvp.Value.ToString();
+                        break;
+                    case "_prompts":
+                        _prompts = kvp.Value.ToString();
+                        break;
                     default: break;
                 }
             }
@@ -1903,7 +1932,7 @@ public class SVMModel2
 }
 
 
-
+// results from Sam's decision model build
 public class metricsJson
 {
     public Contract contract { get; set; }
