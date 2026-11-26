@@ -187,41 +187,42 @@
 
 
     function getItemDetails(ItemIndexValue, seminarCompleteData, meetingLinkData, recordingLinkData) {
-        //a) full title (title field) 
-        //b) date (year field) 
-        //c) Session information (abstract field), 
-        //d) Speaker (author field) and 
-        //e) Recording link (URL field).
 
-        //var titleElement = document.getElementById("exampleModalLabel");
-        //titleElement.innerhtml = documentData.items.items[ItemIndex].title;
-
-
-        //var title = documentData.items.items[ItemIndex].title; 
         var element = document.getElementById("seminarDetailsDiv");
-        detailsHTML = "<p>";
-        detailsHTML += "<p><b>" + documentData.items.items[ItemIndexValue].title + "</b></p>";
-        detailsHTML += "<p><b>Presenters: </b>" + documentData.items.items[ItemIndexValue].authors + "</p>";
-        detailsHTML += "<p><b>Date of seminar: </b>" + documentData.items.items[ItemIndexValue].comments + "</p>";
-        detailsHTML += "<p><b>Session details</b><br>" + documentData.items.items[ItemIndexValue].abstract + "</p>";
-        detailsHTML += "</p>";
-        detailsHTML += "<p>";
-        if (seminarCompleteData == 0) {
-            if ((meetingLinkData == "undefined") || (meetingLinkData == "")) {
-                detailsHTML += "Meeting details not available";
-            }
-            else {
-                detailsHTML += "<a href='" + meetingLinkData + "' target='_blank'>Meeting link</a>";
-            }
-        }
-        else {
+        var abstract = documentData.items.items[ItemIndexValue].abstract;
+        const SeminarIndex = abstract.indexOf("seminar:");
+        const SpeakerIndex = abstract.indexOf("About the speaker(s):");
+
+        var seminarText = (abstract.slice(SeminarIndex + 9, SpeakerIndex)).trim();
+        var speakerText = (abstract.slice(SpeakerIndex + 22)).trim();
+        seminarText = seminarText.replace(/\r\n|\r|\n/g, "<br>");
+        speakerText = speakerText.replace(/\r\n|\r|\n/g, "<br>");
+
+        detailsHTML = "";
+        if (seminarCompleteData == 1) {
             if ((recordingLinkData == "undefined") || (recordingLinkData == "")) {
                 detailsHTML += "Recording not availaable";
             }
             else {
-                detailsHTML += "<a href='" + recordingLinkData + "' target='_blank'>Recording link</a>";
+                detailsHTML += "<a href='" + recordingLinkData + "><button type='button' class='btn btn-sm btn-secondary btn-round' target='_blank'>Watch</a></button>";
             }
+        }
+        detailsHTML += "<p>";
+        detailsHTML += "<p><h4><b>" + documentData.items.items[ItemIndexValue].title + "</b></h4></p>";
+        detailsHTML += "<p><b>Presenters: </b>" + documentData.items.items[ItemIndexValue].authors + "</p>";
+        detailsHTML += "<p><b>Date of seminar: </b>" + documentData.items.items[ItemIndexValue].comments + "</p>";     
+        detailsHTML += "<p><b>About the seminar</b><br>";
+        detailsHTML += seminarText  + "</p>";
+        detailsHTML += "<p><b>About the speaker(s)</b><br>";
+        detailsHTML += speakerText  + "</p>";
 
+        if (seminarCompleteData == 1) {
+            if ((recordingLinkData == "undefined") || (recordingLinkData == "")) {
+                detailsHTML += "Recording not availaable";
+            }
+            else {
+                detailsHTML += "<a href='" + recordingLinkData + "><button type='button' class='btn btn-sm btn-secondary btn-round' target='_blank'>Watch</a></button>";
+            }
         }
         //detailsHTML += "<button onclick='location.href='" + recordingLinkData + "' target='_blank'>Recording link</button>";
         detailsHTML += "<p>";
@@ -1090,10 +1091,10 @@
                             visualHTML += "<b>" + studyTitle + "</b><br>";
                             visualHTML += year + "<br>";
                             visualHTML += studyAuthors + "<br>";
-                            visualHTML += "<button type='button' class='btn btn-primary' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>Details</button>";
+                            visualHTML += "<button type='button' class='btn btn-sm btn-primary btn-round' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>Details</button>";
                             if ((recordingLink != "") || (recordingLink != "undefined")) {
                                 visualHTML += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp"
-                                visualHTML += "<a href='" + recordingLink + "><button type='button' class='btn btn-primary' target='_blank'>Watch</a></button>";
+                                visualHTML += "<a href='" + recordingLink + "><button type='button' class='btn btn-sm btn-secondary btn-round' target='_blank'>Watch</a></button>";
                             }
                             visualHTML += "</td>";
                             visualHTML += "</tr>";
@@ -1124,7 +1125,11 @@
                             visualHTML += "<b>" + studyTitle + "</b><br>";
                             visualHTML += year + "<br>";
                             visualHTML += studyAuthors + "<br>";
-                            visualHTML += "<button type='button' class='btn-sm btn-primary' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>Details</button>";
+                            visualHTML += "<button type='button' class='btn btn-sm btn-primary btn-round' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>Details</button>";
+                            if ((recordingLink != "") || (recordingLink != "undefined")) {
+                                visualHTML += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp"
+                                visualHTML += "<a href='" + recordingLink + "><button type='button' class='btn btn-sm btn-secondary btn-round' target='_blank'>Watch</a></button>";
+                            }
                             visualHTML += "</td>";
                             visualHTML += "</tr>";
 
@@ -1154,7 +1159,11 @@
                             visualHTML += "<b>" + studyTitle + "</b><br>";
                             visualHTML += year + "<br>";
                             visualHTML += studyAuthors + "<br>";
-                            visualHTML += "<button type='button' class='btn-sm btn-primary' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>Details</button>";
+                            visualHTML += "<button type='button' class='btn btn-sm btn-primary btn-round' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>Details</button>";
+                            if ((recordingLink != "") || (recordingLink != "undefined")) {
+                                visualHTML += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp"
+                                visualHTML += "<a href='" + recordingLink + "><button type='button' class='btn btn-sm btn-secondary btn-round' target='_blank'>Watch</a></button>";
+                            }
                             visualHTML += "</td>";
                             visualHTML += "</tr>";
 
@@ -1184,7 +1193,11 @@
                             visualHTML += "<b>" + studyTitle + "</b><br>";
                             visualHTML += year + "<br>";
                             visualHTML += studyAuthors + "<br>";
-                            visualHTML += "<button type='button' class='btn-sm btn-primary' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>Details</button>";
+                            visualHTML += "<button type='button' class='btn btn-sm btn-primary btn-round' onclick='getItemDetails(\"" + i + "\",\"" + seminarComplete + "\",\"" + meetingLink + "\",\"" + recordingLink + "\")' data-toggle='modal' data-target='.bd-example-modal-lg'>Details</button>";
+                            if ((recordingLink != "") || (recordingLink != "undefined")) {
+                                visualHTML += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp"
+                                visualHTML += "<a href='" + recordingLink + "><button type='button' class='btn btn-sm btn-secondary btn-round' target='_blank'>Watch</a></button>";
+                            }
                             visualHTML += "</td>";
                             visualHTML += "</tr>";
 
@@ -1741,7 +1754,7 @@
 
         <!-- header area -->
         <!--//<div class="panel-header bg-primary-gradient">-->
-        <div id="headerDiv" class="panel-header" style="background: linear-gradient(to left, #0066cc 0%, #3399ff 100%);">
+        <div id="headerDiv" class="panel-header" style="background: linear-gradient(to left, #101D5E 0%, #3f3d78 100%);">
             <div class="page-inner py-5">
                 <div class="row">
                     <div class="col-8 col-md-7 px-1">
@@ -1844,7 +1857,7 @@
                         <div class="modal-dialog modal-lg">
                         <div class="modal-content">
                             <div class="modal-header" id="modalHeader">
-                            <h5 class="modal-title" id="exampleModalLabel">Seminar details</h5>
+                            <h4 class="modal-title" id="exampleModalLabel"><b>Seminar details</b></h4>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                               <span aria-hidden="true">&times;</span>
                             </button>
