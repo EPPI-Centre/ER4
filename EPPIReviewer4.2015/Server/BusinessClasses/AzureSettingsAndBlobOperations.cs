@@ -244,6 +244,7 @@ namespace BusinessLibrary.BusinessClasses
         public static string apiKeyVectorise { get { return ClassifierSettings["apiKeyVectorise"]; } }
         public static string BaseUrlSimulation5 { get { return ClassifierSettings["BaseUrlSimulation5"]; } }
         public static string apiKeySimulation5 { get { return ClassifierSettings["apiKeySimulation5"]; } }
+        public static string productionBlobContainer { get { return ClassifierSettings["productionBlobContainer"]; } }
 
         //robots:
         public static string RobotReviewerEndpoint { get { return RobotSettings["RobotReviewerEndpoint"]; } }

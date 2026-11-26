@@ -1,14 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
 using BusinessLibrary.BusinessClasses;
 using BusinessLibrary.Security;
 using Csla;
+using EPPIDataServices.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Linq;
+using static ERxWebClient2.Controllers.ClassifierController;
 
 namespace ERxWebClient2.Controllers
 {
@@ -253,6 +255,47 @@ namespace ERxWebClient2.Controllers
                 _logger.LogError(e, "Error in GetSingleItem: {0}", ItemIDCrit.Value);
                 return StatusCode(500, e.Message);
             }
+        }
+
+        [EnableRateLimiting("MaxCostEndpoints")]
+        [HttpPost("[action]")]
+        public IActionResult GetPdfs([FromBody] long[] ItemIds)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    ClassifierCommandV2 cmd = new ClassifierCommandV2(
+                            "GetPdfs~~"
+                            , -1
+                            , -1
+                            , -1
+                            , -1
+                            , -1
+                            , ""
+                        );
+                    cmd.ItemIds = string.Join(",", ItemIds);
+                    //cmd.RevInfo = MVCcmd.revInfo.ToCSLAReviewInfo();
+
+                    DataPortal<ClassifierCommandV2> dp = new DataPortal<ClassifierCommandV2>();
+
+                    cmd = dp.Execute(cmd);
+
+                    return Ok(cmd);
+
+                }
+                else
+                {
+                    return Forbid();
+                }
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "A ClassifierCommand issue");
+                return StatusCode(500, e.Message);
+            }
+
         }
     }
 	

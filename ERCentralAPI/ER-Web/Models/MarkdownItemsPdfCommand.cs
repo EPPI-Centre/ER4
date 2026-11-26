@@ -3,18 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Csla;
-using Csla.Security;
-using Csla.Core;
-using Csla.Serialization;
-using Csla.Silverlight;
-//using Csla.Validation;
-using System.ComponentModel;
-using Csla.DataPortalClient;
-using System.Threading;
-using System.Security.Cryptography;
 using Csla.Data;
 using System.Data;
-using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 
 
 

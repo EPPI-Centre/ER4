@@ -9,13 +9,14 @@ import { ItemCodingService, ItemAttPDFCodingCrit, ItemSet } from '../services/It
 import { ItemDocsService } from '../services/itemdocs.service';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
+import { KENDO_POPOVER } from '@progress/kendo-angular-tooltip';
 import { OutcomesService } from '../services/outcomes.service';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { Subscription } from 'rxjs';
 import { TreeItem } from '@progress/kendo-angular-treeview';
 
 @Component({
-    selector: 'codesetTreeCoding',
+  selector: 'codesetTreeCoding',
     styles: [`.bt-infoBox {    
                     padding: .08rem .12rem .12rem .12rem;
                     margin-bottom: .12rem;

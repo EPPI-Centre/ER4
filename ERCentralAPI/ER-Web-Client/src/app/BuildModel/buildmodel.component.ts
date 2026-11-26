@@ -12,6 +12,7 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 import { StringKeyValue } from '../services/ItemList.service';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { KENDO_DIALOGS } from "@progress/kendo-angular-dialog";
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 
 @Component({
@@ -32,7 +33,14 @@ export class BuildModelComponent implements OnInit, OnDestroy {
     private _confirmationDialogService: ConfirmationDialogService,
     private _ReviewerIdentityServ: ReviewerIdentityService,
     private _notificationService: NotificationService,
-    private _reviewInfoService: ReviewInfoService
+    private _reviewInfoService: ReviewInfoService,
+    private sanitizer: DomSanitizer,
+    private confirmationDialogService: ConfirmationDialogService,
+    private classifierService: ClassifierService,
+    private _reviewerIdentityServ: ReviewerIdentityService,
+    private notificationService: NotificationService,
+
+
   ) { }
 
   ngOnInit() {
@@ -58,6 +66,11 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 
   public selectedAttribute1: SetAttribute | null = null;
   public selectedAttribute2: SetAttribute | null = null;
+
+  public CurrentModelNameEditing: boolean = false;
+  public modelN: string = '';
+  public modelId: string = 'N/A';
+  public popUpTitle: string = '';
 
   public get modelsList(): StringKeyValue[] {
     return this._classifierService.modelsList;
@@ -291,23 +304,99 @@ export class BuildModelComponent implements OnInit, OnDestroy {
   //   }
   // }
 
-  BuildModel2(title: any) {
-    if (this.DD1 != null && this.DD2 != null && this.DD3 != null && this.modelNameText != '') {
-      if (this.usePrompts) {
-        if (this.selectedAttribute1?.IsCodeWithLlmPrompt || this.selectedAttribute2?.IsCodeWithLlmPrompt){
-
-
-        }
-      }
-
-       {
-        return;
-        }
-      this._classifierService.BuildClassifierV2(title.model, this.DD1, this.DD2, this.DD3, this.selectedModel.key);
-    }
+  private getPrompt(prompt: string): string {
+    return prompt.match(/\/\/(.*)$/)?.[1].trim() ?? "";
   }
 
+  BuildModel2(title: any) {
+    if (this.selectedAttribute1 != null && this.selectedAttribute2 != null && this.modelNameText != '') {
+      let prompts = "";
+      if (this.usePrompts) {
+        if (this.selectedAttribute1?.IsCodeWithLlmPrompt && this.selectedAttribute2?.IsCodeWithLlmPrompt) {
+          prompts = this.getPrompt(this.selectedAttribute1.description) + "\n" + this.getPrompt(this.selectedAttribute2.description);
+        }
+        else {
+          // tell the user that they need to add prompts
+        }
+      }
+      this._classifierService.BuildClassifierV2(title.model, this.DD1, this.DD2, this.DD3, this.selectedModel.key, -1, prompts);
+    }
+  }
+  public openRebuildConfirmationDialog(model: ClassifierModel) {
+    this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to rebuild this model ?', false, '')
+      .then(
+        (confirmed: any) => {
+          //console.log('User confirmed:', confirmed);
+          if (confirmed) {
+            this.RebuildModel(model);
+          }
+          else {
+            //alert('pressed cancel close dialog');
+          };
+        }
+      )
+      .catch(() => { });
+  }
+  async RebuildModel(model: ClassifierModel) {
 
+    if (model.modelId > 0) {
+      if (model.attributeIdOn !== undefined && model.attributeIdNotOn !== undefined) {
+        await this.classifierService.CreateAsync(model.modelTitle, model.attributeIdOn, model.attributeIdNotOn, model.modelId);
+      }
+    }
+
+  }
+  ModelNameEdit(modelId: string, modelTitle: string) {
+    // I am using the same popup as the search edit so the variable names are 'search related' //
+    this.CurrentModelNameEditing = true;
+    this.modelN = modelTitle;
+    this.modelId = modelId;
+    this.popUpTitle = "Edit model name (model ID: " + modelId + ")";
+    window.scrollTo(0, 0);
+  }
+  CanEditModelName() {
+    if (this.CanWriteName() && this.modelN.trim() != '') {
+      return true;
+    } else return false;
+  }
+  SaveModelName() {
+    if (this.modelN.trim().length > 0) {
+      this.classifierService.UpdateModelName(this.modelN.trim(), this.modelId);
+
+      this.CurrentModelNameEditing = false;
+      this.showNameUpdatedNotification();
+    }
+  }
+  private showNameUpdatedNotification(): void {
+    let contentSt: string = "Name / Title updated";
+    this.notificationService.show({
+      content: contentSt,
+      animation: { type: 'slide', duration: 400 },
+      position: { horizontal: 'center', vertical: 'top' },
+      type: { style: "success", icon: true },
+      closable: true
+    });
+  }
+  CanWriteName(): boolean {
+    if (!this._reviewerIdentityServ.HasWriteRights) {
+      //one more check: is the user in the first screen?
+      if (this._reviewerIdentityServ.reviewerIdentity.reviewId == 0
+        && this._reviewerIdentityServ.reviewerIdentity.ticket === ""
+        && this._reviewerIdentityServ.reviewerIdentity.token
+        && this._reviewerIdentityServ.reviewerIdentity.token.length > 100
+        && this._reviewerIdentityServ.reviewerIdentity.roles
+        && this._reviewerIdentityServ.reviewerIdentity.roles.length > 0
+        && this._reviewerIdentityServ.reviewerIdentity.roles.indexOf('ReadOnlyUser') == -1
+        && this._reviewerIdentityServ.reviewerIdentity.daysLeftAccount >= 0
+      )
+        return true;
+      else return false;
+    }
+    else return true;
+  }
+  CancelEditModelName() {
+    this.CurrentModelNameEditing = false;
+  }
   ngAfterViewInit() {
 
   }
@@ -324,11 +413,12 @@ export class BuildModelComponent implements OnInit, OnDestroy {
   }
 
   public statisticsWindowOpen = false;
-public statisticsHtml = '';
+  public statisticsHtml: SafeHtml = '';
 
-openStatistics(model: ClassifierModel) {
-  this.statisticsHtml = '<!doctype html><html><body>Hello world!</body></html>';
-  this.statisticsWindowOpen = true;
+  openStatistics(model: ClassifierModel) {
+    this.statisticsHtml =
+      this.sanitizer.bypassSecurityTrustHtml(model.modelPerformance);
+    this.statisticsWindowOpen = true;
 }
 
 closeStatisticsWindow() {

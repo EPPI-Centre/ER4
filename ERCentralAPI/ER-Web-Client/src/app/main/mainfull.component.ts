@@ -1371,6 +1371,19 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     this.router.navigate(['JobsRecord']);
   }
 
+  CheckRunGetPdfs() {
+    if (this.ItemListService.SelectedItems != null &&
+      this.ItemListService.SelectedItems.length > 0) {
+      this.ConfirmationDialogService.confirm("Bulk fetch PDF files?",
+        "Are you sure you want to fetch the PDF files for " + this.ItemListService.SelectedItems.length + " item/s? This can take a little while to start up.", false, '')
+        .then((confirm: any) => {
+          if (confirm) {
+            this.ItemListService.GetPdfs(this.ItemListService.SelectedItems);
+          }
+        });
+    }
+  }
+
   ngOnDestroy() {
     this.Clear();
     console.log("destroy MainFull..");

@@ -11,6 +11,14 @@ using Microsoft.Azure.Management.DataFactory;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Rest;
 using System.Data;
+using System.Reflection.Metadata.Ecma335;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
+using Newtonsoft.Json;
+using Microsoft.Azure.Management.DataLake.Analytics.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
+
+
 
 
 
@@ -42,6 +50,7 @@ namespace BusinessLibrary.BusinessClasses
         private Int64 _attributeIdNotOn;
         private Int64 _attributeIdClassifyTo;
         private int _sourceId;
+        private string _prompts;
 
         // variables for applying the classifier
         private int _classifierId = -1;
@@ -49,10 +58,9 @@ namespace BusinessLibrary.BusinessClasses
         private string _returnMessage = "";
 
         public ClassifierCommandV2(string title, Int64 attributeIdOn, Int64 attributeIdNotOn,
-            Int64 attributeIdClassifyTo, int classiferId, int sourceId, string mlModelName = "oldLogReg")
+            Int64 attributeIdClassifyTo, int classiferId, int sourceId, string mlModelName, string prompts = "")
         {
             _title = title;
-            _mlModelName = mlModelName;
             _attributeIdOn = attributeIdOn;
             _attributeIdNotOn = attributeIdNotOn;
             _returnMessage = "Success";
@@ -60,6 +68,7 @@ namespace BusinessLibrary.BusinessClasses
             _attributeIdClassifyTo = attributeIdClassifyTo;
             _sourceId = sourceId;
             _mlModelName = mlModelName;
+            _prompts = prompts;
         }
 
         public string ReturnMessage
@@ -83,18 +92,25 @@ namespace BusinessLibrary.BusinessClasses
             get { return ReadProperty(ReportBackProperty); }
             set { LoadProperty(ReportBackProperty, value); }
         }
+        public static readonly PropertyInfo<string> ItemIdsProperty = RegisterProperty<string>(new PropertyInfo<string>("ItemIds", "ItemIds"));
+        public string ItemIds
+        {
+            get { return ReadProperty(ItemIdsProperty); }
+            set { LoadProperty(ItemIdsProperty, value); }
+        }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
             base.OnGetState(info, mode);
             info.AddValue("_title", _title);
-            info.AddValue("_mlModelName", _mlModelName); 
+            info.AddValue("_mlModelName", _mlModelName);
             info.AddValue("_attributeIdOn", _attributeIdOn);
             info.AddValue("_attributeIdNotOn", _attributeIdNotOn);
             info.AddValue("_returnMessage", _returnMessage);
             info.AddValue("_classifierId", _classifierId);
             info.AddValue("_attributeIdClassifyTo", _attributeIdClassifyTo);
             info.AddValue("_sourceId", _sourceId); // can also be an autoupdate Run ID if this is applying classifiers to an OpenAlex autoupdate
+            info.AddValue("_prompts", _prompts);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
@@ -106,6 +122,7 @@ namespace BusinessLibrary.BusinessClasses
             _classifierId = info.GetValue<int>("_classifierId");
             _attributeIdClassifyTo = info.GetValue<Int64>("_attributeIdClassifyTo");
             _sourceId = info.GetValue<int>("_sourceId");
+            _prompts = info.GetValue<string>("_prompts");
         }
 
 
@@ -118,6 +135,7 @@ namespace BusinessLibrary.BusinessClasses
         // Filenames and full paths for remote blob storage
         string DataFile = "";
         string ScoresFile = "";
+        string PromptsFile = "";
         string VecFile = "";
         string ClfFile = "";
         string LocalFileName = ""; // local temp file for uploading data
@@ -127,6 +145,7 @@ namespace BusinessLibrary.BusinessClasses
         string BatchGuid = "";
         bool OpenAlexAutoUpdate = false;
         bool buildingNewModel = false;
+        private readonly List<KeyValuePair<long, string>> ItemIdsAndDois = new List<KeyValuePair<long, string>>();
 
 
         protected override void DataPortal_Execute()
@@ -134,6 +153,16 @@ namespace BusinessLibrary.BusinessClasses
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             int ReviewId = ri.ReviewId;
             int ContactId = ri.UserId;
+
+            if (_title == "GetPdfs~~")
+            {
+                // not really doing any classification work, but using ADF for a long-running task
+                RunType = "get_pdfs";
+                SetLocalTempFilename(ReviewId, ContactId, "get_pdfs");
+                SetRemoteFileNames(ReviewId, ContactId, "get_pdfs/", "dois.tsv");
+                DoGetPdfs(ReviewId, ContactId);
+                return;
+            }
             if (_title.StartsWith("[Apply to OpenAlex Auto Update]"))
             {
                 OpenAlexAutoUpdate = true;
@@ -169,7 +198,7 @@ namespace BusinessLibrary.BusinessClasses
                 DoTrainClassifier(ReviewId, ContactId);
                 return;
             }
-            
+
             // if we're not setting attributes AND classifierId is positive, we're scoring using an existing user model
             if (_attributeIdOn + _attributeIdNotOn == -2 && _classifierId > 0)
             {
@@ -196,7 +225,7 @@ namespace BusinessLibrary.BusinessClasses
                 int NewJobId = 0;
                 List<Int64> ItemIds = new List<Int64>();
                 connection.Open();
-                
+
                 if (_classifierId == -1) // building a new classifier: we save a new model into the database
                 {
                     buildingNewModel = true;
@@ -241,17 +270,18 @@ namespace BusinessLibrary.BusinessClasses
                 // we have a modelid now, so will set the remote filenames
                 ModelReviewId = ReviewId; // when building a model, this is always the same as the current review
                 SetRemoteFileNames(ReviewId, ContactId, "user_models/", "DataForTraining.tsv");
+                if (!QueryDbAndSaveTempFileWithLabels(ReviewId, ContactId, NewJobId)) // there wasn't enough data
+                {
+                    UndoChangesToClassifierRecord(NewJobId, false);
+                    return;
+                }
 
                 // now save the temp file with labels for training
                 if (_mlModelName == "oldLogReg")
                 {
-                    if (!QueryDbAndSaveTempFileWithLabels(ReviewId, ContactId, NewJobId)) // there wasn't enough data
-                    {
-                        UndoChangesToClassifierRecord(NewJobId, false);
-                        return;
-                    }
+
                 }
-                else 
+                else
                 {
                     // Add here: putting options file / user prompts onto blob
 
@@ -384,8 +414,8 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         return;
                     } //if (OpenAlexAutoUpdate), we create/fill the local file inside FireAndForget, as it can take about 5s per 1000 works, so can easily take minutes.
-                } 
-                
+                }
+
                 Task.Run(() => FireAndForget(ReviewId, NewJobId, ContactId));
             }
         }
@@ -431,7 +461,7 @@ namespace BusinessLibrary.BusinessClasses
                     command2.Parameters.Add(new SqlParameter("@REVIEW_ID_OF_MODEL", SqlDbType.Int));
                     command2.Parameters["@REVIEW_ID_OF_MODEL"].Value = ReviewIdOfModel;
                     command2.Parameters.Add(new SqlParameter("@CONTACT_ID", ContactId));
-                    command2.Parameters.Add(new SqlParameter("@JobType", JobType)); //"Apply", "Build", "ChckS" (for "Check Screening") "PrioS" (for "priority screening simulation)
+                    command2.Parameters.Add(new SqlParameter("@JobType", JobType)); //"Apply", "Build", "get_pdfs", "ChckS" (for "Check Screening") "PrioS" (for "priority screening simulation)
                     command2.Parameters.Add(new SqlParameter("@TITLE", title));
                     command2.Parameters.Add(new SqlParameter("@NewJobId", 0));
                     command2.Parameters["@NewJobId"].Direction = System.Data.ParameterDirection.Output;
@@ -471,14 +501,34 @@ namespace BusinessLibrary.BusinessClasses
                 ClfFile = RemoteModelFolder + "Clf.pkl";
                 ScoresFile = RemoteFolder + "ScoresFile.tsv";
             }
-            else if (rootFolder == "user_models/") //must be one of the new ML models (lightgbm | rfc | xgboost | SVC)
+            else if (rootFolder == "user_models/") //must be the new decision model
             {
                 RemoteFolder = rootFolder + DataFactoryHelper.NameBase + "ReviewId" + ReviewId.ToString() + "ModelId" + _classifierId + "/";
                 string RemoteModelFolder = rootFolder + DataFactoryHelper.NameBase + "ReviewId" + ModelReviewId.ToString() + "ModelId" + _classifierId + "/";
-                DataFile = RemoteFolder + DataFileName;
-                VecFile = RemoteModelFolder + "Vectors.pkl";
-                ClfFile = RemoteModelFolder + "Clf.pkl";
-                ScoresFile = RemoteFolder + "ScoresFile.tsv";
+
+                if (RunType == "ApplyClassifier")
+                {
+                    PromptsFile = RemoteFolder + "output/prompt.json";
+                    DataFile = RemoteFolder + ContactId.ToString() + "_" + BatchGuid + "/" + "input/" + DataFileName;
+                    VecFile = "";
+                    ClfFile = "";
+                    ScoresFile = RemoteFolder + ContactId.ToString() + "_" + BatchGuid + "/output/"; // actually wants a folder
+                }
+                else
+                {   // building a model
+                    if (_prompts != "")
+                    {
+                        PromptsFile = RemoteFolder + "input/prompts.txt";
+                    }
+                    else
+                    {
+                        PromptsFile = ""; // probably unnecessary
+                    }
+                    DataFile = RemoteFolder + "input/" + DataFileName;
+                    VecFile = RemoteModelFolder + "output/Vectors.pkl";
+                    ClfFile = RemoteModelFolder + "output/Clf.pkl";
+                    ScoresFile = RemoteFolder + "output/ScoresFile.tsv";
+                }
             }
             else if (rootFolder == "priority_screening_simulation/")
             {
@@ -499,6 +549,12 @@ namespace BusinessLibrary.BusinessClasses
                 VecFile = RemoteFolder + "Vectors.pkl";
                 ClfFile = RemoteFolder + "Clf.pkl";
                 ScoresFile = RemoteFolder + "ScoresFile.tsv";
+            }
+            else if (rootFolder == "get_pdfs/")
+            {
+                RemoteFolder = rootFolder + DataFactoryHelper.NameBase + "ReviewId" + ReviewId.ToString() + "ContactId" + ContactId.ToString() + "_" + BatchGuid + "/";
+                DataFile = RemoteFolder + DataFileName;
+                ScoresFile = RemoteFolder; // this is just a folder, not a file, as the output is a set of PDFs
             }
         }
         private bool QueryDbAndSaveTempFileWithLabels(int ReviewId, int ContactId, int LogId, int MinPositiveClass = 7, int MinNegativeClass = 7, int MinSampleSize = 20)
@@ -541,7 +597,7 @@ namespace BusinessLibrary.BusinessClasses
                             }
                         }
                     }
-                    if (positiveClassCount < MinPositiveClass) 
+                    if (positiveClassCount < MinPositiveClass)
                     {
                         _returnMessage = "Insufficient Data (Positives count is " + positiveClassCount.ToString() + ").\r\nThis task requires at least "
                             + MinPositiveClass.ToString() + " positive items, "
@@ -550,7 +606,7 @@ namespace BusinessLibrary.BusinessClasses
                         DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed", _returnMessage, "ClassifierCommandV2", true, false);
                         return false;
                     }
-                    else if (negativeClasscount < MinNegativeClass) 
+                    else if (negativeClasscount < MinNegativeClass)
                     {
                         _returnMessage = "Insufficient Data (Negatives count is " + negativeClasscount.ToString() + ").\r\nThis task requires at least "
                             + MinPositiveClass.ToString() + " positive items, "
@@ -603,17 +659,25 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             using (System.IO.StreamWriter file = new System.IO.StreamWriter(LocalFileName, false))
                             {
-                                file.WriteLine("PaperId\tPaperTitle\tAbstract\tIncl");
                                 string LabelSt = "99";
+                                if (RunType == "ApplyClassifier" && _mlModelName != "oldLogReg")
+                                {
+                                    file.WriteLine("PaperId\tPaperTitle\tAbstract");
+                                    LabelSt = "";
+                                }
+                                else
+                                {
+                                    file.WriteLine("PaperId\tPaperTitle\tAbstract\tIncl");
+                                }
 
                                 while (reader.Read())
                                 {
                                     if (ItemIds.IndexOf(reader.GetInt64("ITEM_ID")) == -1)
                                     {
                                         ItemIds.Add(reader.GetInt64("ITEM_ID"));
-                                        WriteDataLineInFileToUpload(reader.GetInt64("ITEM_ID").ToString(), CleanText(reader, "title"), 
+                                        WriteDataLineInFileToUpload(reader.GetInt64("ITEM_ID").ToString(), CleanText(reader, "title"),
                                             CleanText(reader, "abstract"), LabelSt, file);
-                                       
+                                        
                                     }
                                 }
                             }
@@ -632,6 +696,68 @@ namespace BusinessLibrary.BusinessClasses
                 return false;
             }
             if (ItemIds.Count < 1)
+            {
+                _returnMessage = "Failed: no data to score";
+                try { File.Delete(LocalFileName); }
+                catch { }
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed", "No data to score", "ClassifierCommandV2", true, false);
+                return false;
+            }
+            if (AppIsShuttingDown)
+            {
+                _returnMessage = "Job cancelled: app is restarting";
+                try { File.Delete(LocalFileName); }
+                catch { }
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Cancelled after writing temp file", "", "ClassifierCommandV2", true, false);
+                return false;
+            }
+            return true;
+        }
+        private bool QueryDbAndSaveTempFileWithoutLabelsFromItemIds(int ReviewId, int LogId)
+        {
+            List<Int64> TallyItemIds = new List<Int64>();
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                {
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand("st_ErItemListFromIDs", connection))// also deletes data from the classification temp table
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@RevId", ReviewId));
+                        command.Parameters.Add(new SqlParameter("@Items", ItemIds));
+                        using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                        {
+                            using (System.IO.StreamWriter file = new System.IO.StreamWriter(LocalFileName, false))
+                            {
+                                //file.WriteLine("PaperId\tPaperTitle\tAbstract\tIncl");
+                                //string LabelSt = "99";
+
+                                while (reader.Read())
+                                {
+                                    Int64 currentItemId = reader.GetInt64("ITEM_ID");
+                                    if (TallyItemIds.IndexOf(currentItemId) == -1)
+                                    {
+                                        TallyItemIds.Add(currentItemId);
+                                        WriteDOILineInFileToUpload(reader.GetString("DOI").ToString(), currentItemId, file);
+                                    }
+                                }
+                            }
+                            command.Cancel();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _returnMessage = "Failed to get data to score";
+                try { File.Delete(LocalFileName); }
+                catch { }
+                DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Failed to get data to score", "", "ClassifierCommandV2", true, false);
+                DataFactoryHelper.LogExceptionToFile(ex, ReviewId, LogId, "ClassifierCommandV2");
+                return false;
+            }
+            if (TallyItemIds.Count < 1)
             {
                 _returnMessage = "Failed: no data to score";
                 try { File.Delete(LocalFileName); }
@@ -702,7 +828,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     //file.WriteLine("\"ITEM_ID\",\"LABEL\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\",\"REVIEW_ID\"");
                     file.WriteLine("PaperId\tPaperTitle\tAbstract\tIncl");
-                    int count = 0; 
+                    int count = 0;
                     int batchSize = 100;//max number of terms in a query is 100. Max page size is 200, but we're restricted by max N of Ids we can ask for
                     bool isFirstPaper = true;
                     while (count < Ids.Count)
@@ -784,8 +910,8 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
 
-            // everything uploads a temp file to blob
-            if (!UploadTempFileToBlob(ReviewId, LogId))
+            // everything uploads a temp file to blob. Also uploads the prompts file when present
+            if (!UploadTempFileOrFilesToBlob(ReviewId, LogId))
             {
                 if (RunType == "TrainClassifier")
                 {
@@ -860,11 +986,14 @@ namespace BusinessLibrary.BusinessClasses
                 case "ChckS":
                     DownloadApplyClassifierResults(LogId, ContactId, ReviewId);//will "cleanup" data uploaded                        
                     break;
+                case "get_pdfs":
+                    DownloadPdfFiles(LogId, ContactId, ReviewId);
+                    break;
                 default: // should never hit this
                     break;
             }
         }
-        private bool UploadTempFileToBlob(int ReviewId, int LogId)
+        private bool UploadTempFileOrFilesToBlob(int ReviewId, int LogId)
         {
             if (AppIsShuttingDown)
             {
@@ -878,6 +1007,12 @@ namespace BusinessLibrary.BusinessClasses
                 using (var fileStream = System.IO.File.OpenRead(LocalFileName))
                 {
                     BlobOperations.UploadStream(blobConnection, "eppi-reviewer-data", DataFile, fileStream);
+                }
+                // this is just for the decision model
+                if (PromptsFile != "" && _prompts != "")
+                {
+                    DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Uploading", "", "ClassifierCommandV2");
+                    BlobOperations.UploadString(blobConnection, "eppi-reviewer-data", PromptsFile, _prompts);
                 }
             }
             catch (Exception ex)
@@ -913,29 +1048,54 @@ namespace BusinessLibrary.BusinessClasses
         {
             if (jobType == "TrainClassifier" && _mlModelName != "oldLogReg")
             {//completely different parameters are used for the newer classifiers (25/07/2025)
-                string modelName = "N/A";
-                var mdl = ClassifierContactModel.MlModels[_mlModelName];
-                if (mdl == null)
-                {//something is wrong, we're trying to train for a model we did not recognise
-                    //code calling this method will detect the case where we return no params at all
-                    return new Dictionary<string, object>();
-                }
-                else
-                {
-                    modelName = mdl;
-                }
+                //string modelName = "N/A";
+                //var mdl = ClassifierContactModel.MlModels[_mlModelName];
+                //if (mdl == null)
+                //{//something is wrong, we're trying to train for a model we did not recognise
+                //    //code calling this method will detect the case where we return no params at all
+                //    return new Dictionary<string, object>();
+                //}
+                //else
+                //{
+                //    modelName = mdl;
+                //}
                 Dictionary<string, object> parameters = new Dictionary<string, object>
                 {
-                    { "labelled_data_path", DataFile.Replace(RemoteFolder, "")}
-                    ,{ "unlabelled_data_path", DataFile.Replace("DataForTraining.tsv", "DataForTrainingEvaluation.tsv").Replace(RemoteFolder, "")}
+                     { "csv_path", DataFile }
+                    ,{ "prompt_path", PromptsFile }
+                    ,{ "working_container_url", AzureSettings.productionBlobContainer }
+                    ,{ "output_container_path", RemoteFolder + "output/" }
+                    ,{ "title_header", "PaperTitle"  }
+                    ,{ "abstract_header", "Abstract" }
                     ,{ "label_header", "Incl" }
                     ,{ "positive_class_value", 1 }
+                };
+                return parameters;
+            }
+            else if (jobType == "get_pdfs")
+            {
+                var uri = new Uri(AzureSettings.productionBlobContainer);
+                string containerName = uri.AbsolutePath.Trim('/');
+                Dictionary<string, object> parameters = new Dictionary<string, object>
+                {
+                    {"inputUri", "azureml://datastores/" + containerName + "/" + DataFile },
+                    {"outputUri", "azureml://datastores/" + containerName + "/" + ScoresFile },
+                    {"useScopus", false }
+                };
+                return parameters;
+            }
+            else if (jobType == "ApplyClassifier" && _mlModelName != "oldLogReg")
+            {
+                Dictionary<string, object> parameters = new Dictionary<string, object>
+                {
+                     { "csv_path", DataFile }
+                    ,{ "prompt_path", PromptsFile }
+                    ,{ "working_container_url", AzureSettings.productionBlobContainer }
+                    ,{ "output_container_path", ScoresFile } // this is actually a folder, not a file
                     ,{ "title_header", "PaperTitle"  }
-                    ,{ "abstract_header", "Abstract" } 
-                    ,{ "model_name", modelName}
-                    ,{ "working_container_url", "https://eppimlprod.blob.core.windows.net/eppi-reviewer-data/" + RemoteFolder}
-                    ,{ "output_container_path", "Output"}
-                    , {"managed_identity_client_id", AzureSettings.dataFactoryManagedIdentity}
+                    ,{ "abstract_header", "Abstract" }
+                    ,{ "label_header", "Incl" }
+                    ,{ "positive_class_value", 1 }
                 };
                 return parameters;
             }
@@ -963,7 +1123,9 @@ namespace BusinessLibrary.BusinessClasses
                     case "ChckS":
                         parameters.Add("do_check_screening", true);
                         break;
-
+                    case "get_pdfs":
+                        parameters.Add("do_get_pdfs", true);
+                        break;
                 }
                 return parameters;
             }
@@ -992,7 +1154,7 @@ namespace BusinessLibrary.BusinessClasses
                 case -9:
                     return "do_pubmed_study_designs_b";
 
-                default: return "do_score_log_reg"; // i.e. a user custom model
+                default: return _mlModelName == "oldLogReg" ? "do_score_log_reg" : "do_score_h20"; // i.e. a user custom model
             }
         }
 
@@ -1004,7 +1166,20 @@ namespace BusinessLibrary.BusinessClasses
                 DataFactoryHelper DFH = new DataFactoryHelper();
                 AddResumeInfoToDFH(DFH);
                 string pipelineName = "EPPI-Reviewer_API";
-                if (RunType == "TrainClassifier" && _mlModelName != "oldLogReg") pipelineName = "Sam Find Model Pipeline";
+                if (RunType == "TrainClassifier" && _mlModelName != "oldLogReg")
+                {
+                    pipelineName = "Sam decision model screening learning";
+                }
+                else if (RunType == "ApplyClassifier" && _mlModelName == "H2O-4B-FT")
+                {
+                    pipelineName = "Sam decision model screening inference";
+                }
+
+                if (RunType == "get_pdfs")
+                {
+                    pipelineName = "fetch-everything-rest";
+
+                }
                 DFH.resumeInfo.Add(new KeyValuePair<string, object>("pipelineName", pipelineName));
                 DataFactoryRes = await DFH.RunDataFactoryProcessV2(pipelineName, parameters, ReviewId, LogId, "ClassifierCommandV2", this.CancelToken);
             }
@@ -1037,18 +1212,47 @@ namespace BusinessLibrary.BusinessClasses
                 double precision = 0;
                 double recall = 0;
                 double auc = 0;
-                MemoryStream ms = BlobOperations.DownloadBlobAsMemoryStream(blobConnection, "eppi-reviewer-data", RemoteFolder + "stats.tsv");
-                using (StreamReader tsvReader = new StreamReader(ms))
+                bool usedPrompts = false;
+                string modelPerformance = "";
+
+                if (_mlModelName == "oldLogReg")
                 {
-                    string line = tsvReader.ReadLine();//headers line!!
-                    line = tsvReader.ReadLine();//data line!!
-                    if (line != null)
+                    MemoryStream ms = BlobOperations.DownloadBlobAsMemoryStream(blobConnection, "eppi-reviewer-data", RemoteFolder + "stats.tsv");
+                    using (StreamReader tsvReader = new StreamReader(ms))
                     {
-                        string[] data = line.Split('\t');
-                        accuracy = GetSafeValue(data[0]);
-                        precision = GetSafeValue(data[1]);
-                        recall = GetSafeValue(data[2]);
-                        auc = GetSafeValue(data[3]);
+                        string line = tsvReader.ReadLine();//headers line!!
+                        line = tsvReader.ReadLine();//data line!!
+                        if (line != null)
+                        {
+                            string[] data = line.Split('\t');
+                            accuracy = GetSafeValue(data[0]);
+                            precision = GetSafeValue(data[1]);
+                            recall = GetSafeValue(data[2]);
+                            auc = GetSafeValue(data[3]);
+                        }
+                    }
+                }
+                else
+                {
+                    if (PromptsFile != "")
+                    {
+                        usedPrompts = true;
+                    }
+                    MemoryStream ms = BlobOperations.DownloadBlobAsMemoryStream(blobConnection, "eppi-reviewer-data", RemoteFolder + "output/select-threshold.html");
+                    using (StreamReader stringReader = new StreamReader(ms))
+                    {
+                        modelPerformance = stringReader.ReadToEnd();
+                    }
+                    MemoryStream ms2 = BlobOperations.DownloadBlobAsMemoryStream(blobConnection, "eppi-reviewer-data", RemoteFolder + "output/metrics.json");
+                    using (StreamReader stringreader = new StreamReader(ms2))
+                    {
+                        string mj = stringreader.ReadToEnd();
+                        if (mj != null && mj != "")
+                        {
+                            metricsJson result = JsonConvert.DeserializeObject<metricsJson>(mj);
+                            precision = result.evaluation.seed.average_precision;
+                            auc = result.evaluation.seed.roc_auc;
+                        }
                     }
                 }
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
@@ -1064,6 +1268,8 @@ namespace BusinessLibrary.BusinessClasses
                         command2.Parameters.AddWithValue("@AUC", auc);
                         command2.Parameters.AddWithValue("@PRECISION", precision);
                         command2.Parameters.AddWithValue("@RECALL", recall);
+                        command2.Parameters.AddWithValue("@USED_PROMPTS", usedPrompts);
+                        command2.Parameters.AddWithValue("@MODEL_PERFORMANCE", modelPerformance);
                         command2.Parameters.Add(new SqlParameter("@CHECK_MODEL_ID_EXISTS", 0));
                         command2.Parameters["@CHECK_MODEL_ID_EXISTS"].Direction = System.Data.ParameterDirection.Output;
                         command2.ExecuteNonQuery();
@@ -1122,7 +1328,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     LoadDataTableIntoDatabase(Scores, ContactId, _title, LogId, ReviewId);
                 }
-                
+
                 DataFactoryHelper.UpdateReviewJobLog(LogId, ReviewId, "Ended", "", "ClassifierCommandV2", true, true);
             }
             catch (Exception ex)
@@ -1134,8 +1340,22 @@ namespace BusinessLibrary.BusinessClasses
 
             try
             {
-                BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", DataFile);
-                BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", ScoresFile);
+                if (RunType == "ApplyClassifier" && _mlModelName != "oldLogReg")
+                {
+                    string folderPrefix = ScoresFile.Replace("output/", "");
+                    var blobs = BlobOperations.Blobfilenames(
+                        blobConnection, "eppi-reviewer-data", folderPrefix);
+
+                    foreach (var blob in blobs.Where(b => b.IsFile))
+                    {
+                        BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", blob.BlobName);
+                    }
+                }
+                else
+                {
+                    BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", DataFile);
+                    BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", ScoresFile);
+                }
             }
             catch (Exception ex)
             {
@@ -1146,7 +1366,15 @@ namespace BusinessLibrary.BusinessClasses
         }
         private DataTable LoadResultsIntoDatatable(int ReviewId)
         {
-            MemoryStream ms = BlobOperations.DownloadBlobAsMemoryStream(blobConnection, "eppi-reviewer-data", ScoresFile);
+            MemoryStream ms;
+            if (RunType == "ApplyClassifier" && _mlModelName != "oldLogReg")
+            {
+                ms = BlobOperations.DownloadBlobAsMemoryStream(blobConnection, "eppi-reviewer-data", ScoresFile + "predictions.csv");
+            }
+            else
+            {
+                ms = BlobOperations.DownloadBlobAsMemoryStream(blobConnection, "eppi-reviewer-data", ScoresFile);
+            }
 
             DataTable dt = new DataTable("Scores");
             int indexScore = -1;
@@ -1156,15 +1384,16 @@ namespace BusinessLibrary.BusinessClasses
             using (StreamReader tsvReader = new StreamReader(ms))
             {
                 string line = tsvReader.ReadLine();//headers line
-                string[] lines = line.Split('\t');
+                char splitChar = line.IndexOf(',') > 0 ? ',' : '\t';
+                string[] lines = line.Split(splitChar);
                 // we do this because we want to make sure we have the right indexes for each column (used next) and they can vary depending on classifier
                 for (int i = 0; i < lines.Length; i++)
                 {
-                    if (lines[i] == "SCORE" || lines[i] == "Score" || lines[i] == "probabilities")
+                    if (lines[i] == "SCORE" || lines[i] == "Score" || lines[i] == "probabilities" || lines[i] == "screening_score")
                     {
                         indexScore = i;
                     }
-                    if (lines[i] == "ITEM_ID" ||  lines[i] == "PaperId")
+                    if (lines[i] == "ITEM_ID" || lines[i] == "PaperId")
                     {
                         IndexItemId = i;
                     }
@@ -1183,7 +1412,7 @@ namespace BusinessLibrary.BusinessClasses
 
                 while ((line = tsvReader.ReadLine()) != null)
                 {
-                    string[] data = line.Split('\t');
+                    string[] data = line.Split(splitChar);
                     if (IndexPredictedLabel == -1)
                     {
                         if (data[IndexItemId].Length > 2) // protection against any empty rows
@@ -1318,7 +1547,7 @@ namespace BusinessLibrary.BusinessClasses
             if (_title != "") resumeInfo.Add(new KeyValuePair<string, object>("Title", _title));
             if (DataFile != "") resumeInfo.Add(new KeyValuePair<string, object>("DataFile", DataFile));
             if (LocalFileName != "") resumeInfo.Add(new KeyValuePair<string, object>("LocalFileName", LocalFileName));
-            if (RunType != "") resumeInfo.Add(new KeyValuePair<string, object>("RunType", RunType)); 
+            if (RunType != "") resumeInfo.Add(new KeyValuePair<string, object>("RunType", RunType));
             if (VecFile != "") resumeInfo.Add(new KeyValuePair<string, object>("VecFile", VecFile));
             if (ClfFile != "") resumeInfo.Add(new KeyValuePair<string, object>("ClfFile", ClfFile));
             if (ScoresFile != "") resumeInfo.Add(new KeyValuePair<string, object>("ScoresFile", ScoresFile));
@@ -1333,6 +1562,29 @@ namespace BusinessLibrary.BusinessClasses
             List<KeyValuePair<string, object>> resumeInfo = MakeResumeInfo();
             dfh.resumeInfo = resumeInfo;
         }
+
+        private void DoGetPdfs(int ReviewId, int ContactId)
+        {
+            int NewJobId = CanRunCheckAndMarkAsStarting(ReviewId, ContactId, "pdfs", ModelReviewId, _title);
+            if (NewJobId == 0)
+            {
+                return;
+            }
+            if (!QueryDbAndSaveTempFileWithoutLabelsFromItemIds(ReviewId, NewJobId)) // there wasn't enough data
+            {
+                File.Delete(LocalFileName);
+                return;
+            }
+            FireAndForget(ReviewId, NewJobId, ContactId);
+
+        }
+        // This happens after the datafactory finishes and the pdfs are sitting in blob storage
+        private void DownloadPdfFiles(int LogId, int ContactId, int ReviewId)
+        {
+
+        }
+
+
         /*************************************************************************************************
          * *********************************** END NEW REFACTORED VERSION ********************************
          * **********************************************************************************************/
@@ -1359,7 +1611,7 @@ namespace BusinessLibrary.BusinessClasses
                 Console.WriteLine("Will delete " + toDel.BlobName);
                 BlobOperations.DeleteIfExists(blobConnection, "eppi-reviewer-data", toDel.BlobName);
             }
-            
+
         }
 
         private double GetSafeValue(string data)
@@ -1403,10 +1655,27 @@ namespace BusinessLibrary.BusinessClasses
             //        Abstract = Abstract.Substring(0, lastSpaceIndex);
             //    }
             //}
-            file.WriteLine(ItemIdSt + "\t" +
-                Title + "\t" +
-                Abstract + "\t" +
-                Label);
+            if (Label == "")
+            {
+                file.WriteLine(ItemIdSt + "\t" +
+                    Title + "\t" +
+                    Abstract);
+            }
+            else
+            {
+                file.WriteLine(ItemIdSt + "\t" +
+                    Title + "\t" +
+                    Abstract + "\t" +
+                    Label);
+            }
+        }
+        public void WriteDOILineInFileToUpload(string doi, Int64 itemId, System.IO.StreamWriter file)
+        {
+            if (!string.IsNullOrEmpty(doi))
+            {
+                file.WriteLine(doi);
+                ItemIdsAndDois.Add(new KeyValuePair<long, string>(itemId, doi));
+            }
         }
 
         public static string CleanText(Csla.Data.SafeDataReader reader, string field)
@@ -1621,14 +1890,201 @@ namespace BusinessLibrary.BusinessClasses
 #endif
 
     }
-}    
+}
 
 
 public class SVMModel2
 {
-	public double accuracy { get; set; }
-	public double auc { get; set; }
-	public double precision { get; set; }
-	public double recall { get; set; }
-	
+    public double accuracy { get; set; }
+    public double auc { get; set; }
+    public double precision { get; set; }
+    public double recall { get; set; }
+
+}
+
+
+
+public class metricsJson
+{
+    public Contract contract { get; set; }
+    public Evaluation evaluation { get; set; }
+    public int evaluation_manual_review { get; set; }
+    public string evaluation_note { get; set; }
+    public Initial_Manual_Review initial_manual_review { get; set; }
+    public int input_papers { get; set; }
+    public string input_sha256 { get; set; }
+    public int manual_review_papers { get; set; }
+    public string mode { get; set; }
+    public Reflection_Usage[] reflection_usage { get; set; }
+    public int scored_papers { get; set; }
+    public string select_threshold_plot { get; set; }
+    public Selection selection { get; set; }
+    public string settings_sha256 { get; set; }
+    public Splits splits { get; set; }
+    public object threshold { get; set; }
+}
+
+public class Contract
+{
+    public int format_version { get; set; }
+    public string[] grades { get; set; }
+    public int[] label_ids { get; set; }
+    public string model { get; set; }
+    public string precision { get; set; }
+    public string prompt_layout { get; set; }
+    public string revision { get; set; }
+    public string sglang_revision { get; set; }
+    public float temperature { get; set; }
+}
+
+public class Evaluation
+{
+    public Seed seed { get; set; }
+    public Selected selected { get; set; }
+}
+
+public class Seed
+{
+    public float average_precision { get; set; }
+    public int manual_review_additional { get; set; }
+    public int manual_review_negatives { get; set; }
+    public int negatives { get; set; }
+    public int negatives_review_including_manual { get; set; }
+    public int papers { get; set; }
+    public int positives { get; set; }
+    public Retrospective_Full_Recall retrospective_full_recall { get; set; }
+    public float roc_auc { get; set; }
+    public int scorable_papers { get; set; }
+    public int total_review_including_manual { get; set; }
+}
+
+public class Retrospective_Full_Recall
+{
+    public float cutoff { get; set; }
+    public int negatives_retained { get; set; }
+    public float recall { get; set; }
+    public int total { get; set; }
+    public int total_retained { get; set; }
+}
+
+public class Selected
+{
+    public float average_precision { get; set; }
+    public int manual_review_additional { get; set; }
+    public int manual_review_negatives { get; set; }
+    public int negatives { get; set; }
+    public int negatives_review_including_manual { get; set; }
+    public int papers { get; set; }
+    public int positives { get; set; }
+    public Retrospective_Full_Recall1 retrospective_full_recall { get; set; }
+    public float roc_auc { get; set; }
+    public int scorable_papers { get; set; }
+    public Selection_Cutoff_Applied selection_cutoff_applied { get; set; }
+    public int total_review_including_manual { get; set; }
+}
+
+public class Retrospective_Full_Recall1
+{
+    public float cutoff { get; set; }
+    public int negatives_retained { get; set; }
+    public float recall { get; set; }
+    public int total { get; set; }
+    public int total_retained { get; set; }
+}
+
+public class Selection_Cutoff_Applied
+{
+    public float cutoff { get; set; }
+    public int negatives_retained { get; set; }
+    public float recall { get; set; }
+    public int total { get; set; }
+    public int total_retained { get; set; }
+}
+
+public class Initial_Manual_Review
+{
+}
+
+public class Selection
+{
+    public int candidate_count { get; set; }
+    public bool evaluation_used_for_selection { get; set; }
+    public string gepa_best_candidate { get; set; }
+    public string instruction { get; set; }
+    public string key { get; set; }
+    public Metrics metrics { get; set; }
+    public int proposals_requested { get; set; }
+    public bool selection_reuses_development { get; set; }
+    public string split { get; set; }
+}
+
+public class Metrics
+{
+    public float average_precision { get; set; }
+    public int negatives { get; set; }
+    public int papers { get; set; }
+    public int positives { get; set; }
+    public Retrospective_Full_Recall2 retrospective_full_recall { get; set; }
+    public float roc_auc { get; set; }
+}
+
+public class Retrospective_Full_Recall2
+{
+    public float cutoff { get; set; }
+    public int negatives_retained { get; set; }
+    public float recall { get; set; }
+    public int total { get; set; }
+    public int total_retained { get; set; }
+}
+
+public class Splits
+{
+    public Development development { get; set; }
+    public Evaluation1 evaluation { get; set; }
+    public Selection1 selection { get; set; }
+    public Unused unused { get; set; }
+}
+
+public class Development
+{
+    public int papers { get; set; }
+    public int positives { get; set; }
+}
+
+public class Evaluation1
+{
+    public int papers { get; set; }
+    public int positives { get; set; }
+}
+
+public class Selection1
+{
+    public int papers { get; set; }
+    public int positives { get; set; }
+}
+
+public class Unused
+{
+    public int papers { get; set; }
+    public int positives { get; set; }
+}
+
+public class Reflection_Usage
+{
+    public int input_tokens { get; set; }
+    public Input_Tokens_Details input_tokens_details { get; set; }
+    public int output_tokens { get; set; }
+    public Output_Tokens_Details output_tokens_details { get; set; }
+    public int total_tokens { get; set; }
+}
+
+public class Input_Tokens_Details
+{
+    public int cache_write_tokens { get; set; }
+    public int cached_tokens { get; set; }
+}
+
+public class Output_Tokens_Details
+{
+    public int reasoning_tokens { get; set; }
 }

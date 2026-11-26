@@ -168,11 +168,6 @@ export class ItemDocsService extends BusyAwareService {
 }
 
 
-export class ItemDocumentList {
-
-  ItemDocuments: ItemDocument[] = [];
-}
-
 export class ItemDocument {
 
   public itemDocumentId: number = 0;

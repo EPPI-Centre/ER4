@@ -1,25 +1,24 @@
 import { Component, OnInit, Input, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { ItemDocsService } from '../services/itemdocs.service';
-import { FileRestrictions, SelectEvent, ClearEvent, UploadEvent, RemoveEvent } from '@progress/kendo-angular-upload';
+import { ItemDocsService, ItemDocument } from '../services/itemdocs.service';
+import { FileRestrictions, SelectEvent, ErrorEvent, UploadEvent, RemoveEvent } from '@progress/kendo-angular-upload';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ItemCodingService } from '../services/ItemCoding.service';
 import { ConfigService } from '../services/config.service';
+import { ModalService } from '../services/modal.service';
 
 
 @Component({
     selector: 'ItemDocListComp',
     templateUrl: './ItemDocListComp.component.html',
-    providers: [],
     changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ItemDocListComp implements OnInit, OnDestroy {
 
   constructor(private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
-    private ItemCodingService: ItemCodingService,
+    private ModalService: ModalService,
     public ItemDocsService: ItemDocsService,
     private confirmationDialogService: ConfirmationDialogService,
     configService: ConfigService
@@ -37,6 +36,7 @@ export class ItemDocListComp implements OnInit, OnDestroy {
   public get HasWriteRights(): boolean {
     return this.itemID != 0 && this.ReviewerIdentityServ.HasWriteRights;
   }
+  private maxFileSize:number = 1 * 1000 * 1000;
   public uploadRestrictions: FileRestrictions = {
     allowedExtensions: ['.txt'
       , '.doc'
@@ -55,10 +55,8 @@ export class ItemDocListComp implements OnInit, OnDestroy {
       , '.odp'
       , '.ps'
       , '.eps'
-      , '.csv']
-  };
-  Restrictions: FileRestrictions = {
-    maxFileSize: 15000000
+      , '.csv'],
+    maxFileSize: this.maxFileSize
   };
   ngOnInit() {
     if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
@@ -79,7 +77,12 @@ export class ItemDocListComp implements OnInit, OnDestroy {
   DownloadDoc(itemDocumentId: number, ForView: boolean) {
     this.ItemDocsService.GetItemDocument(itemDocumentId, ForView);
   }
-  public uploadSaveUrl = this._baseUrl + 'api/ItemDocumentList/Upload'; // 
+  public uploadSaveUrl = this._baseUrl + 'api/ItemDocumentList/Upload'; //
+
+  public error(e: ErrorEvent): void {
+    this.ModalService.GenericErrorMessage("Upload Failed.<Br /> This usually happens because the file is too big. Max size is: "
+    + (this.maxFileSize/(1000*1000)).toString() + "MB");
+  }
 
 
   public completeEventHandler() {
@@ -171,27 +174,7 @@ export class ItemDocListComp implements OnInit, OnDestroy {
 
 
 
-export class ItemDocumentList {
 
-  ItemDocuments: ItemDocument[] = [];
-}
-
-
-export class ItemDocument {
-
-  public itemDocumentId: number = 0;
-  public itemId: number = 0;
-  public shortTitle: string = '';
-  public extension: string = '';
-  public title: string = '';
-  public text: string = "";
-  public binaryExists: boolean = false;
-  public textFrom: number = 0;
-  public textTo: number = 0;
-  public freeNotesStream: string = "";
-  public freeNotesXML: string = '';
-
-}
 
 
 
