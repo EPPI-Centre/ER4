@@ -84,6 +84,9 @@
             },
             "development": {
               "buildTarget": "ER-Web_Client:build:development"
+              //,"headers": {
+              //  "Permissions-Policy": "unload=*"
+              //}
             }
           },
           "defaultConfiguration": "development"

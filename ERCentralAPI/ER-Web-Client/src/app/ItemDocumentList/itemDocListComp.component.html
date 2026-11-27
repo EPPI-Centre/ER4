@@ -15,6 +15,9 @@
     <div class="">
       <button class="btn btn-outline-info btn-sm  m-2" (click)="ShowUpload = false">Cancel</button>
     </div>
+    <div class="my-auto">
+        <div class="rounded p-1 alert-warning">Max file size: ~{{maxFileSizeInMb}} MB </div>
+    </div>
   </div>
 }
 @if (ItemDocsService._itemDocs && ItemDocsService._itemDocs.length > 0) {

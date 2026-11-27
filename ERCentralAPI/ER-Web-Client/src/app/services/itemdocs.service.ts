@@ -23,6 +23,7 @@ export class ItemDocsService extends BusyAwareService {
   }
   @Output() GotDocument = new EventEmitter();
   public _itemDocs: ItemDocument[] = [];
+  public MaxUploadSize: number = -1; //expressed in bytes
   private currentItemId: number = 0;
   private currentDocBin: Blob | null = null;
   private currentDocBinId: number = 0;
@@ -59,6 +60,34 @@ export class ItemDocsService extends BusyAwareService {
       }
     );
   }
+
+  public GetMaxFileSize(): Promise<boolean> {
+    this._BusyMethods.push("GetMaxFileSize");
+    
+    return lastValueFrom(this._httpC.get<number>(this._baseUrl + 'api/ItemDocumentList/MaxFileSizeInBytes'))
+      .then(
+        (result) => {
+          this.RemoveBusy("GetMaxFileSize");
+          this.MaxUploadSize = result;
+          return true;
+        }
+        , (error) => {
+          console.log('error in GetMaxFileSize() rejected', error);
+          this.modalService.GenericError(error);
+          this.RemoveBusy("GetMaxFileSize");
+          return false;
+        }
+      )
+      .catch(
+        (error) => {
+          console.log('error in GetMaxFileSize() catch', error);
+          this.modalService.GenericError(error);
+          this.RemoveBusy("GetMaxFileSize");
+          return false;
+        }
+      );
+  }
+
   public Clear() {
     console.log("ItemDocs Clear");
     this._itemDocs = [];

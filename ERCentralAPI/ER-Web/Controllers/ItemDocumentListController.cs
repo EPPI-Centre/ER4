@@ -12,8 +12,10 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Xml.Linq;
 //using Telerik.Windows.Documents.Fixed.FormatProviders.Pdf;
 //using Telerik.Windows.Documents.Fixed.FormatProviders.Text;
 //using Telerik.Windows.Documents.Fixed.Model;
@@ -25,7 +27,7 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class ItemDocumentListController : CSLAController
     {
-
+        private static int MaxFileSizeInMb = -1;
         private IConfiguration _configuration;
         public ItemDocumentListController(IConfiguration configuration, ILogger<ItemDocumentListController> logger) : base(logger)
         {
@@ -313,6 +315,66 @@ namespace ERxWebClient2.Controllers
                 _logger.LogError(e, "Error when Deleting uploaded Document: {0}", deleteDoc.itemDocumentID);
                 return StatusCode(500, e.Message);
             }
+        }
+
+        [HttpGet("[action]")]
+        public IActionResult MaxFileSizeInBytes()
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                int res = MaxFileSizeInMb;
+                if (res == -1)
+                {
+                    res = 50;
+                    string AppRootFolder = "";
+                    string WebConfigFileName = "";
+                    foreach (var val in _configuration.AsEnumerable())
+                    {
+                        if (val.Value != null && (val.Key.Contains("IIS_PHYSICAL_PATH") || val.Key == "contentRoot"))  //contentRoot ASPNETCORE_IIS_PHYSICAL_PATH
+                        {
+                            Debug.WriteLine("Found! " + val.Key + ":" + val.Value.ToString());
+                            AppRootFolder = val.Value.ToString();
+                            if (System.IO.File.Exists(AppRootFolder + "\\Web.config"))
+                            {
+                                WebConfigFileName = AppRootFolder + "Web.config";
+                                break;
+                            }
+                        }
+                    }
+                    if (WebConfigFileName != "")
+                    {
+                        uint uiMaxAllowedContentLength = 0;
+                        XDocument document = XDocument.Load(WebConfigFileName);
+                        string maxAllowedContentLength = "";
+                        var s1 = document.Root;
+                        if (s1 != null) {
+                            var s2 = s1.Element("location")?.Element("system.webServer")?.Element("security")?.Element("requestFiltering")?.Element("requestLimits");
+                            if (s2 != null)
+                            {
+                                var s3 = s2.Attribute("maxAllowedContentLength");
+                                if (s3 != null && s3.Value != null) maxAllowedContentLength = s3.Value.ToString();
+                            }
+                        }
+                        
+                        if (maxAllowedContentLength != "")
+                        {
+                            if (uint.TryParse(maxAllowedContentLength, out uiMaxAllowedContentLength))
+                            {
+                                res = (int)uiMaxAllowedContentLength;
+                                MaxFileSizeInMb = res;
+                            }
+                        }
+                    }
+                }
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "MaxFileSizeInMB error");
+                return StatusCode(500, e.Message);
+            }
+            
         }
     }
     public class UploadDoc

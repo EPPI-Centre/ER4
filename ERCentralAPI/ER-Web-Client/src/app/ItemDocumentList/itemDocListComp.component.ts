@@ -36,7 +36,12 @@ export class ItemDocListComp implements OnInit, OnDestroy {
   public get HasWriteRights(): boolean {
     return this.itemID != 0 && this.ReviewerIdentityServ.HasWriteRights;
   }
-  private maxFileSize:number = 1 * 1000 * 1000;
+  public get maxFileSize(): number {//in bytes
+    return this.ItemDocsService.MaxUploadSize;// * 1024 * 1024;
+  }
+  public get maxFileSizeInMb(): number {//in megabytes
+    return Math.round(this.maxFileSize / (1024 * 1024));
+  }
   public uploadRestrictions: FileRestrictions = {
     allowedExtensions: ['.txt'
       , '.doc'
@@ -60,12 +65,14 @@ export class ItemDocListComp implements OnInit, OnDestroy {
   };
   ngOnInit() {
     if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
-
       this.router.navigate(['home']);
-
     }
     else {
-
+      if (this.ItemDocsService.MaxUploadSize == -1) {
+        this.ItemDocsService.GetMaxFileSize().then(() => {
+          this.uploadRestrictions.maxFileSize = this.maxFileSize;
+        });
+      }
     }
   }
   OpenFirstPDF() {
@@ -80,8 +87,8 @@ export class ItemDocListComp implements OnInit, OnDestroy {
   public uploadSaveUrl = this._baseUrl + 'api/ItemDocumentList/Upload'; //
 
   public error(e: ErrorEvent): void {
-    this.ModalService.GenericErrorMessage("Upload Failed.<Br /> This usually happens because the file is too big. Max size is: "
-    + (this.maxFileSize/(1000*1000)).toString() + "MB");
+    this.ModalService.GenericErrorMessage("Upload Failed.<Br /> This usually happens because the file is too big. Max size is approximately: "
+    + (this.maxFileSize).toString() + "MB");
   }
 
 
